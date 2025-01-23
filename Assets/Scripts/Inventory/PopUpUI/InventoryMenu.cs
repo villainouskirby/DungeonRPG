@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    [SerializeField] private InventoryUI _inventoryUI;
+
     [SerializeField] private Button _setHolderButton;
     [SerializeField] private Button _useButton;
     [SerializeField] private Button _removeButton;
@@ -50,11 +52,24 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
     }
 
-    public void InitButton(ItemData data, int index)
+    public void InitButton(int index)
     {
+        ItemData data = _inventoryUI.GetItemData(index);
         _setHolderButton.interactable = data is PotionItemData;
-        _useButton.interactable = true; // TODO => IUsable 인터페이스 생성 후 제대로 설정
+        _useButton.interactable = _inventoryUI.CheckItemUsable(index);
         _removeButton.interactable = true;
+
+        _setHolderButton.onClick.AddListener(() =>
+        {
+            // 홀더에 장착
+            CloseUI(_setHolderButton);
+        });
+
+        _useButton.onClick.AddListener(() =>
+        {
+            _inventoryUI.UseItem(index);
+            CloseUI(_useButton);
+        });
 
         _removeButton.onClick.AddListener(() =>
         {

@@ -91,9 +91,20 @@ public class Inventory : MonoBehaviour
         return amount;
     }
 
-    public void UseItem(int index, int amount = 1)
+    public void UseItem(int index)
     {
-        RemoveItem(index, amount);
+        Item item = _items[index];
+        if (item is IUsableItem uItem)
+        {
+            bool succeeded = uItem.Use();
+
+            if (succeeded)
+            {
+                CalculateRestWeight(item.Data.Weight, 1);
+                Debug.Log(item.Data.Name + "사용");
+                UpdateSlot(index);
+            }
+        }
     }
 
     /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
@@ -182,4 +193,6 @@ public class Inventory : MonoBehaviour
             return 1;
         }
     }
+
+    public bool CheckItemUsable(int index) => _items[index] is IUsableItem;
 }

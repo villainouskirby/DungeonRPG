@@ -35,7 +35,7 @@ public class InventoryPopUpUI : MonoBehaviour
     {
         _menuPopUp.SetActive(false);
         _menuPopUp.transform.position = Input.mousePosition;
-        _menu.InitButton(_inventoryUI.GetItemData(index), index);
+        _menu.InitButton(index);
         _menuPopUp.SetActive(true);
     }
 

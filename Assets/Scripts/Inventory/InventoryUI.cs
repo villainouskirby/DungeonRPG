@@ -91,6 +91,11 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
         _itemSlots.RemoveAt(index);
     }
 
+    public void UseItem(int index)
+    {
+        _inventory.UseItem(index);
+    }
+
     /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
     public void RemoveItem(int index, int amount)
     {
@@ -104,7 +109,7 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
         _inventory.RemoveItem(index);
     }
 
-    /// <summary> 해당 슬롯의 데이터 불러오기 </summary>
+    /// <returns> 해당 슬롯의 데이터 </returns>
     public ItemData GetItemData(int index)
     {
         return _inventory.GetItemData(index);
@@ -114,6 +119,12 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
     public int GetItemAmount(int index)
     {
         return _inventory.GetItemAmount(index);
+    }
+
+    /// <returns> 사용가능한 아이템인지에 대한 bool값 </returns>
+    public bool CheckItemUsable(int index)
+    {
+        return _inventory.CheckItemUsable(index);
     }
 
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
@@ -166,8 +177,7 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
             {
                 if (Time.time - clickTime < 0.3f)
                 {
-                    // 더블 클릭 => 아이템 사용
-                    Debug.Log("더블 클릭");
+                    _inventory.UseItem(GetItemSlotIndex(_pointedSlot));
                     clickTime = -1;
                 }
                 else
