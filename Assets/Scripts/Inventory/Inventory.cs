@@ -28,7 +28,7 @@ public class Inventory : MonoBehaviour
         // 가방에 넣을 수 있는 개수 체크
         int restAmount = (amount * itemData.Weight > RestCapacity) ? amount - RestCapacity / itemData.Weight : 0;
         amount -= restAmount;
-        RestCapacity -= amount * itemData.Weight;
+        CalculateRestWeight(itemData.Weight, -amount);
 
         // 수량이 있는 아이템
         if (itemData is CountableItemData ciData)
@@ -88,6 +88,29 @@ public class Inventory : MonoBehaviour
         return amount + restAmount;
     }
 
+    public void UseItem(int index, int amount = 1)
+    {
+        RemoveItem(index, amount);
+    }
+
+    /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
+    public void RemoveItem(int index, int amount)
+    {
+        CountableItem ci = _items[index] as CountableItem;
+        ci.SetAmount(ci.Amount - amount);
+
+        CalculateRestWeight(GetItemData(index).Weight, amount);
+        UpdateSlot(index);
+    }
+
+    /// <summary> 해당 슬롯의 모든 아이템 제거 </summary>
+    public void RemoveItem(int index)
+    {
+        CalculateRestWeight(GetItemData(index).Weight, GetItemAmount(index));
+        _items.RemoveAt(index);
+        UpdateWeightText();
+    }
+
     private int FindCountableItemSlotIndex(CountableItemData ciData, int index)
     {
         while (++index < _items.Count)
@@ -125,8 +148,35 @@ public class Inventory : MonoBehaviour
         UpdateWeightText();
     }
 
+    /// <summary>
+    /// 현재 남은 중량 계산
+    /// <para/> amount의 부호는 아이템이 줄어드는 경우 +, 아이템이 늘어나는 경우 -
+    /// </summary>
+    private void CalculateRestWeight(int weight, int amount = 1)
+    {
+        RestCapacity += weight * amount;
+    }
+
     private void UpdateWeightText()
     {
         _inventoryUI.UpdateWeightText(_maxCapacity - RestCapacity, _maxCapacity);
+    }
+
+    public ItemData GetItemData(int index)
+    {
+        return _items[index].Data;
+    }
+
+    public int GetItemAmount(int index)
+    {
+        Item item = _items[index];
+        if (item is CountableItem ci)
+        {
+            return ci.Amount;
+        }
+        else
+        {
+            return 1;
+        }
     }
 }
