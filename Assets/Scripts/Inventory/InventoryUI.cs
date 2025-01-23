@@ -81,6 +81,9 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
         _weightText.color = color;
     }
 
+    /// <summary> 중량 초과 알림 팝업 띄우기 </summary>
+    public void OpenExcessPopUp() => _inventoryPopUpUI.OpenExcessPopUP();
+
     /// <summary> 슬롯 제거 </summary>
     public void RemoveSlot(int index)
     {

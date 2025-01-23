@@ -7,6 +7,8 @@ public class InventoryPopUpUI : MonoBehaviour
     [SerializeField] private GameObject _infoPopUp;
     [SerializeField] private GameObject _menuPopUp;
 
+    [SerializeField] private GameObject _excessPopUp;
+
     private ItemInfo _info;
     private InventoryMenu _menu;
 
@@ -37,8 +39,11 @@ public class InventoryPopUpUI : MonoBehaviour
         _menuPopUp.SetActive(true);
     }
 
+    public void OpenExcessPopUP() => _excessPopUp.SetActive(true);
+
     public void CloseInfo() => _infoPopUp.SetActive(false);
 
     public void CloseMenu() => _menuPopUp.SetActive(false);
     
+    public void CloseExcessPopUp() => _excessPopUp.SetActive(false);
 }

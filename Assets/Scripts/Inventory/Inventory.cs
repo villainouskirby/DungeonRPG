@@ -26,8 +26,11 @@ public class Inventory : MonoBehaviour
         int index;
 
         // 가방에 넣을 수 있는 개수 체크
-        int restAmount = (amount * itemData.Weight > RestCapacity) ? amount - RestCapacity / itemData.Weight : 0;
-        amount -= restAmount;
+        if (RestCapacity <= 0)
+        {
+            _inventoryUI.OpenExcessPopUp();
+            return amount;
+        }
         CalculateRestWeight(itemData.Weight, -amount);
 
         // 수량이 있는 아이템
@@ -85,7 +88,7 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        return amount + restAmount;
+        return amount;
     }
 
     public void UseItem(int index, int amount = 1)
