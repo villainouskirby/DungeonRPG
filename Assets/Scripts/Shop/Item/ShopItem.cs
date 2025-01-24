@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine; // 디버그용
 /// <summary> 상점 품목 </summary>
 public class ShopItem
@@ -20,10 +21,17 @@ public class ShopItem
 
     /// <summary> 거래(판매/구매) </summary>
     /// <returns> 거래된 객체(복제됨) </returns>
-    public Item Trade(int amount = 1)
+    public Item Trade(int amount)
     {
         Stock -= amount;
-        Debug.Log(Item.Clone(amount).Data.Name + " " + amount + "개 구입");
-        return Item.Clone(amount);
+        if (Item is CountableItem ci)
+        {
+            Debug.Log(ci.Clone(amount).Data.Name + " " + amount + "개 구입");
+            return ci.Clone(amount);
+        }
+        else
+        {
+            return Item.Clone();
+        }
     }
 }

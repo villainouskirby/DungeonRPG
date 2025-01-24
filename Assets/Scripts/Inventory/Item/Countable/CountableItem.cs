@@ -47,4 +47,8 @@ public abstract class CountableItem : Item
         Amount -= amount;
         return (CountableItem)Clone(amount);
     }
+
+    public override Item Clone() => Clone(1);
+
+    public abstract Item Clone(int amount);
 }

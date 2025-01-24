@@ -1,12 +1,8 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class ItemSlotUI : MonoBehaviour
+public class ItemSlotUI : SlotUI
 {
-    [Tooltip("아이템 이미지")]
-    [SerializeField] private Image _image;
-
     [Tooltip("아이템 이름")]
     [SerializeField] private TextMeshProUGUI _nameText;
 
@@ -21,21 +17,13 @@ public class ItemSlotUI : MonoBehaviour
 
     private int _itemWeight;
     
-
     public void SetItemInfo(Sprite imageSprite, string name, int Weight)
     {
-        if (imageSprite != null)
-        {
-            _image.sprite = imageSprite;
-            _nameText.text = name;
-            _itemWeight = Weight;
-            _weightText.text = Weight.ToString();
-            gameObject.SetActive(true);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        SetItemInfo(imageSprite);
+        _nameText.text = name;
+        _itemWeight = Weight;
+        _weightText.text = Weight.ToString();
+        gameObject.SetActive(true);
     }
 
     public void SetItemAmount(int amount)

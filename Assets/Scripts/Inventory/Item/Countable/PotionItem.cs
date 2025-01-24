@@ -6,7 +6,7 @@ public class PotionItem : CountableItem, IUsableItem
         PotionData = data;
     }
 
-    public override Item Clone(int amount = 1)
+    public override Item Clone(int amount)
     {
         return new PotionItem(PotionData, amount);
     }

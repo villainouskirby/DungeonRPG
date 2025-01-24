@@ -10,6 +10,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private int _maxCapacity = 300;
     
     [SerializeField] private InventoryUI _inventoryUI;
+    [SerializeField] private Equipment _equipment;
 
     private List<Item> _items = new List<Item>();
 
@@ -31,7 +32,12 @@ public class Inventory : MonoBehaviour
             _inventoryUI.OpenExcessPopUp();
             return amount;
         }
-        CalculateRestWeight(itemData.Weight, -amount);
+
+        // 장비하던 아이템이 아닐경우 중량 차지함
+        if (itemData is not EquipmentItemData || _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) == null)
+        {
+            CalculateRestWeight(itemData.Weight, -amount);
+        }
 
         // 수량이 있는 아이템
         if (itemData is CountableItemData ciData)
@@ -100,9 +106,19 @@ public class Inventory : MonoBehaviour
 
             if (succeeded)
             {
-                CalculateRestWeight(item.Data.Weight, 1);
-                Debug.Log(item.Data.Name + "사용");
-                UpdateSlot(index);
+                if (item is EquipmentItem ei)
+                {
+                    // 인벤 속 템 제거 및 장비창에 장착
+                    _equipment.Equip(ei.Data as EquipmentItemData);
+                    CalculateRestWeight(item.Data.Weight, -1); // 인벤창에서는 제거 되지만 장비창에는 있기에 무게 다시 더함
+                    _inventoryUI.RemoveItem(index);
+                }
+                else
+                {
+                    CalculateRestWeight(item.Data.Weight);
+                    Debug.Log(item.Data.Name + "사용");
+                    UpdateSlot(index);
+                }
             }
         }
     }
@@ -178,7 +194,7 @@ public class Inventory : MonoBehaviour
 
     public ItemData GetItemData(int index)
     {
-        return _items[index].Data;
+        return (_items.Count > index) ? _items[index].Data : null;
     }
 
     public int GetItemAmount(int index)

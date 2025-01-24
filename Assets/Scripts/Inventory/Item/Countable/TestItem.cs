@@ -6,7 +6,7 @@ public class TestItem : CountableItem
         TestData = data;
     }
 
-    public override Item Clone(int amount = 1)
+    public override Item Clone(int amount)
     {
         return new TestItem(TestData, amount);
     }

@@ -34,7 +34,7 @@ public class Shop : MonoBehaviour
     {
         ShopItem shopItem = GetItemById(0);
         if (shopItem == null) return null;
-        return shopItem.Trade();
+        return shopItem.Trade(1);
     }
     
 }

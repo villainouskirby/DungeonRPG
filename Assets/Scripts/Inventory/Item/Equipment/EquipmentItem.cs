@@ -1,4 +1,4 @@
-public abstract class EquipmentItem : Item
+public abstract class EquipmentItem : Item, IUsableItem
 {
     public EquipmentItemData EquipmentData { get; private set; }
 
@@ -6,4 +6,6 @@ public abstract class EquipmentItem : Item
     {
         EquipmentData = data;
     }
+
+    public bool Use() { return true; }
 }

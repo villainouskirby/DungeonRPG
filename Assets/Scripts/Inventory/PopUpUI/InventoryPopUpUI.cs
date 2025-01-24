@@ -1,33 +1,36 @@
 using UnityEngine;
 
-public class InventoryPopUpUI : MonoBehaviour
+public class InventoryPopUpUI : ItemPopUpUI
 {
-    [SerializeField] private InventoryUI _inventoryUI;
-
-    [SerializeField] private GameObject _infoPopUp;
     [SerializeField] private GameObject _menuPopUp;
-
     [SerializeField] private GameObject _excessPopUp;
 
-    private ItemInfo _info;
+
+    [SerializeField] private InventoryUI _inventoryUI;
+
     private InventoryMenu _menu;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _info = _infoPopUp.GetComponent<ItemInfo>();
+        base.Awake();
+
         _menu = _menuPopUp.GetComponent<InventoryMenu>();
 
-        if (_info == null) _info = _infoPopUp.AddComponent<ItemInfo>();
         if (_menu == null) _menu = _menuPopUp.AddComponent<InventoryMenu>();
     }
 
     public void OpenInfo(int index)
     {
-        _info.SetInfo(_inventoryUI.GetItemData(index));
+        ItemData data = _inventoryUI.GetItemData(index);
+        if (data == null)
+        {
+            CloseInfo();
+            return;
+        }
+
         if (!_menuPopUp.activeSelf)
         {
-            _infoPopUp.transform.position = Input.mousePosition;
-            _infoPopUp.SetActive(true);
+            base.OpenInfo(data);
         }
     }
 
@@ -40,8 +43,6 @@ public class InventoryPopUpUI : MonoBehaviour
     }
 
     public void OpenExcessPopUP() => _excessPopUp.SetActive(true);
-
-    public void CloseInfo() => _infoPopUp.SetActive(false);
 
     public void CloseMenu() => _menuPopUp.SetActive(false);
     

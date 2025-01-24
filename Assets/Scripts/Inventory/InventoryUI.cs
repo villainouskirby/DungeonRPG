@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler, IPointerExitHandler
+public class InventoryUI : SlotInteractHandler
 {
     [SerializeField] private Inventory _inventory;
     [SerializeField] private InventoryPopUpUI _inventoryPopUpUI;
@@ -13,19 +11,6 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
     [SerializeField] private GameObject _itemSlotPrefab;
 
     [SerializeField] private TextMeshProUGUI _weightText;
-
-    #region Interact Member Variables
-
-    private GraphicRaycaster _raycaster;
-    private List<RaycastResult> _rrList;
-
-    /// <summary> 마우스가 올라가 있는 슬롯 </summary>
-    private ItemSlotUI _pointedSlot;
-
-    // 더블클릭 감지용 시간 저장
-    private float clickTime = 0;
-
-    #endregion
 
     private List<ItemSlotUI> _itemSlots = new List<ItemSlotUI>();
 
@@ -128,88 +113,30 @@ public class InventoryUI : MonoBehaviour, IPointerClickHandler, IPointerMoveHand
     }
 
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
-    public int GetItemSlotIndex(ItemSlotUI slot)
+    private int GetItemSlotIndex(ItemSlotUI slot)
     {
         return _itemSlots.IndexOf(slot);
-    }
-    
-    private T RaycastAndGetFirstComponent<T>(PointerEventData eventData) where T : Component
-    {
-        _rrList.Clear();
-        _raycaster.Raycast(eventData, _rrList);
-
-        if (_rrList.Count == 0) return null;
-
-        return _rrList[0].gameObject.GetComponent<T>();
-    }
-
-    private void Awake()
-    {
-        _raycaster = GetGraphicRaycasterFromParent();
-        _rrList = new List<RaycastResult>();
-    }
-
-    private GraphicRaycaster GetGraphicRaycasterFromParent()
-    {
-        Transform parent = transform.parent;
-
-        while (parent != null)
-        {
-            GraphicRaycaster raycaster = parent.GetComponent<GraphicRaycaster>();
-            if (raycaster != null)
-            {
-                return raycaster;
-            }
-            parent = parent.parent;
-        }
-
-        return null; // 끝까지 탐색했지만 없으면 null 반환
     }
 
     #region Pointer Event
 
-    public void OnPointerClick(PointerEventData eventData)
+    public override void OnDoubleClick()
     {
-        if (_pointedSlot != null)
-        {
-            // 더블클릭 확인
-            if (Input.GetMouseButtonUp(0))
-            {
-                if (Time.time - clickTime < 0.3f)
-                {
-                    _inventory.UseItem(GetItemSlotIndex(_pointedSlot));
-                    clickTime = -1;
-                }
-                else
-                {
-                    clickTime = Time.time;
-                }
-            }
-            // 우클릭 확인
-            else if (Input.GetMouseButtonUp(1))
-            {
-                _inventoryPopUpUI.OpenMenu(GetItemSlotIndex(_pointedSlot));
-                _inventoryPopUpUI.CloseInfo();
-            }
-        }
-
+        _inventory.UseItem(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
     }
 
-    public void OnPointerMove(PointerEventData eventData)
+    public override void OnRightClick()
     {
-        _pointedSlot = RaycastAndGetFirstComponent<ItemSlotUI>(eventData);
-
-        if (_pointedSlot != null)
-        {
-            _inventoryPopUpUI.OpenInfo(GetItemSlotIndex(_pointedSlot));
-        }
-        else
-        {
-            _inventoryPopUpUI.CloseInfo();
-        }
+        _inventoryPopUpUI.OpenMenu(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
+        _inventoryPopUpUI.CloseInfo();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public override void OnPointerIn()
+    {
+        _inventoryPopUpUI.OpenInfo(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
+    }
+
+    public override void OnPointerOut()
     {
         _inventoryPopUpUI.CloseInfo();
     }

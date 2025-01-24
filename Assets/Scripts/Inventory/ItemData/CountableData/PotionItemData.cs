@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PotionItemData", menuName = "ItemData/PotionItemData")]
+[CreateAssetMenu(fileName = "PotionData", menuName = "ItemData/CountableItem/PotionData")]
 public class PotionItemData : CountableItemData
 {
     // Start is called before the first frame update

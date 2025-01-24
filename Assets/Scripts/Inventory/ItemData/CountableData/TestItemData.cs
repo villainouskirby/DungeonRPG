@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TestItemData", menuName = "ItemData/TestItemData")]
+[CreateAssetMenu(fileName = "TestData", menuName = "ItemData/CountableItem/TestItemData")]
 public class TestItemData : CountableItemData
 {
     public override Item Createitem()
