@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class EquipmentUI : SlotInteractHandler
@@ -49,6 +48,11 @@ public class EquipmentUI : SlotInteractHandler
     public override void OnDoubleClick()
     {
         _equipment.UnEquip(GetSlotEquipmentType(_pointedSlot as EquipmentSlotUI));
+    }
+
+    public override void OnLeftClick()
+    {
+        
     }
 
     public override void OnRightClick()

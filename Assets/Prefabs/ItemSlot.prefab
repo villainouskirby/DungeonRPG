@@ -699,6 +699,7 @@ GameObject:
   - component: {fileID: 6090739230937914301}
   - component: {fileID: 5399329207794125805}
   - component: {fileID: 6821473233258090328}
+  - component: {fileID: 5764488642428695403}
   m_Layer: 5
   m_Name: ItemSlot
   m_TagString: Untagged
@@ -785,3 +786,18 @@ MonoBehaviour:
   _amountText: {fileID: 1061848808331513260}
   _weightText: {fileID: 9138537998946701128}
   _weightSumText: {fileID: 5873635336967107352}
+--- !u!114 &5764488642428695403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8141647746602083382}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 1, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1

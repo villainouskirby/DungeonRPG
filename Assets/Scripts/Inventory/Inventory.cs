@@ -11,8 +11,11 @@ public class Inventory : MonoBehaviour
     
     [SerializeField] private InventoryUI _inventoryUI;
     [SerializeField] private Equipment _equipment;
+    [SerializeField] private IntVariableSO _gold;
 
-    private List<Item> _items = new List<Item>();
+    [SerializeField] private ItemListSO<Item> _itemList;
+
+    private List<Item> _items => _itemList.Items;
 
     private void Awake()
     {
@@ -111,7 +114,7 @@ public class Inventory : MonoBehaviour
                     // 인벤 속 템 제거 및 장비창에 장착
                     _equipment.Equip(ei.Data as EquipmentItemData);
                     CalculateRestWeight(item.Data.Weight, -1); // 인벤창에서는 제거 되지만 장비창에는 있기에 무게 다시 더함
-                    _inventoryUI.RemoveItem(index);
+                    RemoveItem(index, 1);
                 }
                 else
                 {
@@ -126,11 +129,18 @@ public class Inventory : MonoBehaviour
     /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
     public void RemoveItem(int index, int amount)
     {
-        CountableItem ci = _items[index] as CountableItem;
-        ci.SetAmount(ci.Amount - amount);
+        Item item = _items[index];
+        if (item is CountableItem ci)
+        {
+            ci.SetAmount(ci.Amount - amount);
 
-        CalculateRestWeight(GetItemData(index).Weight, amount);
-        UpdateSlot(index);
+            CalculateRestWeight(GetItemData(index).Weight, amount);
+            UpdateSlot(index);
+        }
+        else
+        {
+            _inventoryUI.RemoveItem(index);
+        }
     }
 
     /// <summary> 해당 슬롯의 모든 아이템 제거 </summary>
@@ -192,9 +202,16 @@ public class Inventory : MonoBehaviour
         _inventoryUI.UpdateWeightText(_maxCapacity - RestCapacity, _maxCapacity);
     }
 
+    public int GetCurrentGold() => _gold.Value;
+
+    public void UpdateGoldAmount(int amount)
+    {
+        _gold.Value += amount;
+    }
+
     public ItemData GetItemData(int index)
     {
-        return (_items.Count > index) ? _items[index].Data : null;
+        return (_items.Count > index && index >= 0) ? _items[index].Data : null;
     }
 
     public int GetItemAmount(int index)

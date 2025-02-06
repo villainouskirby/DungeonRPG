@@ -1,37 +1,40 @@
-using Unity.VisualScripting;
-using UnityEngine; // 디버그용
+using System;
+
+[Serializable]
 /// <summary> 상점 품목 </summary>
-public class ShopItem
+public class ShopItem : Item
 {
-    /// <summary> 판매 / 구매 아이템 </summary>
-    public Item Item { get; private set; }
     /// <summary> 가격 </summary>
     public int Price { get; private set; }
-    /// <summary> 재고 수량 </summary>
-    public int Stock { get; private set; }
-    /// <summary> 구매 가능 여부 </summary>
-    public bool IsAvailable => Stock > 0;
 
-    public ShopItem(Item item, int price, int stock = 0)
+    /// <summary> 수량 </summary>
+    public int Amount { get; private set; }
+    private int _maxAmount = 99;
+
+    public ShopItem(ItemData itemData, int price, int amount = -1) : base(itemData)
     {
-        Item = item;
         Price = price;
-        Stock = (item is CountableItem) ? stock : 1;
+        SetAmount(amount);
     }
 
-    /// <summary> 거래(판매/구매) </summary>
-    /// <returns> 거래된 객체(복제됨) </returns>
-    public Item Trade(int amount)
+    /// <summary> 개수 지정(범위 제한)</summary>
+    public void SetAmount(int amount)
     {
-        Stock -= amount;
-        if (Item is CountableItem ci)
-        {
-            Debug.Log(ci.Clone(amount).Data.Name + " " + amount + "개 구입");
-            return ci.Clone(amount);
-        }
-        else
-        {
-            return Item.Clone();
-        }
+        Amount = Math.Clamp(amount, 0, _maxAmount);
+    }
+
+    /// <summary> 개수 추가 </summary>
+    /// <returns> 최대치 초과량(없으면 0) </returns>
+    public int AddAmountAndGetExcess(int amount)
+    {
+        int nextAmount = Amount + amount;
+        SetAmount(nextAmount);
+
+        return (nextAmount > _maxAmount) ? (nextAmount - _maxAmount) : 0;
+    }
+
+    public override Item Clone()
+    {
+        return new ShopItem(Data, Price);
     }
 }
