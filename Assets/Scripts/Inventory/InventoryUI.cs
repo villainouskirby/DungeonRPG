@@ -7,7 +7,7 @@ public class InventoryUI : SlotInteractHandler
     [SerializeField] private Inventory _inventory;
     [SerializeField] private InventoryPopUpUI _inventoryPopUpUI;
 
-    [SerializeField] private Transform _invectoryContent;
+    [SerializeField] private Transform _inventoryContent;
     [SerializeField] private GameObject _itemSlotPrefab;
 
     [SerializeField] private TextMeshProUGUI _weightText;
@@ -18,7 +18,7 @@ public class InventoryUI : SlotInteractHandler
     private void CreateSlot()
     {
         ItemSlotUI slotUI;
-        GameObject newSlot = Instantiate(_itemSlotPrefab, _invectoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+        GameObject newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
         if ((slotUI = newSlot.GetComponent<ItemSlotUI>()) == null) slotUI = newSlot.AddComponent<ItemSlotUI>();
         _itemSlots.Add(slotUI);
     }
@@ -123,6 +123,11 @@ public class InventoryUI : SlotInteractHandler
     public override void OnDoubleClick()
     {
         _inventory.UseItem(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
+    }
+
+    public override void OnLeftClick()
+    {
+        
     }
 
     public override void OnRightClick()

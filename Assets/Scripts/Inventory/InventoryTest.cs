@@ -8,6 +8,8 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private ItemData[] allEquipment;
 
+    [SerializeField] private ShopItemsSO shopItems;
+
     public void AddInventory()
     {
         AddInventory(testItemData);
@@ -25,5 +27,10 @@ public class InventoryTest : MonoBehaviour
         {
             AddInventory(data);
         }
+    }
+
+    public void AddShopItem()
+    {
+        shopItems.Items.Add(new ShopItem(testItemData, 10));
     }
 }

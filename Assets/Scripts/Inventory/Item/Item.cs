@@ -1,3 +1,4 @@
+[System.Serializable]
 public abstract class Item
 {
     public ItemData Data { get; private set; }

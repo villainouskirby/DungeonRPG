@@ -28,7 +28,15 @@ public class ItemSlotUI : SlotUI
 
     public void SetItemAmount(int amount)
     {
-        _amountText.text = "X" + amount.ToString();
-        _weightSumText.text = (amount * _itemWeight).ToString();
+        if (amount == -1)
+        {
+            _amountText.text = "";
+            _weightSumText.text = "";
+        }
+        else
+        {
+            _amountText.text = "X" + amount.ToString();
+            _weightSumText.text = (amount * _itemWeight).ToString();
+        }
     }
 }

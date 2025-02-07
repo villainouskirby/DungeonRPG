@@ -49,6 +49,8 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
 
     /// <summary> 더블클릭 </summary>
     public abstract void OnDoubleClick();
+    /// <summary> 좌클릭 </summary>
+    public abstract void OnLeftClick();
     /// <summary> 우클릭 </summary>
     public abstract void OnRightClick();
     /// <summary> 마우스가 슬롯에 있을 때 </summary>
@@ -65,6 +67,7 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
             // 더블클릭 확인
             if (Input.GetMouseButtonUp(0))
             {
+                OnLeftClick();
                 if (Time.time - clickTime < 0.3f)
                 {
                     OnDoubleClick();
