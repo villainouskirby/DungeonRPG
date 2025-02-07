@@ -1,12 +1,17 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using UnityEngine.Windows;
 using UnityEditor;
+using System.IO;
 
 public class TileMapExtractor : MonoBehaviour
 {
-    public Tilemap tilemap; // Tilemap 참조
+    static public string DataFilePath = "Assets/Resources/";
+    static public string DataFileDirectory = "TileMapData/";
+
+    public Tilemap tilemap;
+
+    public MapEnum MapType;
 
     public Texture2D[] Texture;
 
@@ -23,6 +28,7 @@ public class TileMapExtractor : MonoBehaviour
 
     public int[,] ExtractTilemapToArray()
     {
+        tilemap.CompressBounds();
         BoundsInt bounds = tilemap.cellBounds;
         Vector2Int size = new(bounds.size.x, bounds.size.y);
 
@@ -58,33 +64,28 @@ public class TileMapExtractor : MonoBehaviour
     {
         TextureMapping(); // 텍스처 매핑 실행
         int[,] tileArray = ExtractTilemapToArray(); // Tilemap을 배열로 변환
-
         // ScriptableObject 생성
-        TilemapDataTest tilemapData = ScriptableObject.CreateInstance<TilemapDataTest>();
-        tilemapData.SetTileData(tileArray);
+        TileMapData tileMapData = ScriptableObject.CreateInstance<TileMapData>();
+        tileMapData.SetTileData(tileArray);
 
+        TileMapData visitedMapData = ScriptableObject.CreateInstance<TileMapData>();
+        int[,] visitedTileArray = new int[tileMapData.width, tileMapData.height];
+        visitedMapData.SetTileData(visitedTileArray);
+
+        string assetName = MapType.ToString();
         // 저장할 폴더 경로
-        string directoryPath = "Assets/Test/Map";
-        string assetPath = $"{directoryPath}/TilemapData.asset";
+        string directoryPath = $"{DataFilePath}{DataFileDirectory}{assetName}/";
 
-        // 에디터 환경에서만 실행
-#if UNITY_EDITOR
-        // 폴더가 없으면 생성
-        if (!AssetDatabase.IsValidFolder("Assets/Test"))
-        {
-            AssetDatabase.CreateFolder("Assets", "Test");
-        }
-        if (!AssetDatabase.IsValidFolder(directoryPath))
-        {
-            AssetDatabase.CreateFolder("Assets/Test", "Map");
-        }
+        if (Directory.Exists(directoryPath))
+            Directory.Delete(directoryPath, true);
+        Directory.CreateDirectory(directoryPath);
 
         // ScriptableObject를 에셋으로 저장
-        AssetDatabase.CreateAsset(tilemapData, assetPath);
+        AssetDatabase.CreateAsset(tileMapData, $"{directoryPath}{assetName}.asset");
+        AssetDatabase.CreateAsset(visitedMapData, $"{directoryPath}{assetName}Visited.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"TilemapData asset created at: {assetPath}");
-#endif
+        Debug.Log($"TilemapData asset created at: {directoryPath}");
     }
 }

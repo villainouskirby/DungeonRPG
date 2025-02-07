@@ -1,11 +1,37 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Test", menuName = "Tilemap/Tilemap Data")]
-public class TilemapDataTest : ScriptableObject
+[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMap Data")]
+public class TileMapData : ScriptableObject
 {
     public int width;
     public int height;
     public int[] tiles; // 인스펙터에서 배열 지원을 위해 1D 배열 사용
+
+
+    public void SetTile(int x, int y, int value)
+    {
+        tiles[y * width + x] = value;
+    }
+
+    public int GetTile(int x, int y)
+    {
+        return tiles[y * width + x];
+    }
+
+    public int[] GetColumnData()
+    {
+        int[] columnData = new int[tiles.Length];
+
+        for(int x = 0; x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                columnData[x * height + y] = tiles[y * width + x];
+            }
+        }
+
+        return columnData;
+    }
 
     // 2D 배열을 설정하는 함수
     public void SetTileData(int[,] tileArray)

@@ -1,7 +1,8 @@
-Shader "Custom/TileMap"
+Shader "Custom/GuideTileMap"
 {
     Properties
     {
+        _GuideTileSize ("Guide Tile Size", float) = 1.0
         _TileSize ("Tile Size", float) = 1.0
         _DefaultColor ("DefaultColor", color) = (1, 1, 1, 1)
         _BlurColor ("Blur Color", color) = (1, 1, 1, 1)
@@ -18,13 +19,18 @@ Shader "Custom/TileMap"
 
             int _TextureSize;
 
+            float _GuideTileSize;
             float _TileSize;
             fixed4 _DefaultColor;
             fixed4 _BlurColor;
             float _BlurStrength;
 
+            float _ScaleX;
+            float _ScaleY;
+
             // Global
             float4 _TileMapTargetCamera;
+
 
             // Matching TileType Texture - _TileTexture[TileType]
             UNITY_DECLARE_TEX2DARRAY(_TileTexture);
@@ -33,7 +39,6 @@ Shader "Custom/TileMap"
             // 0 -> grid X Size, 1 -> grid Y Size
             // after 3 -> tileType Data...
             StructuredBuffer<int> _MapDataBuffer;
-
             // buffer Header Info
             // 0 -> Default Value (1)
             // after 1 -> blur Data...
@@ -63,17 +68,15 @@ Shader "Custom/TileMap"
 
                 o.pos = UnityObjectToClipPos(v.vertex);
 
-                // calc Object scale
-                float scaleX = length(float3(unity_ObjectToWorld._m00, unity_ObjectToWorld._m10, unity_ObjectToWorld._m20));
-                float scaleY = length(float3(unity_ObjectToWorld._m01, unity_ObjectToWorld._m11, unity_ObjectToWorld._m21));
+                float2 correctUV = v.uv;
+                correctUV = correctUV - 0.5;
 
                 // calc pixel world pos by camera under (object center = camera pos)
-                float2 cameraCorrectWorldPos = float2(scaleX * v.vertex.x, scaleY * v.vertex.y) + _TileMapTargetCamera.xy;
+                float2 cameraCorrectWorldPos = float2(_ScaleX * correctUV.x, _ScaleY * correctUV.y) + _TileMapTargetCamera.xy / _TileSize * _GuideTileSize;
                 // calc pixel grid pos
-                o.tilePos = cameraCorrectWorldPos / _TileSize;
+                o.tilePos = cameraCorrectWorldPos / _GuideTileSize;
 
                 o.mapDataBufferInfo = int3(_MapDataBuffer[0], _MapDataBuffer[1], _MapDataBuffer[2]);
-
                 return o;
             }
 
@@ -123,14 +126,14 @@ Shader "Custom/TileMap"
                 // 0 -> Out -> _DefaultColor / 1 -> Ok -> targetColor
                 float4 returnColor = lerp(_DefaultColor, targetColor, valid);
 
-                int blurValidRow = _BlurMapDataBufferRow[1 + safeRowIndex];
-                int blurValidColumn = _BlurMapDataBufferColumn[1 + safeColumnIndex];
+                int blurValidRow = _BlurMapDataBufferRow[safeRowIndex];
+                int blurValidColumn = _BlurMapDataBufferColumn[safeColumnIndex];
 
                 int blurValid = blurValidRow + blurValidColumn;
                 blurValid = clamp(blurValid, 0, 1);
 
                 // Blur Process
-                return lerp(_BlurColor, returnColor, (1-_BlurStrength) * blurValid);
+                return lerp(_BlurColor, returnColor, (1-_BlurStrength) * (1-blurValid));
             }
             ENDCG
         }
