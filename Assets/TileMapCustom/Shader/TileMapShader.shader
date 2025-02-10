@@ -126,7 +126,7 @@ Shader "Custom/TileMap"
                 int blurValidRow = _BlurMapDataBufferRow[1 + safeRowIndex];
                 int blurValidColumn = _BlurMapDataBufferColumn[1 + safeColumnIndex];
 
-                int blurValid = blurValidRow + blurValidColumn;
+                int blurValid = blurValidRow + blurValidColumn + (1 - validCoord);
                 blurValid = clamp(blurValid, 0, 1);
 
                 // Blur Process
