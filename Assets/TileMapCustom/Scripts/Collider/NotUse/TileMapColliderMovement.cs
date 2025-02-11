@@ -29,11 +29,6 @@ public class TileMapColliderMovement : MonoBehaviour
         _col = GetComponent<BoxCollider2D>();
         _mapData = MapManager.Instance.MapData;
 
-        if (UseGenericWall)
-            WallTileType = MapManager.Instance.GenericWallTileType;
-        else
-            WallTileType = CustomWallTileType;
-
         CalRelativeCheckPoint();
     }
 

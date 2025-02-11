@@ -5,6 +5,7 @@ public class TileMapColliderObjPool : MonoBehaviour
 {
     [Header("Pool Settings")]
     public int PoolSize;
+    public GameObject Collider;
 
     public static TileMapColliderObjPool Instance { get { return _instance; } }
     public static TileMapColliderObjPool _instance;
@@ -20,8 +21,7 @@ public class TileMapColliderObjPool : MonoBehaviour
 
     public void GenerateObj()
     {
-        GameObject newCollider = new("WallCollider");
-        newCollider.AddComponent<BoxCollider2D>();
+        GameObject newCollider = Instantiate(Collider);
         newCollider.transform.parent = transform;
         newCollider.SetActive(false);
 

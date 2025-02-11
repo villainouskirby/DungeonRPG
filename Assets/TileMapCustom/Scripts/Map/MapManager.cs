@@ -7,7 +7,7 @@ using UnityEngine;
 public class MapManager : MonoBehaviour
 {
     [Header("Wall Settings")]
-    public int[] GenericWallTileType = new int[0];
+    public int[] WallTileType = new int[0];
     public GameObject WallRoot;
 
     public static MapManager Instance { get { return _instance; } }

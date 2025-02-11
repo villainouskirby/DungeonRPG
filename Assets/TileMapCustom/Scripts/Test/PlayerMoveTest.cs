@@ -4,6 +4,7 @@ public class PlayerMoveTest : MonoBehaviour
 {
     public float speed = 5f; // 이동 속도
     private Rigidbody2D _rb;
+    public GameObject TestObj;
 
     private void Start()
     {
@@ -17,5 +18,13 @@ public class PlayerMoveTest : MonoBehaviour
 
         Vector2 velocity = new Vector2(moveX, moveY).normalized * speed;
         _rb.velocity = velocity;
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Instantiate(TestObj, transform.position, Quaternion.identity);
+        }
     }
 }

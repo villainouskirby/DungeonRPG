@@ -466,7 +466,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 953f24ce5f0c85e4388f14fd063b908a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 3
+  TestObj: {fileID: 2642530399474501625, guid: 01a83fb4c031725489bdf9ed3b0d90d3, type: 3}
 --- !u!212 &670951189
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -529,7 +530,7 @@ Transform:
   m_GameObject: {fileID: 670951187}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.53, y: 1.17, z: 0}
+  m_LocalPosition: {x: 6.34, y: 2.49, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -619,9 +620,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c04a61b32f3159c408eed0acd8378480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ActiveAreaSize: 1
-  UseGenericWall: 0
-  CustomWallTileType: ffffffff01000000
+  ActiveRange: 1
 --- !u!1 &794219370
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,6 +696,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794219370}
   m_CullTransparentMesh: 1
+--- !u!1 &968423728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968423730}
+  - component: {fileID: 968423729}
+  m_Layer: 0
+  m_Name: '@WallColliderManager'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &968423729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968423728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5857b1cce9bfb1146a126df838b97229, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &968423730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968423728}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.616968, y: 5.287018, z: -0.057671897}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1205129012
 GameObject:
   m_ObjectHideFlags: 0
@@ -836,8 +879,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1339463731}
-  m_Layer: 0
-  m_Name: ActiveCollider
+  m_Layer: 7
+  m_Name: '@ActiveCollider'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -888,7 +931,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f0808bce097144f9c59595d2069788, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GenericWallTileType: 
+  WallTileType: ffffffff01000000
   WallRoot: {fileID: 1339463730}
   MapType: 0
   TileSize: 1
@@ -1002,8 +1045,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2078780161}
   - component: {fileID: 2078780162}
-  m_Layer: 0
-  m_Name: ColiderPool
+  m_Layer: 7
+  m_Name: '@ColiderPool'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1037,6 +1080,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PoolSize: 10
+  Collider: {fileID: 5015603905664069354, guid: 06fae224bbcbdc74a8f10a316def4bd8,
+    type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1045,7 +1090,8 @@ SceneRoots:
   - {fileID: 1205129014}
   - {fileID: 670951190}
   - {fileID: 1902855628}
-  - {fileID: 1367924892}
   - {fileID: 69267256}
+  - {fileID: 968423730}
   - {fileID: 2078780161}
   - {fileID: 1339463731}
+  - {fileID: 1367924892}
