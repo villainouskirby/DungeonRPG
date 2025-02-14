@@ -14,6 +14,15 @@ public class InventoryUI : SlotInteractHandler
 
     private List<ItemSlotUI> _itemSlots = new List<ItemSlotUI>();
 
+    public void InitInventoryUI()
+    {
+        foreach (ItemSlotUI itemSlot in _itemSlots)
+        {
+            Destroy(itemSlot.gameObject);
+        }
+        _itemSlots.Clear();
+    }
+
     /// <summary> 새 슬롯 추가 </summary>
     private void CreateSlot()
     {
@@ -46,6 +55,8 @@ public class InventoryUI : SlotInteractHandler
     /// <summary> 중량 텍스트 수정 </summary>
     public void UpdateWeightText(int currentCapacity, int maxCapacity)
     {
+        if (_weightText == null) return;
+
         // 텍스트 세팅
         _weightText.text = currentCapacity.ToString() + " / " + maxCapacity.ToString();
 
@@ -113,7 +124,7 @@ public class InventoryUI : SlotInteractHandler
     }
 
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
-    private int GetItemSlotIndex(ItemSlotUI slot)
+    protected int GetItemSlotIndex(ItemSlotUI slot)
     {
         return _itemSlots.IndexOf(slot);
     }

@@ -5,3 +5,11 @@ public enum EquipmentType
     legArmor,
     tool
 }
+
+public enum QuestType
+{
+    gathering,
+    mining,
+    hunting,
+    researching
+}
