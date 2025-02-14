@@ -17,6 +17,10 @@ public class GuideTileMapController : MonoBehaviour
     public Texture2D[] TileTexture;
     private Texture2DArray _tileTextureArray;
 
+    [Header("Blur Settings")]
+    public Color[] BlurColors;
+    public float[] BlurStrengths;
+
 
     private Image _image;
     private RectTransform _rectTransform;
@@ -44,6 +48,7 @@ public class GuideTileMapController : MonoBehaviour
         CheckTileMaterial();
         CreateTexture2DArray();
         InitializeTileMap();
+        InitializeBlurBuffer();
         _tileMaterial.SetFloat("_TileSize", MapManager.Instance.TileSize);
         _tileMaterial.SetFloat("_GuideTileSize", MapManager.Instance.GuideTileSize);
         _image.material = _tileMaterial;
@@ -100,6 +105,19 @@ public class GuideTileMapController : MonoBehaviour
         _tileMaterial.SetBuffer("_MapDataBuffer", MapManager.Instance.MapDataBuffer);
         _tileMaterial.SetBuffer("_BlurMapDataBufferRow", MapManager.Instance.VisitedMapDataBufferRow);
         _tileMaterial.SetBuffer("_BlurMapDataBufferColumn", MapManager.Instance.VisitedMapDataBufferColumn);
+    }
+
+    public void InitializeBlurBuffer()
+    {
+        ComputeBuffer blurColorBuffer = new(BlurColors.Length, sizeof(float) * 4);
+        ComputeBuffer blurStrengthBuffer = new(BlurStrengths.Length, sizeof(float));
+
+        blurColorBuffer.SetData(BlurColors);
+        blurStrengthBuffer.SetData(BlurStrengths);
+
+        _tileMaterial.SetBuffer("_BlurColors", blurColorBuffer);
+        _tileMaterial.SetBuffer("_BlurStrengths", blurStrengthBuffer);
+        _tileMaterial.SetInt("_BlurLength", BlurColors.Length);
     }
 
     public void FixedUpdate()

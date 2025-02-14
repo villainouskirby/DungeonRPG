@@ -6,9 +6,12 @@ using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
+    [Header("Wall Settings")]
+    public int[] WallTileType = new int[0];
+    public GameObject WallRoot;
+
     public static MapManager Instance { get { return _instance; } }
     private static MapManager _instance;
-
 
 
     private void Awake()
@@ -199,9 +202,6 @@ public class MapManager : MonoBehaviour
                     change[i - range.min] = oriMapData.GetTile(i, y);
             }
 
-            Debug.Log($"{y} y값에서 x{range.min} 부터 x{range.max}까지 변경됨!");
-            Debug.Log($"{startIndex + headerSize} 부터 {endIndex - startIndex + 1} 개의 값이 변경됨!");
-
             changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
         }
 
@@ -255,8 +255,71 @@ public class MapManager : MonoBehaviour
                     change[i - range.min] = oriMapData.GetTile(x, i);
             }
 
-            Debug.Log($"{x} x값에서 y{range.min} 부터 y{range.max}까지 변경됨!");
-            Debug.Log($"{startIndex + headerSize} 부터 {endIndex - startIndex + 1} 개의 값이 변경됨!");
+            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
+        }
+
+        for (int i = 0; i < changeList.Count; i++)
+        {
+            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+        }
+    }
+
+    public void ChangeVisitedMapDataByRow(TileMapData oriMapData, List<(int y, int min, int max)> yGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
+    {
+        List<(int[] change, int start, int length)> changeList = new();
+
+        int xSize = oriMapData.width;
+
+        foreach (var yGroup in yGroupedData)
+        {
+            int y = yGroup.y;
+
+            int startIndex = y * xSize + yGroup.min;
+            int endIndex = y * xSize + yGroup.max;
+
+            int[] change = new int[endIndex - startIndex + 1];
+            Array.Fill(change, value);
+
+            for (int x = yGroup.min; x <= yGroup.max; x++)
+            {
+                if (oriMapData.GetTile(x, y) == 1)
+                    change[y * xSize + x - startIndex] = 1;
+                else
+                    oriMapData.SetTile(x, y, value);
+            }
+
+            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
+        }
+
+        for (int i = 0; i < changeList.Count; i++)
+        {
+            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+        }
+    }
+
+    public void ChangeVisitedMapDataByColumn(TileMapData oriMapData, List<(int x, int min, int max)> xGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
+    {
+        List<(int[] change, int start, int length)> changeList = new();
+
+        int ySize = oriMapData.height;
+
+        foreach (var xGroup in xGroupedData)
+        {
+            int x = xGroup.x;
+
+            int startIndex = x * ySize + xGroup.min;
+            int endIndex = x * ySize + xGroup.max;
+
+            int[] change = new int[endIndex - startIndex + 1];
+            Array.Fill(change, value);
+
+            for (int y = xGroup.min; y <= xGroup.max; y++)
+            {
+                if (oriMapData.GetTile(x, y) == 1)
+                    change[x * ySize + y - startIndex] = 1;
+                else
+                    oriMapData.SetTile(x, y, value);
+            }
 
             changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
         }

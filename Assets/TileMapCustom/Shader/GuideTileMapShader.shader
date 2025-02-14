@@ -5,8 +5,6 @@ Shader "Custom/GuideTileMap"
         _GuideTileSize ("Guide Tile Size", float) = 1.0
         _TileSize ("Tile Size", float) = 1.0
         _DefaultColor ("DefaultColor", color) = (1, 1, 1, 1)
-        _BlurColor ("Blur Color", color) = (1, 1, 1, 1)
-        _BlurStrength ("Blur Strength", float) = 0.5
     }
     SubShader
     {
@@ -22,8 +20,6 @@ Shader "Custom/GuideTileMap"
             float _GuideTileSize;
             float _TileSize;
             fixed4 _DefaultColor;
-            fixed4 _BlurColor;
-            float _BlurStrength;
 
             float _ScaleX;
             float _ScaleY;
@@ -47,6 +43,15 @@ Shader "Custom/GuideTileMap"
             StructuredBuffer<int> _BlurMapDataBufferRow;
             // BlurMapDataArray sort by column
             StructuredBuffer<int> _BlurMapDataBufferColumn;
+
+
+            // Blur Array
+            // 0 -> None
+            // 1 -> Visited
+            // 2 -> View
+            StructuredBuffer<float4> _BlurColors;
+            StructuredBuffer<float> _BlurStrengths;
+            int _BlurLength;
 
 
             struct appdata
@@ -126,14 +131,17 @@ Shader "Custom/GuideTileMap"
                 // 0 -> Out -> _DefaultColor / 1 -> Ok -> targetColor
                 float4 returnColor = lerp(_DefaultColor, targetColor, valid);
 
-                int blurValidRow = _BlurMapDataBufferRow[safeRowIndex];
-                int blurValidColumn = _BlurMapDataBufferColumn[safeColumnIndex];
+                int blurValidRow = _BlurMapDataBufferRow[1 + safeRowIndex];
+                int blurValidColumn = _BlurMapDataBufferColumn[1 + safeColumnIndex];
 
-                int blurValid = blurValidRow + blurValidColumn;
-                blurValid = clamp(blurValid, 0, 1);
+                int blurIndex = ((blurValidRow | blurValidColumn) & 1) | max(blurValidRow, blurValidColumn);
+                blurIndex = clamp(blurIndex, 0, _BlurLength);
+
+                fixed4 blurColor = _BlurColors[blurIndex];
+                float blurStrength = _BlurStrengths[blurIndex];
 
                 // Blur Process
-                return lerp(_BlurColor, returnColor, (1-_BlurStrength) * (1-blurValid));
+                return lerp(returnColor, blurColor, blurStrength);
             }
             ENDCG
         }
