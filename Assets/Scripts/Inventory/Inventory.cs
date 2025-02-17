@@ -45,21 +45,18 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public int AddItem(ItemData itemData, int amount = 1)
+    public int AddItemForce(ItemData itemData, int amount = 1)
     {
-        int index;
-
-        // 가방에 넣을 수 있는 개수 체크
         if (_maxCapacity > 0 && RestCapacity <= 0)
         {
             _inventoryUI.OpenExcessPopUp();
-            return amount;
         }
+            int index;
 
         // 장비하던 아이템이 아닐경우 중량 차지함
         if (_equipment)
         {
-            if (itemData is not EquipmentItemData || 
+            if (itemData is not EquipmentItemData ||
                 _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) == null)
             {
                 CalculateRestWeight(itemData.Weight, -amount);
@@ -126,6 +123,18 @@ public class Inventory : MonoBehaviour
         }
 
         return amount;
+    }
+
+    public int AddItem(ItemData itemData, int amount = 1)
+    {
+        // 가방에 넣을 수 있는 개수 체크
+        if (_maxCapacity > 0 && RestCapacity <= 0)
+        {
+            _inventoryUI.OpenExcessPopUp();
+            return amount;
+        }
+
+        return AddItemForce(itemData, amount);
     }
 
     public void UseItem(int index)

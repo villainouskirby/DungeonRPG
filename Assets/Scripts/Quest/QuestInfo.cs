@@ -1,28 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class QuestInfo : MonoBehaviour
+[System.Serializable]
+public class QuestInfo
 {
-    [SerializeField] private bool _isMainQuest;
-    [SerializeField] private Mission[] _missions = new Mission[3];
+    public bool IsMainQuest;
+    public Mission[] Missions = new Mission[3];
 
     [Multiline]
-    [SerializeField] private string _questDescription;
+    public string QuestDescription;
 
-    [SerializeField] private Item[] _rewards = new Item[3];
+    public Item[] Rewards = new Item[3];
 
-    public bool IsQuestCleared => _missions[0].IsMissionCleared && _missions[1].IsMissionCleared && _missions[2].IsMissionCleared;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public bool IsQuestCleared => Missions[0].IsMissionCleared && Missions[1].IsMissionCleared && Missions[2].IsMissionCleared;
 }
