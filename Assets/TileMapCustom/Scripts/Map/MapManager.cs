@@ -167,6 +167,29 @@ public class MapManager : MonoBehaviour
         buffer.SetData(_mapDataArray);
     }
 
+    private void SetDataBuffer(float[] data, ref GraphicsBuffer buffer, int headerSize, params float[] headerData)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = data.Length + headerSize;
+        ;
+        float[] _mapDataArray = new float[bufferSize];
+
+        // Set Header Data
+        for (int i = 0; i < headerSize; i++)
+        {
+            _mapDataArray[i] = headerData[i];
+        }
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            _mapDataArray[headerSize + i] = data[i];
+        }
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(float));
+        buffer.SetData(_mapDataArray);
+    }
+
     private int _lastRadius;
     private Action _fovDataChangeAlarm;
 
@@ -178,11 +201,11 @@ public class MapManager : MonoBehaviour
             _fovDataChangeAlarm += action;
     }
 
-    public void ChangeFOVData(int[] fovData, int radius)
+    public void ChangeFOVData(float[] fovData, int radius)
     {
         if (_lastRadius != radius)
         {
-            SetDataBuffer(new int[(_fovCaster.Radius * 2 + 1) * (_fovCaster.Radius * 2 + 1)], ref _fovDataBuffer, FovDataBufferHeaderSize,
+            SetDataBuffer(new float[(_fovCaster.Radius * 2 + 1) * (_fovCaster.Radius * 2 + 1)], ref _fovDataBuffer, FovDataBufferHeaderSize,
             0);
             _fovDataChangeAlarm?.Invoke();
         }

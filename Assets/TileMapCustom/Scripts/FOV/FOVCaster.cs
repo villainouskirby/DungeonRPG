@@ -9,8 +9,8 @@ public class FOVCaster : MonoBehaviour
 {
     [Header("FOV Settings")]
     public int Radius;  // FOV 반지름
-    [Range(0f, 0.1f)]
-    public float Correct;
+    [Range(0f, 1f)]
+    public float ShadowCorrect;
 
     private bool _isCast = false;
     private Vector2Int _lastTilePos;      // 플레이어의 현재 타일 좌표
@@ -71,11 +71,11 @@ public class FOVCaster : MonoBehaviour
         new OctantTransform(1, 0, 0, -1)   // 7 SE-E
     };
 
-    private int[] _fovMap;
+    private float[] _fovMap;
 
     public void ComputeVisibility(Vector2Int viewerPos, int viewRadius)
     {
-        _fovMap = new int[(viewRadius * 2 + 1) * (viewRadius * 2 + 1)];
+        _fovMap = new float[(viewRadius * 2 + 1) * (viewRadius * 2 + 1)];
         SetLight(viewerPos, viewerPos.x, viewerPos.y, viewRadius, 0); // 시야자의 셀은 항상 보입니다.
 
         for (int i = 0; i < octantTransforms.Length; i++)
@@ -163,8 +163,6 @@ public class FOVCaster : MonoBehaviour
         leftBlockSlope = (y + 0.5f) / (x - 0.5f);
         rightBlockSlope = MathF.Min((y - 0.5f) / (x + 0.5f), (y - 0.5f) / (x - 0.5f));
 
-        leftBlockSlope -= Correct;
-        rightBlockSlope += Correct;
         leftBlockSlope = Mathf.Max(0, leftBlockSlope);
         rightBlockSlope = Mathf.Min(leftBlockSlope, rightBlockSlope);
     }
@@ -181,7 +179,10 @@ public class FOVCaster : MonoBehaviour
         int correctX = x - standardPos.x + radius;
         int correctY = y - standardPos.y + radius;
         int index = correctY * (radius * 2 + 1) + correctX;
-        _fovMap[index] = 1;
+        float light = 1f - (float)distance / (float)radius;
+        light += ShadowCorrect;
+        light = Mathf.Clamp01(light);
+        _fovMap[index] = light;
     }
 }
 

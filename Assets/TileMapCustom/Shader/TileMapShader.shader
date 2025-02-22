@@ -39,7 +39,7 @@ Shader "Custom/TileMap"
             // buffer Header Info
             // 0 -> Default Value (0)
             // after 1 -> blur Data...
-            StructuredBuffer<int> _BlurMapDataBuffer;
+            StructuredBuffer<float> _BlurMapDataBuffer;
 
 
             struct appdata
@@ -125,7 +125,7 @@ Shader "Custom/TileMap"
                 int blurIndex = PosToIndex(relativeIndex, _FOVRadius * 2 + 1) + 1;
                 int safeBlurIndex = blurIndex * validBlurCoord;
 
-                int blurValid = _BlurMapDataBuffer[safeBlurIndex];
+                float blurValid = _BlurMapDataBuffer[safeBlurIndex];
                 blurValid = blurValid * validCoord;
 
                 // Blur Process
