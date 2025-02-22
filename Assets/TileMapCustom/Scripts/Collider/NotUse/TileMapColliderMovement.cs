@@ -95,7 +95,7 @@ public class TileMapColliderMovement : MonoBehaviour
         int tileX = Mathf.FloorToInt(pos.x);
         int tileY = Mathf.FloorToInt(pos.y);
 
-        if (tileX < 0 || tileX >= _mapData.width || tileY < 0 || tileY >= _mapData.height)
+        if (tileX < 0 || tileX >= _mapData.Width || tileY < 0 || tileY >= _mapData.Height)
             return false;
         int tileType = _mapData.GetTile(tileX, tileY);
         return WallTileType.Contains(tileType);

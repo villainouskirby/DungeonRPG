@@ -5,9 +5,6 @@ using System;
 
 public class TileMapController : MonoBehaviour
 {
-    // TileMapData;
-    private TileMapData _mapData;
-    private TileMapData _fovMapData;
     private Material _tileMaterial;
 
     [Header("Texture Settings")]
@@ -23,9 +20,8 @@ public class TileMapController : MonoBehaviour
 
     void Init()
     {
-        _mapData = MapManager.Instance.MapData;
-        _fovMapData = MapManager.Instance.FOVMapData;
         SetMaterialData();
+        MapManager.Instance.AddFOVDataChangeAction(SetBlurMap);
     }
 
     public void SetMaterialData()
@@ -80,7 +76,11 @@ public class TileMapController : MonoBehaviour
     public void InitializeTileMap()
     {
         _tileMaterial.SetBuffer("_MapDataBuffer", MapManager.Instance.MapDataBuffer);
-        _tileMaterial.SetBuffer("_BlurMapDataBufferRow", MapManager.Instance.VisitedMapDataBufferRow);
-        _tileMaterial.SetBuffer("_BlurMapDataBufferColumn", MapManager.Instance.VisitedMapDataBufferColumn);
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
+    }
+
+    public void SetBlurMap()
+    {
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
     }
 }

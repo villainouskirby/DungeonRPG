@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class MapManager : MonoBehaviour
@@ -30,16 +31,17 @@ public class MapManager : MonoBehaviour
     [Header("Camera Settings")]
     public Camera TargetCamera;
 
+    [Header("Player Settings")]
+    public GameObject Player;
+
 
     // MapData
     private TileMapData _mapData;
     private TileMapData _visitedMapData;
-    private TileMapData _fovMapData;
 
     // MapData property
     public TileMapData MapData => _mapData;
     public TileMapData VisitedMapData => _visitedMapData;
-    public TileMapData FOVMapData => _fovMapData;
     // MapDataBuffer
 
     private GraphicsBuffer _mapDataBuffer;
@@ -47,21 +49,28 @@ public class MapManager : MonoBehaviour
     private GraphicsBuffer _visitedMapDataBufferRow;
     private GraphicsBuffer _visitedMapDataBufferColumn;
     public readonly int VisitedMapDataBufferHeaderSize = 1;
-    private GraphicsBuffer _fovMapDataBuffer;
-    public readonly int FovMapDataBufferHeaderSize = 1;
+
+    // FOVDataBuffer
+    private GraphicsBuffer _fovDataBuffer;
+    public readonly int FovDataBufferHeaderSize = 1;
 
 
     // MapDataBuffer Property
     public GraphicsBuffer MapDataBuffer => _mapDataBuffer;
     public GraphicsBuffer VisitedMapDataBufferRow => _visitedMapDataBufferRow;
     public GraphicsBuffer VisitedMapDataBufferColumn => _visitedMapDataBufferColumn;
-    public GraphicsBuffer FOVMapDataBuffer => _fovMapDataBuffer;
+
+    // FOVDataBuffer Property
+    public GraphicsBuffer FOVDataBuffer => _fovDataBuffer;
 
     private MapVisitedChecker _mapVisitedChecker;
+    private FOVCaster _fovCaster;
 
     private void Update()
     {
         Shader.SetGlobalVector("_TileMapTargetCamera", TargetCamera.transform.position);
+        Shader.SetGlobalVector("_PlayerPos", Player.transform.position);
+        Shader.SetGlobalInt("_FOVRadius", _fovCaster.Radius);
     }
 
     /// <summary>
@@ -69,11 +78,14 @@ public class MapManager : MonoBehaviour
     /// </summary>
     public void InitData()
     {
+        _mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
+        _fovCaster = gameObject.GetComponent<FOVCaster>();
+
         SetDataAsset(MapType.ToString());
         SetDataBuffers();
 
-        _mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
         _mapVisitedChecker.StartChecker();
+        _fovCaster.StartCast();
     }
 
     /// <summary>
@@ -93,12 +105,11 @@ public class MapManager : MonoBehaviour
     private void SetDataBuffers()
     {
         SetDataBuffer(_mapData, ref _mapDataBuffer, MapDataBufferHeaderSize,
-            _mapData.width, _mapData.height, _mapData.width * _mapData.height + MapDataBufferHeaderSize);
+            _mapData.Width, _mapData.Height, _mapData.Width * _mapData.Height + MapDataBufferHeaderSize);
         SetDataBuffer(_visitedMapData, ref _visitedMapDataBufferRow, VisitedMapDataBufferHeaderSize,
             0);
         SetDataBuffer(_visitedMapData.GetColumnData(), ref _visitedMapDataBufferColumn, VisitedMapDataBufferHeaderSize,
             0);
-        //SetDataBuffer(FOVMapData, FOVMapDataBuffer, 1);
     }
 
     /// <summary>
@@ -112,7 +123,7 @@ public class MapManager : MonoBehaviour
     {
         buffer?.Dispose();
 
-        int bufferSize = data.width * data.height + headerSize;
+        int bufferSize = data.Width * data.Height + headerSize;
         int[] _mapDataArray = new int[bufferSize];
 
         // Set Header Data
@@ -121,11 +132,11 @@ public class MapManager : MonoBehaviour
             _mapDataArray[i] = headerData[i];
         }
 
-        for (int y = 0; y < data.height; y++)
+        for (int y = 0; y < data.Height; y++)
         {
-            for (int x = 0; x < data.width; x++)
+            for (int x = 0; x < data.Width; x++)
             {
-                _mapDataArray[headerSize + (y * data.width) + x] = data.GetTile(x, y);
+                _mapDataArray[headerSize + (y * data.Width) + x] = data.GetTile(x, y);
             }
         }
 
@@ -156,11 +167,34 @@ public class MapManager : MonoBehaviour
         buffer.SetData(_mapDataArray);
     }
 
+    private int _lastRadius;
+    private Action _fovDataChangeAlarm;
+
+    public void AddFOVDataChangeAction(Action action)
+    {
+        if (_fovDataChangeAlarm == null)
+            _fovDataChangeAlarm = action;
+        else
+            _fovDataChangeAlarm += action;
+    }
+
+    public void ChangeFOVData(int[] fovData, int radius)
+    {
+        if (_lastRadius != radius)
+        {
+            SetDataBuffer(new int[(_fovCaster.Radius * 2 + 1) * (_fovCaster.Radius * 2 + 1)], ref _fovDataBuffer, FovDataBufferHeaderSize,
+            0);
+            _fovDataChangeAlarm?.Invoke();
+        }
+        _lastRadius = radius;
+        FOVDataBuffer.SetData(fovData, 0, 1, fovData.Length);
+    }
+
     // 안에서 자체 로직 처리를 통해 자동 관리 ( Row, Column단위로 작업 분류 )
     // oriMapdata 또한 변경해준다.
     public void ChangeMapDataByRow(TileMapData oriMapData, List<(int x,int y, int value)> mapData, GraphicsBuffer targetBuffer, int headerSize)
     {
-        int xSize = oriMapData.width;
+        int xSize = oriMapData.Width;
 
         Dictionary<int, ((int min, int max) range, Dictionary<int, int> groupData)> yGroupedData = new();
 
@@ -213,7 +247,7 @@ public class MapManager : MonoBehaviour
 
     public void ChangeMapDataByCloumn(TileMapData oriMapData, List<(int x, int y, int value)> mapData, GraphicsBuffer targetBuffer, int headerSize)
     {
-        int ySize = oriMapData.height;
+        int ySize = oriMapData.Height;
 
         Dictionary<int, ((int min, int max) range, Dictionary<int, int> groupData)> xGroupedData = new();
 
@@ -268,7 +302,7 @@ public class MapManager : MonoBehaviour
     {
         List<(int[] change, int start, int length)> changeList = new();
 
-        int xSize = oriMapData.width;
+        int xSize = oriMapData.Width;
 
         foreach (var yGroup in yGroupedData)
         {
@@ -301,7 +335,7 @@ public class MapManager : MonoBehaviour
     {
         List<(int[] change, int start, int length)> changeList = new();
 
-        int ySize = oriMapData.height;
+        int ySize = oriMapData.Height;
 
         foreach (var xGroup in xGroupedData)
         {

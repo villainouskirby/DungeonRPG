@@ -35,7 +35,7 @@ public class WallColliderManager : MonoBehaviour
     {
         _tileSize = MapManager.Instance.TileSize;
 
-        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < _mapData.width && newTargetTile.y < _mapData.height)
+        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < _mapData.Width && newTargetTile.y < _mapData.Height)
         {
             if (!_activeTileRangeCnt.ContainsKey(newTargetTile))
                 _activeTileRangeCnt[newTargetTile] = new();
@@ -46,7 +46,7 @@ public class WallColliderManager : MonoBehaviour
             AddActiveTile(newTargetTile, newTile);
         }
 
-        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < _mapData.width && oldTargetTile.y < _mapData.height)
+        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < _mapData.Width && oldTargetTile.y < _mapData.Height)
         {
             if (!_activeTileRangeCnt.ContainsKey(oldTargetTile))
                 _activeTileRangeCnt[oldTargetTile] = new();
@@ -80,7 +80,7 @@ public class WallColliderManager : MonoBehaviour
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= _mapData.width || correctY >= _mapData.height) continue;
+                if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
                 if (MapManager.Instance.WallTileType.Contains(_mapData.GetTile(correctX, correctY)))
                     addTile.Add(new Vector2Int(correctX, correctY));
             }
@@ -136,7 +136,7 @@ public class WallColliderManager : MonoBehaviour
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= _mapData.width || correctY >= _mapData.height) continue;
+                if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
 
                 if (MapManager.Instance.WallTileType.Contains(_mapData.GetTile(correctX, correctY)))
                     deleteTile.Add(new Vector2Int(correctX, correctY));

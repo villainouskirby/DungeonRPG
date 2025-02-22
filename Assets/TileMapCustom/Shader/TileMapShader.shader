@@ -25,6 +25,8 @@ Shader "Custom/TileMap"
 
             // Global
             float4 _TileMapTargetCamera;
+            float4 _PlayerPos;
+            int _FOVRadius;
 
             // Matching TileType Texture - _TileTexture[TileType]
             UNITY_DECLARE_TEX2DARRAY(_TileTexture);
@@ -35,13 +37,9 @@ Shader "Custom/TileMap"
             StructuredBuffer<int> _MapDataBuffer;
 
             // buffer Header Info
-            // 0 -> Default Value (1)
+            // 0 -> Default Value (0)
             // after 1 -> blur Data...
-
-            // BlurMapDataArray sort by row
-            StructuredBuffer<int> _BlurMapDataBufferRow;
-            // BlurMapDataArray sort by column
-            StructuredBuffer<int> _BlurMapDataBufferColumn;
+            StructuredBuffer<int> _BlurMapDataBuffer;
 
 
             struct appdata
@@ -55,6 +53,7 @@ Shader "Custom/TileMap"
                 float4 pos : SV_POSITION;
                 float2 tilePos : TEXCOORD0;
                 nointerpolation int3 mapDataBufferInfo : TEXCOORD1;
+                nointerpolation int2 playerTileIndex : TEXCOORD2;
             };
 
             v2f vert(appdata v)
@@ -73,20 +72,15 @@ Shader "Custom/TileMap"
                 o.tilePos = cameraCorrectWorldPos / _TileSize;
 
                 o.mapDataBufferInfo = int3(_MapDataBuffer[0], _MapDataBuffer[1], _MapDataBuffer[2]);
+                o.playerTileIndex = floor(_PlayerPos / _TileSize);
 
                 return o;
             }
 
-            int PosToRowIndex(int2 pos, int sizeX)
+            int PosToIndex(int2 pos, int sizeX)
             {
                 // indexing [x, y] to Row Array
                 return mad(pos.y, sizeX, pos.x);
-            }
-
-            int PosToColumnIndex(int2 pos, int sizeY)
-            {
-                // indexing [x, y] to Column Array
-                return mad(pos.x, sizeY, pos.y);
             }
 
             fixed4 frag(v2f i) : SV_Target
@@ -101,14 +95,12 @@ Shader "Custom/TileMap"
                 float validCoord = validX * validY;
 
                 // Get index (from tileIndex to Array index)
-                int rowIndex = PosToRowIndex(tileIndex, i.mapDataBufferInfo.x);
-                int columnIndex = PosToColumnIndex(tileIndex, i.mapDataBufferInfo.y);
-                int safeRowIndex = validCoord * rowIndex;
-                int safeColumnIndex = validCoord * columnIndex;
+                int index = PosToIndex(tileIndex, i.mapDataBufferInfo.x);
+                index = validCoord * index;
                 // Make Index in buffer
 
                 // Get Tile Type
-                int tileType = _MapDataBuffer[3 + safeRowIndex];
+                int tileType = _MapDataBuffer[3 + index];
                 int safeTileType = clamp(tileType, 0, _TextureSize - 1);
                 // Make Index in textureArray
 
@@ -123,14 +115,21 @@ Shader "Custom/TileMap"
                 // 0 -> Out -> _DefaultColor / 1 -> Ok -> targetColor
                 float4 returnColor = lerp(_DefaultColor, targetColor, valid);
 
-                int blurValidRow = _BlurMapDataBufferRow[1 + safeRowIndex];
-                int blurValidColumn = _BlurMapDataBufferColumn[1 + safeColumnIndex];
+                // Get relativePos ( by Player )
+                int2 relativeIndex = (tileIndex - i.playerTileIndex) + int2(_FOVRadius, _FOVRadius);
 
-                int blurValid = blurValidRow + blurValidColumn + (1 - validCoord);
-                blurValid = clamp(blurValid, 0, 1);
+                float validBlurX = step(0, relativeIndex.x) * step(relativeIndex.x, _FOVRadius * 2);
+                float validBlurY = step(0, relativeIndex.y) * step(relativeIndex.y, _FOVRadius * 2);
+                float validBlurCoord = validBlurX * validBlurY;
+
+                int blurIndex = PosToIndex(relativeIndex, _FOVRadius * 2 + 1) + 1;
+                int safeBlurIndex = blurIndex * validBlurCoord;
+
+                int blurValid = _BlurMapDataBuffer[safeBlurIndex];
+                blurValid = blurValid * validCoord;
 
                 // Blur Process
-                return lerp(_BlurColor, returnColor, (1-_BlurStrength) * blurValid);
+                return lerp(returnColor, _BlurColor, _BlurStrength * (1 - blurValid));
             }
             ENDCG
         }

@@ -39,6 +39,7 @@ public class WallColliderGenerator : MonoBehaviour
 
     private void OnDisable()
     {
-        WallColliderManager.Instance.UpdateActiveTile(_lastTilePos.pos, _lastTilePos.range, new Vector2Int(0, 0), 0);
+        if(MapManager.Instance.WallRoot != null)
+            WallColliderManager.Instance.UpdateActiveTile(_lastTilePos.pos, _lastTilePos.range, new Vector2Int(0, 0), 0);
     }
 }

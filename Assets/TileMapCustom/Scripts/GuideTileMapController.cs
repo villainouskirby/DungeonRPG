@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public class GuideTileMapController : MonoBehaviour
 {
     // TileMapData;
-    private TileMapData _mapData;
-    private TileMapData _fovMapData;
     private Material _tileMaterial;
 
     [Header("Texture Settings")]
@@ -35,8 +33,6 @@ public class GuideTileMapController : MonoBehaviour
 
     void Init()
     {
-        _mapData = MapManager.Instance.MapData;
-        _fovMapData = MapManager.Instance.FOVMapData;
         _lastScaleX = 0;
         _lastScaleY = 0;
         SetMaterialData();

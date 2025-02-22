@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
 
@@ -151,8 +152,7 @@ public partial class String2TypeByteConverter
         Span<byte> bytes = stackalloc byte[size];
         if (!parser(value, out T result))
             result = defaultValue;
-        var rawBytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref result, 1));
-        rawBytes.CopyTo(bytes);
+        bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref result, 1));
 
         return bytes.ToArray();
     }

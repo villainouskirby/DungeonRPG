@@ -10,8 +10,7 @@ public class MapVisitedChecker : MonoBehaviour
     [Header("Target TileMap")]
     public TileMapController TargetTileMap;
 
-    [HideInInspector]
-    public bool IsCheck = false;
+    private bool _isCheck = false;
 
     private GameObject _player;
     private (int x, int y) _lastTilePos;
@@ -22,7 +21,7 @@ public class MapVisitedChecker : MonoBehaviour
     public void StartChecker()
     {
         Init();
-        IsCheck = true;
+        _isCheck = true;
     }
 
     private void Init()
@@ -31,12 +30,12 @@ public class MapVisitedChecker : MonoBehaviour
         _mainCamera = MapManager.Instance.TargetCamera;
         _lastViewTilePos = (0, 0, 0, 0);
         _lastTilePos = (0, 0);
-        _player = GameObject.FindWithTag("Player");
+        _player = MapManager.Instance.Player;
     }
 
     private void Update()
     {
-        if (!IsCheck)
+        if (!_isCheck)
             return;
 
         CheckMove();
@@ -45,7 +44,6 @@ public class MapVisitedChecker : MonoBehaviour
 
     private void CheckMove()
     {
-        if (!IsCheck) return;
         float tileSize = MapManager.Instance.TileSize;
         (int x, int y) newTilePos = GetCurrentTilePos(tileSize);
 
@@ -63,10 +61,10 @@ public class MapVisitedChecker : MonoBehaviour
         Vector2 topRight = _mainCamera.ViewportToWorldPoint(new Vector3(1, 1, zDistance));
 
         (int xMin, int xMax, int yMin, int yMax) newViewTilePos = (
-            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.x), 0, _visitedMapData.width - 1),
-            Mathf.Clamp(Mathf.CeilToInt(topRight.x), 0, _visitedMapData.width - 1),
-            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.y), 0, _visitedMapData.height - 1),
-            Mathf.Clamp(Mathf.CeilToInt(topRight.y), 0, _visitedMapData.height - 1)
+            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.x), 0, _visitedMapData.Width - 1),
+            Mathf.Clamp(Mathf.CeilToInt(topRight.x), 0, _visitedMapData.Width - 1),
+            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.y), 0, _visitedMapData.Height - 1),
+            Mathf.Clamp(Mathf.CeilToInt(topRight.y), 0, _visitedMapData.Height - 1)
             );
 
         if (newViewTilePos != _lastViewTilePos)
@@ -87,7 +85,7 @@ public class MapVisitedChecker : MonoBehaviour
                 int correctX = point.x + x;
                 int correctY = point.y + y;
 
-                if (correctX < 0 || correctX >= MapManager.Instance.VisitedMapData.width || correctY < 0 || correctY >= MapManager.Instance.VisitedMapData.height)
+                if (correctX < 0 || correctX >= MapManager.Instance.VisitedMapData.Width || correctY < 0 || correctY >= MapManager.Instance.VisitedMapData.Height)
                     continue;
 
                 if (_visitedMapData.GetTile(correctX, correctY) == 1)
