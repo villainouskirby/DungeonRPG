@@ -15,29 +15,54 @@ public class Inventory : MonoBehaviour
 
     [SerializeField] private ItemListSO<Item> _itemList;
 
-    private List<Item> _items => _itemList.Items;
+    protected List<Item> _items => _itemList.Items;
 
     private void Awake()
     {
-        RestCapacity = _maxCapacity;
+        RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함
         UpdateWeightText();
+        InitInventory();
     }
 
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
-    public int AddItem(ItemData itemData, int amount = 1)
+    public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함
     {
-        int index;
+        _inventoryUI.InitInventoryUI();
+        List<Item> tempItems = new List<Item>(_items);
+        _items.Clear();
 
-        // 가방에 넣을 수 있는 개수 체크
-        if (RestCapacity <= 0)
+        foreach (Item item in tempItems)
+        {
+            if (item is CountableItem ci)
+            {
+                AddItem(ci.Data, ci.Amount);
+            }
+            else
+            {
+                AddItem(item.Data);
+            }
+        }
+    }
+
+    public int AddItemForce(ItemData itemData, int amount = 1)
+    {
+        if (_maxCapacity > 0 && RestCapacity <= 0)
         {
             _inventoryUI.OpenExcessPopUp();
-            return amount;
         }
+            int index;
 
         // 장비하던 아이템이 아닐경우 중량 차지함
-        if (itemData is not EquipmentItemData || _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) == null)
+        if (_equipment)
+        {
+            if (itemData is not EquipmentItemData ||
+                _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) == null)
+            {
+                CalculateRestWeight(itemData.Weight, -amount);
+            }
+        }
+        else
         {
             CalculateRestWeight(itemData.Weight, -amount);
         }
@@ -98,6 +123,18 @@ public class Inventory : MonoBehaviour
         }
 
         return amount;
+    }
+
+    public int AddItem(ItemData itemData, int amount = 1)
+    {
+        // 가방에 넣을 수 있는 개수 체크
+        if (_maxCapacity > 0 && RestCapacity <= 0)
+        {
+            _inventoryUI.OpenExcessPopUp();
+            return amount;
+        }
+
+        return AddItemForce(itemData, amount);
     }
 
     public void UseItem(int index)

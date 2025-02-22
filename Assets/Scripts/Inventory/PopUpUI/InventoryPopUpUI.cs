@@ -14,8 +14,9 @@ public class InventoryPopUpUI : ItemPopUpUI
     {
         base.Awake();
 
-        _menu = _menuPopUp.GetComponent<InventoryMenu>();
+        if (_menuPopUp == null) return;
 
+        _menu = _menuPopUp.GetComponent<InventoryMenu>();
         if (_menu == null) _menu = _menuPopUp.AddComponent<InventoryMenu>();
     }
 
@@ -28,7 +29,7 @@ public class InventoryPopUpUI : ItemPopUpUI
             return;
         }
 
-        if (!_menuPopUp.activeSelf)
+        if (_menuPopUp == null || !_menuPopUp.activeSelf)
         {
             base.OpenInfo(data);
         }
