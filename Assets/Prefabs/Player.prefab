@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6364988511274455817}
   - component: {fileID: 1176493953370868176}
+  - component: {fileID: 4262740636599311042}
   - component: {fileID: 520806936726057043}
   - component: {fileID: 8404700359068864180}
   - component: {fileID: 302780046639961892}
@@ -53,6 +54,19 @@ MonoBehaviour:
   slideDuration: 0.4
   comboResetTime: 1
   minAttackInterval: 0.5
+--- !u!114 &4262740636599311042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6623701870858405499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 978fa1d9199973c4fb856bdefd92b006, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  justGuardWindow: 0.3
 --- !u!212 &520806936726057043
 SpriteRenderer:
   m_ObjectHideFlags: 0
