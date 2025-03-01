@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMap Data")]
+[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMapData")]
 public class TileMapData : ScriptableObject
 {
     public int Width;

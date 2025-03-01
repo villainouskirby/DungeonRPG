@@ -1,0 +1,643 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef79ff9986715cf47936014539b0cccb, type: 3}
+  m_Name: Map1_A_All
+  m_EditorClassIdentifier: 
+  Spawner:
+  - rid: 5538462817617182722
+  - rid: 5538462817617182723
+  - rid: 5538462817617182724
+  - rid: 5538462817617182725
+  - rid: 5538462817617182726
+  - rid: 5538462817617182727
+  - rid: 5538462817617182728
+  - rid: 5538462817617182729
+  - rid: 5538462817617182730
+  - rid: 5538462817617182731
+  - rid: 5538462817617182732
+  - rid: 5538462817617182733
+  - rid: 5538462817617182734
+  - rid: 5538462817617182735
+  - rid: 5538462817617182736
+  - rid: 5538462817617182737
+  - rid: 5538462817617182738
+  - rid: 5538462817617182739
+  - rid: 5538462817617182740
+  - rid: 5538462817617182741
+  - rid: 5538462817617182742
+  - rid: 5538462817617182743
+  - rid: 5538462817617182744
+  - rid: 5538462817617182745
+  - rid: 5538462817617182746
+  - rid: 5538462817617182747
+  - rid: 5538462817617182748
+  - rid: 5538462817617182749
+  - rid: 5538462817617182750
+  - rid: 5538462817617182751
+  - rid: 5538462817617182752
+  - rid: 5538462817617182753
+  - rid: 5538462817617182754
+  - rid: 5538462817617182755
+  - rid: 5538462817617182756
+  - rid: 5538462817617182757
+  - rid: 5538462817617182758
+  - rid: 5538462817617182759
+  - rid: 5538462817617182760
+  - rid: 5538462817617182761
+  - rid: 5538462817617182762
+  - rid: 5538462817617182763
+  - rid: 5538462817617182764
+  - rid: 5538462817617182765
+  - rid: 5538462817617182766
+  - rid: 5538462817617182767
+  - rid: 5538462817617182768
+  - rid: 5538462817617182769
+  - rid: 5538462817617182770
+  - rid: 5538462817617182771
+  - rid: 5538462817617182772
+  - rid: 5538462817617182773
+  - rid: 5538462817617182774
+  references:
+    version: 2
+    RefIds:
+    - rid: 5538462817617182722
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 8, y: 4}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182723
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 9, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182724
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 10, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182725
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 11, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182726
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 12, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182727
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 13, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182728
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 14, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182729
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 14, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182730
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 15, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182731
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 16, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182732
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 17, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182733
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 18, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182734
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 0, y: 0}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182735
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 40, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182736
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 40, y: 9}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182737
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 40, y: 10}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182738
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 40, y: 11}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182739
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 39, y: 12}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182740
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 38, y: 13}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182741
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 35, y: 15}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182742
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 36, y: 14}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182743
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 37, y: 14}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182744
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 34, y: 16}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182745
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 32, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182746
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 33, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182747
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 30, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182748
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 31, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182749
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 26, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182750
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 27, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182751
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 28, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182752
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 29, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182753
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 25, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182754
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 24, y: 17}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182755
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 19, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182756
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 20, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182757
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 21, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182758
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 22, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182759
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 23, y: 8}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182760
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 26, y: 4}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182761
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 28, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182762
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 30, y: 2}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182763
+      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 32, y: 3}
+        CoolTime: 5
+        Type: 2
+        CurrentTime: 0
+        Minerals: 
+        SelectMineral: 0
+    - rid: 5538462817617182764
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 37, y: 7}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182765
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 34, y: 9}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182766
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 34, y: 10}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182767
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 32, y: 11}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182768
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 30, y: 9}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182769
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 32, y: 8}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182770
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 33, y: 7}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182771
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 16, y: 15}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182772
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 12, y: 13}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182773
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 13, y: 12}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 
+    - rid: 5538462817617182774
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 21, y: 14}
+        CoolTime: 8
+        Type: 1
+        CurrentTime: 0
+        Plants: 

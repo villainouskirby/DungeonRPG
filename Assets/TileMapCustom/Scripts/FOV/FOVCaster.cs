@@ -9,24 +9,44 @@ public class FOVCaster : MonoBehaviour
 {
     [Header("FOV Settings")]
     public int Radius;  // FOV 반지름
+    public int RemainRadius;
     [Range(0f, 1f)]
     public float ShadowCorrect;
+    public float BoxSize;
 
     private bool _isCast = false;
     private Vector2Int _lastTilePos;      // 플레이어의 현재 타일 좌표
     private float _tileSize;
+    private int _lastRadius;
     private TileMapData _mapData;
     private GameObject _player;
 
-    private bool[,] visible;
-
     private IntervalNodePool _intervalNodePool;
+    private OctantTransform[] octantTransforms =
+    {
+        new OctantTransform(1, 0, 0, 1),
+        new OctantTransform(0, 1, 1, 0),
+        new OctantTransform(0, -1, 1, 0),
+        new OctantTransform(-1, 0, 0, 1),
+        new OctantTransform(-1, 0, 0, -1),
+        new OctantTransform(0, -1, -1, 0),
+        new OctantTransform(0, 1, -1, 0),
+        new OctantTransform(1, 0, 0, -1)
+    };
+
+    // 현재 보고 있는 맵
+    private float[] _fovMap;
 
     void FixedUpdate()
     {
         if (!_isCast)
             return;
 
+        if (_lastRadius != Radius)
+        {
+            _fovMap = new float[(Radius * 2 + 1) * (Radius * 2 + 1)];
+            _lastRadius = Radius;
+        }
         _tileSize = MapManager.Instance.TileSize;
         Vector2Int newTilePos = GetCurrentTilePos();
 
@@ -58,24 +78,12 @@ public class FOVCaster : MonoBehaviour
         _lastTilePos = new Vector2Int(0, 0);
         _player = MapManager.Instance.Player;
         _intervalNodePool = new();
+        _blockedIntervalTree = new(_intervalNodePool);
     }
-
-    private OctantTransform[] octantTransforms = {
-        new OctantTransform(1, 0, 0, 1),   // 0 E-NE
-        new OctantTransform(0, 1, 1, 0),   // 1 NE-N
-        new OctantTransform(0, -1, 1, 0),  // 2 N-NW
-        new OctantTransform(-1, 0, 0, 1),  // 3 NW-W
-        new OctantTransform(-1, 0, 0, -1), // 4 W-SW
-        new OctantTransform(0, -1, -1, 0), // 5 SW-S
-        new OctantTransform(0, 1, -1, 0),  // 6 S-SE
-        new OctantTransform(1, 0, 0, -1)   // 7 SE-E
-    };
-
-    private float[] _fovMap;
 
     public void ComputeVisibility(Vector2Int viewerPos, int viewRadius)
     {
-        _fovMap = new float[(viewRadius * 2 + 1) * (viewRadius * 2 + 1)];
+        Array.Fill(_fovMap, 0);
         SetLight(viewerPos, viewerPos.x, viewerPos.y, viewRadius, 0); // 시야자의 셀은 항상 보입니다.
 
         for (int i = 0; i < octantTransforms.Length; i++)
@@ -84,17 +92,19 @@ public class FOVCaster : MonoBehaviour
         }
     }
 
-    private void CastLight(Vector2Int viewerPos, int radius, OctantTransform transform)
+    private IntervalTree _blockedIntervalTree;
+
+    private void CastLight(Vector2Int viewerPos, int viewRadius, OctantTransform transform)
     {
         bool previousWasBlocked = false;
         float blockedStartSlope = -1;
         float blockedEndSlope = -1;
-        IntervalTree blockedIntervalTree = new(_intervalNodePool);
+        _blockedIntervalTree.Clear();
 
-        for (int x = 1; x <= radius; x++)
+        for (int x = 1; x <= viewRadius; x++)
         {
             // 만약 다음 블럭의 처음과 끝이 이미 가려졌다면 종료 그 이후는 전부 가려짐
-            if (blockedIntervalTree.Overlaps(new(MathF.Min((0 - 0.5f) / (x + 0.5f), (0 - 0.5f) / (x - 0.5f)), (x + 0.5f) / (x - 0.5f))))
+            if (_blockedIntervalTree.Overlaps(new(MathF.Min((0 - 0.5f) / (x + 0.5f), (0 - 0.5f) / (x - 0.5f)), (x + 0.5f) / (x - 0.5f))))
             {
                 break;
             }
@@ -111,19 +121,19 @@ public class FOVCaster : MonoBehaviour
 
                 GetSlope(x, y, out float leftBlockSlope, out float rightBlockSlope);
                 Interval currentBlockInterval = new(rightBlockSlope, leftBlockSlope);
-                if (blockedIntervalTree.Overlaps(currentBlockInterval))
+                if (_blockedIntervalTree.Overlaps(currentBlockInterval))
                     continue;
 
                 int distance = Mathf.Max(x, y);
-                if (distance <= radius)
+                if (distance <= viewRadius)
                 {
-                    SetLight(viewerPos, gridX, gridY, radius, distance);
+                    SetLight(viewerPos, gridX, gridY, viewRadius, distance);
                 }
 
                 bool currentBlocked = IsWall(gridX, gridY);
                 if (currentBlocked)
                 {
-                    blockedIntervalTree.Insert(currentBlockInterval);
+                    _blockedIntervalTree.Insert(currentBlockInterval);
                 }
                 /*
                 if (currentBlocked)
@@ -153,15 +163,16 @@ public class FOVCaster : MonoBehaviour
 
             if (previousWasBlocked)
             {
-                blockedIntervalTree.Insert(new(blockedStartSlope, blockedEndSlope));
+                _blockedIntervalTree.Insert(new(blockedStartSlope, blockedEndSlope));
             }
         }
     }
 
     private void GetSlope(int x, int y, out float leftBlockSlope, out float rightBlockSlope)
     {
-        leftBlockSlope = (y + 0.5f) / (x - 0.5f);
-        rightBlockSlope = MathF.Min((y - 0.5f) / (x + 0.5f), (y - 0.5f) / (x - 0.5f));
+        float boxSize = BoxSize * 0.5f;
+        leftBlockSlope = (y + boxSize) / (x - boxSize);
+        rightBlockSlope = MathF.Min((y - boxSize) / (x + boxSize), (y - boxSize) / (x - boxSize));
 
         leftBlockSlope = Mathf.Max(0, leftBlockSlope);
         rightBlockSlope = Mathf.Min(leftBlockSlope, rightBlockSlope);
@@ -170,7 +181,7 @@ public class FOVCaster : MonoBehaviour
     private bool IsWall(int x, int y)
     {
         int tileValue = _mapData.GetTile(x, y);
-        bool isWall = MapManager.Instance.WallTileType.Contains(tileValue);
+        bool isWall = MapManager.Instance.CheckWall(tileValue);
         return isWall;
     }
 

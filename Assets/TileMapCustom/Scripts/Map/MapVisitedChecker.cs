@@ -13,8 +13,8 @@ public class MapVisitedChecker : MonoBehaviour
     private bool _isCheck = false;
 
     private GameObject _player;
-    private (int x, int y) _lastTilePos;
-    private (int xMin, int xMax, int yMin, int yMax) _lastViewTilePos;
+    private Vector2Int _lastTilePos;
+    private Vector4Int _lastViewTilePos;
     private TileMapData _visitedMapData;
     private Camera _mainCamera;
 
@@ -26,10 +26,11 @@ public class MapVisitedChecker : MonoBehaviour
 
     private void Init()
     {
+        _changeList = new();
         _visitedMapData = MapManager.Instance.VisitedMapData;
         _mainCamera = MapManager.Instance.TargetCamera;
-        _lastViewTilePos = (0, 0, 0, 0);
-        _lastTilePos = (0, 0);
+        _lastViewTilePos = new(0, 0, 0, 0);
+        _lastTilePos = new(0, 0);
         _player = MapManager.Instance.Player;
     }
 
@@ -45,7 +46,7 @@ public class MapVisitedChecker : MonoBehaviour
     private void CheckMove()
     {
         float tileSize = MapManager.Instance.TileSize;
-        (int x, int y) newTilePos = GetCurrentTilePos(tileSize);
+        Vector2Int newTilePos = GetCurrentTilePos(tileSize);
 
         if (newTilePos != _lastTilePos)
         {
@@ -60,11 +61,11 @@ public class MapVisitedChecker : MonoBehaviour
         Vector2 bottomLeft = _mainCamera.ViewportToWorldPoint(new Vector3(0, 0, zDistance));
         Vector2 topRight = _mainCamera.ViewportToWorldPoint(new Vector3(1, 1, zDistance));
 
-        (int xMin, int xMax, int yMin, int yMax) newViewTilePos = (
+        Vector4Int newViewTilePos = new(
             Mathf.Clamp(Mathf.FloorToInt(bottomLeft.x), 0, _visitedMapData.Width - 1),
-            Mathf.Clamp(Mathf.CeilToInt(topRight.x), 0, _visitedMapData.Width - 1),
+            Mathf.Clamp(Mathf.FloorToInt(topRight.x), 0, _visitedMapData.Width - 1),
             Mathf.Clamp(Mathf.FloorToInt(bottomLeft.y), 0, _visitedMapData.Height - 1),
-            Mathf.Clamp(Mathf.CeilToInt(topRight.y), 0, _visitedMapData.Height - 1)
+            Mathf.Clamp(Mathf.FloorToInt(topRight.y), 0, _visitedMapData.Height - 1)
             );
 
         if (newViewTilePos != _lastViewTilePos)
@@ -74,9 +75,17 @@ public class MapVisitedChecker : MonoBehaviour
         }
     }
 
-    void SetVisited((int x, int y) point)
+    /*
+       x = x
+       y = y
+       z = value
+    */
+
+    private List<Vector3Int> _changeList;
+
+    void SetVisited(Vector2Int point)
     {
-        List<(int x, int y, int value)> changeList = new();
+        _changeList.Clear();
 
         for (int x = -VisitedRange; x <= VisitedRange; x++)
         {
@@ -91,71 +100,109 @@ public class MapVisitedChecker : MonoBehaviour
                 if (_visitedMapData.GetTile(correctX, correctY) == 1)
                     continue;
 
-                changeList.Add((correctX, correctY, 1));
+                _changeList.Add(new(correctX, correctY, 1));
             }
         }
 
-        MapManager.Instance.ChangeMapDataByRow(_visitedMapData, changeList, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+        MapManager.Instance.ChangeMapDataByRow(_visitedMapData, _changeList, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
     }
 
-    void SetViewed((int xMin, int xMax, int yMin, int yMax) newViewTilePos)
-    {
-        if(newViewTilePos.xMax - newViewTilePos.xMin > newViewTilePos.yMax - newViewTilePos.yMin)
-        { // y 기준 행 정리
-            List<(int y, int min, int max)> changeList = new();
+    /*
+        xMin x
+        xMax y
+        yMin z
+        yMax w
+    */
 
-            for (int y = newViewTilePos.yMin; y <= newViewTilePos.yMax; y++)
+    void SetViewed(Vector4Int newViewTilePos)
+    {
+        if(newViewTilePos.y - newViewTilePos.x > newViewTilePos.w - newViewTilePos.z)
+        { // y 기준 행 정리
+            _changeList.Clear();
+
+            for (int y = newViewTilePos.z; y <= newViewTilePos.w; y++)
             {
-                if (y < _lastViewTilePos.yMin) // 아래쪽
+                if (y < _lastViewTilePos.z) // 아래쪽
                 {
-                    changeList.Add((y, newViewTilePos.xMin, newViewTilePos.xMax));
+                    _changeList.Add(new(y, newViewTilePos.x, newViewTilePos.y));
                 }
-                else if(y > _lastViewTilePos.yMax) // 위쪽
+                else if(y > _lastViewTilePos.w) // 위쪽
                 {
-                    changeList.Add((y, newViewTilePos.xMin, newViewTilePos.xMax));
+                    _changeList.Add(new(y, newViewTilePos.x, newViewTilePos.y));
                 }
                 else // 양옆
                 {
-                    if (newViewTilePos.xMax > _lastViewTilePos.xMax)
-                        changeList.Add((y, Mathf.Max(newViewTilePos.xMin, _lastViewTilePos.xMax + 1), newViewTilePos.xMax));
-                    if (newViewTilePos.xMin < _lastViewTilePos.xMin)
-                        changeList.Add((y, newViewTilePos.xMin, Mathf.Min(newViewTilePos.xMax, _lastViewTilePos.xMin - 1)));
+                    if (newViewTilePos.y > _lastViewTilePos.y)
+                        _changeList.Add(new(y, Mathf.Max(newViewTilePos.x, _lastViewTilePos.y + 1), newViewTilePos.y));
+                    if (newViewTilePos.x < _lastViewTilePos.x)
+                        _changeList.Add(new(y, newViewTilePos.x, Mathf.Min(newViewTilePos.y, _lastViewTilePos.x - 1)));
                 }
             }
 
-            MapManager.Instance.ChangeVisitedMapDataByRow(_visitedMapData, changeList, 2, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+            MapManager.Instance.ChangeVisitedMapDataByRow(_visitedMapData, _changeList, 2, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
         }
         else // True -> 가로가 더 길다. False -> 새로가 더 길다.
         { // x 기준 열 정리
-            List<(int x, int min, int max)> changeList = new();
+            _changeList.Clear();
 
-            for (int x = newViewTilePos.xMin; x <= newViewTilePos.xMax; x++)
+            for (int x = newViewTilePos.x; x <= newViewTilePos.y; x++)
             {
-                if (x < _lastViewTilePos.xMin) // 왼쪽
+                if (x < _lastViewTilePos.x) // 왼쪽
                 {
-                    changeList.Add((x, newViewTilePos.yMin, newViewTilePos.yMax));
+                    _changeList.Add(new(x, newViewTilePos.z, newViewTilePos.w));
                 }
-                else if (x > _lastViewTilePos.xMax) // 오른쪽
+                else if (x > _lastViewTilePos.y) // 오른쪽
                 {
-                    changeList.Add((x, newViewTilePos.yMin, newViewTilePos.yMax));
+                    _changeList.Add(new(x, newViewTilePos.z, newViewTilePos.w));
                 }
                 else // 위아래
                 {
-                    if (newViewTilePos.yMax > _lastViewTilePos.yMax)
-                        changeList.Add((x, Mathf.Max(newViewTilePos.yMin, _lastViewTilePos.yMax + 1), newViewTilePos.yMax));
-                    if (newViewTilePos.yMin < _lastViewTilePos.yMin)
-                        changeList.Add((x, newViewTilePos.yMin, Mathf.Min(newViewTilePos.yMax, _lastViewTilePos.yMin - 1)));
+                    if (newViewTilePos.w > _lastViewTilePos.w)
+                        _changeList.Add(new(x, Mathf.Max(newViewTilePos.z, _lastViewTilePos.w + 1), newViewTilePos.w));
+                    if (newViewTilePos.z < _lastViewTilePos.z)
+                        _changeList.Add(new(x, newViewTilePos.z, Mathf.Min(newViewTilePos.w, _lastViewTilePos.z - 1)));
                 }
             }
 
-            MapManager.Instance.ChangeVisitedMapDataByColumn(_visitedMapData, changeList, 2, MapManager.Instance.VisitedMapDataBufferColumn, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+            MapManager.Instance.ChangeVisitedMapDataByColumn(_visitedMapData, _changeList, 2, MapManager.Instance.VisitedMapDataBufferColumn, MapManager.Instance.VisitedMapDataBufferHeaderSize);
         }
     }
 
-    (int x, int y) GetCurrentTilePos(float tileSize)
+    Vector2Int GetCurrentTilePos(float tileSize)
     {
         int tileX = Mathf.FloorToInt(_player.transform.position.x / tileSize);
         int tileY = Mathf.FloorToInt(_player.transform.position.y / tileSize);
-        return (tileX, tileY);
-    }   
+        return new(tileX, tileY);
+    }
+}
+
+
+public struct Vector4Int
+{
+    public int x;
+    public int y;
+    public int z;
+    public int w;
+
+    public Vector4Int(int x, int y, int z, int w)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
+     public static bool operator ==(Vector4Int lhs, Vector4Int rhs)
+    {
+        return lhs.x == rhs.x &&
+               lhs.y == rhs.y &&
+               lhs.z == rhs.z &&
+               lhs.w == rhs.w;
+    }
+
+    // != 연산자 오버로딩
+    public static bool operator !=(Vector4Int lhs, Vector4Int rhs)
+    {
+        return !(lhs == rhs);
+    }
 }

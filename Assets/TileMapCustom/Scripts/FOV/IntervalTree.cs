@@ -76,23 +76,19 @@ public class IntervalTree
         {
             node.Right = Insert(node.Right, interval);
         }
-
         // 남은건 곂치는 경우 뿐이다.
         // 이제 어디까지 곂치는지를 판별한다.
-
         // 해당 범위보다 더 큰 경우 - 좌우로 확장
         else if (interval.End >= node.Interval.End && interval.Start <= node.Interval.Start)
         {
             LeftExpansion(node, node.Left, interval);
             RightExpansion(node, node.Right, interval);
         }
-
         // 왼쪽으로 속하면서 곂치는 경우 - 좌로 확장
         else if (interval.End >= node.Interval.Start && interval.Start < node.Interval.Start)
         {
             LeftExpansion(node, node.Left, interval);
         }
-
         // 오른쪽으로 속하면서 곂치는 경우 - 우로 확장
         else if (interval.Start <= node.Interval.End && interval.End >= node.Interval.End)
         {
@@ -115,11 +111,11 @@ public class IntervalTree
         {
             case OverLap.None:
                 startNode.Left = node;
-                startNode.Interval = new(interval.Start, startNode.Interval.End);
+                startNode.Interval = new Interval(interval.Start, startNode.Interval.End);
                 return;
             case OverLap.OverLap:
                 startNode.Left = node.Left;
-                startNode.Interval = new(node.Interval.Start, startNode.Interval.End);
+                startNode.Interval = new Interval(node.Interval.Start, startNode.Interval.End);
                 _pool.Release(node);
                 return;
             case OverLap.Over:
@@ -135,11 +131,11 @@ public class IntervalTree
         {
             case OverLap.None:
                 startNode.Right = node;
-                startNode.Interval = new(startNode.Interval.Start, interval.End);
+                startNode.Interval = new Interval(startNode.Interval.Start, interval.End);
                 return;
             case OverLap.OverLap:
                 startNode.Right = node.Right;
-                startNode.Interval = new(startNode.Interval.Start, node.Interval.End);
+                startNode.Interval = new Interval(startNode.Interval.Start, node.Interval.End);
                 _pool.Release(node);
                 return;
             case OverLap.Over:
@@ -179,7 +175,6 @@ public class IntervalTree
             return Overlaps(node.Right, interval);
 
         // 그 외는 전부 속하지 않는걸로 판별
-
         return false;
     }
 
@@ -203,7 +198,7 @@ public class IntervalTree
         else if (interval.Start <= node.Interval.End)
             return OverLap.OverLap;
 
-        return 0;
+        return OverLap.None;
     }
 
     private OverLap RightCheck(IntervalNode node, Interval interval)
@@ -223,7 +218,7 @@ public class IntervalTree
         else if (interval.End >= node.Interval.Start)
             return OverLap.OverLap;
 
-        return 0;
+        return OverLap.None;
     }
 
     public void PrintInOrder()
@@ -239,5 +234,22 @@ public class IntervalTree
             Debug.Log($"Interval: [{node.Interval.Start}, {node.Interval.End}]");
             PrintInOrder(node.Right);
         }
+    }
+
+    // 모든 노드를 풀로 반환하며 트리를 초기화하는 Clear 메서드 추가
+    public void Clear()
+    {
+        ClearNodes(_root);
+        _root = null;
+    }
+
+    private void ClearNodes(IntervalNode node)
+    {
+        if (node == null)
+            return;
+
+        ClearNodes(node.Left);
+        ClearNodes(node.Right);
+        _pool.Release(node);
     }
 }

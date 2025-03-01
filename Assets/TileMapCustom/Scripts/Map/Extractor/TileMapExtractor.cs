@@ -9,7 +9,7 @@ public class TileMapExtractor : MonoBehaviour
     static public string DataFilePath = "Assets/Resources/";
     static public string DataFileDirectory = "TileMapData/";
 
-    public Tilemap tilemap;
+    public Tilemap Tilemap;
 
     public MapEnum MapType;
 
@@ -28,12 +28,12 @@ public class TileMapExtractor : MonoBehaviour
 
     public int[,] ExtractTilemapToArray()
     {
-        tilemap.CompressBounds();
-        BoundsInt bounds = tilemap.cellBounds;
+        Tilemap.CompressBounds();
+        BoundsInt bounds = Tilemap.cellBounds;
         Vector2Int size = new(bounds.size.x, bounds.size.y);
 
         int[,] tileArray = new int[size.x, size.y];
-        TileBase[] tiles = tilemap.GetTilesBlock(bounds);
+        TileBase[] tiles = Tilemap.GetTilesBlock(bounds);
 
         for (int y = 0; y < size.y; y++)
         {

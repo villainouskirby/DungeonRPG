@@ -9,6 +9,7 @@ public class MapManager : MonoBehaviour
 {
     [Header("Wall Settings")]
     public int[] WallTileType = new int[0];
+    public Dictionary<int, bool> _wallTileType;
     public GameObject WallRoot;
 
     public static MapManager Instance { get { return _instance; } }
@@ -73,11 +74,29 @@ public class MapManager : MonoBehaviour
         Shader.SetGlobalInt("_FOVRadius", _fovCaster.Radius);
     }
 
+    public bool CheckWall(int type)
+    {
+        _wallTileType.TryGetValue(type, out bool result);
+        return result;
+    }
+
     /// <summary>
     /// 데이터를 세팅한다. ( MapType 기반 )
     /// </summary>
     public void InitData()
     {
+        _yGroupedData = new();
+        _xGroupedData = new();
+        _changeList = new();
+        _wallTileType = new();
+        _change = new(1000);
+        for (int i = 0; i < 1000; i++)
+            _change.Add(0);
+        for(int i = 0; i < WallTileType.Length; i++)
+        {
+            _wallTileType[WallTileType[i]] = true;
+        }
+
         _mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
         _fovCaster = gameObject.GetComponent<FOVCaster>();
 
@@ -213,150 +232,157 @@ public class MapManager : MonoBehaviour
         FOVDataBuffer.SetData(fovData, 0, 1, fovData.Length);
     }
 
+    private List<(int[] change, int start, int length)> _changeList;
+
+    private Dictionary<int, (Vector2Int range, Dictionary<int, int> groupData)> _yGroupedData = new();
+
     // 안에서 자체 로직 처리를 통해 자동 관리 ( Row, Column단위로 작업 분류 )
     // oriMapdata 또한 변경해준다.
-    public void ChangeMapDataByRow(TileMapData oriMapData, List<(int x,int y, int value)> mapData, GraphicsBuffer targetBuffer, int headerSize)
+    public void ChangeMapDataByRow(TileMapData oriMapData, List<Vector3Int> mapData, GraphicsBuffer targetBuffer, int headerSize)
     {
         int xSize = oriMapData.Width;
 
-        Dictionary<int, ((int min, int max) range, Dictionary<int, int> groupData)> yGroupedData = new();
+        _yGroupedData.Clear();
 
         for (int i = 0; i < mapData.Count; i++)
         {
-            if (yGroupedData.TryGetValue(mapData[i].y, out var value))
+            if (_yGroupedData.TryGetValue(mapData[i].y, out var value))
             {
-                yGroupedData[mapData[i].y].groupData[mapData[i].x] = mapData[i].value;
-                yGroupedData[mapData[i].y] = ((Mathf.Min(value.range.min, mapData[i].x), Mathf.Max(value.range.max, mapData[i].x)), yGroupedData[mapData[i].y].groupData);
+                _yGroupedData[mapData[i].y].groupData[mapData[i].x] = mapData[i].z;
+                _yGroupedData[mapData[i].y] = (new(Mathf.Min(value.range.x, mapData[i].x), Mathf.Max(value.range.y, mapData[i].x)), _yGroupedData[mapData[i].y].groupData);
             }
             else
             {
-                yGroupedData[mapData[i].y] = ((mapData[i].x, mapData[i].x), new() { { mapData[i].x, mapData[i].value } });
+                _yGroupedData[mapData[i].y] = (new(mapData[i].x, mapData[i].x), new() { { mapData[i].x, mapData[i].z } });
             }
         }
 
 
-        List<(int[] change, int start, int length)> changeList = new();
+        _changeList.Clear();
 
-        foreach (var yGroup in yGroupedData)
+        foreach (var yGroup in _yGroupedData)
         {
             int y = yGroup.Key;
             var range = yGroup.Value.range;
             var groupData = yGroup.Value.groupData;
 
-            int startIndex = y * xSize + range.min;
-            int endIndex = y * xSize + range.max;
+            int startIndex = y * xSize + range.x;
+            int endIndex = y * xSize + range.y;
 
-            int[] change = new int[endIndex - startIndex + 1];
+            if (_change.Count < endIndex - startIndex + 1)
+            {
+                _change = new(endIndex - startIndex + 1);
+                for (int i = 0; i < endIndex - startIndex + 1 - _change.Count; i++)
+                    _change.Add(0);
+            }
 
-            for (int i = range.min; i <= range.max; i++)
+            for (int i = range.x; i <= range.y; i++)
             {
                 if (groupData.ContainsKey(i))
                 {
                     oriMapData.SetTile(i, y, groupData[i]);
-                    change[i - range.min] = groupData[i];
+                    _change[i - range.x] = groupData[i];
                 }
                 else
-                    change[i - range.min] = oriMapData.GetTile(i, y);
+                    _change[i - range.x] = oriMapData.GetTile(i, y);
             }
 
-            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
-        }
-
-        for (int i = 0; i < changeList.Count; i++)
-        {
-            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+            targetBuffer.SetData(_change, 0, startIndex + headerSize, endIndex - startIndex + 1);
         }
     }
+
+    private Dictionary<int, (Vector2Int range, Dictionary<int, int> groupData)> _xGroupedData;
 
     public void ChangeMapDataByCloumn(TileMapData oriMapData, List<(int x, int y, int value)> mapData, GraphicsBuffer targetBuffer, int headerSize)
     {
         int ySize = oriMapData.Height;
 
-        Dictionary<int, ((int min, int max) range, Dictionary<int, int> groupData)> xGroupedData = new();
+        _xGroupedData.Clear();
 
         for (int i = 0; i < mapData.Count; i++)
         {
-            if (xGroupedData.TryGetValue(mapData[i].x, out var value))
+            if (_xGroupedData.TryGetValue(mapData[i].x, out var value))
             {
-                xGroupedData[mapData[i].x].groupData[mapData[i].y] = mapData[i].value;
-                xGroupedData[mapData[i].x] = ((Mathf.Min(value.range.min, mapData[i].y), Mathf.Max(value.range.max, mapData[i].y)), xGroupedData[mapData[i].x].groupData);
+                _xGroupedData[mapData[i].x].groupData[mapData[i].y] = mapData[i].value;
+                _xGroupedData[mapData[i].x] = (new(Mathf.Min(value.range.x, mapData[i].y), Mathf.Max(value.range.y, mapData[i].y)), _xGroupedData[mapData[i].x].groupData);
             }
             else
             {
-                xGroupedData[mapData[i].x] = ((mapData[i].y, mapData[i].y), new() { { mapData[i].y, mapData[i].value } });
+                _xGroupedData[mapData[i].x] = (new(mapData[i].y, mapData[i].y), new() { { mapData[i].y, mapData[i].value } });
             }
         }
 
 
-        List<(int[] change, int start, int length)> changeList = new();
+        _changeList.Clear();
 
-        foreach (var xGroup in xGroupedData)
+        foreach (var xGroup in _xGroupedData)
         {
             int x = xGroup.Key;
             var range = xGroup.Value.range;
             var groupData = xGroup.Value.groupData;
 
-            int startIndex = x * ySize + range.min;
-            int endIndex = x * ySize + range.max;
+            int startIndex = x * ySize + range.x;
+            int endIndex = x * ySize + range.y;
 
             int[] change = new int[endIndex - startIndex + 1];
 
-            for (int i = range.min; i <= range.max; i++)
+            for (int i = range.x; i <= range.y; i++)
             {
                 if (groupData.ContainsKey(i))
                 {
                     oriMapData.SetTile(x, i, groupData[i]);
-                    change[i - range.min] = groupData[i];
+                    change[i - range.x] = groupData[i];
                 }
                 else
-                    change[i - range.min] = oriMapData.GetTile(x, i);
+                    change[i - range.x] = oriMapData.GetTile(x, i);
             }
 
-            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
+            _changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
         }
 
-        for (int i = 0; i < changeList.Count; i++)
+        for (int i = 0; i < _changeList.Count; i++)
         {
-            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+            targetBuffer.SetData(_changeList[i].change, 0, _changeList[i].start, _changeList[i].length);
         }
     }
 
-    public void ChangeVisitedMapDataByRow(TileMapData oriMapData, List<(int y, int min, int max)> yGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
-    {
-        List<(int[] change, int start, int length)> changeList = new();
+    private List<int> _change;
 
+    public void ChangeVisitedMapDataByRow(TileMapData oriMapData, List<Vector3Int> yGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
+    {
         int xSize = oriMapData.Width;
 
         foreach (var yGroup in yGroupedData)
         {
-            int y = yGroup.y;
+            int y = yGroup.x;
 
-            int startIndex = y * xSize + yGroup.min;
-            int endIndex = y * xSize + yGroup.max;
+            int startIndex = y * xSize + yGroup.y;
+            int endIndex = y * xSize + yGroup.z;
 
-            int[] change = new int[endIndex - startIndex + 1];
-            Array.Fill(change, value);
-
-            for (int x = yGroup.min; x <= yGroup.max; x++)
+            if (_change.Count < endIndex - startIndex + 1)
+            {
+                _change = new(endIndex - startIndex + 1);
+                for (int i = 0; i < endIndex - startIndex + 1 - _change.Count; i++)
+                    _change.Add(0);
+            }
+            for (int x = yGroup.y; x <= yGroup.z; x++)
             {
                 if (oriMapData.GetTile(x, y) == 1)
-                    change[y * xSize + x - startIndex] = 1;
+                    _change[y * xSize + x - startIndex] = 1;
                 else
+                {
+                    _change[y * xSize + x - startIndex] = value;
                     oriMapData.SetTile(x, y, value);
+                }    
             }
 
-            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
-        }
-
-        for (int i = 0; i < changeList.Count; i++)
-        {
-            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+            targetBuffer.SetData(_change, 0, startIndex + headerSize, endIndex - startIndex + 1);
         }
     }
 
-    public void ChangeVisitedMapDataByColumn(TileMapData oriMapData, List<(int x, int min, int max)> xGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
+    public void ChangeVisitedMapDataByColumn(TileMapData oriMapData, List<Vector3Int> xGroupedData, int value, GraphicsBuffer targetBuffer, int headerSize)
     {
-        List<(int[] change, int start, int length)> changeList = new();
+        _changeList.Clear();
 
         int ySize = oriMapData.Height;
 
@@ -364,13 +390,13 @@ public class MapManager : MonoBehaviour
         {
             int x = xGroup.x;
 
-            int startIndex = x * ySize + xGroup.min;
-            int endIndex = x * ySize + xGroup.max;
+            int startIndex = x * ySize + xGroup.y;
+            int endIndex = x * ySize + xGroup.z;
 
             int[] change = new int[endIndex - startIndex + 1];
             Array.Fill(change, value);
 
-            for (int y = xGroup.min; y <= xGroup.max; y++)
+            for (int y = xGroup.y; y <= xGroup.z; y++)
             {
                 if (oriMapData.GetTile(x, y) == 1)
                     change[x * ySize + y - startIndex] = 1;
@@ -378,12 +404,12 @@ public class MapManager : MonoBehaviour
                     oriMapData.SetTile(x, y, value);
             }
 
-            changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
+            _changeList.Add((change, startIndex + headerSize, endIndex - startIndex + 1));
         }
 
-        for (int i = 0; i < changeList.Count; i++)
+        for (int i = 0; i < _changeList.Count; i++)
         {
-            targetBuffer.SetData(changeList[i].change, 0, changeList[i].start, changeList[i].length);
+            targetBuffer.SetData(_changeList[i].change, 0, _changeList[i].start, _changeList[i].length);
         }
     }
 

@@ -71,6 +71,8 @@ public class TileMapController : MonoBehaviour
 
         _tileMaterial.SetTexture("_TileTexture", _tileTextureArray);
         _tileMaterial.SetInt("_TextureSize", _tileTextureArray.depth);
+
+        TileTexture = null;
     }
 
     public void InitializeTileMap()

@@ -25,10 +25,15 @@ public class WallColliderManager : MonoBehaviour
     private void Start()
     {
         _mapData = MapManager.Instance.MapData;
-        _activeCollider = new();
-        _activeTile = new();
-        _relativeTile = new();
-        _activeTileRangeCnt = new();
+        _activeCollider = new(225);
+        _activeTile = new(225);
+        _relativeTile = new(225);
+        _activeTileRangeCnt = new(225);
+
+        _deleteTile = new(225);
+        _addTile = new(225);
+        _deleteTileToRemove = new(225);
+        _addTileToRemove = new(225);
     }
 
     public void UpdateActiveTile(Vector2Int oldTargetTile, int oldRange, Vector2Int newTargetTile, int newRange)
@@ -60,6 +65,9 @@ public class WallColliderManager : MonoBehaviour
         }
     }
 
+    private HashSet<Vector2Int> _addTile;
+    private HashSet<Vector2Int> _addTileToRemove;
+
     private void AddActiveTile(Vector2Int tilePos, Dictionary<int, int> tileRange)
     {
         int maxRange = -1;
@@ -70,7 +78,7 @@ public class WallColliderManager : MonoBehaviour
                 maxRange = Mathf.Max(maxRange, rangePair.Key);  
         }
 
-        HashSet<Vector2Int> addTile = new();
+        _addTile.Clear();
 
         for (int x = -maxRange; x <= maxRange; x++)
         {
@@ -81,24 +89,25 @@ public class WallColliderManager : MonoBehaviour
 
                 if (correctX < 0 || correctY < 0) continue;
                 if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
-                if (MapManager.Instance.WallTileType.Contains(_mapData.GetTile(correctX, correctY)))
-                    addTile.Add(new Vector2Int(correctX, correctY));
+                if (MapManager.Instance.CheckWall(_mapData.GetTile(correctX, correctY)))
+                    _addTile.Add(new Vector2Int(correctX, correctY));
             }
         }
 
-        HashSet<Vector2Int> tileToRemove = new();
-        foreach (var tile in addTile)
+        _addTileToRemove.Clear();
+
+        foreach (var tile in _addTile)
         {
             if (!_relativeTile.ContainsKey(tile))
                 _relativeTile[tile] = new();
             _relativeTile[tile].Add(tilePos);
             if (_activeTile.Contains(tile))
-                tileToRemove.Add(tile);
+                _addTileToRemove.Add(tile);
         }
-        addTile.ExceptWith(tileToRemove);
+        _addTile.ExceptWith(_addTileToRemove);
 
 
-        foreach (var add in addTile)
+        foreach (var add in _addTile)
         {
             GameObject wall = TileMapColliderObjPool.Instance.GetCollider();
             wall.transform.localScale = new Vector2(_tileSize, _tileSize);
@@ -108,6 +117,9 @@ public class WallColliderManager : MonoBehaviour
             wall.transform.SetParent(MapManager.Instance.WallRoot.transform, true);
         }
     }
+
+    private HashSet<Vector2Int> _deleteTile;
+    private HashSet<Vector2Int> _deleteTileToRemove;
 
     private void DeleteActiveTile(Vector2Int tilePos, Dictionary<int, int> tileRange, int deleteRange)
     {
@@ -123,7 +135,7 @@ public class WallColliderManager : MonoBehaviour
             return; // 더 큰 범위가 활성화 되어 있기에 그냥 return
         // range 크기는 이미 다 없다는 가정
 
-        HashSet<Vector2Int> deleteTile = new();
+        _deleteTile.Clear();
 
         for (int x = -deleteRange; x <= deleteRange; x++)
         {
@@ -138,23 +150,23 @@ public class WallColliderManager : MonoBehaviour
                 if (correctX < 0 || correctY < 0) continue;
                 if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
 
-                if (MapManager.Instance.WallTileType.Contains(_mapData.GetTile(correctX, correctY)))
-                    deleteTile.Add(new Vector2Int(correctX, correctY));
+                if (MapManager.Instance.CheckWall(_mapData.GetTile(correctX, correctY)))
+                    _deleteTile.Add(new Vector2Int(correctX, correctY));
             }
         }
 
-        HashSet<Vector2Int> tileToRemove = new();
-        foreach (var tile in deleteTile)
+        _deleteTileToRemove.Clear();
+        foreach (var tile in _deleteTile)
         {
             _relativeTile[tile].Remove(tilePos);
             if (_relativeTile[tile].Count != 0)
             {
-                tileToRemove.Add(tile); // 연관된 타일이 따로 존재하기에 지우면 안된다.
+                _deleteTileToRemove.Add(tile); // 연관된 타일이 따로 존재하기에 지우면 안된다.
             }
         }
-        deleteTile.ExceptWith(tileToRemove);
+        _deleteTile.ExceptWith(_deleteTileToRemove);
 
-        foreach (var delete in deleteTile)
+        foreach (var delete in _deleteTile)
         {
             GameObject wall = _activeCollider[delete];
             TileMapColliderObjPool.Instance.ReturnCollider(wall);

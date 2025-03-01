@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "FOVData", menuName = "FOV/FOVData")]
+[CreateAssetMenu(fileName = "FOVData", menuName = "TileMap/FOVData")]
 public class FOVData : ScriptableObject
 {
     public FOVTile[] FOV;
