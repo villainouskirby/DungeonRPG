@@ -131,8 +131,8 @@ Shader "Custom/GuideTileMap"
                 // 0 -> Out -> _DefaultColor / 1 -> Ok -> targetColor
                 float4 returnColor = lerp(_DefaultColor, targetColor, valid);
 
-                int blurValidRow = _BlurMapDataBufferRow[1 + safeRowIndex];
-                int blurValidColumn = _BlurMapDataBufferColumn[1 + safeColumnIndex];
+                int blurValidRow = _BlurMapDataBufferRow[validCoord * (rowIndex + 1)];
+                int blurValidColumn = _BlurMapDataBufferColumn[validCoord * (columnIndex + 1)];
 
                 int blurIndex = ((blurValidRow | blurValidColumn) & 1) | max(blurValidRow, blurValidColumn);
                 blurIndex = clamp(blurIndex, 0, _BlurLength);

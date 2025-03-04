@@ -21,8 +21,16 @@ public class WeaponController : MonoBehaviour
     private bool m_sliding = false;
     private float m_slidingTimer = 0f;
 
-    // 플레이어가 바라보는 방향 (0=위,1=아래,2=왼,3=오른쪽)
+   
+
     private int m_facingDirection = 1; // 기본 아래(1)로 가정
+    
+    [Header("Hitbox Reference")]
+    public WeaponHitbox weaponHitbox;
+    // 공격 시 콜라이더를 잠깐 On -> Off
+
+    // 공격용 히트박스가 켜져있는 시간 (애니메이션 타이밍에 맞춰 조정)
+    public float hitboxActiveTime = 0.5f;
 
     void Start()
     {
@@ -125,7 +133,7 @@ public class WeaponController : MonoBehaviour
 
         // 콤보 공격 처리
         // L키를 누르고, 공격 간격이 충분하며, 회피 중이 아닐 때
-        if (Input.GetKeyDown(KeyCode.L) && (m_timeSinceAttack > minAttackInterval) && !m_sliding)
+        if (Input.GetMouseButtonDown(0) && (m_timeSinceAttack > minAttackInterval) && !m_sliding)
         {
             m_currentAttack++;
 
@@ -138,7 +146,7 @@ public class WeaponController : MonoBehaviour
                 m_currentAttack = 1;
 
             // 방향 + 콤보 단계로 트리거 이름 결정
-            // ex) "AttackUp1", "AttackDown2", "AttackLeft3" 등
+            // "AttackUp1", "AttackDown2", "AttackLeft3"
             string attackTrigger = "";
             switch (m_facingDirection)
             {
@@ -153,6 +161,31 @@ public class WeaponController : MonoBehaviour
 
             // 공격 시간 리셋
             m_timeSinceAttack = 0f;
+           
+            // 추가: 콤보 공격 데미지 결정 & 히트박스 활성화
+            
+            int damage = 0;
+            switch (m_currentAttack)
+            {
+                case 1: damage = 10; break; // 1단 콤보
+                case 2: damage = 15; break; // 2단 콤보
+                case 3: damage = 20; break; // 3단 콤보
+            }
+
+            // 코루틴으로 일정 시간 동안 히트박스 활성화
+            if (weaponHitbox != null)
+            {
+                StartCoroutine(ActivateHitbox(damage));
+            }
         }
+    }
+    private System.Collections.IEnumerator ActivateHitbox(int damage)
+    {
+        weaponHitbox.SetDamage(damage);
+        weaponHitbox.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(hitboxActiveTime);
+
+        weaponHitbox.gameObject.SetActive(false);
     }
 }

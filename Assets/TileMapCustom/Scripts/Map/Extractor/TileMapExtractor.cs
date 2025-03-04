@@ -9,7 +9,7 @@ public class TileMapExtractor : MonoBehaviour
     static public string DataFilePath = "Assets/Resources/";
     static public string DataFileDirectory = "TileMapData/";
 
-    public Tilemap tilemap;
+    public Tilemap Tilemap;
 
     public MapEnum MapType;
 
@@ -28,12 +28,12 @@ public class TileMapExtractor : MonoBehaviour
 
     public int[,] ExtractTilemapToArray()
     {
-        tilemap.CompressBounds();
-        BoundsInt bounds = tilemap.cellBounds;
+        Tilemap.CompressBounds();
+        BoundsInt bounds = Tilemap.cellBounds;
         Vector2Int size = new(bounds.size.x, bounds.size.y);
 
         int[,] tileArray = new int[size.x, size.y];
-        TileBase[] tiles = tilemap.GetTilesBlock(bounds);
+        TileBase[] tiles = Tilemap.GetTilesBlock(bounds);
 
         for (int y = 0; y < size.y; y++)
         {
@@ -69,18 +69,18 @@ public class TileMapExtractor : MonoBehaviour
         tileMapData.SetTileData(tileArray);
 
         TileMapData visitedMapData = ScriptableObject.CreateInstance<TileMapData>();
-        int[,] visitedTileArray = new int[tileMapData.width, tileMapData.height];
+        int[,] visitedTileArray = new int[tileMapData.Width, tileMapData.Height];
         visitedMapData.SetTileData(visitedTileArray);
 
         string assetName = MapType.ToString();
         // 저장할 폴더 경로
         string directoryPath = $"{DataFilePath}{DataFileDirectory}{assetName}/";
 
-        if (Directory.Exists(directoryPath))
-            Directory.Delete(directoryPath, true);
-        Directory.CreateDirectory(directoryPath);
+        if (!Directory.Exists(directoryPath))
+            Directory.CreateDirectory(directoryPath);
 
         // ScriptableObject를 에셋으로 저장
+        AssetDatabase.DeleteAsset($"{directoryPath}{assetName}.asset");
         AssetDatabase.CreateAsset(tileMapData, $"{directoryPath}{assetName}.asset");
         AssetDatabase.CreateAsset(visitedMapData, $"{directoryPath}{assetName}Visited.asset");
         AssetDatabase.SaveAssets();

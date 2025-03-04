@@ -3,14 +3,14 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float speed = 3f;            // 일반 이동 속도
-    public float slideForce = 5f;        // 회피 시 속도
-    public float slideDuration = 0.4f;   // 회피 지속 시간(애니메이션 길이에 맞게 조정)
+    public float speed = 5f;            // 일반 이동 속도
+    public float slideForce = 30f;       // 회피 시 속도
+    public float slideDuration = 0.4f;  // 회피 지속 시간
 
     [Header("Attack Settings")]
-    public float comboResetTime = 1.0f;      // 콤보 입력 유효시간
-    public float minAttackInterval = 0.5f;  // 공격 간 최소 간격
-    private int m_currentAttack = 0;         // 현재 콤보 단계
+    public float comboResetTime = 1.0f;    // 콤보 입력 유효시간
+    public float minAttackInterval = 0.5f; // 공격 간 최소 간격
+    private int m_currentAttack = 0;       // 현재 콤보 단계
     private float m_timeSinceAttack = 0f;
 
     private Rigidbody2D m_body2d;
@@ -29,19 +29,24 @@ public class PlayerController : MonoBehaviour
         m_body2d = GetComponent<Rigidbody2D>();
         m_animator = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>(); // SpriteRenderer 참조
-        //무기와 플레이어 간 충돌 방지, 떨어짐 방지
-        Collider2D col1 = GetComponent<Collider2D>();
-        Collider2D col2 = GameObject.Find("Weapon").GetComponent<Collider2D>();
-        Physics2D.IgnoreCollision(col1, col2, true);
-        FixedJoint2D joint = gameObject.AddComponent<FixedJoint2D>();
-        joint.connectedBody = GameObject.Find("Weapon").GetComponent<Rigidbody2D>();
+
+        // 무기와 플레이어 간 충돌 방지, 떨어짐 방지
+        //Collider2D col1 = GetComponent<Collider2D>();
+        //Collider2D col2 = GameObject.Find("Weapon").GetComponent<Collider2D>();
+        //Physics2D.IgnoreCollision(col1, col2, true);
+
+        // 무기를 플레이어에 Joint로 연결
+        //FixedJoint2D joint = gameObject.AddComponent<FixedJoint2D>();
+        //joint.connectedBody = GameObject.Find("Weapon").GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
+        // 공격 간격 체크
         m_timeSinceAttack += Time.deltaTime;
 
-        // 회피 상태면 타이머 갱신
+        // 슬라이딩(회피) 시간 체크
+       
         if (m_sliding)
         {
             m_slidingTimer += Time.deltaTime;
@@ -53,100 +58,21 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // --------------------
-        // 이동 입력
-        // --------------------
-        float x = 0f;
-        float y = 0f;
-
-        if (Input.GetKey(KeyCode.W)) y = 1f;
-        if (Input.GetKey(KeyCode.S)) y = -1f;
-        if (Input.GetKey(KeyCode.A)) x = -1f;
-        if (Input.GetKey(KeyCode.D)) x = 1f;
-
-        // 이동 벡터(노멀라이즈)
-        Vector2 dir = new Vector2(x, y).normalized;
-
-        // 회피 중이 아닐 때만 이동 가능
-        if (!m_sliding)
-        {
-            m_body2d.velocity = dir * speed;
-        }
-
-        // 이동 중인지 체크 → Animator Bool 파라미터
-        bool isWalk = dir.magnitude > 0f;
-        m_animator.SetBool("iswalking", isWalk);
-
-        // --------------------
-        // 바라보는 방향 업데이트
-        // --------------------
-        // 이동 중일 때만 방향 갱신
-        if (isWalk)
-        {
-            // (위,아래,왼,오) 판정
-            if (Mathf.Abs(x) > Mathf.Abs(y))
-            {
-                // 좌우 우선
-                m_facingDirection = (x < 0) ? 2 : 3; // 왼:2, 오른쪽:3
-            }
-            else
-            {
-                // 상하 우선
-                m_facingDirection = (y > 0) ? 0 : 1; // 위:0, 아래:1
-            }
-
-            // Animator에 Direction 세팅
-            m_animator.SetInteger("Direction", m_facingDirection);
-
-            // 좌우 Flip 처리 (왼쪽:2 = flipX=false / 오른쪽:3 = flipX=true)
-            if (m_facingDirection == 3)
-                sr.flipX = true;
-            else if (m_facingDirection == 2)
-                sr.flipX = false;
-        }
-
-        // 회피(sliding) 처리
-        // 회피 중이 아닐 때 LeftShift를 누르면
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !m_sliding)
-        {
-            m_sliding = true;
-            m_slidingTimer = 0f; // 회피 시작
-
-            // 방향별 다른 애니메이션 트리거 (SlideUp, SlideDown, SlideLeft, SlideRight)
-            switch (m_facingDirection)
-            {
-                case 0: m_animator.SetTrigger("SlideUp"); break;
-                case 1: m_animator.SetTrigger("SlideDown"); break;
-                case 2: m_animator.SetTrigger("SlideLeft"); break;
-                case 3: m_animator.SetTrigger("SlideRight"); break;
-            }
-
-            // 실제 회피 속도 적용 (수직/수평)
-            Vector2 SlideDir = Vector2.zero;
-            if (m_facingDirection == 0) SlideDir = Vector2.up;
-            else if (m_facingDirection == 1) SlideDir = Vector2.down;
-            else if (m_facingDirection == 2) SlideDir = Vector2.left;
-            else if (m_facingDirection == 3) SlideDir = Vector2.right;
-
-            m_body2d.velocity = SlideDir * slideForce;
-        }
-
         // 콤보 공격 처리
-        // L키를 누르고, 공격 간격이 충분하며, 회피 중이 아닐 때
-        if (Input.GetKeyDown(KeyCode.L) && (m_timeSinceAttack > minAttackInterval) && !m_sliding)
+        
+        if (Input.GetMouseButtonDown(0) && (m_timeSinceAttack > minAttackInterval) && !m_sliding)
         {
             m_currentAttack++;
 
-            // 3단 콤보 후 1로 돌아오기
+            // 3단 콤보 후 다시 1타로
             if (m_currentAttack > 3)
                 m_currentAttack = 1;
 
-            // 콤보 리셋 시간(1초) 넘으면 다시 1타부터
+            // 콤보 리셋 시간 이후면 다시 1타부터
             if (m_timeSinceAttack > comboResetTime)
                 m_currentAttack = 1;
 
-            // 방향 + 콤보 단계로 트리거 이름 결정
-            // ex) "AttackUp1", "AttackDown2", "AttackLeft3" 등
+            // 현재 바라보는 방향 + 콤보 단계를 통해 애니메이션 트리거 결정
             string attackTrigger = "";
             switch (m_facingDirection)
             {
@@ -156,11 +82,80 @@ public class PlayerController : MonoBehaviour
                 case 3: attackTrigger = "AttackRight" + m_currentAttack; break;
             }
 
-            // 애니메이션 트리거 발동
+            // 공격 애니메이션 실행
             m_animator.SetTrigger(attackTrigger);
 
-            // 공격 시간 리셋
+            // 공격 시점 리셋
             m_timeSinceAttack = 0f;
+        }
+
+        
+        // 슬라이딩(회피)
+      
+        if (Input.GetKeyDown(KeyCode.Space) && !m_sliding)
+        {
+            m_sliding = true;
+            m_slidingTimer = 0f; // 회피 시작
+
+            switch (m_facingDirection)
+            {
+                case 0: m_animator.SetTrigger("SlideUp"); break;
+                case 1: m_animator.SetTrigger("SlideDown"); break;
+                case 2: m_animator.SetTrigger("SlideLeft"); break;
+                case 3: m_animator.SetTrigger("SlideRight"); break;
+            }
+
+            // 실제 회피 속도 적용
+            Vector2 slideDir = Vector2.zero;
+            if (m_facingDirection == 0) slideDir = Vector2.up;
+            else if (m_facingDirection == 1) slideDir = Vector2.down;
+            else if (m_facingDirection == 2) slideDir = Vector2.left;
+            else if (m_facingDirection == 3) slideDir = Vector2.right;
+
+            m_body2d.velocity = slideDir * slideForce;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        
+        // 이동 입력 (Input.GetAxis)
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+
+        Vector2 dir = new Vector2(moveX, moveY);
+
+        bool isWalk = dir.magnitude > 0f;
+        m_animator.SetBool("iswalking", isWalk);
+
+        // 슬라이딩 중이 아닐 때만 이동 가능
+        if (!m_sliding)
+        {
+            m_body2d.velocity = dir.normalized * speed;
+        }
+
+        // 바라보는 방향 업데이트
+        if (isWalk)
+        {
+            // 1) 가로축 입력이 있다면 → 좌/우 방향 우선
+            if (Mathf.Abs(moveX) > 0f)
+            {
+                m_facingDirection = (moveX < 0) ? 2 : 3; // 왼쪽:2, 오른쪽:3
+            }
+            // 2) 가로축 입력이 없고, 세로축 입력이 있다면 → 위/아래 방향
+            else if (Mathf.Abs(moveY) > 0f)
+            {
+                m_facingDirection = (moveY > 0) ? 0 : 1; // 위:0, 아래:1
+            }
+
+            // 애니메이터 Direction 파라미터 갱신
+            m_animator.SetInteger("Direction", m_facingDirection);
+
+            // 좌우 Flip 처리 (왼쪽:2 = flipX=false, 오른쪽:3 = flipX=true)
+            if (m_facingDirection == 3)
+                sr.flipX = true;
+            else if (m_facingDirection == 2)
+                sr.flipX = false;
         }
     }
 }

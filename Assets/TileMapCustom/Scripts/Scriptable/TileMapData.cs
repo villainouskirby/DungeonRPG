@@ -1,32 +1,32 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMap Data")]
+[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMapData")]
 public class TileMapData : ScriptableObject
 {
-    public int width;
-    public int height;
-    public int[] tiles; // 인스펙터에서 배열 지원을 위해 1D 배열 사용
+    public int Width;
+    public int Height;
+    public int[] Tile; // 인스펙터에서 배열 지원을 위해 1D 배열 사용
 
 
     public void SetTile(int x, int y, int value)
     {
-        tiles[y * width + x] = value;
+        Tile[y * Width + x] = value;
     }
 
     public int GetTile(int x, int y)
     {
-        return tiles[y * width + x];
+        return Tile[y * Width + x];
     }
 
     public int[] GetColumnData()
     {
-        int[] columnData = new int[tiles.Length];
+        int[] columnData = new int[Tile.Length];
 
-        for(int x = 0; x < width; x++)
+        for(int x = 0; x < Width; x++)
         {
-            for(int y = 0; y < height; y++)
+            for(int y = 0; y < Height; y++)
             {
-                columnData[x * height + y] = tiles[y * width + x];
+                columnData[x * Height + y] = Tile[y * Width + x];
             }
         }
 
@@ -36,15 +36,15 @@ public class TileMapData : ScriptableObject
     // 2D 배열을 설정하는 함수
     public void SetTileData(int[,] tileArray)
     {
-        width = tileArray.GetLength(0);
-        height = tileArray.GetLength(1);
-        tiles = new int[width * height];
+        Width = tileArray.GetLength(0);
+        Height = tileArray.GetLength(1);
+        Tile = new int[Width * Height];
 
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < Height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                tiles[x + y * width] = tileArray[x, y];
+                Tile[x + y * Width] = tileArray[x, y];
             }
         }
     }
@@ -52,13 +52,13 @@ public class TileMapData : ScriptableObject
     // 2D 배열로 변환하는 함수
     public int[,] GetTileData()
     {
-        int[,] tileArray = new int[width, height];
+        int[,] tileArray = new int[Width, Height];
 
-        for (int y = 0; y < height; y++)
+        for (int y = 0; y < Height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                tileArray[x, y] = tiles[x + y * width];
+                tileArray[x, y] = Tile[x + y * Width];
             }
         }
         return tileArray;
