@@ -1,3 +1,4 @@
+using Cainos.PixelArtTopDown_Basic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -13,9 +14,21 @@ public class PlayerController : MonoBehaviour
     private int m_currentAttack = 0;       // 현재 콤보 단계
     private float m_timeSinceAttack = 0f;
 
+    [Header("Buff Settings")]
+    public string type1;
+    public float per1;
+    public float duration1;
+    public Sprite icon1;
+    public string type2;
+    public float per2;
+    public float duration2;
+    public Sprite icon2;
+
     private Rigidbody2D m_body2d;
     private Animator m_animator;
     private SpriteRenderer sr;
+
+
 
     // 회피 중인지 여부
     private bool m_sliding = false;
@@ -113,6 +126,16 @@ public class PlayerController : MonoBehaviour
             else if (m_facingDirection == 3) slideDir = Vector2.right;
 
             m_body2d.velocity = slideDir * slideForce;
+        }
+
+        //버프 활성화 버튼
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            BuffManager.instance.CreateBuff(type1, per1, duration1, icon1);
+        }
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            BuffManager.instance.CreateBuff(type2, per2, duration2, icon2);
         }
     }
 

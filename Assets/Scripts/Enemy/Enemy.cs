@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro; // TextMeshPro를 사용하려면 필요
+using TMPro; 
 
 public class Enemy : MonoBehaviour
 {
