@@ -13,107 +13,54 @@ MonoBehaviour:
   m_Name: Map1_A_All
   m_EditorClassIdentifier: 
   Spawner:
-  - rid: 5538462817617182722
-  - rid: 5538462817617182723
-  - rid: 5538462817617182724
-  - rid: 5538462817617182725
-  - rid: 5538462817617182726
-  - rid: 5538462817617182727
-  - rid: 5538462817617182728
-  - rid: 5538462817617182729
-  - rid: 5538462817617182730
-  - rid: 5538462817617182731
-  - rid: 5538462817617182732
-  - rid: 5538462817617182733
-  - rid: 5538462817617182734
-  - rid: 5538462817617182735
-  - rid: 5538462817617182736
-  - rid: 5538462817617182737
-  - rid: 5538462817617182738
-  - rid: 5538462817617182739
-  - rid: 5538462817617182740
-  - rid: 5538462817617182741
-  - rid: 5538462817617182742
-  - rid: 5538462817617182743
-  - rid: 5538462817617182744
-  - rid: 5538462817617182745
-  - rid: 5538462817617182746
-  - rid: 5538462817617182747
-  - rid: 5538462817617182748
-  - rid: 5538462817617182749
-  - rid: 5538462817617182750
-  - rid: 5538462817617182751
-  - rid: 5538462817617182752
-  - rid: 5538462817617182753
-  - rid: 5538462817617182754
-  - rid: 5538462817617182755
-  - rid: 5538462817617182756
-  - rid: 5538462817617182757
-  - rid: 5538462817617182758
-  - rid: 5538462817617182759
-  - rid: 5538462817617182760
-  - rid: 5538462817617182761
-  - rid: 5538462817617182762
-  - rid: 5538462817617182763
-  - rid: 5538462817617182764
-  - rid: 5538462817617182765
-  - rid: 5538462817617182766
-  - rid: 5538462817617182767
-  - rid: 5538462817617182768
-  - rid: 5538462817617182769
-  - rid: 5538462817617182770
-  - rid: 5538462817617182771
-  - rid: 5538462817617182772
-  - rid: 5538462817617182773
-  - rid: 5538462817617182774
+  - rid: 5297038033981014077
+  - rid: 5297038033981014078
+  - rid: 5297038033981014079
+  - rid: 5297038033981014080
+  - rid: 5297038033981014081
+  - rid: 5297038033981014082
+  - rid: 5297038033981014083
+  - rid: 5297038033981014084
+  - rid: 5297038033981014085
+  - rid: 5297038033981014086
+  - rid: 5297038033981014087
+  - rid: 5297038033981014088
+  - rid: 5297038033981014089
+  - rid: 5297038033981014090
+  - rid: 5297038033981014091
+  - rid: 5297038033981014092
+  - rid: 5297038033981014093
+  - rid: 5297038033981014094
+  - rid: 5297038033981014095
+  - rid: 5297038033981014096
+  - rid: 5297038033981014097
+  - rid: 5297038033981014098
+  - rid: 5297038033981014099
+  - rid: 5297038033981014100
+  - rid: 5297038033981014101
+  - rid: 5297038033981014102
+  - rid: 5297038033981014103
+  - rid: 5297038033981014104
+  - rid: 5297038033981014105
+  - rid: 5297038033981014106
+  - rid: 5297038033981014107
+  - rid: 5297038033981014108
+  - rid: 5297038033981014109
+  - rid: 5297038033981014110
+  - rid: 5297038033981014111
+  - rid: 5297038033981014112
+  - rid: 5297038033981014113
+  - rid: 5297038033981014114
+  - rid: 5297038033981014115
+  - rid: 5297038033981014116
+  - rid: 5297038033981014117
+  - rid: 5297038033981014118
+  - rid: 5297038033981014119
+  - rid: 5297038033981014120
   references:
     version: 2
     RefIds:
-    - rid: 5538462817617182722
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 8, y: 4}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182723
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 9, y: 3}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182724
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 10, y: 3}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182725
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 11, y: 3}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182726
+    - rid: 5297038033981014077
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -123,8 +70,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182727
+        Select: 0
+    - rid: 5297038033981014078
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -134,8 +81,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182728
+        Select: 0
+    - rid: 5297038033981014079
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -145,8 +92,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182729
+        Select: 0
+    - rid: 5297038033981014080
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -156,8 +103,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182730
+        Select: 0
+    - rid: 5297038033981014081
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -167,8 +114,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182731
+        Select: 0
+    - rid: 5297038033981014082
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -178,8 +125,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182732
+        Select: 0
+    - rid: 5297038033981014083
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -189,8 +136,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182733
+        Select: 0
+    - rid: 5297038033981014084
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -200,8 +147,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182734
+        Select: 0
+    - rid: 5297038033981014085
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -211,8 +158,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182735
+        Select: 0
+    - rid: 5297038033981014086
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -222,8 +169,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182736
+        Select: 0
+    - rid: 5297038033981014087
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -233,8 +180,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182737
+        Select: 0
+    - rid: 5297038033981014088
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -244,8 +191,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182738
+        Select: 0
+    - rid: 5297038033981014089
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -255,8 +202,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182739
+        Select: 0
+    - rid: 5297038033981014090
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -266,8 +213,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182740
+        Select: 0
+    - rid: 5297038033981014091
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -277,8 +224,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182741
+        Select: 0
+    - rid: 5297038033981014092
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -288,8 +235,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182742
+        Select: 0
+    - rid: 5297038033981014093
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -299,8 +246,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182743
+        Select: 0
+    - rid: 5297038033981014094
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -310,8 +257,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182744
+        Select: 0
+    - rid: 5297038033981014095
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -321,8 +268,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182745
+        Select: 0
+    - rid: 5297038033981014096
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -332,8 +279,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182746
+        Select: 0
+    - rid: 5297038033981014097
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -343,8 +290,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182747
+        Select: 0
+    - rid: 5297038033981014098
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -354,8 +301,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182748
+        Select: 0
+    - rid: 5297038033981014099
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -365,8 +312,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182749
+        Select: 0
+    - rid: 5297038033981014100
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -376,8 +323,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182750
+        Select: 0
+    - rid: 5297038033981014101
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -387,8 +334,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182751
+        Select: 0
+    - rid: 5297038033981014102
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -398,8 +345,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182752
+        Select: 0
+    - rid: 5297038033981014103
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -409,8 +356,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182753
+        Select: 0
+    - rid: 5297038033981014104
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -420,8 +367,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182754
+        Select: 0
+    - rid: 5297038033981014105
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -431,63 +378,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182755
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 19, y: 8}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182756
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 20, y: 8}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182757
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 21, y: 8}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182758
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 22, y: 8}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182759
-      type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
-      data:
-        MinRange: 5
-        MaxRange: 15
-        TilePos: {x: 23, y: 8}
-        CoolTime: 5
-        Type: 2
-        CurrentTime: 0
-        Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182760
+        Select: 0
+    - rid: 5297038033981014106
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -497,8 +389,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182761
+        Select: 0
+    - rid: 5297038033981014107
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -508,8 +400,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182762
+        Select: 0
+    - rid: 5297038033981014108
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -519,8 +411,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182763
+        Select: 0
+    - rid: 5297038033981014109
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -530,8 +422,8 @@ MonoBehaviour:
         Type: 2
         CurrentTime: 0
         Minerals: 
-        SelectMineral: 0
-    - rid: 5538462817617182764
+        Select: 0
+    - rid: 5297038033981014110
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -541,7 +433,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182765
+        Select: 0
+    - rid: 5297038033981014111
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -551,7 +444,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182766
+        Select: 0
+    - rid: 5297038033981014112
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -561,7 +455,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182767
+        Select: 0
+    - rid: 5297038033981014113
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -571,7 +466,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182768
+        Select: 0
+    - rid: 5297038033981014114
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -581,7 +477,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182769
+        Select: 0
+    - rid: 5297038033981014115
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -591,7 +488,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182770
+        Select: 0
+    - rid: 5297038033981014116
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -601,7 +499,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182771
+        Select: 0
+    - rid: 5297038033981014117
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -611,7 +510,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182772
+        Select: 0
+    - rid: 5297038033981014118
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -621,7 +521,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182773
+        Select: 0
+    - rid: 5297038033981014119
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -631,7 +532,8 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
-    - rid: 5538462817617182774
+        Select: 0
+    - rid: 5297038033981014120
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -641,3 +543,4 @@ MonoBehaviour:
         Type: 1
         CurrentTime: 0
         Plants: 
+        Select: 0

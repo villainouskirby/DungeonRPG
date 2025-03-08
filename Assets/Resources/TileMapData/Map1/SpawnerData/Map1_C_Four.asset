@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef79ff9986715cf47936014539b0cccb, type: 3}
-  m_Name: Map1_B_Two
+  m_Name: Map1_C_Four
   m_EditorClassIdentifier: 
   Spawner:
-  - rid: 5297038033981014074
+  - rid: 5297038033981014124
   references:
     version: 2
     RefIds:
-    - rid: 5297038033981014074
+    - rid: 5297038033981014124
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
         MaxRange: 15
-        TilePos: {x: 7, y: 4}
+        TilePos: {x: 22, y: 8}
         CoolTime: 5
         Type: 2
         CurrentTime: 0
