@@ -6,6 +6,7 @@ public class TileMapData : ScriptableObject
     public int Width;
     public int Height;
     public int[] Tile; // 인스펙터에서 배열 지원을 위해 1D 배열 사용
+    public Vector2 PlayerSpawnPos;
 
 
     public void SetTile(int x, int y, int value)

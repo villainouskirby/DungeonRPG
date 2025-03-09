@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Map1_B_One
   m_EditorClassIdentifier: 
   Spawner:
-  - rid: 5297038033981014071
-  - rid: 5297038033981014072
-  - rid: 5297038033981014073
+  - rid: 5297038221674283008
+  - rid: 5297038221674283009
+  - rid: 5297038221674283010
   references:
     version: 2
     RefIds:
-    - rid: 5297038033981014071
+    - rid: 5297038221674283008
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -30,7 +30,7 @@ MonoBehaviour:
         CurrentTime: 0
         Minerals: 
         Select: 0
-    - rid: 5297038033981014072
+    - rid: 5297038221674283009
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -41,7 +41,7 @@ MonoBehaviour:
         CurrentTime: 0
         Minerals: 
         Select: 0
-    - rid: 5297038033981014073
+    - rid: 5297038221674283010
       type: {class: MineralSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5

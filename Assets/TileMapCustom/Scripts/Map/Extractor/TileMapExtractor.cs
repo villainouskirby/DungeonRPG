@@ -60,13 +60,29 @@ public class TileMapExtractor : MonoBehaviour
         return tileArray;
     }
 
+    public Vector2 GetPlayerSpawnPos()
+    {
+        var childs = Tilemap.GetComponentsInChildren<Transform>();
+
+        foreach(var child in childs)
+        {
+            if(child.transform.name == "PlayerSpawnPoint")
+                return child.transform.position;
+        }
+
+        return Vector2.zero;
+    }
+
     void Start()
     {
         TextureMapping(); // 텍스처 매핑 실행
         int[,] tileArray = ExtractTilemapToArray(); // Tilemap을 배열로 변환
+        Vector2 playerSpawnPos = GetPlayerSpawnPos();
+        playerSpawnPos = new(playerSpawnPos.x + 9, playerSpawnPos.y + 5);
         // ScriptableObject 생성
         TileMapData tileMapData = ScriptableObject.CreateInstance<TileMapData>();
         tileMapData.SetTileData(tileArray);
+        tileMapData.PlayerSpawnPos = playerSpawnPos;
 
         TileMapData visitedMapData = ScriptableObject.CreateInstance<TileMapData>();
         int[,] visitedTileArray = new int[tileMapData.Width, tileMapData.Height];

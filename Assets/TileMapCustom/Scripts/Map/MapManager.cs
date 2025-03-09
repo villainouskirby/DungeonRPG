@@ -105,6 +105,8 @@ public class MapManager : MonoBehaviour
 
         _mapVisitedChecker.StartChecker();
         _fovCaster.StartCast();
+
+        Player.transform.position = _mapData.PlayerSpawnPos;
     }
 
     /// <summary>

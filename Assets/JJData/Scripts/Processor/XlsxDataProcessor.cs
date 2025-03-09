@@ -125,7 +125,7 @@ public class XlsxDataProcessor : IDataProcessor
                         dataNamePair = currentRowData;
                         foreach (var pair in dataNamePair)
                         {
-                            if (pair.Value.StartsWith("#"))
+                            if (pair.Value.StartsWith("#")) // #으로 시작시 스킵
                             {
                                 skipColumns.Add(pair.Key);
                             }
@@ -228,7 +228,7 @@ public class XlsxDataProcessor : IDataProcessor
                     if (sheetIdToTarget.TryGetValue(sheetId, out string target))
                     {
                         string sheetPath = Path.Combine(Path.GetDirectoryName(workbookPath), target);
-                        if (sheetName[0] != '#')
+                        if (sheetName[0] != '#') // #은 주석
                             sheets.Add((sheetName, sheetPath));
                     }
                 }
