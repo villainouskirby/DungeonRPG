@@ -19,6 +19,16 @@ public class Shop : MonoBehaviour
         InitInvenToShop();
     }
 
+    /// <summary> 상점 열기 </summary>
+    public void OpenShop() => gameObject.SetActive(true);
+
+    /// <summary> 상점 닫기 </summary>
+    public void CloseShop() => gameObject.SetActive(false);
+
+    /// <summary>
+    /// 상점 품목 초기화
+    /// <para/> 한번만 초기화 해주면 됨 => 건들필요 X
+    /// </summary>
     public void InitShop()
     {
         for (int i = 0; i < _shopItems.Count; i++)
@@ -27,6 +37,10 @@ public class Shop : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 상점에 나타나는 인벤토리 초기화
+    /// <para/> 외부에서 인벤에 변화가 있을 때 마다 호출해 줘야함
+    /// </summary>
     public void InitInvenToShop()
     {
         _inventorySellItems.Clear();

@@ -19,13 +19,23 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함
+        RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
         UpdateWeightText();
         InitInventory();
     }
 
+    /// <summary> 인벤토리 열기 </summary>
+    public void OpenInventory()
+    {
+        gameObject.SetActive(true);
+    }
+
+    /// <summary> 인벤토리 닫기 </summary>
+    public void CloseInventory() => gameObject.SetActive(false);
+
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
+    /// <summary> 인벤 초기화 </summary>
     public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함
     {
         _inventoryUI.InitInventoryUI();
@@ -45,6 +55,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
+    /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1)
     {
         if (_maxCapacity > 0 && RestCapacity <= 0)
@@ -125,6 +136,7 @@ public class Inventory : MonoBehaviour
         return amount;
     }
 
+    /// <summary> 아이템 넣기 </summary>
     public int AddItem(ItemData itemData, int amount = 1)
     {
         // 가방에 넣을 수 있는 개수 체크
