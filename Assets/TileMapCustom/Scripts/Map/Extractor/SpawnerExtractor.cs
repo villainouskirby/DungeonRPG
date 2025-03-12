@@ -19,7 +19,7 @@ public class SpawnerExtractor : MonoBehaviour
     public float            GenericMinRange;
     public float            GenericMaxRange;
 
-    private MapEnum         _mapType;
+    private MapEnum         _mapType = MapEnum.Map1;
     private Dictionary<SpawnerGroupEnum, Dictionary<SpawnerCaseEnum, List<Spawner>>>
                             _spawners;            
 
@@ -50,12 +50,22 @@ public class SpawnerExtractor : MonoBehaviour
                     monster.Monsters = monsterTile.Monsters;
                     monster.ActiveRange = monsterTile.ActiveRange;
 
+                    if (!_spawners.ContainsKey(spawnerTile.Group))
+                        _spawners[spawnerTile.Group] = new();
+                    if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
+                        _spawners[spawnerTile.Group][spawnerTile.Case] = new();
+
                     _spawners[spawnerTile.Group][spawnerTile.Case].Add(monster);
                     break;
                 case SpawnerType.Plant:
                     PlantSpawner plant = new(spawnerTile, GenericMinRange, GenericMaxRange);
                     PlantSpawnerTile plantTile = (PlantSpawnerTile)spawnerTile;
                     plant.Plants = plantTile.Plants;
+
+                    if (!_spawners.ContainsKey(spawnerTile.Group))
+                        _spawners[spawnerTile.Group] = new();
+                    if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
+                        _spawners[spawnerTile.Group][spawnerTile.Case] = new();
 
                     _spawners[spawnerTile.Group][spawnerTile.Case].Add(plant);
                     break;

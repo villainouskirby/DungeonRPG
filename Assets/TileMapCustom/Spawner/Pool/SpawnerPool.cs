@@ -76,7 +76,12 @@ public class GenericPool<TEnum> where TEnum : Enum
 
     public GameObject Get(TEnum type)
     {
-        if (!_pool.ContainsKey(type) || _pool[type].Count <= 0)
+        if (!_pool.ContainsKey(type))
+        {
+            for(int i = 0; i < 5; i++)
+                Generate(type);
+        }
+        if (_pool[type].Count <= 0)
             Generate(type);
         GameObject obj = _pool[type].Dequeue();
         obj.SetActive(true);
