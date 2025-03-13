@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4270452090202897474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1065636643052209330}
+  - component: {fileID: 2750937374480027228}
+  - component: {fileID: 5513901230034150146}
+  - component: {fileID: 2481737244384629859}
+  m_Layer: 0
+  m_Name: '@MapManager'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1065636643052209330
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4270452090202897474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.29134512, y: 9.713593, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2750937374480027228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4270452090202897474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1f0808bce097144f9c59595d2069788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WallTileType: ffffffff01000000
+  WallRoot: {fileID: 0}
+  MapType: 0
+  TileSize: 1
+  GuideTileSize: 0.2
+  TargetCamera: {fileID: 0}
+  Player: {fileID: 0}
+--- !u!114 &5513901230034150146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4270452090202897474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30b161b6bc00e94c8655c0c08bffb9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  VisitedRange: 2
+  TargetTileMap: {fileID: 0}
+--- !u!114 &2481737244384629859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4270452090202897474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707ffdf64693c1149adcd3830f89e25b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 4
+  RemainRadius: 0
+  ShadowCorrect: 0
+  BoxSize: 1.5

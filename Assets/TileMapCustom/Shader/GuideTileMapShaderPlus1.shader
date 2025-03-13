@@ -28,7 +28,6 @@ Shader "Custom/GuideTileMapPlus1"
             // buffer Header Info
             // 0 -> Default Value (1)
             // after 1 -> blur Data..
-            .
             // BlurMapDataArray sort by row
             StructuredBuffer<int> _BlurMapDataBufferRow;
             // BlurMapDataArray sort by column

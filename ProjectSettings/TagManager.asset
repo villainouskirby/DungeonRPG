@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Farm
   layers:
   - Default
   - TransparentFX
@@ -13,8 +14,8 @@ TagManager:
   - UI
   - 
   - TileMapWall
-  - 
-  - 
+  - Player
+  - Farm
   - 
   - 
   - 
@@ -41,7 +42,7 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Layer 1
+  - name: FarmIcon
     uniqueID: 2425651459
     locked: 0
   - name: Layer 2
