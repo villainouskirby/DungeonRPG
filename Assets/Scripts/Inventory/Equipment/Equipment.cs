@@ -10,6 +10,8 @@ public class Equipment : MonoBehaviour
 
     private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
 
+    // TODO => _playerEquipments를 저장할곳 생성 및 Init기능 만들기
+
     public void Equip(EquipmentItemData equipmentItemData)
     {
         EquipmentType type = equipmentItemData.EquipmentType;
@@ -40,7 +42,7 @@ public class Equipment : MonoBehaviour
     /// 장비효과 업데이트 
     /// <para/><paramref name="isPlus"/> => true이면 덧셈, false이면 뺄셈
     /// </summary>
-    private void UpdateEquipmentEffect(EquipmentType type, bool isPlus = true)
+    private void UpdateEquipmentEffect(EquipmentType type, bool isPlus = true) // 문제는 없을텐데 기존 스탯에서 장착한 장비들의 추가값 더하는 식으로 바꿔야할듯
     {
         if (type == EquipmentType.tool) return;
 

@@ -58,17 +58,13 @@ public class Inventory : MonoBehaviour
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1)
     {
-        if (_maxCapacity > 0 && RestCapacity <= 0)
-        {
-            _inventoryUI.OpenExcessPopUp();
-        }
-            int index;
+        int index;
 
         // 장비하던 아이템이 아닐경우 중량 차지함
         if (_equipment)
         {
             if (itemData is not EquipmentItemData ||
-                _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) == null)
+                _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) != itemData)
             {
                 CalculateRestWeight(itemData.Weight, -amount);
             }
@@ -76,6 +72,11 @@ public class Inventory : MonoBehaviour
         else
         {
             CalculateRestWeight(itemData.Weight, -amount);
+        }
+
+        if (_maxCapacity > 0 && RestCapacity <= 0)
+        {
+            _inventoryUI.OpenExcessPopUp();
         }
 
         // 수량이 있는 아이템
@@ -149,8 +150,13 @@ public class Inventory : MonoBehaviour
         return AddItemForce(itemData, amount);
     }
 
-    public void UseItem(int index)
+    public void UseItem(int index = -1)
     {
+        if (index == -1) // -1인 경우 제일 마지막 아이템을 사용함
+        {
+            index = _items.Count - 1;
+        }
+
         Item item = _items[index];
         if (item is IUsableItem uItem)
         {
@@ -175,7 +181,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
+    /// <summary> index 위치의 Item을 특정 개수만큼 버리기 </summary>
     public void RemoveItem(int index, int amount)
     {
         Item item = _items[index];
@@ -198,6 +204,46 @@ public class Inventory : MonoBehaviour
         CalculateRestWeight(GetItemData(index).Weight, GetItemAmount(index));
         _items.RemoveAt(index);
         UpdateWeightText();
+    }
+
+    public int RemoveItem(ItemData itemData, int amount)
+    {
+        int index = 0;
+
+        while (amount == 0 || index >= _items.Count)
+        {
+            Item targetItem = _items[index];
+            if (targetItem.Data.ID == itemData.ID)
+            {
+                if (targetItem is CountableItem ci)
+                {
+                    int amountDiff = amount - ci.Amount;
+
+                    if (amountDiff < 0) // 해당 슬롯에 있는 양이 더 많음
+                    {
+                        RemoveItem(index, -amount);
+                        amount = 0;
+                    }
+                    else
+                    {
+                        if (amountDiff > 0)
+                        {
+                            amount = amountDiff;
+                        }
+                        else // amount == 0 => 슬롯에 있는 양과 소모되는 양이 같음
+                        {
+                            amount = 0;
+                        }
+
+                        _inventoryUI.RemoveItem(index);
+                    }
+                }
+            }
+
+            index++;
+        }
+
+        return amount;
     }
 
     private int FindCountableItemSlotIndex(CountableItemData ciData, int index)
@@ -274,6 +320,21 @@ public class Inventory : MonoBehaviour
         {
             return 1;
         }
+    }
+
+    public int GetItemAmountSum(long ID)
+    {
+        int amount = 0;
+
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Data.ID == ID)
+            {
+                amount += GetItemAmount(i);
+            }
+        }
+
+        return amount;
     }
 
     public bool CheckItemUsable(int index) => _items[index] is IUsableItem;

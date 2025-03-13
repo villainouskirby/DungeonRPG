@@ -2,11 +2,9 @@ using UnityEngine;
 
 public class InventoryPopUpUI : ItemPopUpUI
 {
-    [SerializeField] private GameObject _menuPopUp;
-    [SerializeField] private GameObject _excessPopUp;
-
-
     [SerializeField] private InventoryUI _inventoryUI;
+    [SerializeField] private ExcessPopUpUI _excessPopUpUI;
+    [SerializeField] private GameObject _menuPopUp;
 
     private InventoryMenu _menu;
 
@@ -43,9 +41,5 @@ public class InventoryPopUpUI : ItemPopUpUI
         _menuPopUp.SetActive(true);
     }
 
-    public void OpenExcessPopUP() => _excessPopUp.SetActive(true);
-
-    public void CloseMenu() => _menuPopUp.SetActive(false);
-    
-    public void CloseExcessPopUp() => _excessPopUp.SetActive(false);
+    public void OpenExcessPopUP() => _excessPopUpUI.OpenExcessPopUp();
 }
