@@ -1,8 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
+public class BuffImage : MonoBehaviour
+{
+    [Header("UI 레퍼런스")]
+    public Image icon;   // 버프 아이콘 자체 (ex: Skill 아이콘)
+
+    private float duration;   // 버프 지속 시간(초)
+    private float currentTime; // 남은 시간
+
+    private BuffType buffType; 
+    private float percentage;
+    public void Awake()
+    {
+        icon = GetComponent<Image>();
+    }
+    /// <summary>
+    /// BuffManager에서 버프를 생성할 때 호출함
+    /// </summary>
+    public void Init(BuffType type, float percentage, float duration)
+    {
+        this.buffType = type;
+        this.percentage = percentage;
+        this.duration = duration;
+        this.currentTime = duration;
+        icon.fillAmount = 1;
+
+
+        // 스탯에 버프 적용
+        PlayerData.instance.ApplyBuff(type, percentage);
+
+        // 코루틴 시작 (0.1초마다 남은 시간을 감소시키는 방식)
+        StartCoroutine(Activation());
+    }
+
+    private IEnumerator Activation()
+    {
+        while (currentTime > 0)
+        {
+            currentTime -= 0.1f;
+            icon.fillAmount = currentTime / duration;
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return null;
+        icon.fillAmount = 0;
+
+        PlayerData.instance.RemoveBuff(buffType, percentage);
+
+        // 아이콘 오브젝트 제거
+        Destroy(gameObject);
+    }
+}
+/*
 // EX
 public enum BuffType
 {
@@ -65,3 +115,4 @@ public class BaseBuff : MonoBehaviour
         
     }
 }
+*/

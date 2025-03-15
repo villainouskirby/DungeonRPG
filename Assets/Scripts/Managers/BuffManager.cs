@@ -1,3 +1,35 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BuffManager : MonoBehaviour
+{
+    public static BuffManager instance;
+
+    [Header("버프 아이콘 프리팹")]
+    public GameObject buffPrefab;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    /// <summary>
+    /// 버프 아이콘 생성
+    /// </summary>
+    public void CreateBuff(BuffType type, float percentage, float duration, Sprite icon)
+    {
+        
+        GameObject go = Instantiate(buffPrefab, transform);
+        go.GetComponent<Image>().sprite = icon;
+        BuffImage buffImage = go.GetComponent<BuffImage>();
+        buffImage.Init(type, percentage, duration);
+    }
+}
+
+
+/*
 using Cainos.PixelArtTopDown_Basic;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,3 +54,4 @@ public class BuffManager : MonoBehaviour
         go.GetComponent<Image>().sprite = icon;
     }
 }
+*/

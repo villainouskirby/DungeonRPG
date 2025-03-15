@@ -1,8 +1,99 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+public enum BuffType
+{
+    AttackUp,
+    AttackDown,
+    SpeedUp,
+    SpeedDown
+}
 
+public class PlayerData : MonoBehaviour
+{
+    public static PlayerData instance;
+
+    [Header("플레이어 기본 스탯")]
+    public float baseAtk = 100f;
+    public float baseSpeed = 5f;
+
+    // 실제 게임에서 사용하는 “현재 스탯”
+    // (버프 영향을 받은 값)
+    public float currentAtk;
+    public float currentSpeed;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    private void Start()
+    {
+        // 시작할 때 현재 스탯을 기본 스탯으로 초기화
+        currentAtk = baseAtk;
+        currentSpeed = baseSpeed;
+    }
+
+    /// <summary>
+    /// 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
+    /// </summary>
+    public void ApplyBuff(BuffType type, float percentage)
+    {
+        switch (type)
+        {
+            case BuffType.AttackUp:
+                currentAtk += baseAtk * percentage;
+                break;
+
+            case BuffType.AttackDown:
+                currentAtk -= baseAtk * percentage;
+                break;
+
+            case BuffType.SpeedUp:
+                currentSpeed += baseSpeed * percentage;
+                break;
+
+            case BuffType.SpeedDown:
+                currentSpeed -= baseSpeed * percentage;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 버프가 끝날 때 호출: ApplyBuff에서 더해줬던 만큼 빼주거나, 빼줬던 만큼 더해서 원상 복구
+    /// </summary>
+    public void RemoveBuff(BuffType type, float percentage)
+    {
+        switch (type)
+        {
+            case BuffType.AttackUp:
+                currentAtk -= baseAtk * percentage;
+                break;
+
+            case BuffType.AttackDown:
+                currentAtk += baseAtk * percentage;
+                break;
+
+            case BuffType.SpeedUp:
+                currentSpeed -= baseSpeed * percentage;
+                break;
+
+            case BuffType.SpeedDown:
+                currentSpeed += baseSpeed * percentage;
+                break;
+        }
+    }
+    public void GetCurrentState()
+    {
+        //여기서 현재 스탯 값 얻기
+    }
+}
+
+/*
+public class Player
+{
+    public float Atk;
+    public float Speed;
+}
 public class PlayerData : MonoBehaviour
 {
     public static PlayerData instance;
@@ -68,3 +159,4 @@ public class PlayerData : MonoBehaviour
         }
     }
 }
+*/

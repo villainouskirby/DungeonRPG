@@ -29566,12 +29566,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 378d82249b104e149b0b9ed4791dae59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player:
-    Atk: 0
-    Speed: 0
-  originalAtk: 100
-  originalSpeed: 5
-  onBuff: []
+  baseAtk: 100
+  baseSpeed: 5
+  currentAtk: 0
+  currentSpeed: 0
 --- !u!1001 &1647048540
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35230,13 +35228,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
-      propertyPath: per1
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
-        type: 3}
       propertyPath: per2
-      value: -0.3
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
@@ -35259,16 +35252,6 @@ PrefabInstance:
         type: 3}
       propertyPath: type2
       value: Atk
-      objectReference: {fileID: 0}
-    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
-        type: 3}
-      propertyPath: duration1
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
-        type: 3}
-      propertyPath: duration2
-      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
