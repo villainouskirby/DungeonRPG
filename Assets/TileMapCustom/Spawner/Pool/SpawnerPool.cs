@@ -84,15 +84,16 @@ public class GenericPool<TEnum> where TEnum : Enum
         if (_pool[type].Count <= 0)
             Generate(type);
         GameObject obj = _pool[type].Dequeue();
-        obj.SetActive(true);
+        // 로직상 스폰될때 바로 활성화 되는건 아니기에 활성화는 안시킨다.
+        //obj.SetActive(true);
         return obj;
     }
 
     public void Release(TEnum type, GameObject obj)
     {
+        obj.SetActive(false);
         obj.transform.position = Vector3.zero;
         obj.transform.SetParent(_root);
-        obj.SetActive(false);
         _pool[type].Enqueue(obj);
     }
 }

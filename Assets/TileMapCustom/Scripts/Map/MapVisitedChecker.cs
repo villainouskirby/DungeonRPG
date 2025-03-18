@@ -2,70 +2,117 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using TM = TileMapMaster;
+using MM = MapManager;
+using static MapBufferChanger;
+using System;
 
-public class MapVisitedChecker : MonoBehaviour
+[RequireComponent(typeof(MapManager))]
+public class MapVisitedChecker : MonoBehaviour, ITileMapOption
 {
     [Header("Setting Values")]
     public int VisitedRange = 1;
     [Header("Target TileMap")]
     public TileMapController TargetTileMap;
 
-    private bool _isCheck = false;
+    private bool _isActive = false;
 
-    private GameObject _player;
-    private Vector2Int _lastTilePos;
     private Vector4Int _lastViewTilePos;
+
+
+    public float GuideTileSize = 0.2f;
+    // MapData
     private TileMapData _visitedMapData;
-    private Camera _mainCamera;
 
-    public void StartChecker()
-    {
-        Init();
-        _isCheck = true;
-    }
+    // MapData property
+    public TileMapData VisitedMapData => _visitedMapData;
+    // MapDataBuffer
+    private GraphicsBuffer _visitedMapDataBufferRow;
+    private GraphicsBuffer _visitedMapDataBufferColumn;
+    public readonly int VisitedMapDataBufferHeaderSize = 1;
 
-    private void Init()
+    // MapDataBuffer Property
+    public GraphicsBuffer VisitedMapDataBufferRow => _visitedMapDataBufferRow;
+    public GraphicsBuffer VisitedMapDataBufferColumn => _visitedMapDataBufferColumn;
+
+
+    public int Prime { get { return (int)TileMapOptionPrimeEnum.MapVisitedChecker; } }
+
+    public void Init()
     {
         _changeList = new();
-        _visitedMapData = MapManager.Instance.VisitedMapData;
-        _mainCamera = MapManager.Instance.TargetCamera;
         _lastViewTilePos = new(0, 0, 0, 0);
-        _lastTilePos = new(0, 0);
-        _player = MapManager.Instance.Player;
     }
+    public void InitMap(MapEnum mapType)
+    {
+        SetDataAsset(mapType.ToString());
+        SetDataBuffers();
+        _lastViewTilePos = new(TM.Instance.Player.transform.position, 0);
+    }
+
+    public void StartMap(MapEnum mapType)
+    {
+        OnOption();
+    }
+
+
+    public void OnOption()
+    {
+        if (_isActive)
+            return;
+
+        Shader.SetGlobalFloat("_VisitedActive", 1.0f);
+        _isActive = true;
+    }
+
+    public void OffOption()
+    {
+        if (!_isActive)
+            return;
+
+        Shader.SetGlobalFloat("_VisitedActive", 0.0f);
+        _isActive = false;
+    }
+
+    public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.MapVisitedChecker; } }
 
     private void Update()
     {
-        if (!_isCheck)
+        if (!_isActive)
             return;
 
-        CheckMove();
         CheckViewChange();
     }
 
-    private void CheckMove()
+    private void SetDataAsset(string assetName)
     {
-        float tileSize = MapManager.Instance.TileSize;
-        Vector2Int newTilePos = GetCurrentTilePos(tileSize);
-
-        if (newTilePos != _lastTilePos)
-        {
-            SetVisited(newTilePos);
-            _lastTilePos = newTilePos;
-        }
+        string dataFilePath = $"{TileMapExtractor.DataFileDirectory}{assetName}/";
+        _visitedMapData = Instantiate(Resources.Load<TileMapData>($"{dataFilePath}{assetName}Visited"));
     }
+
+    /// <summary>
+    /// 현재 Map Asset Data를 기반으로 Buffer들을 생성한다.
+    /// </summary>
+    private void SetDataBuffers()
+    {
+        SetDataBuffer(_visitedMapData, ref _visitedMapDataBufferRow, VisitedMapDataBufferHeaderSize,
+            0);
+        SetDataBuffer(_visitedMapData.GetColumnData(), ref _visitedMapDataBufferColumn, VisitedMapDataBufferHeaderSize,
+            0);
+    }
+
 
     private void CheckViewChange()
     {
-        float zDistance = Mathf.Abs(_mainCamera.transform.position.z);
-        Vector2 bottomLeft = _mainCamera.ViewportToWorldPoint(new Vector3(0, 0, zDistance));
-        Vector2 topRight = _mainCamera.ViewportToWorldPoint(new Vector3(1, 1, zDistance));
+        float zDistance = Mathf.Abs(TM.Instance.TargetCamera.transform.position.z);
+        Vector2 bottomLeft = TM.Instance.TargetCamera.ViewportToWorldPoint(new Vector3(0, 0, zDistance));
+        Vector2 topRight = TM.Instance.TargetCamera.ViewportToWorldPoint(new Vector3(1, 1, zDistance));
 
         Vector4Int newViewTilePos = new(
-            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.x), 0, _visitedMapData.Width - 1),
-            Mathf.Clamp(Mathf.FloorToInt(topRight.x), 0, _visitedMapData.Width - 1),
-            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.y), 0, _visitedMapData.Height - 1),
-            Mathf.Clamp(Mathf.FloorToInt(topRight.y), 0, _visitedMapData.Height - 1)
+            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.x), 0, MM.Instance.VisitedMapData.Width - 1),
+            Mathf.Clamp(Mathf.FloorToInt(topRight.x), 0, MM.Instance.VisitedMapData.Width - 1),
+            Mathf.Clamp(Mathf.FloorToInt(bottomLeft.y), 0, MM.Instance.VisitedMapData.Height - 1),
+            Mathf.Clamp(Mathf.FloorToInt(topRight.y), 0, MM.Instance.VisitedMapData.Height - 1)
             );
 
         if (newViewTilePos != _lastViewTilePos)
@@ -94,17 +141,17 @@ public class MapVisitedChecker : MonoBehaviour
                 int correctX = point.x + x;
                 int correctY = point.y + y;
 
-                if (correctX < 0 || correctX >= MapManager.Instance.VisitedMapData.Width || correctY < 0 || correctY >= MapManager.Instance.VisitedMapData.Height)
+                if (correctX < 0 || correctX >= MM.Instance.VisitedMapData.Width || correctY < 0 || correctY >= MM.Instance.VisitedMapData.Height)
                     continue;
 
-                if (_visitedMapData.GetTile(correctX, correctY) == 1)
+                if (MM.Instance.VisitedMapData.GetTile(correctX, correctY) == 1)
                     continue;
 
                 _changeList.Add(new(correctX, correctY, 1));
             }
         }
 
-        MapManager.Instance.ChangeMapDataByRow(_visitedMapData, _changeList, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+       ChangeMapDataByRow(MM.Instance.VisitedMapData, _changeList, MM.Instance.VisitedMapDataBufferRow, MM.Instance.VisitedMapDataBufferHeaderSize);
     }
 
     /*
@@ -139,7 +186,7 @@ public class MapVisitedChecker : MonoBehaviour
                 }
             }
 
-            MapManager.Instance.ChangeVisitedMapDataByRow(_visitedMapData, _changeList, 2, MapManager.Instance.VisitedMapDataBufferRow, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+            ChangeMapDataByRow(MM.Instance.VisitedMapData, _changeList, 2, MM.Instance.VisitedMapDataBufferRow, MM.Instance.VisitedMapDataBufferHeaderSize);
         }
         else // True -> 가로가 더 길다. False -> 새로가 더 길다.
         { // x 기준 열 정리
@@ -164,15 +211,8 @@ public class MapVisitedChecker : MonoBehaviour
                 }
             }
 
-            MapManager.Instance.ChangeVisitedMapDataByColumn(_visitedMapData, _changeList, 2, MapManager.Instance.VisitedMapDataBufferColumn, MapManager.Instance.VisitedMapDataBufferHeaderSize);
+            ChangeMapDataByColumn(MM.Instance.VisitedMapData, _changeList, 2, MM.Instance.VisitedMapDataBufferColumn, MM.Instance.VisitedMapDataBufferHeaderSize);
         }
-    }
-
-    Vector2Int GetCurrentTilePos(float tileSize)
-    {
-        int tileX = Mathf.FloorToInt(_player.transform.position.x / tileSize);
-        int tileY = Mathf.FloorToInt(_player.transform.position.y / tileSize);
-        return new(tileX, tileY);
     }
 }
 
@@ -189,6 +229,14 @@ public struct Vector4Int
         this.x = x;
         this.y = y;
         this.z = z;
+        this.w = w;
+    }
+
+    public Vector4Int(Vector3 vector3, int w)
+    {
+        this.x = (int)vector3.x;
+        this.y = (int)vector3.y;
+        this.z = (int)vector3.z;
         this.w = w;
     }
 

@@ -1,7 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using TreeEditor;
-using System;
 
 public class TileMapController : MonoBehaviour
 {
@@ -21,7 +18,7 @@ public class TileMapController : MonoBehaviour
     void Init()
     {
         SetMaterialData();
-        MapManager.Instance.AddFOVDataChangeAction(SetBlurMap);
+        MapManager.Instance.FOVCaster.AddBufferChangeEndAction(SetBlurMap);
     }
 
     public void SetMaterialData()
@@ -78,11 +75,11 @@ public class TileMapController : MonoBehaviour
     public void InitializeTileMap()
     {
         _tileMaterial.SetBuffer("_MapDataBuffer", MapManager.Instance.MapDataBuffer);
-        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVCaster.FOVDataBuffer);
     }
 
     public void SetBlurMap()
     {
-        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVCaster.FOVDataBuffer);
     }
 }

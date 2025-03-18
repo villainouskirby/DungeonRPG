@@ -200,6 +200,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 173184445652336751}
     m_Modifications:
+    - target: {fileID: 1242392596866940645, guid: 238b6ce94d8feec47a4daf2057e0af31,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6415908526726647503, guid: 238b6ce94d8feec47a4daf2057e0af31,
         type: 3}
       propertyPath: m_Name
@@ -274,6 +279,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 173184445652336751}
     m_Modifications:
+    - target: {fileID: 2679749913245853259, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5369752577767291831, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: m_Name
@@ -403,6 +413,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlantSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 8224441717361426338, guid: 38886d0b7d6cd354983e66a53860892f,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -414,7 +429,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6837465913466323146}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5914200112652064224
+--- !u!114 &5236723305197676426
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

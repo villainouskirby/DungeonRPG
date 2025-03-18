@@ -91,8 +91,8 @@ public class PlayerFarming : MonoBehaviour
             // 시간이 지나면 자동 채집? 일단 추가
             if (_time >= _requiredTime)
             {
+                IsFarming = false;
                 SuccessFarm();
-                ResetFarm();
             }
         }
 
@@ -137,21 +137,37 @@ public class PlayerFarming : MonoBehaviour
 
         if (IsFarmSuccess())
         {
-            // 채집 성공
             SuccessFarm();
+            // 채집 성공
         }
         else
         {
+            IsFarming = false;
+            _time = 0;
+            FarmGageBar.gameObject.SetActive(false);
             // 채집 실패 - 사유 시간 끝나기전에 손을 땜.
             Debug.Log("채집 실패 - 시간 부족");
         }
-
-        ResetFarm();
     }
 
     private void SuccessFarm()
     {
+        IsFarming = false;
+
+        // 채집 성공
+        _rangedFarmObj.Remove(TargetObj);
+        switch (TargetFarm.Type)
+        {
+            case FarmEnum.Plant:
+                SpawnerPool.Instance.PlantPool.Release(TargetFarm.PlantType, TargetObj);
+                break;
+            case FarmEnum.Mineral:
+                SpawnerPool.Instance.MineralPool.Release(TargetFarm.MineralType, TargetObj);
+                break;
+        }
+
         Debug.Log("채집 성공!");
+        ResetFarm();
     }
 
     private bool IsFarmSuccess()
@@ -163,13 +179,15 @@ public class PlayerFarming : MonoBehaviour
     {
         _time = 0;
         _requiredTime = 0;
-        IsFarming = false;
         FarmGageBar.gameObject.SetActive(false);
+        TargetObj = null;
+        TargetFarm = null;
     }
+
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.tag == "Farm")
+        if(collision.CompareTag("Farm"))
         {
             _rangedFarmObj.Add(collision.gameObject);
 
@@ -180,13 +198,16 @@ public class PlayerFarming : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Farm")
+        if (collision.CompareTag("Farm"))
         {
             _rangedFarmObj.Remove(collision.gameObject);
             if (collision.gameObject == TargetObj)
             {
-                Debug.Log("채집 실패 - 범위를 벗어남");
-                ResetFarm();
+                if(IsFarming)
+                {
+                    Debug.Log("채집 실패 - 범위를 벗어남");
+                    ResetFarm();
+                }
             }
             if (_rangedFarmObj.Count <= 0)
             {

@@ -1,8 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using TreeEditor;
-using System;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.UI;
 
 public class GuideTileMapController : MonoBehaviour

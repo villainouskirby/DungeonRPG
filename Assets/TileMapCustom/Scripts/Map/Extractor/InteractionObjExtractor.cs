@@ -38,7 +38,7 @@ public class InteractionObjExtractor : MonoBehaviour
                 case InteractionEnum.Entry:
                     IT_EntryObj interactionObj = new(interactionTile);
                     IT_EntryTile entryTile = (IT_EntryTile)interactionTile;
-                    interactionObj.TargetSceneName = entryTile.TargetSceneName;
+                    interactionObj.MapType = entryTile.MapType;
                     data.Add(interactionObj);
                     break;
                 case InteractionEnum.Npc:

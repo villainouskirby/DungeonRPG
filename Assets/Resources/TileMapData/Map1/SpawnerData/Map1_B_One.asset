@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef79ff9986715cf47936014539b0cccb, type: 3}
+  m_Name: Map1_B_One
+  m_EditorClassIdentifier: 
+  Spawner:
+  - rid: 5297038372472356869
+  - rid: 5297038372472356870
+  references:
+    version: 2
+    RefIds:
+    - rid: 5297038372472356869
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 21, y: 1}
+        CoolTime: 4
+        Type: 1
+        CurrentTime: 0
+        IsSpawn: 0
+        IsIdentify: 0
+        SpawnObj: {fileID: 0}
+        Plants: 0100000002000000
+        Select: 0
+    - rid: 5297038372472356870
+      type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
+      data:
+        MinRange: 5
+        MaxRange: 15
+        TilePos: {x: 22, y: 1}
+        CoolTime: 4
+        Type: 1
+        CurrentTime: 0
+        IsSpawn: 0
+        IsIdentify: 0
+        SpawnObj: {fileID: 0}
+        Plants: 0100000002000000
+        Select: 0

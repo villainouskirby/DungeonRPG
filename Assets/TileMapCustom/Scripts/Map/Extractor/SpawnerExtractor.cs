@@ -19,7 +19,7 @@ public class SpawnerExtractor : MonoBehaviour
     public float            GenericMinRange;
     public float            GenericMaxRange;
 
-    private MapEnum         _mapType = MapEnum.Map1;
+    public MapEnum         _mapType = MapEnum.Map1;
     private Dictionary<SpawnerGroupEnum, Dictionary<SpawnerCaseEnum, List<Spawner>>>
                             _spawners;            
 

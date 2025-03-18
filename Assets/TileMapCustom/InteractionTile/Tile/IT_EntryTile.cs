@@ -5,5 +5,5 @@ using UnityEngine;
 public class IT_EntryTile : InteractionTile
 {
     [Header("Scene Setings")]
-    public string TargetSceneName;
+    public MapEnum MapType;
 }

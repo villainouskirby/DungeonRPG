@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IBaseManager
+public interface IPrime
 {
-    public void Init(MapEnum type);
+    public int Prime { get; }
 }

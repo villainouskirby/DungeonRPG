@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 [System.Serializable]
 public class Spawner
@@ -13,7 +14,9 @@ public class Spawner
 
     public float        CurrentTime = 0;
 
-    private bool        IsSpawn = false;
+    public bool         IsSpawn = false;
+    public bool         IsIdentify = false;
+    public GameObject   SpawnObj;
 
     public void TrySpawn()
     {
@@ -31,7 +34,22 @@ public class Spawner
 
     public virtual void Spawn()
     {
-        SpawnGameObject(GetSpawnObject());
+        SpawnObj = GetSpawnObject();
+        SpawnGameObject(SpawnObj);
+    }
+
+    public virtual void CheckVisible()
+    {
+        if (!IsSpawn)
+            return;
+        if (IsIdentify)
+            return;
+
+        if (0 < MapManager.Instance.FOVCaster.IsInFOV(TilePos))
+        {
+            IsIdentify = true;
+            SpawnObj.SetActive(true);
+        }
     }
 
     public virtual GameObject GetSpawnObject()
@@ -45,12 +63,24 @@ public class Spawner
             return;
 
         target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, 0);
+        if (0 < MapManager.Instance.FOVCaster.IsInFOV(TilePos))
+        {
+            IsIdentify = true;
+            target.SetActive(true);
+        }
     }
 
     public virtual void Init()
     {
+        SpawnerReset();
+    }
+
+    public virtual void SpawnerReset()
+    {
         CurrentTime = 0;
         IsSpawn = false;
+        IsIdentify = false;
+        SpawnObj = null;
     }
 
     public Spawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange)
