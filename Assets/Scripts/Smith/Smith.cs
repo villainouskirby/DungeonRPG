@@ -15,16 +15,69 @@ public class Smith : MonoBehaviour
     private List<SmithData> _weapons => _weaponList.SmithDatas;
     private List<SmithData> _tools => _toolList.SmithDatas;
 
-    public SmithData GetSmithData(int index) => (_smithUI.Category switch
+    public SmithData GetSmithData(int index)
     {
-        EquipmentType.bodyArmor => _armors,
-        EquipmentType.weapon => _weapons,
-        EquipmentType.tool => _tools,
-        _ => _armors
-    })[index];
+        List<SmithData> list = _smithUI.Category switch
+        {
+            EquipmentType.bodyArmor => _armors,
+            EquipmentType.weapon => _weapons,
+            EquipmentType.tool => _tools,
+            _ => _armors
+        };
+
+        return (index < 0 || index >= list.Count) ? null : list[index];
+    }
+
+    [Header("Inventory Data")]
+    [SerializeField] private Inventory _invenory;
+    [SerializeField] private Storage _storage;
+
+    /// <summary> 인벤/창고에 있는 재료 양 </summary>
+    public int GetIngredientAmount(long ID)
+    {
+        return _invenory.GetItemAmountSum(ID) + _storage.GetItemAmountSum(ID);
+    }
+
+    /// <summary> 제작 가능 여부 확인 => 인벤의 여유 공간 확인 </summary>
+    public bool CheckCanCraft()
+    {
+        return _invenory.RestCapacity > 0;
+    }
+
+    /// <summary> 제작된 아이템 인벤토리에 추가 </summary>
+    public void AddCraftedItemToInventory(SmithData smithData)
+    {
+        // 재료 소모
+        for (int i = 0; i < smithData.IngredientItemIDs.Length; i++)
+        {
+            /* ItemData itemData = smithData.IngredientItemIDs[i]; // DB에서 ID에 맞는 데이터 가져와야함
+            int restAmount = _invenory.RemoveItem(itemData, smithData.IngredientAmounts[i]);
+            if (restAmount > 0)
+            {
+                restAmount = _storage.RemoveItem(itemData, restAmount);
+
+                if (restAmount > 0)
+                {
+                    Debug.Log("재료 부족 오류"); // 사실상 이거 발생하면 안되는건데 되면 유저과실이라 어떻게 할지는 정해야할듯
+                    return;
+                }
+            }*/
+        }
+
+        // 아이템 인벤토리에 넣기
+        //_invenory.AddItem();
+    }
+
+    /// <summary> 방금 인벤에 들어간 장비 사용(장착) </summary>
+    public void EquipItem()
+    {
+        _invenory.UseItem();
+    }
 
     public void InitSmith()
     {
-        _smithUI.InitSmithUI();
+        _smithUI.InitArmorUI(_armors);
+        _smithUI.InitWeaponUI(_weapons);
+        _smithUI.InitToolUI(_tools);
     }
 }

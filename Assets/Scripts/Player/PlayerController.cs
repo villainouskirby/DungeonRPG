@@ -15,13 +15,13 @@ public class PlayerController : MonoBehaviour
     private float m_timeSinceAttack = 0f;
 
     [Header("Buff Settings")]
-    public string type1;
-    public float per1;
-    public float duration1;
+
+    public float per1 = 0.3f;
+    public float duration1 = 5f;
     public Sprite icon1;
-    public string type2;
-    public float per2;
-    public float duration2;
+
+    public float per2 = 0.2f;
+    public float duration2 = 3f;
     public Sprite icon2;
 
     private Rigidbody2D m_body2d;
@@ -131,11 +131,15 @@ public class PlayerController : MonoBehaviour
         //버프 활성화 버튼
         if (Input.GetKeyDown(KeyCode.B))
         {
-            BuffManager.instance.CreateBuff(type1, per1, duration1, icon1);
+            BuffManager.instance.CreateBuff(BuffType.AttackUp, per1, duration1, icon1);
         }
         if (Input.GetKeyDown(KeyCode.N))
         {
-            BuffManager.instance.CreateBuff(type2, per2, duration2, icon2);
+            BuffManager.instance.CreateBuff(BuffType.AttackDown, per2, duration2, icon2);
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            BuffManager.instance.CreateBuff(BuffType.SpeedUp, per1, duration1, icon1);
         }
     }
 
