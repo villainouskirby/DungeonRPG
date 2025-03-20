@@ -20,6 +20,7 @@ public class WallColliderGenerator : MonoBehaviour
     public void Init()
     {
         _lastRange = 0;
+        UpdateActiveTile(PlayerMoveChecker.Instance.LastTilePos);
         PlayerMoveChecker.Instance.AddMoveAction(UpdateActiveTile);
     }
 

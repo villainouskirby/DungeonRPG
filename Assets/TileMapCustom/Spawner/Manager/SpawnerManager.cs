@@ -38,6 +38,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
     public void StartMap(MapEnum mapType)
     {
         InitMap(mapType);
+        CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
     }
 
     public void OnOption()

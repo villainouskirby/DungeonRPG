@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Map1_B_One
   m_EditorClassIdentifier: 
   Spawner:
-  - rid: 5297038372472356869
-  - rid: 5297038372472356870
+  - rid: 5297038447694839813
+  - rid: 5297038447694839814
   references:
     version: 2
     RefIds:
-    - rid: 5297038372472356869
+    - rid: 5297038447694839813
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5
@@ -32,7 +32,7 @@ MonoBehaviour:
         SpawnObj: {fileID: 0}
         Plants: 0100000002000000
         Select: 0
-    - rid: 5297038372472356870
+    - rid: 5297038447694839814
       type: {class: PlantSpawner, ns: , asm: Assembly-CSharp}
       data:
         MinRange: 5

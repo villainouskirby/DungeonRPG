@@ -64,6 +64,8 @@ public class FOVCaster : MonoBehaviour, ITileMapOption
     public void StartMap(MapEnum mapType)
     {
         OnOption();
+        ComputeVisibility(PlayerMoveChecker.Instance.LastTilePos);
+        ChangeFOVData();
     }
 
 
