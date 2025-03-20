@@ -6,12 +6,22 @@ using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 using static UnityEngine.PlayerLoop.Update;
 
-public static class InGameTimeUpdate
-{
-    public static float Time;
-    public static float TimeScale;
 
-    public static bool IsStop;
+public static class TimeSystemUpdate
+{
+    public static float        Time;
+    public static bool         IsPlaying = true;
+    public static float        TimeScale = 1;
+
+    public static void Stop()
+    {
+        TimeScale = 0;
+    }
+
+    public static void Start()
+    {
+        TimeScale = 1;
+    }
 
     [RuntimeInitializeOnLoadMethod]
     private static void Init()
@@ -21,18 +31,19 @@ public static class InGameTimeUpdate
         {
             subSystemList = null,
             updateDelegate = OnUpdate,
-            type = typeof(InGameTimeUpdate)
+            type = typeof(TimeSystemUpdate)
         };
 
-        var loopWithUpdate = AddSystemBefore<Update, ScriptRunBehaviourUpdate>(in defaultSystems, myUpdateSystem);
+        var loopWithUpdate = AddSystemAfter<Update, ScriptRunBehaviourUpdate>(in defaultSystems, myUpdateSystem);
         PlayerLoop.SetPlayerLoop(loopWithUpdate);
     }
 
     private static void OnUpdate()
     {
+        Time += TimeScale * UnityEngine.Time.deltaTime;
     }
 
-    private static PlayerLoopSystem AddSystemBefore<TParent, TTarget>(in PlayerLoopSystem loopSystem, PlayerLoopSystem systemToAdd)
+    private static PlayerLoopSystem AddSystemAfter<TParent, TTarget>(in PlayerLoopSystem loopSystem, PlayerLoopSystem systemToAdd)
     where TParent : struct
     where TTarget : struct
     {
@@ -54,7 +65,7 @@ public static class InGameTimeUpdate
                 {
                     if (newSubSystemList[j].type == typeof(TTarget))
                     {
-                        newSubSystemList.Insert(j, systemToAdd);
+                        newSubSystemList.Insert(j + 1, systemToAdd);
                         break;
                     }
                 }

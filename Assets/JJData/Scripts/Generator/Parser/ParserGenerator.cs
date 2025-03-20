@@ -70,6 +70,7 @@ public class ParserGenerator : IParserGenerator
         sb.AppendLine($"    public static void ConvertRowData2{sheetName}()");
         sb.AppendLine("    {");
         sb.AppendLine("        int bufferSize = 2048;");
+        sb.AppendLine("        int stringLength;");
         sb.AppendLine($"        FileStream fileStream = new(Path.Combine(_dataFilePath, \"{xlsxName}\",\"{sheetName}.bin\"), FileMode.Open, FileAccess.Read);");
         sb.AppendLine("        Span<byte> buffer = stackalloc byte[bufferSize];");
         sb.AppendLine("        int offset = 0;");
@@ -109,7 +110,7 @@ public class ParserGenerator : IParserGenerator
         sb.AppendLine("                fileStream.Read(buffer.Slice(leftData.Length));");
         sb.AppendLine("                offset = 0;");
         sb.AppendLine("            }");
-        sb.AppendLine($"            int stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));");
+        sb.AppendLine($"            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));");
         sb.AppendLine("            offset += 4;");
         sb.AppendLine($"            if (offset + stringLength >= buffer.Length)");
         sb.AppendLine("            {");
