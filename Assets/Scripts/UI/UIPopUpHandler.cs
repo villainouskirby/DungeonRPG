@@ -14,7 +14,7 @@ public class UIPopUpHandler : MonoBehaviour
     private Shop _shopScript;
     private Storage _storageScript;
 
-    private List<GameObject> _openUIs = new List<GameObject>();
+    private GameObject _openUI;
 
     private static UIPopUpHandler _instance;
     public static UIPopUpHandler Instance
@@ -55,33 +55,21 @@ public class UIPopUpHandler : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButton(0))
-        {
-            GameObject clickedObject = EventSystem.current.currentSelectedGameObject;
-            if (clickedObject == null || !_openUIs.Contains(clickedObject)) return;
-
-            _openUIs.Remove(clickedObject);
-            _openUIs.Add(clickedObject);
-        }
-
         if (Input.GetKey(KeyCode.Escape))
         {
-            if (_openUIs.Count > 0)
-            {
-                GameObject lastUI = _openUIs[_openUIs.Count - 1];
-
-                if (lastUI == _storage) 
-
-                lastUI.SetActive(false);
-                _openUIs.Remove(lastUI);
-            }
+            if (_openUI == null) return;
+            
+            _openUI.SetActive(false);
+            _openUI = null;
         }
     }
 
     private void OpenUI(GameObject ui)
     {
+        if (_openUI != null) return;
+
         ui.SetActive(true);
-        if (!_openUIs.Contains(ui)) _openUIs.Add(ui);
+        _openUI = ui;
     }
 
     /// <summary> 인벤토리 열기 </summary>
