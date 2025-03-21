@@ -8,38 +8,33 @@ public class WallColliderGenerator : MonoBehaviour
     [Header("Active Settings")]
     public int ActiveRange = 1;
 
-    private TileMapData _mapData;
-    private (Vector2Int pos, int range) _lastTilePos;
-    private float _tileSize;
+
+    private int _lastRange;
 
     void Start()
     {
-        _lastTilePos = (new Vector2Int(0, 0), 0);
-        _mapData = MapManager.Instance.MapData;
+        _lastRange = 0;
+        Init();
     }
 
-    void FixedUpdate()
+    public void Init()
     {
-        _tileSize = MapManager.Instance.TileSize;
-        (Vector2Int pos, int range) newTilePos = (GetCurrentTilePos(), ActiveRange);
-
-        if( newTilePos != _lastTilePos )
-        {
-            WallColliderManager.Instance.UpdateActiveTile(_lastTilePos.pos, _lastTilePos.range, newTilePos.pos, newTilePos.range);
-            _lastTilePos = newTilePos;
-        }
+        _lastRange = 0;
+        UpdateActiveTile(PlayerMoveChecker.Instance.LastTilePos);
+        PlayerMoveChecker.Instance.AddMoveAction(UpdateActiveTile);
     }
 
-    Vector2Int GetCurrentTilePos()
+    private void UpdateActiveTile(Vector2Int newTilePos)
     {
-        int tileX = Mathf.FloorToInt(transform.position.x / _tileSize);
-        int tileY = Mathf.FloorToInt(transform.position.y / _tileSize);
-        return new Vector2Int(tileX, tileY);
+        WallColliderManager.Instance.UpdateActiveTile(PlayerMoveChecker.Instance.LastTilePos, _lastRange, newTilePos, ActiveRange);
+        _lastRange = ActiveRange;
     }
 
     private void OnDisable()
     {
         if(MapManager.Instance.WallRoot != null)
-            WallColliderManager.Instance.UpdateActiveTile(_lastTilePos.pos, _lastTilePos.range, new Vector2Int(0, 0), 0);
+            WallColliderManager.Instance.UpdateActiveTile(PlayerMoveChecker.Instance.LastTilePos, _lastRange, new Vector2Int(0, 0), 0);
+
+        PlayerMoveChecker.Instance.DeleteMoveAction(UpdateActiveTile);
     }
 }

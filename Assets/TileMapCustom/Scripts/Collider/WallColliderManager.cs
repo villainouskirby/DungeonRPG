@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using MM = MapManager;
 
-public class WallColliderManager : MonoBehaviour
+
+public class WallColliderManager : MonoBehaviour, ITileMapOption
 {
     public static WallColliderManager Instance { get { return _instance; } }
     public static WallColliderManager _instance;
@@ -13,34 +15,78 @@ public class WallColliderManager : MonoBehaviour
     private HashSet<Vector2Int> _activeTile = new(); // 활성화 되어 있는 타일
     private Dictionary<Vector2Int, HashSet<Vector2Int>> _relativeTile = new(); // 활성화 되어 있는 타일에 연관되어있는 기준 타일 수
     private Dictionary<Vector2Int, Dictionary<int, int>> _activeTileRangeCnt = new(); // 해당 기준 타일에 어떤 범위가 활성화 되어 있는지
-    private TileMapData _mapData;
-    private float _tileSize;
+    private bool _isActive = false;
 
+    //Option
 
-    private void Awake()
+    public int Prime { get { return (int)TileMapOptionPrimeEnum.WallColliderManager; } }
+
+    public void Init()
     {
         _instance = this;
-    }
-
-    private void Start()
-    {
-        _mapData = MapManager.Instance.MapData;
         _activeCollider = new(225);
         _activeTile = new(225);
         _relativeTile = new(225);
         _activeTileRangeCnt = new(225);
-
         _deleteTile = new(225);
         _addTile = new(225);
         _deleteTileToRemove = new(225);
         _addTileToRemove = new(225);
     }
+    public void InitMap(MapEnum mapType)
+    {
+        ResetCollider();
+
+        _activeCollider.Clear();
+        _activeTile.Clear();
+        _relativeTile.Clear();
+        _activeTileRangeCnt.Clear();
+        _deleteTile.Clear();
+        _addTile.Clear();
+        _deleteTileToRemove.Clear();
+        _addTileToRemove.Clear();
+    }
+
+    public void StartMap(MapEnum mapType)
+    {
+        InitMap(mapType);
+    }
+
+
+    public void OnOption()
+    {
+        if (_isActive)
+            return;
+
+        _isActive = true;
+    }
+
+    public void OffOption()
+    {
+        if (!_isActive)
+            return;
+
+        ResetCollider();
+        _isActive = false;
+    }
+
+    private void ResetCollider()
+    {
+        foreach (var activeCollider in _activeCollider.Values)
+        {
+            TileMapColliderObjPool.Instance.ReturnCollider(activeCollider);
+        }
+    }
+
+    public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.WallColliderManager; } }
+
 
     public void UpdateActiveTile(Vector2Int oldTargetTile, int oldRange, Vector2Int newTargetTile, int newRange)
     {
-        _tileSize = MapManager.Instance.TileSize;
+        if (!_isActive)
+            return;
 
-        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < _mapData.Width && newTargetTile.y < _mapData.Height)
+        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < MM.Instance.MapData.Width && newTargetTile.y < MM.Instance.MapData.Height)
         {
             if (!_activeTileRangeCnt.ContainsKey(newTargetTile))
                 _activeTileRangeCnt[newTargetTile] = new();
@@ -51,7 +97,7 @@ public class WallColliderManager : MonoBehaviour
             AddActiveTile(newTargetTile, newTile);
         }
 
-        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < _mapData.Width && oldTargetTile.y < _mapData.Height)
+        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < MM.Instance.MapData.Width && oldTargetTile.y < MM.Instance.MapData.Height)
         {
             if (!_activeTileRangeCnt.ContainsKey(oldTargetTile))
                 _activeTileRangeCnt[oldTargetTile] = new();
@@ -70,6 +116,9 @@ public class WallColliderManager : MonoBehaviour
 
     private void AddActiveTile(Vector2Int tilePos, Dictionary<int, int> tileRange)
     {
+        if (!_isActive)
+            return;
+
         int maxRange = -1;
 
         foreach(var rangePair in tileRange)
@@ -88,8 +137,8 @@ public class WallColliderManager : MonoBehaviour
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
-                if (MapManager.Instance.CheckWall(_mapData.GetTile(correctX, correctY)))
+                if (correctX >= MM.Instance.MapData.Width || correctY >= MM.Instance.MapData.Height) continue;
+                if (MM.Instance.CheckWall(MM.Instance.MapData.GetTile(correctX, correctY)))
                     _addTile.Add(new Vector2Int(correctX, correctY));
             }
         }
@@ -110,11 +159,11 @@ public class WallColliderManager : MonoBehaviour
         foreach (var add in _addTile)
         {
             GameObject wall = TileMapColliderObjPool.Instance.GetCollider();
-            wall.transform.localScale = new Vector2(_tileSize, _tileSize);
-            wall.transform.position = new Vector2(_tileSize * (add.x + 0.5f), _tileSize * (add.y + 0.5f));
+            wall.transform.localScale = new Vector2(MM.Instance.TileSize, MM.Instance.TileSize);
+            wall.transform.position = new Vector2(MM.Instance.TileSize * (add.x + 0.5f), MM.Instance.TileSize * (add.y + 0.5f));
             _activeCollider[add] = wall;
             _activeTile.Add(add);
-            wall.transform.SetParent(MapManager.Instance.WallRoot.transform, true);
+            wall.transform.SetParent(MM.Instance.WallRoot.transform, true);
         }
     }
 
@@ -123,6 +172,9 @@ public class WallColliderManager : MonoBehaviour
 
     private void DeleteActiveTile(Vector2Int tilePos, Dictionary<int, int> tileRange, int deleteRange)
     {
+        if (!_isActive)
+            return;
+
         int maxRange = -1;
 
         foreach (var rangePair in tileRange)
@@ -148,9 +200,9 @@ public class WallColliderManager : MonoBehaviour
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= _mapData.Width || correctY >= _mapData.Height) continue;
+                if (correctX >= MM.Instance.MapData.Width || correctY >= MM.Instance.MapData.Height) continue;
 
-                if (MapManager.Instance.CheckWall(_mapData.GetTile(correctX, correctY)))
+                if (MM.Instance.CheckWall(MM.Instance.MapData.GetTile(correctX, correctY)))
                     _deleteTile.Add(new Vector2Int(correctX, correctY));
             }
         }

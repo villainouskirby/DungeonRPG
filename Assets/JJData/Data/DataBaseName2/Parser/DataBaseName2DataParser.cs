@@ -18,6 +18,7 @@ public static class DataBaseName2DataParser
     public static void ConvertRowData2TestClass()
     {
         int bufferSize = 2048;
+        int stringLength;
         FileStream fileStream = new(Path.Combine(_dataFilePath, "DataBaseName2","TestClass.bin"), FileMode.Open, FileAccess.Read);
         Span<byte> buffer = stackalloc byte[bufferSize];
         int offset = 0;
@@ -46,7 +47,7 @@ public static class DataBaseName2DataParser
                 fileStream.Read(buffer.Slice(leftData.Length));
                 offset = 0;
             }
-            int stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             if (offset + stringLength >= buffer.Length)
             {

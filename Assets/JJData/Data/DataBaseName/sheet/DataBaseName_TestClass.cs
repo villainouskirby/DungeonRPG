@@ -13,4 +13,5 @@ public  class DataBaseName_TestClass
     /// </summary>
     public string Test23;
     public float Test34;
+    public string Test44;
 }

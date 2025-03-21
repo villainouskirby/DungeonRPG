@@ -1,64 +1,70 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using TM = TileMapMaster;
 
-public class InteractionObjManager : MonoBehaviour
+public class InteractionObjManager : MonoBehaviour, ITileMapOption
 {
     public static string DataFilePath = "Interaction/Prefabs/";
-
-    public MapEnum MapType;
 
     private GameObject _root;
 
     public List<GameObject> AllInteraction;
     private InteractionObjData _interactionObjData;
 
-    private float _tileSize;
-    private GameObject _player;
-    private Vector2Int _lastTile;
+    private bool _isActive = false;
 
-
-    void Awake()
-    {
-        _root = GameObject.Find("@InteractionObj");
-        SetDataAsset(MapType.ToString());
-    }
-
-    private void Start()
-    {
-        _tileSize = MapManager.Instance.TileSize;
-        _player = MapManager.Instance.Player;
-        _lastTile = new(0, 0);
-        Init();
-    }
-
-    void FixedUpdate()
-    {
-        _tileSize = MapManager.Instance.TileSize;
-        Vector2Int newTile = GetCurrentTilePos();
-
-        if (newTile != _lastTile)
-        {
-            _lastTile = newTile;
-        }
-    }
-
-    Vector2Int GetCurrentTilePos()
-    {
-        int tileX = Mathf.FloorToInt(_player.transform.position.x / _tileSize);
-        int tileY = Mathf.FloorToInt(_player.transform.position.y / _tileSize);
-        return new Vector2Int(tileX, tileY);
-    }
+    public int Prime { get { return (int)TileMapOptionPrimeEnum.InteractionObjManager; } }
 
     public void Init()
     {
-        for(int i = 0; i < _interactionObjData.Interaction.Count; i++)
+        _root = GameObject.Find("@InteractionObj");
+    }
+
+    public void InitMap(MapEnum mapType)
+    {
+        ResetInteractionObj();
+
+        SetDataAsset(mapType.ToString());
+
+        for (int i = 0; i < _interactionObjData.Interaction.Count; i++)
         {
             GenerateInteractionObj(_interactionObjData.Interaction[i]);
         }
     }
+
+    public void StartMap(MapEnum mapType)
+    {
+        InitMap(mapType);
+    }
+
+    public void OnOption()
+    {
+        if (_isActive)
+            return;
+
+        _isActive = true;
+    }
+
+    public void OffOption()
+    {
+        if (!_isActive)
+            return;
+
+        ResetInteractionObj();
+        _isActive = false;
+    }
+
+    private void ResetInteractionObj()
+    {
+        for(int i = 0; i < AllInteraction.Count; i++)
+        {
+            Destroy(AllInteraction[i]);
+        }
+    }
+
+    public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.InteractionObjManager; } }
+
 
     private void GenerateInteractionObj(InteractionObj interactionObj)
     {
@@ -70,7 +76,7 @@ public class InteractionObjManager : MonoBehaviour
                 );
 
                 interaction.transform.parent = _root.transform;
-                interaction.transform.position = new((interactionObj.TilePos.x + 0.5f) * _tileSize, (interactionObj.TilePos.y + 0.5f) * _tileSize);
+                interaction.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize);
                 interaction.GetComponent<IT_EntryFunc>().Init((IT_EntryObj)interactionObj);
                 break;
         }

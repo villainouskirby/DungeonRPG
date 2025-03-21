@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class IT_EntryObj : InteractionObj
 {
-    public string TargetSceneName;
+    public MapEnum MapType;
 
     public IT_EntryObj(InteractionTile interactionTile) : base(interactionTile)
     {

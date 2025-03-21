@@ -18,6 +18,7 @@ public static class DataBaseNameDataParser
     public static void ConvertRowData2TestClass()
     {
         int bufferSize = 2048;
+        int stringLength;
         FileStream fileStream = new(Path.Combine(_dataFilePath, "DataBaseName","TestClass.bin"), FileMode.Open, FileAccess.Read);
         Span<byte> buffer = stackalloc byte[bufferSize];
         int offset = 0;
@@ -46,7 +47,7 @@ public static class DataBaseNameDataParser
                 fileStream.Read(buffer.Slice(leftData.Length));
                 offset = 0;
             }
-            int stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             if (offset + stringLength >= buffer.Length)
             {
@@ -68,6 +69,26 @@ public static class DataBaseNameDataParser
             }
             sheetRowData.Test34 = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
+            if (offset + 4 >= buffer.Length)
+            {
+                byte[] leftData = buffer.Slice(offset).ToArray();
+                buffer.Clear();
+                leftData.CopyTo(buffer);
+                fileStream.Read(buffer.Slice(leftData.Length));
+                offset = 0;
+            }
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            if (offset + stringLength >= buffer.Length)
+            {
+                byte[] leftData = buffer.Slice(offset).ToArray();
+                buffer.Clear();
+                leftData.CopyTo(buffer);
+                fileStream.Read(buffer.Slice(leftData.Length));
+                offset = 0;
+            }
+            sheetRowData.Test44 = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
             DataBaseName.TestClass[row] = sheetRowData;
         }
     }

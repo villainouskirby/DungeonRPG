@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using MM = MapManager;
+using static MapBufferChanger;
 
-public class FOVCaster : MonoBehaviour
+[RequireComponent(typeof(MapManager))]
+public class FOVCaster : MonoBehaviour, ITileMapOption
 {
     [Header("FOV Settings")]
     public int Radius;  // FOV 반지름
@@ -14,12 +17,17 @@ public class FOVCaster : MonoBehaviour
     public float ShadowCorrect;
     public float BoxSize;
 
-    private bool _isCast = false;
-    private Vector2Int _lastTilePos;      // 플레이어의 현재 타일 좌표
-    private float _tileSize;
+    private bool _isActive = false;
     private int _lastRadius;
-    private TileMapData _mapData;
-    private GameObject _player;
+    private Action _bufferChangeEnd;
+
+
+    // FOVDataBuffer
+    private GraphicsBuffer _fovDataBuffer;
+    public readonly int FovDataBufferHeaderSize = 1;
+    // FOVDataBuffer Property
+    public GraphicsBuffer FOVDataBuffer => _fovDataBuffer;
+
 
     private IntervalNodePool _intervalNodePool;
     private OctantTransform[] octantTransforms =
@@ -37,58 +45,127 @@ public class FOVCaster : MonoBehaviour
     // 현재 보고 있는 맵
     private float[] _fovMap;
 
+    public int Prime { get { return (int)TileMapOptionPrimeEnum.FOVCaster; } }
+
+    public void Init()
+    {
+        _fovMap = new float[(Radius * 2 + 1) * (Radius * 2 + 1)];
+        _intervalNodePool = new();
+        _blockedIntervalTree = new(_intervalNodePool);
+        _lastRadius = 0;
+    }
+    public void InitMap(MapEnum mapType)
+    {
+        // 따로 로직 필요 X
+        _lastRadius = 0;
+        ChangeFOVData();
+    }
+
+    public void StartMap(MapEnum mapType)
+    {
+        OnOption();
+        ComputeVisibility(PlayerMoveChecker.Instance.LastTilePos);
+        ChangeFOVData();
+    }
+
+
+    public void OnOption()
+    {
+        if (_isActive)
+            return;
+
+        PlayerMoveChecker.Instance.AddMoveAction(ComputeVisibility);
+        PlayerMoveChecker.Instance.AddMoveEndAction(ChangeFOVData);
+        Shader.SetGlobalFloat("_FOVActive", 1.0f);
+        _isActive = true;
+    }
+
+    public void OffOption()
+    {
+        if (!_isActive)
+            return;
+
+        PlayerMoveChecker.Instance.DeleteMoveAction(ComputeVisibility);
+        PlayerMoveChecker.Instance.DeleteMoveEndAction(ChangeFOVData);
+        Shader.SetGlobalFloat("_FOVActive", 0.0f);
+        _isActive = false;
+    }
+
+    public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.FOVCaster; } }
+
+    void Update()
+    {
+        if (!_isActive)
+            return;
+
+        Shader.SetGlobalInt("_FOVRadius", Radius);
+    }
+
     void FixedUpdate()
     {
-        if (!_isCast)
+        if (!_isActive)
             return;
 
         if (_lastRadius != Radius)
         {
             _fovMap = new float[(Radius * 2 + 1) * (Radius * 2 + 1)];
+            ChangeFOVData();
             _lastRadius = Radius;
         }
-        _tileSize = MapManager.Instance.TileSize;
-        Vector2Int newTilePos = GetCurrentTilePos();
+    }
 
-        if (newTilePos != _lastTilePos)
+    private void ChangeFOVData(Vector2Int tilePos)
+    {
+       ChangeFOVData();
+    }
+
+    public void AddBufferChangeEndAction(Action action)
+    {
+        _bufferChangeEnd += action;
+    }
+
+    public void ChangeFOVData()
+    {
+        if (_lastRadius != Radius)
         {
-            ComputeVisibility(newTilePos, Radius);
-            _lastTilePos = newTilePos;
-            MapManager.Instance.ChangeFOVData(_fovMap, Radius);
+            SetDataBuffer(new float[(Radius * 2 + 1) * (Radius * 2 + 1)], ref _fovDataBuffer, FovDataBufferHeaderSize,
+            0);
+            _bufferChangeEnd?.Invoke();
         }
+        _lastRadius = Radius;
+        FOVDataBuffer.SetData(_fovMap, 0, 1, _fovMap.Length);
     }
 
-    Vector2Int GetCurrentTilePos()
+    // 0 -> false, 0 < ~ -> true
+    public float IsInFOV(Vector2Int tilePos)
     {
-        int tileX = Mathf.FloorToInt(_player.transform.position.x / _tileSize);
-        int tileY = Mathf.FloorToInt(_player.transform.position.y / _tileSize);
-        return new Vector2Int(tileX, tileY);
+        if (!_isActive)
+            return 1.0f;
+
+        int relativeX = tilePos.x - PlayerMoveChecker.Instance.NewTilePos.x;
+        int relativeY = tilePos.y - PlayerMoveChecker.Instance.NewTilePos.y;
+        int correctX = relativeX + Radius;
+        int correctY = relativeY + Radius;
+
+        if (Mathf.Abs(relativeX) > Radius || Mathf.Abs(relativeY) > Radius)
+            return 0;
+
+        if (0 < _fovMap[(Radius * 2 + 1) * correctY + correctX])
+        {
+            return _fovMap[(Radius * 2 + 1) * correctY + correctX];
+        }
+        else
+            return 0;
     }
 
-    public void StartCast()
-    {
-        Init();
-        _isCast = true;
-    }
-
-    private void Init()
-    {
-        _mapData = MapManager.Instance.MapData;
-        _tileSize = MapManager.Instance.TileSize;
-        _lastTilePos = new Vector2Int(0, 0);
-        _player = MapManager.Instance.Player;
-        _intervalNodePool = new();
-        _blockedIntervalTree = new(_intervalNodePool);
-    }
-
-    public void ComputeVisibility(Vector2Int viewerPos, int viewRadius)
+    public void ComputeVisibility(Vector2Int viewerPos)
     {
         Array.Fill(_fovMap, 0);
-        SetLight(viewerPos, viewerPos.x, viewerPos.y, viewRadius, 0); // 시야자의 셀은 항상 보입니다.
+        SetLight(viewerPos, viewerPos.x, viewerPos.y, Radius, 0); // 시야자의 셀은 항상 보입니다.
 
         for (int i = 0; i < octantTransforms.Length; i++)
         {
-            CastLight(viewerPos, viewRadius, octantTransforms[i]);
+            CastLight(viewerPos, Radius, octantTransforms[i]);
         }
     }
 
@@ -114,7 +191,7 @@ public class FOVCaster : MonoBehaviour
                 int gridX = viewerPos.x + x * transform.xx + y * transform.xy;
                 int gridY = viewerPos.y + x * transform.yx + y * transform.yy;
 
-                if (gridX < 0 || gridX >= _mapData.Width || gridY < 0 || gridY >= _mapData.Height)
+                if (gridX < 0 || gridX >= MM.Instance.MapData.Width || gridY < 0 || gridY >= MM.Instance.MapData.Height)
                 {
                     continue;
                 }
@@ -180,8 +257,8 @@ public class FOVCaster : MonoBehaviour
 
     private bool IsWall(int x, int y)
     {
-        int tileValue = _mapData.GetTile(x, y);
-        bool isWall = MapManager.Instance.CheckWall(tileValue);
+        int tileValue = MM.Instance.MapData.GetTile(x, y);
+        bool isWall = MM.Instance.CheckWall(tileValue);
         return isWall;
     }
 

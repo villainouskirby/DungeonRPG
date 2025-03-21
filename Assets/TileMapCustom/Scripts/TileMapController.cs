@@ -1,7 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using TreeEditor;
-using System;
 
 public class TileMapController : MonoBehaviour
 {
@@ -9,9 +6,8 @@ public class TileMapController : MonoBehaviour
 
     [Header("Texture Settings")]
     public Texture2D DefaultTexture;
-    public Texture2D[] TileTexture;
+    public Sprite[] TileSprites; // Texture2D 대신 Sprite 배열 사용
     private Texture2DArray _tileTextureArray;
-
 
     void Start()
     {
@@ -21,7 +17,7 @@ public class TileMapController : MonoBehaviour
     void Init()
     {
         SetMaterialData();
-        MapManager.Instance.AddFOVDataChangeAction(SetBlurMap);
+        MapManager.Instance.FOVCaster.AddBufferChangeEndAction(SetBlurMap);
     }
 
     public void SetMaterialData()
@@ -43,46 +39,63 @@ public class TileMapController : MonoBehaviour
 
     public void CreateTexture2DArray()
     {
-        if (TileTexture.Length == 0)
+        if (TileSprites.Length == 0)
         {
-            Debug.LogError("[TileMapController] tileTextures 배열이 비어 있습니다.");
+            Debug.LogError("[TileMapController] TileSprites 배열이 비어 있습니다.");
             return;
         }
 
-        int width = TileTexture[0].width;
-        int height = TileTexture[0].height;
-        TextureFormat format = TileTexture[0].format;
+        int width = (int)TileSprites[0].rect.width;
+        int height = (int)TileSprites[0].rect.height;
+        TextureFormat format = TileSprites[0].texture.format;
         bool mipChain = false;
 
-        _tileTextureArray = new(width, height, TileTexture.Length, format, mipChain);
+        _tileTextureArray = new(width, height, TileSprites.Length, format, mipChain);
         _tileTextureArray.anisoLevel = 1;
 
-        for (int i = 0; i < TileTexture.Length; i++)
+        for (int i = 0; i < TileSprites.Length; i++)
         {
-            if (TileTexture[i] == null)
+            Texture2D tex = SpriteToTexture2D(TileSprites[i]);
+
+            if (tex == null)
             {
-                Debug.LogWarning($"[TileMapController] tileTextures[{i}]가 비어 있습니다. 기본 텍스처로 대체됩니다.");
+                Debug.LogWarning($"[TileMapController] TileSprites[{i}]가 비어 있습니다. 기본 텍스처로 대체됩니다.");
                 Graphics.CopyTexture(DefaultTexture, 0, 0, _tileTextureArray, i, 0);
                 continue;
             }
 
-            Graphics.CopyTexture(TileTexture[i], 0, 0, _tileTextureArray, i, 0);
+            Graphics.CopyTexture(tex, 0, 0, _tileTextureArray, i, 0);
         }
 
         _tileMaterial.SetTexture("_TileTexture", _tileTextureArray);
         _tileMaterial.SetInt("_TextureSize", _tileTextureArray.depth);
+    }
 
-        TileTexture = null;
+    /// <summary>
+    /// Sprite를 Texture2D로 변환하는 함수
+    /// </summary>
+    private Texture2D SpriteToTexture2D(Sprite sprite)
+    {
+        if (sprite == null) return DefaultTexture;
+
+        Rect rect = sprite.rect;
+        Texture2D sourceTex = sprite.texture;
+
+        Texture2D newTex = new Texture2D((int)rect.width, (int)rect.height, sourceTex.format, false);
+        newTex.SetPixels(sourceTex.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height));
+        newTex.Apply();
+
+        return newTex;
     }
 
     public void InitializeTileMap()
     {
         _tileMaterial.SetBuffer("_MapDataBuffer", MapManager.Instance.MapDataBuffer);
-        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVCaster.FOVDataBuffer);
     }
 
     public void SetBlurMap()
     {
-        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVDataBuffer);
+        _tileMaterial.SetBuffer("_BlurMapDataBuffer", MapManager.Instance.FOVCaster.FOVDataBuffer);
     }
 }

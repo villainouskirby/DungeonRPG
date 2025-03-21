@@ -1,18 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MineralFarm : MonoBehaviour
+public class MineralFarm : FarmableBase
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private FarmEnum _farm = FarmEnum.Mineral;
+    private MineralEnum _mineral;
 
-    // Update is called once per frame
-    void Update()
+    public override void Init()
     {
-        
+        base.Init();
+        _mineral = (MineralEnum)Enum.Parse(typeof(MineralEnum), name.Split("(")[0]);
+        _type = _farm;
+        _mineralType = _mineral;
     }
 }

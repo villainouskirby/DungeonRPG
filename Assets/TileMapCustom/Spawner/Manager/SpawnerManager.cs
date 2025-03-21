@@ -2,64 +2,96 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
+using TM = TileMapMaster;
+using MM = MapManager;
 
-public class SpawnerManager : MonoBehaviour
+public class SpawnerManager : MonoBehaviour, ITileMapOption
 {
-    public MapEnum MapType;
-
     public List<Spawner> AllSpawner;
     public HashSet<Spawner> ActiveSpawner;
 
     private SpawnerInfoData _spawnerInfoData;
-    private float _tileSize;
-    private GameObject _player;
-    private Vector2Int _lastTile;
+    private bool _isActive;
 
-    void Awake()
-    {
-        SetDataAsset(MapType.ToString());
-    }
-
-    private void Start()
-    {
-        _tileSize = MapManager.Instance.TileSize;
-        _player = MapManager.Instance.Player;
-        _lastTile = new(0, 0);
-        AllSpawner = new(1000);
-        ActiveSpawner = new(1000);
-        spawnerGizmo = new();
-        Init();
-    }
-
-    void FixedUpdate()
-    {
-        _tileSize = MapManager.Instance.TileSize;
-        Vector2Int newTile = GetCurrentTilePos();
-
-        if (newTile != _lastTile)
-        {
-            CheckSpawner(newTile);
-            _lastTile = newTile;
-        }
-        UpdateSpawner();
-    }
-
-    Vector2Int GetCurrentTilePos()
-    {
-        int tileX = Mathf.FloorToInt(_player.transform.position.x / _tileSize);
-        int tileY = Mathf.FloorToInt(_player.transform.position.y / _tileSize);
-        return new Vector2Int(tileX, tileY);
-    }
+    // Option
+    public int Prime { get { return (int)TileMapOptionPrimeEnum.SpawnerManager; } }
 
     public void Init()
     {
-        InitSpawner();
+        AllSpawner = new(1000);
+        ActiveSpawner = new(1000);
+
+#if UNITY_EDITOR
+        spawnerGizmo = new();
+#endif
     }
 
-    private void InitSpawner()
+    public void InitMap(MapEnum mapType)
     {
-        string assetName = MapType.ToString();
+        ResetSpawnwer();
+        AllSpawner.Clear();
+        ActiveSpawner.Clear();
+        SetDataAsset(mapType.ToString());
+        SetSpawner(mapType.ToString());
+    }
+
+    public void StartMap(MapEnum mapType)
+    {
+        InitMap(mapType);
+        CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
+    }
+
+    public void OnOption()
+    {
+        if (_isActive)
+            return;
+
+        PlayerMoveChecker.Instance.AddMoveAction(CheckSpawner);
+        PlayerMoveChecker.Instance.AddCheckEndAction(UpdateSpawner);
+        _isActive = true;
+    }
+
+    public void OffOption()
+    {
+        if (!_isActive)
+            return;
+
+        PlayerMoveChecker.Instance.DeleteMoveAction(CheckSpawner);
+        PlayerMoveChecker.Instance.DeleteCheckEndAction(UpdateSpawner);
+        ResetSpawnwer();
+        AllSpawner.Clear();
+        ActiveSpawner.Clear();
+        _isActive = false;
+    }
+
+    private void ResetSpawnwer()
+    {
+        for (int i = 0; i < AllSpawner.Count; i++)
+        {
+            if (AllSpawner[i].SpawnObj != null)
+            {
+                FarmableBase targetFarm = AllSpawner[i].SpawnObj.GetComponent<FarmableBase>();
+                switch (targetFarm.Type)
+                {
+                    case FarmEnum.Plant:
+                        SpawnerPool.Instance.PlantPool.Release(targetFarm.PlantType, AllSpawner[i].SpawnObj);
+                        break;
+                    case FarmEnum.Mineral:
+                        SpawnerPool.Instance.MineralPool.Release(targetFarm.MineralType, AllSpawner[i].SpawnObj);
+                        break;
+                }
+            }
+        }
+
+        AllSpawner.Clear();
+        ActiveSpawner.Clear();
+    }
+
+    public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.SpawnerManager; } }
+
+
+    private void SetSpawner(string assetName)
+    {
         string dataFilePath = $"{SpawnerExtractor.DataFileDirectory}{assetName}/{SpawnerExtractor.SpawnerFileDirectory}";
 
         foreach (var groupInfo in _spawnerInfoData.GroupInfo)
@@ -102,10 +134,13 @@ public class SpawnerManager : MonoBehaviour
 
     private void CheckSpawner(Vector2Int playerPos)
     {
-        for(int i = 0; i < AllSpawner.Count; i++)
+        if (!_isActive)
+            return;
+
+        for (int i = 0; i < AllSpawner.Count; i++)
         {
             Spawner spawner = AllSpawner[i];
-                
+            spawner.CheckVisible();
             Vector2Int spawnerTilePos = spawner.TilePos;
             int distance = Mathf.Max(Mathf.Abs(spawnerTilePos.x - playerPos.x), Mathf.Abs(spawnerTilePos.y - playerPos.y));
 
@@ -124,23 +159,33 @@ public class SpawnerManager : MonoBehaviour
 
     private void UpdateSpawner()
     {
+        if (!_isActive)
+            return;
+
         foreach(var spawner in ActiveSpawner)
         {
+            if (spawner.IsSpawn && spawner.IsIdentify && !spawner.SpawnObj.activeSelf)
+                spawner.SpawnerReset();
             spawner.TrySpawn();
         }
     }
 
+#if UNITY_EDITOR
     private HashSet<Spawner> spawnerGizmo;
 
     private void OnDrawGizmos()
     {
         if (spawnerGizmo == null)
             return;
+
+        float tileSize = MM.Instance.TileSize;
+
         foreach(var a in spawnerGizmo)
         {
             Vector2Int tilePos = a.TilePos;
             Gizmos.color = Color.Lerp(Color.white, Color.red, a.CurrentTime / a.CoolTime);
-            Gizmos.DrawCube(new(tilePos.x * _tileSize + _tileSize/2, tilePos.y * _tileSize + _tileSize/2, 0), Vector3.one * 1f);
+            Gizmos.DrawCube(new(tilePos.x * tileSize + tileSize/2, tilePos.y * tileSize + tileSize/2, 0), Vector3.one * 1f);
         }
     }
+#endif
 }

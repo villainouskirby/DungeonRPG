@@ -7,13 +7,13 @@ using UnityEngine.SceneManagement;
 public class IT_EntryFunc : MonoBehaviour
 {
     private BoxCollider2D _collider;
-    private string _targetSceneName;
+    private MapEnum _mapType;
     private bool _isActive;
 
     public void Init(IT_EntryObj entryObj)
     {
         _collider = GetComponent<BoxCollider2D>();
-        _targetSceneName = entryObj.TargetSceneName;
+        _mapType = entryObj.MapType;
         _isActive = false;
     }
 
@@ -41,6 +41,6 @@ public class IT_EntryFunc : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.E))
-            SceneManager.LoadScene(_targetSceneName);
+            TileMapMaster.Instance.StartTileMap(_mapType);
     }
 }
