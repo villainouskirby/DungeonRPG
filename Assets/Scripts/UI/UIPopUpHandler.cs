@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class UIPopUpHandler : MonoBehaviour
 {
@@ -36,21 +34,11 @@ public class UIPopUpHandler : MonoBehaviour
 
     private void Start()
     {
-        _inventory.SetActive(true);
-        _shop.SetActive(true);
-        _storage.SetActive(true);
-        _quest.SetActive(true);
-        _smith.SetActive(true);
-
-        _inventory.SetActive(false);
-        _shop.SetActive(false);
-        _storage.SetActive(false);
-        _quest.SetActive(false);
-        _smith.SetActive(false);
-
         _inventoryScript = _inventory.GetComponent<Inventory>();
         _shopScript = _shop.GetComponent<Shop>();
         _storageScript = _storage.GetComponent<Storage>();
+
+        InitAllUI();
     }
 
     private void Update()
@@ -62,6 +50,21 @@ public class UIPopUpHandler : MonoBehaviour
             _openUI.SetActive(false);
             _openUI = null;
         }
+    }
+
+    private void InitAllUI()
+    {
+        _inventory.SetActive(true);
+        _shop.SetActive(true);
+        _storage.SetActive(true);
+        _quest.SetActive(true);
+        _smith.SetActive(true);
+
+        _inventory.SetActive(false);
+        _shop.SetActive(false);
+        _storage.SetActive(false);
+        _quest.SetActive(false);
+        _smith.SetActive(false);
     }
 
     private void OpenUI(GameObject ui)

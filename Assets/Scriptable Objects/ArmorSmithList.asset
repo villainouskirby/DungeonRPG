@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bc7c9a16692b5d41b629ace0ce3f95c, type: 3}
+  m_Name: ArmorSmithList
+  m_EditorClassIdentifier: 
+  SmithDatas:
+  - rid: 178139000196562952
+  - rid: 178139000196562953
+  - rid: 178139000196562954
+  - rid: 178139000196562955
+  - rid: 178139000196562956
+  - rid: 178139000196562957
+  - rid: 178139000196562958
+  - rid: 178139000196562959
+  references:
+    version: 2
+    RefIds:
+    - rid: 178139000196562952
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 0
+        Position: A1
+        ResultItemID: 0
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 0
+    - rid: 178139000196562953
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 1
+        Position: A2
+        ResultItemID: 1
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 0
+    - rid: 178139000196562954
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 2
+        Position: A3
+        ResultItemID: 2
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 0
+    - rid: 178139000196562955
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 3
+        Position: A4
+        ResultItemID: 3
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 0
+    - rid: 178139000196562956
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 4
+        Position: B1
+        ResultItemID: 4
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 1
+    - rid: 178139000196562957
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 5
+        Position: B2
+        ResultItemID: 5
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 1
+    - rid: 178139000196562958
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 6
+        Position: B3
+        ResultItemID: 6
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 1
+    - rid: 178139000196562959
+      type: {class: SmithData, ns: , asm: Assembly-CSharp}
+      data:
+        ID: 7
+        Position: B4
+        ResultItemID: 7
+        IngredientItemIDs: 0000000000000000000000000000000000000000000000000000000000000000
+        IngredientAmounts: 00000000000000000000000000000000
+        IsActive: 1

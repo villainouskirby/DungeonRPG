@@ -35,11 +35,11 @@ public class SmithPopUpUI : MonoBehaviour
 
             _ingredientObjects[i] = ingredient.gameObject;
 
-            GameObject imgObject = ingredient.GetChild(0).gameObject;
+            GameObject imgObject = ingredient.gameObject;
             Image image = imgObject.GetOrAddComponent<Image>();
             _ingredientImages[i] = image;
 
-            GameObject txtObject = ingredient.GetChild(1).gameObject;
+            GameObject txtObject = ingredient.GetChild(0).gameObject;
             TextMeshProUGUI text = txtObject.GetOrAddComponent<TextMeshProUGUI>();
             _ingredientTexts[i] = text;
         }

@@ -61,8 +61,8 @@ public class ShopUI : SlotInteractHandler
         if (_shopSlots.Count == index)
         {
             CreateSlot(index, _shopSlots, shopItem, ShopType.buy);
-            _shopSlots[index].SetItemAmount(shopItem.Amount);
         }
+        _shopSlots[index].SetItemAmount(shopItem.Amount);
     }
 
     public void SetItemAmountText(int index, int amount = 1)
