@@ -6,6 +6,10 @@ public class SlotUI : MonoBehaviour
     [Tooltip("아이템 이미지")]
     [SerializeField] private Image _image;
 
+    private void Awake()
+    {
+        _image = GetComponent<Image>();
+    }
 
     public void SetItemInfo(Sprite imageSprite)
     {

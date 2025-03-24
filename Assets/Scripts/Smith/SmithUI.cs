@@ -47,9 +47,8 @@ public class SmithUI : SlotInteractHandler
 
     private GameObject _currentContent;
 
-    private void Start()
-    {
-        _currentContent = _armorContent.gameObject;
+    protected void Awake()
+    {_currentContent = _armorContent.gameObject;
 
         _armorButton.onClick.AddListener(() => OpenContent(_armorContent));
         _weaponButton.onClick.AddListener(() => OpenContent(_weaponContent));
@@ -59,7 +58,10 @@ public class SmithUI : SlotInteractHandler
         _weaponContent.gameObject.SetActive(false);
         _toolContent.gameObject.SetActive(false);
         OpenContent(_armorContent);
+    }
 
+    private void OnEnable()
+    {
         OpenSmith();
     }
 
@@ -103,9 +105,8 @@ public class SmithUI : SlotInteractHandler
         _smith.EquipItem();
     }
 
-    private void InitUI(List<SmithData> datas, List<SmithSlotUI> targetList, Transform targetContent)
-    {
-        // 기존 데이터 제거
+    private void InitUI(List<SmithData> datas, List<SmithSlotUI> targetList, RectTransform targetContent)
+    {// 기존 데이터 제거
         foreach (var ui in targetList)
         {
             Destroy(ui.gameObject);
@@ -119,12 +120,17 @@ public class SmithUI : SlotInteractHandler
         {
             SmithSlotUI slotUI;
             GameObject newSlot = Instantiate(_smithSlotPrefab, targetContent);
-            if ((slotUI = newSlot.GetComponent<SmithSlotUI>()) == null) slotUI = newSlot.AddComponent<SmithSlotUI>();
+            if ((slotUI = newSlot.GetComponent<SmithSlotUI>()) == null)
+            {
+                slotUI = newSlot.AddComponent<SmithSlotUI>();
+            }
             targetList.Add(slotUI);
 
             slotUI.SetItemInfo(null, datas[i].IsActive); // TODO => DB연결해서 결과 아이템 ID에 맞는 이미지 가져오기
             layoutManager.SetPosition(slotUI.GetComponent<RectTransform>(), datas[i].Position);
         }
+
+        targetContent.sizeDelta = layoutManager.GetMaxPosition();
     }
 
     public void InitArmorUI(List<SmithData> armorDatas)

@@ -32,6 +32,11 @@ public class Smith : MonoBehaviour
     [SerializeField] private Inventory _invenory;
     [SerializeField] private Storage _storage;
 
+    void Awake()
+    {
+        InitSmith();
+    }
+
     /// <summary> 인벤/창고에 있는 재료 양 </summary>
     public int GetIngredientAmount(long ID)
     {
@@ -76,8 +81,8 @@ public class Smith : MonoBehaviour
 
     public void InitSmith()
     {
-        _smithUI.InitArmorUI(_armors);
-        _smithUI.InitWeaponUI(_weapons);
-        _smithUI.InitToolUI(_tools);
+        if (_armorList != null) _smithUI.InitArmorUI(_armors);
+        if (_weaponList != null) _smithUI.InitWeaponUI(_weapons);
+        if (_toolList != null) _smithUI.InitToolUI(_tools);
     }
 }
