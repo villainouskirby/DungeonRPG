@@ -6,6 +6,6 @@ using UnityEngine;
 
 public interface IDataProcessor
 {
-    Task ProcessData(string xlsxFilePath, string dataClassFilePath, string dataFilePath, IClassGenerator classGenerator, ISheetDataGenerator dataGenerator, IParserGenerator parserGenerator, int maxSheetsAtOnce = 2);
+    Task ProcessData(string xlsxFilePath, string dataClassFilePath, string dataFilePath, string resourcesFilePath, IClassGenerator classGenerator, ISheetDataGenerator dataGenerator, IParserGenerator parserGenerator, int maxSheetsAtOnce = 2);
 
 }

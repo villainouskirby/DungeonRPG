@@ -27,7 +27,7 @@ public class TileMapMaster : MonoBehaviour
     public void Awake()
     {
         Init();
-        StartTileMap(MapEnum.Map3);
+        StartTileMap(MapEnum.Map1);
     }
 
     [ContextMenu("Init MapSettings InSpector")]

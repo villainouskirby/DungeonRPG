@@ -149,11 +149,9 @@ public partial class String2TypeByteConverter
     }
     private byte[] ConvertToBytes<T>(string value, T defaultValue, TryParseDelegate<T> parser, int size) where T : struct
     {
-        Span<byte> bytes = stackalloc byte[size];
         if (!parser(value, out T result))
             result = defaultValue;
-        bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref result, 1));
-
+        Span<byte> bytes = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref result, 1));
         return bytes.ToArray();
     }
     private delegate bool TryParseDelegate<T>(string input, out T result);

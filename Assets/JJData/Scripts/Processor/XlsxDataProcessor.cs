@@ -20,7 +20,7 @@ public class XlsxDataProcessor : IDataProcessor
     /// <param name="dataGenerator">Process한 Data를 처리할 Data Generator/param>
     /// <param name="maxSheetsAtOnce">한번에 처리할 Sheet 갯수</param>
     /// <returns></returns>
-    public async Task ProcessData(string xlsxFilePath, string dataClassFilePath, string dataFilePath, IClassGenerator classGenerator, ISheetDataGenerator dataGenerator, IParserGenerator parserGenerator, int maxSheetsAtOnce = 2)
+    public async Task ProcessData(string xlsxFilePath, string dataClassFilePath, string dataFilePath, string resourcesFilePath, IClassGenerator classGenerator, ISheetDataGenerator dataGenerator, IParserGenerator parserGenerator, int maxSheetsAtOnce = 2)
     {
         Debug.Log($"Processor - {Path.GetFileName(xlsxFilePath)} : 작업 시작");
         string xlsxName = Path.GetFileNameWithoutExtension(xlsxFilePath);
@@ -47,8 +47,8 @@ public class XlsxDataProcessor : IDataProcessor
 
             // 데이터 틀이 되는 Xlsx Class 생성
             string[] sheetNames = sheets.Select(sheet => sheet.sheetName).ToArray();
-            classGenerator.GenerateXlsxClass(dataClassFilePath ,xlsxName, sheetNames); // XlsxClass 생성
-            parserGenerator.StartDataParserGenerate(xlsxName, sheetNames, dataFilePath);
+            classGenerator.GenerateXlsxClass(dataClassFilePath, xlsxName, sheetNames); // XlsxClass 생성
+            parserGenerator.StartDataParserGenerate(xlsxName, sheetNames, resourcesFilePath);
             ViewerGenerator viewerGenerator = new();
             viewerGenerator.StartViewerGenerate(xlsxName, sheetNames, dataClassFilePath);
 
@@ -106,7 +106,7 @@ public class XlsxDataProcessor : IDataProcessor
             Dictionary<int, string> dataNamePair = null;
             HashSet<int> skipColumns = new();
 
-            dataGenerator.StartSheetDataGenerate(sheetInfo.sheetName, xlsxName, dataFilePath);
+            dataGenerator.StartSheetDataGenerate(sheetInfo.sheetName, xlsxName, dataFilePath + resourcesFilePath);
 
             int currentRow = 0;
             int contextStartRow = (int)DataForm.Context;

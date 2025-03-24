@@ -14,7 +14,8 @@ public static class XlsxDataManager
     private static readonly ConcurrentQueue<string> _deleteQueue = new(); // 삭제 작업 큐
     private static readonly ConcurrentDictionary<string, Task> _deleteProcessingTasks = new();
     public static string DataClassFilePath = $"{Application.dataPath}/JJData/Data/";
-    public static string DataFilePath = $"{Application.streamingAssetsPath}/JJData/";
+    public static string DataFilePath = $"{Application.dataPath}/Resources/";
+    public static string ResourcesFilePath = "JJData/";
     public static string XlsxFilePath = $"{Application.dataPath}/JJData/Xlsx";
 
     [MenuItem("JJData/Xlsx Data/Parse All Files #J")]
@@ -133,6 +134,7 @@ public static class XlsxDataManager
                     filePath,
                     DataClassFilePath,
                     DataFilePath,
+                    ResourcesFilePath,
                     classGenerator,
                     binSheetDataGenerator,
                     parserGenerator
@@ -242,7 +244,7 @@ public static class XlsxDataManager
         Debug.Log("파일 초기화 : 시작");
 
         await RetryDeleteDirectoryAsync(DataClassFilePath, "DataClassFile");
-        await RetryDeleteDirectoryAsync(DataFilePath, "DataFile");
+        await RetryDeleteDirectoryAsync(DataFilePath + ResourcesFilePath, "DataFile");
 
         Debug.Log("파일 초기화 : 전부 삭제 완료");
 
@@ -252,7 +254,7 @@ public static class XlsxDataManager
     private static async Task DeleteOldData(string xlsxName)
     {
         string dataClassFilePath = $"{DataClassFilePath}/{xlsxName}";
-        string dataFilePath = $"{DataFilePath}/{xlsxName}";
+        string dataFilePath = $"{DataFilePath}{ResourcesFilePath}/{xlsxName}";
 
         // 비동기로 삭제 작업 실행
         await RetryDeleteDirectoryAsync(dataClassFilePath, "DataClassFile");

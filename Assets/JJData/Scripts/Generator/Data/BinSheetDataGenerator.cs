@@ -17,7 +17,7 @@ public class BinSheetDataGenerator : ISheetDataGenerator
         _converter = new();
         _sheetVariableType[sheetName] = new();
         _sheetRowNum[sheetName] = 0;
-        string path = $"{sheetDataFilePath}/{xlsxName}/{sheetName}.bin";
+        string path = $"{sheetDataFilePath}/{xlsxName}/{sheetName}.bytes";
 
         if (!Directory.Exists(Path.GetDirectoryName(path)))
         {
