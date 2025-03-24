@@ -113,7 +113,7 @@ public static class XlsxDataManager
     {
         string xlsxName = Path.GetFileNameWithoutExtension(filePath);
         int retryCount = 0; // 재시도 횟수
-        const int maxRetries = 5; // 최대 재시도 횟수 (0이면 무제한)
+        const int maxRetries = 3; // 최대 재시도 횟수 (0이면 무제한)
         const int retryDelayMs = 500; // 재시도 간격 (밀리초)
 
         while (true)
@@ -150,6 +150,7 @@ public static class XlsxDataManager
                 if (maxRetries > 0 && retryCount >= maxRetries)
                 {
                     Debug.LogError($"{xlsxName} : 데이터 생성 실패 - 최대 재시도 횟수 초과");
+                    RequestDeleteProcess(xlsxName);
                     break; // 최대 재시도 횟수 초과 시 종료
                 }
 
@@ -211,7 +212,7 @@ public static class XlsxDataManager
 
         if (_deleteQueue.TryDequeue(out string xlsxName))
         {
-            // 동일 파일이 처리 중이면 스
+            // 동일 파일이 처리 중이면 스킵
             if (_deleteProcessingTasks.TryGetValue(xlsxName, out Task existingTask))
             {
                 Debug.Log($"파일 삭제 대기열 - {Path.GetFileName(xlsxName)} : 동일 파일 삭제 중, 대기열 삭제");
