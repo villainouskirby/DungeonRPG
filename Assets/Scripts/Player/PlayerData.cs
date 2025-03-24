@@ -2,10 +2,10 @@ using UnityEngine;
 
 public enum BuffType
 {
-    AttackUp,
-    AttackDown,
-    SpeedUp,
-    SpeedDown
+    AttackUp = 0,
+    AttackDown = 1,
+    SpeedUp = 2,
+    SpeedDown = 3
 }
 
 public class PlayerData : MonoBehaviour
@@ -61,6 +61,7 @@ public class PlayerData : MonoBehaviour
     /// <summary>
     /// 버프가 끝날 때 호출: ApplyBuff에서 더해줬던 만큼 빼주거나, 빼줬던 만큼 더해서 원상 복구
     /// </summary>
+    // 버프를 중간에 해제당했을 때의 로직은... 그냥 디버프식으로 덮어씌우는방식을 사용해야할지
     public void RemoveBuff(BuffType type, float percentage)
     {
         switch (type)
