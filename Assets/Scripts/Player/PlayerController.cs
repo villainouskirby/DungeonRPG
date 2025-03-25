@@ -94,7 +94,8 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-
+        stateMachine.Update();
+        Debug.Log(GetCurrentState());
         //버프 활성화 버튼
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -112,7 +113,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        Debug.Log(GetCurrentState());
         // 이동 입력 (Input.GetAxis)
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");

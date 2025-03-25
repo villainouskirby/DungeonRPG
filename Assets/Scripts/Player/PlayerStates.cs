@@ -17,7 +17,7 @@ public class IdleState : IPlayerState
         float moveY = Input.GetAxis("Vertical");
         if (moveX != 0 || moveY != 0) player.ChangeState(new MoveState(player));
 
-        else if (Input.GetKeyDown(KeyCode.LeftShift) && player.canSneak) player.ChangeState(new SneakState(player));
+        else if (Input.GetKeyDown(KeyCode.LeftShift)) player.ChangeState(new SneakState(player));
         else if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
         else if (Input.GetKeyDown(KeyCode.F)) player.ChangeState(new ForageState(player));
     }
@@ -42,8 +42,8 @@ public class MoveState : IPlayerState
         float moveY = Input.GetAxis("Vertical");
         player.SetMoveInput(moveX);
         player.SetMoveInput(moveY);
-        if (moveX == 0 || moveY == 0) player.ChangeState(new IdleState(player));
-        else if (Input.GetKeyDown(KeyCode.A)) player.ChangeState(new AttackState(player));
+        if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
+        else if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
         else if (Input.GetKeyDown(KeyCode.LeftShift) && player.canSneak) player.ChangeState(new SneakMoveState(player));
     }
 
@@ -73,10 +73,15 @@ public class SneakMoveState : IPlayerState
         player.SetMoveInput(moveY);
         if (moveX == 0 && moveY == 0)
         {
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift))
                 player.ChangeState(new SneakState(player));
             else
                 player.ChangeState(new IdleState(player)); ;
+        }
+        else
+        {
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+                player.ChangeState(new MoveState(player));
         }
         if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
     }
@@ -105,8 +110,12 @@ public class SneakState : IPlayerState
         float moveY = Input.GetAxis("Vertical");
         player.SetMoveInput(moveX);
         player.SetMoveInput(moveY);
-        if (moveX == 0 || moveY == 0) player.ChangeState(new IdleState(player));
-        else if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
+        if (moveX == 0 && moveY == 0) {
+            if (Input.GetKeyUp(KeyCode.LeftShift)) { player.ChangeState(new IdleState(player)); }
+        }
+        else { player.ChangeState(new SneakMoveState(player)); }
+        if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
+        
     }
 
     public void Exit()
