@@ -8,12 +8,12 @@ public class NormalMob : MonoBehaviour
 
     // HP, 시야 상실 거리(lostDistance), 공격 범위(stoppingDistance)
     [SerializeField] private float hp = 10f;
-    [SerializeField] private float lostDistance = 10f;
+    [SerializeField] private float lostDistance = 7f;
     [SerializeField] private float stoppingDistance = 1.5f;
 
     // 이동 속도
-    [SerializeField] private float detectSpeed = 1.5f;  // 소리를 듣고 탐색 중일 때
-    [SerializeField] private float combatSpeed = 3f;    // 전투 시
+    [SerializeField] private float detectSpeed = 1f;  // 소리를 듣고 탐색 중일 때
+    [SerializeField] private float combatSpeed = 5f;    // 전투 시
 
     // Animator (있다면)
     private Animator anim;
@@ -40,9 +40,7 @@ public class NormalMob : MonoBehaviour
         StartCoroutine(StateMachine());
     }
 
-    /// <summary>
-    /// 메인 상태 머신 코루틴
-    /// </summary>
+    // 메인 상태 머신 코루틴
     private IEnumerator StateMachine()
     {
         // HP가 0 이하가 되기 전까지
@@ -56,13 +54,9 @@ public class NormalMob : MonoBehaviour
         yield return StartCoroutine("Killed");
     }
 
-    //------------------------------------------------------------------------------
     //  상태별 코루틴
-    //------------------------------------------------------------------------------
 
-    /// <summary>
-    /// Idle: 가만히 대기하거나, 랜덤으로 회전 등의 간단한 동작
-    /// </summary>
+    // Idle: 가만히 대기하거나, 랜덤으로 회전 등의 간단한 동작
     private IEnumerator Idle()
     {
         PlayAnimation("IdleNormal");
@@ -81,9 +75,7 @@ public class NormalMob : MonoBehaviour
         // 상태 전환은 OnTriggerEnter나 다른 곳에서 일어날 수 있음
     }
 
-    /// <summary>
-    /// Detect: 플레이어 소리를 들었을 때, 느린 속도로 플레이어에게 접근
-    /// </summary>
+    // Detect: 플레이어 소리를 들었을 때, 느린 속도로 플레이어에게 접근
     private IEnumerator Detect()
     {
         PlayAnimation("WalkFWD");
@@ -99,7 +91,7 @@ public class NormalMob : MonoBehaviour
             }
 
             // 플레이어와의 거리 계산
-            float distance = Vector3.Distance(transform.position, player.position);
+            float distance = Vector2.Distance(transform.position, player.position);
 
             // 너무 멀어졌으면 (잃어버림)
             if (distance > lostDistance)
@@ -122,9 +114,7 @@ public class NormalMob : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Combat: 플레이어가 근접했을 때 전투. 이동 속도를 높이고 공격
-    /// </summary>
+    // Combat: 플레이어가 근접했을 때 전투. 이동 속도를 높이고 공격
     private IEnumerator Combat()
     {
         // 전투 상태 진입 시 애니메이션
@@ -138,7 +128,7 @@ public class NormalMob : MonoBehaviour
                 yield break;
             }
 
-            float distance = Vector3.Distance(transform.position, player.position);
+            float distance = Vector2.Distance(transform.position, player.position);
 
             // 플레이어가 멀어졌다면 -> Detect 또는 Idle로
             if (distance > stoppingDistance + 0.1f)
@@ -172,9 +162,8 @@ public class NormalMob : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Killed: 사망 처리
-    /// </summary>
+    // 사망 처리
+    
     private IEnumerator Killed()
     {
         PlayAnimation("Die");
@@ -183,41 +172,41 @@ public class NormalMob : MonoBehaviour
         Destroy(gameObject);
     }
 
-    //------------------------------------------------------------------------------
-    //  상태 전환 및 공용 함수
-    //------------------------------------------------------------------------------
-
-    /// <summary>
-    /// 상태 전환
-    /// </summary>
+    // 상태 전환
+    
     private void ChangeState(State newState)
     {
         state = newState;
     }
 
-    /// <summary>
-    /// 목표 위치로 이동 (NavMeshAgent 없이)
-    /// </summary>
+
+    // 목표 위치로 이동 (NavMeshAgent 없이)
+    // 혹시나 NavMeshAgent을 이용하여 장애물들을 피해 플레이어를 추적하는 알고리즘 필요할지도
     private void MoveToward(Vector3 targetPosition, float speed)
     {
-        // 바라보기
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        if (direction != Vector3.zero)
+        // 현재 위치와 목표 위치의 x, y 값만 사용
+        Vector2 currentPos = new Vector2(transform.position.x, transform.position.y);
+        Vector2 targetPos = new Vector2(targetPosition.x, targetPosition.y);
+
+        // 2D 방향 계산
+        Vector2 direction = (targetPos - currentPos).normalized;
+
+        // 2D 회전 처리
+        // GPT 선생님이 넣은 로직인데 아마 이렇겐안하겠지
+        if (direction != Vector2.zero)
         {
-            transform.forward = Vector3.Lerp(transform.forward, direction, Time.deltaTime * 5f);
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            // 스프라이트의 기본 방향에 따라 회전 오프셋을 조절 (예: -90°)
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, 0, angle - 90), Time.deltaTime * 5f);
         }
 
-        // 이동
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetPosition,
-            speed * Time.deltaTime
-        );
+        // 2D 이동
+        Vector2 newPos = Vector2.MoveTowards(currentPos, targetPos, speed * Time.deltaTime);
+        transform.position = new Vector3(newPos.x, newPos.y, transform.position.z);
     }
 
-    /// <summary>
-    /// 애니메이션 재생 (Animator가 있다면)
-    /// </summary>
+
+    //애니메이션 재생용
     private void PlayAnimation(string animName)
     {
         if (!anim) return;
@@ -229,15 +218,12 @@ public class NormalMob : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// HP 감소 테스트용
-    /// </summary>
+    // HP 감소 로직이 있다면?
     public void TakeDamage(float damage)
     {
         hp -= damage;
         if (hp <= 0)
         {
-            // 이미 Killed가 아니라면
             if (state != State.Killed)
             {
                 ChangeState(State.Killed);
@@ -245,30 +231,23 @@ public class NormalMob : MonoBehaviour
         }
     }
 
-    //------------------------------------------------------------------------------
-    //  트리거 이벤트 (플레이어/소리 감지)
-    //------------------------------------------------------------------------------
 
-    private void OnTriggerEnter(Collider other)
+    //  트리거 이벤트 (플레이어/소리 감지)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        // 예: 플레이어 소리를 감지
         if (other.CompareTag("PlayerSound"))
         {
-            // 전투 중이 아니고, 죽지 않았다면 Detect 상태로
+            Debug.Log("플레이어 소리 감지");
             if (state != State.Combat && state != State.Killed)
             {
-                // 실제 Player Transform 찾기 (예: PlayerSound가 플레이어 하위에 있다고 가정)
-                // 여기서는 단순히 Tag("Player")를 찾아 할당
                 player = GameObject.FindGameObjectWithTag("Player").transform;
-
                 ChangeState(State.Detect);
             }
         }
-        // 예: 플레이어 본체를 감지
         else if (other.CompareTag("Player"))
         {
+            Debug.Log("플레이어 감지");
             player = other.transform;
-            // 즉시 Combat 상태
             if (state != State.Killed)
             {
                 ChangeState(State.Combat);

@@ -111,28 +111,29 @@ public class PlayerController : MonoBehaviour
         // 예시로, 상태 이름(string) 또는 타입으로 분기
         if (current is IdleState || current is SneakState)
         {
-            // Idle, Sneak -> 트리거 완전히 비활성화
-            triggerCollider.enabled = false;
+            // Idle, Sneak -> 트리거 매우 작게
+            triggerCollider.enabled = true;
+            triggerCollider.radius = 1f;
         }
         else if (current is SneakMoveState)
         {
             // SneakMove -> 작게
             triggerCollider.enabled = true;
-            triggerCollider.radius = 5f;
+            triggerCollider.radius = 3f;
             speed = 1f;
         }
         else if (current is MoveState || current is ForageState || current is AttackState)
         {
             // Move, Forage, Attack -> 조금 크게
             triggerCollider.enabled = true;
-            triggerCollider.radius = 7;
+            triggerCollider.radius = 5f;
             speed = 3f;
         }
         else if (current is RunState)
         {
             // RunState -> 크게
             triggerCollider.enabled = true;
-            triggerCollider.radius = 10f;
+            triggerCollider.radius = 7f;
             speed = 5f;
         }
     }
