@@ -8,7 +8,7 @@ public class IdleState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("Idle 상태 시작");
+        //Debug.Log("Idle 상태 시작");
     }
 
     public void Update()
@@ -22,7 +22,7 @@ public class IdleState : IPlayerState
         else if (Input.GetKeyDown(KeyCode.F)) player.ChangeState(new ForageState(player));
     }
 
-    public void Exit() => Debug.Log("Idle 상태 종료");
+    public void Exit() { } //Debug.Log("Idle 상태 종료");
     public override string ToString() => "Idle";
 }
 
@@ -43,18 +43,46 @@ public class MoveState : IPlayerState
         player.SetMoveInput(moveX);
         player.SetMoveInput(moveY);
         if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
-        else if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
-        else if (Input.GetKeyDown(KeyCode.LeftShift) && player.canSneak) player.ChangeState(new SneakMoveState(player));
+        if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.canSneak) player.ChangeState(new SneakMoveState(player));
+        if (Input.GetKey(KeyCode.X)) player.ChangeState(new RunState(player));
     }
 
     public void Exit()
     {
-        Debug.Log("Move 상태 종료");
+        //Debug.Log("Move 상태 종료");
     }
 
     public override string ToString() => "Move";
 }
+public class RunState : IPlayerState
+{
+    private PlayerController player;
+    public RunState(PlayerController player) { this.player = player; }
 
+    public void Enter()
+    {
+        //Debug.Log("Run 상태 시작");
+    }
+
+    public void Update()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+        player.SetMoveInput(moveX);
+        player.SetMoveInput(moveY);
+        if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
+        if (Input.GetKeyUp(KeyCode.X)) player.ChangeState(new MoveState(player));
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.canSneak) player.ChangeState(new SneakMoveState(player));
+    }
+
+    public void Exit()
+    {
+        //Debug.Log("Run 상태 종료");
+    }
+
+    public override string ToString() => "Run";
+}
 public class SneakMoveState : IPlayerState
 {
     private PlayerController player;
@@ -62,7 +90,7 @@ public class SneakMoveState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("SneakMoveState 상태 시작");
+        //Debug.Log("SneakMoveState 상태 시작");
     }
 
     public void Update()
@@ -88,7 +116,7 @@ public class SneakMoveState : IPlayerState
 
     public void Exit()
     {
-        Debug.Log("SneakMoveState 상태 종료");
+        //Debug.Log("SneakMoveState 상태 종료");
     }
 
     public override string ToString() => "SneakMoveState";
@@ -101,7 +129,7 @@ public class SneakState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("SneakState 상태 시작");
+        //Debug.Log("SneakState 상태 시작");
     }
 
     public void Update()
@@ -120,7 +148,7 @@ public class SneakState : IPlayerState
 
     public void Exit()
     {
-        Debug.Log("SneakState 상태 종료");
+        //Debug.Log("SneakState 상태 종료");
     }
 
     public override string ToString() => "SneakState";
@@ -134,7 +162,7 @@ public class AttackState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("Attack 상태 시작");
+        //Debug.Log("Attack 상태 시작");
     }
 
     public void Update()
@@ -147,7 +175,7 @@ public class AttackState : IPlayerState
 
     }
 
-    public void Exit() => Debug.Log("Attack 상태 종료");
+    public void Exit() { } //Debug.Log("Attack 상태 종료");
     public override string ToString() => "Attack";
 }
 
@@ -159,14 +187,18 @@ public class ForageState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("Forage 상태 시작");
+        //Debug.Log("Forage 상태 시작");
     }
 
     public void Update()
     {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+        if (moveX != 0 || moveY != 0) player.ChangeState(new MoveState(player));
         if (Input.GetKeyUp(KeyCode.F)) player.ChangeState(new IdleState(player));
+        if (Input.GetKeyDown(KeyCode.Z)) player.ChangeState(new AttackState(player));
     }
 
-    public void Exit() => Debug.Log("Forage 상태 종료");
+    public void Exit() { }// Debug.Log("Forage 상태 종료");
     public override string ToString() => "Forage";
 }

@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] IPlayerState nowState;
 
+    [Header("Trigger Settings")]
+    public CircleCollider2D triggerCollider; // 반드시 isTrigger = true 설정
+
     [Header("Movement Settings")]
     public float speed = 5f;            // 일반 이동 속도
     public float slideForce = 30f;       // 회피 시 속도
@@ -57,18 +60,8 @@ public class PlayerController : MonoBehaviour
     }
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         m_animator = GetComponent<Animator>();
-        sprite = GetComponent<SpriteRenderer>(); // SpriteRenderer 참조
 
-        // 무기와 플레이어 간 충돌 방지, 떨어짐 방지
-        //Collider2D col1 = GetComponent<Collider2D>();
-        //Collider2D col2 = GameObject.Find("Weapon").GetComponent<Collider2D>();
-        //Physics2D.IgnoreCollision(col1, col2, true);
-
-        // 무기를 플레이어에 Joint로 연결
-        //FixedJoint2D joint = gameObject.AddComponent<FixedJoint2D>();
-        //joint.connectedBody = GameObject.Find("Weapon").GetComponent<Rigidbody2D>();
     }
     
     public void SetMoveInput(float input)
@@ -95,7 +88,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         stateMachine.Update();
-        Debug.Log(GetCurrentState());
+        //Debug.Log(GetCurrentState());
+        UpdateByState();
         //버프 활성화 버튼
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -110,7 +104,38 @@ public class PlayerController : MonoBehaviour
             BuffManager.instance.CreateBuff(BuffType.SpeedUp, per1, duration1, icon1);
         }
     }
+    public void UpdateByState()
+    {
+        var current = GetCurrentState();
 
+        // 예시로, 상태 이름(string) 또는 타입으로 분기
+        if (current is IdleState || current is SneakState)
+        {
+            // Idle, Sneak -> 트리거 완전히 비활성화
+            triggerCollider.enabled = false;
+        }
+        else if (current is SneakMoveState)
+        {
+            // SneakMove -> 작게
+            triggerCollider.enabled = true;
+            triggerCollider.radius = 5f;
+            speed = 1f;
+        }
+        else if (current is MoveState || current is ForageState || current is AttackState)
+        {
+            // Move, Forage, Attack -> 조금 크게
+            triggerCollider.enabled = true;
+            triggerCollider.radius = 7;
+            speed = 3f;
+        }
+        else if (current is RunState)
+        {
+            // RunState -> 크게
+            triggerCollider.enabled = true;
+            triggerCollider.radius = 10f;
+            speed = 5f;
+        }
+    }
     void FixedUpdate()
     {
         // 이동 입력 (Input.GetAxis)
