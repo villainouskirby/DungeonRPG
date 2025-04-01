@@ -1,7 +1,7 @@
 using Cainos.PixelArtTopDown_Basic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IPlayerChangeState
 {
     private PlayerStateMachine stateMachine;
     private Rigidbody2D rb;
@@ -9,8 +9,6 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] IPlayerState nowState;
 
-    [Header("Trigger Settings")]
-    public CircleCollider2D triggerCollider; // 반드시 isTrigger = true 설정
 
     [Header("Movement Settings")]
     public float speed = 5f;            // 일반 이동 속도
@@ -111,29 +109,17 @@ public class PlayerController : MonoBehaviour
         // 예시로, 상태 이름(string) 또는 타입으로 분기
         if (current is IdleState || current is SneakState)
         {
-            // Idle, Sneak -> 트리거 매우 작게
-            triggerCollider.enabled = true;
-            triggerCollider.radius = 1f;
         }
         else if (current is SneakMoveState)
         {
-            // SneakMove -> 작게
-            triggerCollider.enabled = true;
-            triggerCollider.radius = 3f;
             speed = 1f;
         }
         else if (current is MoveState || current is ForageState || current is AttackState)
         {
-            // Move, Forage, Attack -> 조금 크게
-            triggerCollider.enabled = true;
-            triggerCollider.radius = 5f;
             speed = 3f;
         }
         else if (current is RunState)
         {
-            // RunState -> 크게
-            triggerCollider.enabled = true;
-            triggerCollider.radius = 7f;
             speed = 5f;
         }
     }
