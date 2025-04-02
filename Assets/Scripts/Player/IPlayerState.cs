@@ -4,3 +4,8 @@ public interface IPlayerState
     void Update();
     void Exit();
 }
+
+public interface IPlayerChangeState
+{
+    void ChangeState(IPlayerState newState);
+}
