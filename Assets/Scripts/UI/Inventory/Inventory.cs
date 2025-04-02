@@ -11,6 +11,7 @@ public class Inventory : MonoBehaviour
     
     [SerializeField] private InventoryUI _inventoryUI;
     [SerializeField] private Equipment _equipment;
+    [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
     [SerializeField] private ItemListSO<Item> _itemList;
@@ -178,6 +179,16 @@ public class Inventory : MonoBehaviour
                     UpdateSlot(index);
                 }
             }
+        }
+    }
+
+    public void SetItemToQuickSlot(int index)
+    {
+        Item item = _items[index];
+        if (_quickSlot.AddToSlot(item.Clone()))
+        {
+            // 퀵슬롯에 넣기 성공
+            RemoveItem(index, 1);
         }
     }
 
