@@ -5,41 +5,17 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq.Expressions;
 using UnityEngine;
+using UnityEngine.UIElements;
+using System.Buffers.Binary;
 
 public static class Type2TypeByteConverter
 {
-    public static Dictionary<string, int> TypeByteLength = new();
-
-    static Type2TypeByteConverter()
-    {
-        InitTypeByteLengths();
-    }
-
-    private static void InitTypeByteLengths()
-    {
-        Dictionary<string, int> defaultTypeByteLength = new()
-        {
-            {"string", -1},
-            {"int", 4},
-            {"float", 4},
-            {"double", 8},
-            {"long", 8},
-            {"short", 2},
-            {"bool", 1},
-            {"char", 1},
-            {"Vector2", Marshal.SizeOf<Vector2>()},
-            {"Vector3", Marshal.SizeOf<Vector3>()},
-            {"Quaternion", Marshal.SizeOf<Quaternion>()},
-            {"Color", Marshal.SizeOf<Color>()},
-        };
-
-        foreach (var typeByte in defaultTypeByteLength)
-        {
-            if (!TypeByteLength.ContainsKey(typeByte.Key))
-                TypeByteLength[typeByte.Key] = typeByte.Value;
-        }
-    }
+    // 변환 델리게이트 캐시: object를 입력받아 byte[]를 반환하는 함수
+    private static readonly Dictionary<Type, Func<object, byte[]>> _convertDelegateCache = new Dictionary<Type, Func<object, byte[]>>();
+    // 직렬화 대상 필드 캐시
+    private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new Dictionary<Type, FieldInfo[]>();
 
     public static byte[] Convert<T>(T value)
     {
@@ -50,6 +26,9 @@ public static class Type2TypeByteConverter
 
         if (type == typeof(string))
             return Convertstring2Byte(value as string);
+
+        if (type == typeof(Texture2D))
+            return ConvertTexture2D2Byte(value as Texture2D);
 
         if (type.IsArray)
             return ConvertArray2Byte((Array)(object)value);
@@ -68,8 +47,11 @@ public static class Type2TypeByteConverter
                 return ConvertHashSet2Byte((IEnumerable)(object)value, type.GetGenericArguments()[0]);
         }
 
-        if (type.IsPrimitive || type.IsEnum)
+        if (type.IsPrimitive)
             return ConvertPrimitive2Byte(value);
+
+        if (type.IsEnum)
+            return ConvertEnum2Byte(value);
 
         if (type.IsValueType)
             return ConvertStruct2Byte(value);
@@ -80,13 +62,48 @@ public static class Type2TypeByteConverter
         throw new NotSupportedException($"[{type.FullName}] 타입은 직렬화 지원되지 않습니다.");
     }
 
+    /// <summary>
+    /// object를 입력받아 해당 타입에 맞게 변환하는 델리게이트를 생성 및 캐싱합니다.
+    /// </summary>
+    private static Func<object, byte[]> GetConvertDelegate(Type type)
+    {
+        if (!_convertDelegateCache.TryGetValue(type, out var converter))
+        {
+            MethodInfo method = typeof(Type2TypeByteConverter).GetMethod(nameof(Convert), BindingFlags.Public | BindingFlags.Static);
+            MethodInfo genericMethod = method.MakeGenericMethod(type);
+
+            ParameterExpression param = Expression.Parameter(typeof(object), "value");
+            UnaryExpression castParam = Expression.Convert(param, type);
+            MethodCallExpression call = Expression.Call(genericMethod, castParam);
+            converter = Expression.Lambda<Func<object, byte[]>>(call, param).Compile();
+            _convertDelegateCache[type] = converter;
+        }
+        return converter;
+    }
+
+    /// <summary>
+    /// 캐싱된 직렬화 대상 필드들을 가져옵니다.
+    /// </summary>
+    private static FieldInfo[] GetSerializableFields(Type type)
+    {
+        if (!_fieldCache.TryGetValue(type, out var fields))
+        {
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            fields = type.GetFields(flags)
+                .Where(f => f.IsPublic || f.GetCustomAttribute<SerializeField>() != null)
+                .ToArray();
+            _fieldCache[type] = fields;
+        }
+        return fields;
+    }
+
     public static byte[] Convertstring2Byte(string value)
     {
         if (value == null) value = "";
         Span<byte> stringByte = Encoding.UTF8.GetBytes(value);
         int length = stringByte.Length;
         Span<byte> lengthByte = stackalloc byte[4];
-        MemoryMarshal.Write(lengthByte, ref length);
+        lengthByte = ConvertPrimitive2Byte(length);
 
         Span<byte> result = stackalloc byte[4 + length];
         lengthByte.CopyTo(result);
@@ -95,40 +112,115 @@ public static class Type2TypeByteConverter
         return result.ToArray();
     }
 
+    // Texture는 크기가 크므로 스택이 아닌 힙 메모리 사용
+    public static byte[] ConvertTexture2D2Byte(Texture2D texture)
+    {
+        List<byte> result = new();
+
+        result.AddRange(Convert(texture.width));
+        result.AddRange(Convert(texture.height));
+        result.AddRange(Convert(texture.format.ToString()));
+        result.AddRange(Convert(texture.mipmapCount));
+
+        byte[] rawData = texture.GetRawTextureData();
+        result.AddRange(Convert(rawData.Length));
+        result.AddRange(rawData);
+
+        return result.ToArray();
+    }
+
+    public static byte[] ConvertEnum2Byte<T>(T value)
+    {
+        return ConvertPrimitive2Byte(value.GetHashCode());
+    }
+
     public static byte[] ConvertPrimitive2Byte(object value)
     {
-        Type type = value.GetType();
-        int size = Marshal.SizeOf(type);
-        byte[] buffer = new byte[size];
-        IntPtr ptr = Marshal.AllocHGlobal(size);
-        try
+        if (value is short s)
         {
-            Marshal.StructureToPtr(value, ptr, false);
-            Marshal.Copy(ptr, buffer, 0, size);
+            byte[] buffer = new byte[2];
+            BinaryPrimitives.WriteInt16LittleEndian(buffer, s);
+            return buffer;
         }
-        finally
+        else if (value is ushort us)
         {
-            Marshal.FreeHGlobal(ptr);
+            byte[] buffer = new byte[2];
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer, us);
+            return buffer;
         }
-        return buffer;
+        else if (value is int i)
+        {
+            byte[] buffer = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, i);
+            return buffer;
+        }
+        else if (value is uint ui)
+        {
+            byte[] buffer = new byte[4];
+            BinaryPrimitives.WriteUInt32LittleEndian(buffer, ui);
+            return buffer;
+        }
+        else if (value is long l)
+        {
+            byte[] buffer = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(buffer, l);
+            return buffer;
+        }
+        else if (value is ulong ul)
+        {
+            byte[] buffer = new byte[8];
+            BinaryPrimitives.WriteUInt64LittleEndian(buffer, ul);
+            return buffer;
+        }
+        else if (value is float f)
+        {
+            int bits = BitConverter.SingleToInt32Bits(f);
+            byte[] buffer = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, bits);
+            return buffer;
+        }
+        else if (value is double d)
+        {
+            long bits = BitConverter.DoubleToInt64Bits(d);
+            byte[] buffer = new byte[8];
+            BinaryPrimitives.WriteInt64LittleEndian(buffer, bits);
+            return buffer;
+        }
+        else if (value is bool b)
+        {
+            // bool은 1바이트로 처리 (true: 1, false: 0)
+            return new byte[] { (byte)(b ? 1 : 0) };
+        }
+        else if (value is char c)
+        {
+            byte[] buffer = new byte[2];
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer, c);
+            return buffer;
+        }
+        else
+        {
+            // 안전한 fallback: 기존의 Marshal 방식을 사용 (단, 위에서 처리하지 못한 경우)
+            Type type = value.GetType();
+            int size = Marshal.SizeOf(type);
+            byte[] buffer = new byte[size];
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            try
+            {
+                Marshal.StructureToPtr(value, ptr, false);
+                Marshal.Copy(ptr, buffer, 0, size);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+            return buffer;
+        }
     }
 
     public static byte[] ConvertStruct2Byte(object value)
     {
-        Type type = value.GetType();
-        int size = Marshal.SizeOf(type);
-        byte[] buffer = new byte[size];
-        IntPtr ptr = Marshal.AllocHGlobal(size);
-        try
-        {
-            Marshal.StructureToPtr(value, ptr, false);
-            Marshal.Copy(ptr, buffer, 0, size);
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(ptr);
-        }
-        return buffer;
+        // ValueType는 동일한 방식으로 처리합니다.
+        return ConvertPrimitive2Byte(value);
     }
 
     public static byte[] ConvertArray2Byte(Array array)
@@ -137,14 +229,14 @@ public static class Type2TypeByteConverter
         int length = array.Length;
         result.AddRange(ConvertPrimitive2Byte(length));
 
+        if (length == 0)
+            return result.ToArray();
+
         Type elementType = array.GetType().GetElementType();
+        var converter = GetConvertDelegate(elementType);
         foreach (var item in array)
         {
-            byte[] itemBytes = (byte[])(typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(elementType)
-                .Invoke(null, new object[] { item }));
-            result.AddRange(itemBytes);
+            result.AddRange(converter(item));
         }
         return result.ToArray();
     }
@@ -155,13 +247,13 @@ public static class Type2TypeByteConverter
         int count = list.Count;
         result.AddRange(ConvertPrimitive2Byte(count));
 
+        if (count == 0)
+            return result.ToArray();
+
+        var converter = GetConvertDelegate(elementType);
         foreach (var item in list)
         {
-            byte[] itemBytes = (byte[])(typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(elementType)
-                .Invoke(null, new object[] { item }));
-            result.AddRange(itemBytes);
+            result.AddRange(converter(item));
         }
         return result.ToArray();
     }
@@ -172,20 +264,15 @@ public static class Type2TypeByteConverter
         int count = dict.Count;
         result.AddRange(ConvertPrimitive2Byte(count));
 
+        if (count == 0)
+            return result.ToArray();
+
+        var keyConverter = GetConvertDelegate(keyType);
+        var valueConverter = GetConvertDelegate(valueType);
         foreach (DictionaryEntry entry in dict)
         {
-            byte[] keyBytes = (byte[])(typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(keyType)
-                .Invoke(null, new object[] { entry.Key }));
-
-            byte[] valueBytes = (byte[])(typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(valueType)
-                .Invoke(null, new object[] { entry.Value }));
-
-            result.AddRange(keyBytes);
-            result.AddRange(valueBytes);
+            result.AddRange(keyConverter(entry.Key));
+            result.AddRange(valueConverter(entry.Value));
         }
         return result.ToArray();
     }
@@ -196,13 +283,13 @@ public static class Type2TypeByteConverter
         int count = set.Cast<object>().Count();
         result.AddRange(ConvertPrimitive2Byte(count));
 
+        if (count == 0)
+            return result.ToArray();
+
+        var converter = GetConvertDelegate(elementType);
         foreach (var item in set)
         {
-            byte[] itemBytes = typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(elementType)
-                .Invoke(null, new object[] { item }) as byte[];
-            result.AddRange(itemBytes);
+            result.AddRange(converter(item));
         }
         return result.ToArray();
     }
@@ -212,22 +299,33 @@ public static class Type2TypeByteConverter
         List<byte> result = new();
         Type type = typeof(T);
 
-        BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-        var fields = type.GetFields(flags)
-            .Where(f => f.IsPublic || f.GetCustomAttribute<SerializeField>() != null);
-
+        FieldInfo[] fields = GetSerializableFields(type);
         foreach (var field in fields)
         {
             object fieldValue = field.GetValue(obj);
             if (fieldValue == null)
+            {
+                // null이면 false 플래그를 기록
+                result.AddRange(ConvertPrimitive2Byte(false));
                 continue;
+            }
+            result.AddRange(ConvertPrimitive2Byte(true));
 
-            Type fieldType = field.FieldType;
-            byte[] fieldBytes = typeof(Type2TypeByteConverter)
-                .GetMethod(nameof(Convert))
-                .MakeGenericMethod(fieldType)
-                .Invoke(null, new object[] { fieldValue }) as byte[];
-            result.AddRange(fieldBytes);
+            if (field.GetCustomAttribute<SerializeReference>() != null)
+            {
+                Type fieldType = fieldValue.GetType();
+                string typeName = fieldType.AssemblyQualifiedName;
+                result.AddRange(Convertstring2Byte(typeName));
+
+                var converter = GetConvertDelegate(fieldType);
+                result.AddRange(converter(fieldValue));
+            }
+            else
+            {
+                Type fieldType = field.FieldType;
+                var converter = GetConvertDelegate(fieldType);
+                result.AddRange(converter(fieldValue));
+            }
         }
         return result.ToArray();
     }

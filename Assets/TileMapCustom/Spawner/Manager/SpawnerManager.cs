@@ -4,13 +4,13 @@ using Unity.VisualScripting;
 using UnityEngine;
 using TM = TileMapMaster;
 using MM = MapManager;
+using DL = DataLoader;
 
 public class SpawnerManager : MonoBehaviour, ITileMapOption
 {
     public List<Spawner> AllSpawner;
     public HashSet<Spawner> ActiveSpawner;
 
-    private SpawnerInfoData _spawnerInfoData;
     private bool _isActive;
 
     // Option
@@ -31,7 +31,6 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
         ResetSpawnwer();
         AllSpawner.Clear();
         ActiveSpawner.Clear();
-        SetDataAsset(mapType.ToString());
         SetSpawner(mapType.ToString());
     }
 
@@ -92,9 +91,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
 
     private void SetSpawner(string assetName)
     {
-        string dataFilePath = $"{SpawnerExtractor.DataFileDirectory}{assetName}/{SpawnerExtractor.SpawnerFileDirectory}";
-
-        foreach (var groupInfo in _spawnerInfoData.GroupInfo)
+        foreach (var groupInfo in DL.Instance.All.SpawnerInfoData.GroupInfo)
         {
             string[] groupData = groupInfo.Split("/");
 
@@ -116,20 +113,14 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
             {
                 if (case_ == "All" || case_ == selectCaseName)
                 {
-                    string path = $"{assetName}_{group}_{case_}";
-                    SpawnerData caseSpawnerData = Instantiate(Resources.Load<SpawnerData>($"{dataFilePath}{path}"));
+                    string path = $"{group}_{case_}";
+                    SpawnerData caseSpawnerData = DL.Instance.All.SpawnerData[path];
                     AllSpawner.AddRange(caseSpawnerData.Spawner);
                     foreach (var spawner in caseSpawnerData.Spawner)
                         spawner.Init();
                 }
             }
         }
-    }
-
-    private void SetDataAsset(string assetName)
-    {
-        string dataFilePath = $"{SpawnerExtractor.DataFileDirectory}{assetName}/";
-        _spawnerInfoData = Instantiate(Resources.Load<SpawnerInfoData>($"{dataFilePath}{assetName}SpawnerInfo"));
     }
 
     private void CheckSpawner(Vector2Int playerPos)

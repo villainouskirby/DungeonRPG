@@ -3,22 +3,22 @@ public enum TileMapOptionEnum
     WallColliderManager = 0,
     InteractionObjManager = 1,
     SpawnerManager = 2,
-    FOVCaster = 3,
-    MapVisitedChecker = 4,
+    MapVisitedChecker = 3,
     End,
 }
 
 public enum TileMapOptionPrimeEnum
 {
-    WallColliderManager = 4,
-    InteractionObjManager = 5,
-    SpawnerManager = 3,
-    FOVCaster = 1,
-    MapVisitedChecker = 2,
+    WallColliderManager = 3,
+    InteractionObjManager = 4,
+    SpawnerManager = 2,
+    MapVisitedChecker = 1,
 }
 
 public enum TileMapBasePrimeEnum
 {
-    MapManager = 1,
-    PlayerMoveChecker = 2,
+    DataLoader =            1,
+    PlayerMoveChecker =     DataLoader + 1,
+    ChunkManager =          PlayerMoveChecker + 1,
+    MapManager =            ChunkManager + 1,
 }

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractionObjData : ScriptableObject
+[System.Serializable]
+public class InteractionObjData
 {
     [SerializeReference]
     public List<InteractionObj> Interaction;

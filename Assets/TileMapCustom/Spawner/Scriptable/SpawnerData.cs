@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SpawnerData", menuName = "TileMap/SpawnerData")]
-public class SpawnerData : ScriptableObject
+[System.Serializable]
+public class SpawnerData
 {
     [SerializeReference]
     public Spawner[] Spawner;

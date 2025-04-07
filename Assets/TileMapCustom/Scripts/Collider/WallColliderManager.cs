@@ -4,6 +4,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using MM = MapManager;
+using DL = DataLoader;
+using TM = TileMapMaster;
 
 
 public class WallColliderManager : MonoBehaviour, ITileMapOption
@@ -86,7 +88,10 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
         if (!_isActive)
             return;
 
-        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < MM.Instance.MapData.Width && newTargetTile.y < MM.Instance.MapData.Height)
+        int width = DL.Instance.All.Width * DL.Instance.All.ChunkSize;
+        int height = DL.Instance.All.Height * DL.Instance.All.ChunkSize;
+
+        if (newRange != 0 && newTargetTile.x >= 0 && newTargetTile.y >= 0 && newTargetTile.x < width && newTargetTile.y < height)
         {
             if (!_activeTileRangeCnt.ContainsKey(newTargetTile))
                 _activeTileRangeCnt[newTargetTile] = new();
@@ -97,7 +102,7 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
             AddActiveTile(newTargetTile, newTile);
         }
 
-        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < MM.Instance.MapData.Width && oldTargetTile.y < MM.Instance.MapData.Height)
+        if (oldRange != 0 && oldTargetTile.x >= 0 && oldTargetTile.y >= 0 && oldTargetTile.x < width && oldTargetTile.y < height)
         {
             if (!_activeTileRangeCnt.ContainsKey(oldTargetTile))
                 _activeTileRangeCnt[oldTargetTile] = new();
@@ -119,6 +124,9 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
         if (!_isActive)
             return;
 
+        int width = DL.Instance.All.Width * DL.Instance.All.ChunkSize;
+        int height = DL.Instance.All.Height * DL.Instance.All.ChunkSize;
+
         int maxRange = -1;
 
         foreach(var rangePair in tileRange)
@@ -137,8 +145,8 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= MM.Instance.MapData.Width || correctY >= MM.Instance.MapData.Height) continue;
-                if (MM.Instance.CheckWall(MM.Instance.MapData.GetTile(correctX, correctY)))
+                if (correctX >= width || correctY >= height) continue;
+                if (MM.Instance.CheckWall(new(correctX, correctY)))
                     _addTile.Add(new Vector2Int(correctX, correctY));
             }
         }
@@ -163,7 +171,7 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
             wall.transform.position = new Vector2(MM.Instance.TileSize * (add.x + 0.5f), MM.Instance.TileSize * (add.y + 0.5f));
             _activeCollider[add] = wall;
             _activeTile.Add(add);
-            wall.transform.SetParent(MM.Instance.WallRoot.transform, true);
+            wall.transform.SetParent(TM.Instance.WallRoot.transform, true);
         }
     }
 
@@ -174,6 +182,9 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
     {
         if (!_isActive)
             return;
+
+        int width = DL.Instance.All.Width * DL.Instance.All.ChunkSize;
+        int height = DL.Instance.All.Height * DL.Instance.All.ChunkSize;
 
         int maxRange = -1;
 
@@ -200,9 +211,9 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
                 int correctY = tilePos.y + y;
 
                 if (correctX < 0 || correctY < 0) continue;
-                if (correctX >= MM.Instance.MapData.Width || correctY >= MM.Instance.MapData.Height) continue;
+                if (correctX >= width || correctY >= height) continue;
 
-                if (MM.Instance.CheckWall(MM.Instance.MapData.GetTile(correctX, correctY)))
+                if (MM.Instance.CheckWall(new(correctX, correctY)))
                     _deleteTile.Add(new Vector2Int(correctX, correctY));
             }
         }

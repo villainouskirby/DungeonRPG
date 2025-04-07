@@ -32,7 +32,7 @@ public class WallColliderGenerator : MonoBehaviour
 
     private void OnDisable()
     {
-        if(MapManager.Instance.WallRoot != null)
+        if(TileMapMaster.Instance.WallRoot != null)
             WallColliderManager.Instance.UpdateActiveTile(PlayerMoveChecker.Instance.LastTilePos, _lastRange, new Vector2Int(0, 0), 0);
 
         PlayerMoveChecker.Instance.DeleteMoveAction(UpdateActiveTile);

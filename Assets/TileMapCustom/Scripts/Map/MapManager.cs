@@ -5,17 +5,17 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using TM = TileMapMaster;
+using DL = DataLoader;
+using CM = ChunkManager;
 using static MapBufferChanger;
+using System.Linq;
+using Unity.VisualScripting;
+using Unity.Mathematics;
 
 public class MapManager : MonoBehaviour, ITileMapBase
 {
     public static MapManager Instance { get { return _instance; } }
     private static MapManager _instance;
-
-    [Header("Wall Settings")]
-    public int[] WallTileType = new int[0];
-    public Dictionary<int, bool> _wallTileType;
-    public GameObject WallRoot;
 
     // Base
     public int Prime { get { return (int)TileMapBasePrimeEnum.MapManager; } } 
@@ -23,26 +23,44 @@ public class MapManager : MonoBehaviour, ITileMapBase
     public void Init()
     {
         _instance = this;
-        _wallTileType = new();
-        for (int i = 0; i < WallTileType.Length; i++)
-        {
-            _wallTileType[WallTileType[i]] = true;
-        }
 
-        _mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
-        _fovCaster = gameObject.GetComponent<FOVCaster>();
+        //_mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
     }
 
     public void InitMap(MapEnum mapType)
     {
-        SetDataAsset(mapType.ToString());
-        SetDataBuffers();
+        if (_controller != null)
+        {
+            for (int i = 0; i < _controller.Length; i++)
+            {
+                Destroy(_controller[i].gameObject);
+            }
+        }
+
+        _layerBuffer = new GraphicsBuffer[DL.Instance.All.LayerCount];
+        _controller = new TileMapController[DL.Instance.All.LayerCount];
+
+
+        for (int i = 0; i < DL.Instance.All.LayerCount; i++)
+        {
+            _controller[i] =
+            Instantiate(TileMapPrefab, TM.Instance.LayerRoot.transform, false).GetComponent<TileMapController>();
+            SetDataBuffer(ref _layerBuffer[i], i);
+            _controller[i].InitTileMap(_layerBuffer[i]);
+        }
+
+        SetMapDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
+    }
+
+    public void ChangeMapping()
+    {
+        _mappingBuffer.SetData(CM.Instance.GetMappingArray());
     }
 
     public void StartMap(MapEnum type)
     {
         InitMap(type);
-        TM.Instance.Player.transform.position = _mapData.PlayerSpawnPos;
+        SetGlobal();
     }
 
     [Header("Tile Settings")]
@@ -50,32 +68,28 @@ public class MapManager : MonoBehaviour, ITileMapBase
     public float GuideTileSize = 0.2f;
 
 
-    // MapData
-    private TileMapData _mapData;
-    private TileMapData _visitedMapData;
-
-    // MapData property
-    public TileMapData MapData => _mapData;
-    public TileMapData VisitedMapData => _visitedMapData;
-    // MapDataBuffer
-
     private GraphicsBuffer _mapDataBuffer;
-    public readonly int MapDataBufferHeaderSize = 3;
     private GraphicsBuffer _visitedMapDataBufferRow;
     private GraphicsBuffer _visitedMapDataBufferColumn;
-    public readonly int VisitedMapDataBufferHeaderSize = 1;
+    private GraphicsBuffer _mappingBuffer;
+
+    private GraphicsBuffer[] _layerBuffer;
+    private TileMapController[] _controller;
+
+    [Header("TileMap Prefab")]
+    public GameObject TileMapPrefab;
+
 
 
     // MapDataBuffer Property
     public GraphicsBuffer MapDataBuffer => _mapDataBuffer;
     public GraphicsBuffer VisitedMapDataBufferRow => _visitedMapDataBufferRow;
     public GraphicsBuffer VisitedMapDataBufferColumn => _visitedMapDataBufferColumn;
+    public GraphicsBuffer MappingBuffer => _mappingBuffer;
 
 
-    private MapVisitedChecker _mapVisitedChecker;
+    //private MapVisitedChecker _mapVisitedChecker;
 
-    public FOVCaster FOVCaster { get { return _fovCaster; } }
-    private FOVCaster _fovCaster;
 
     private void Update()
     {
@@ -83,40 +97,57 @@ public class MapManager : MonoBehaviour, ITileMapBase
         Shader.SetGlobalVector("_PlayerPos", TM.Instance.Player.transform.position);
     }
 
-    public bool CheckWall(int type)
+    private void SetGlobal()
     {
-        _wallTileType.TryGetValue(type, out bool result);
-        return result;
+        Shader.SetGlobalTexture("_TileTexture", CreateTexture2DArray(DL.Instance.All.MapTexture));
+        Shader.SetGlobalFloat("_TileSize", TileSize);
+        Shader.SetGlobalInt("_TextureSize", DL.Instance.All.MapTexture.Length);
+        Shader.SetGlobalInt("_ViewBoxSize", TM.Instance.ViewBoxSize);
+        Shader.SetGlobalInt("_ViewChunkSize", CM.Instance.ViewChunkSize);
+        Shader.SetGlobalInt("_ChunkSize", DL.Instance.All.ChunkSize);
+        Shader.SetGlobalBuffer("_MappingBuffer", _mappingBuffer);
+        Shader.SetGlobalInt("_CenterChunkX", CM.Instance.LastChunkPos.x);
+        Shader.SetGlobalInt("_CenterChunkY", CM.Instance.LastChunkPos.y);
     }
 
-
-    /// <summary>
-    /// Map Asset Data를 Resources 파일에서 읽는다.
-    /// </summary>
-    /// <param name="assetName">읽어올 파일 이름</param>
-    private void SetDataAsset(string assetName)
+    public Texture2DArray CreateTexture2DArray(Texture2D[] tileTexture)
     {
-        string dataFilePath = $"{TileMapExtractor.DataFileDirectory}{assetName}/";
-        _mapData = Instantiate(Resources.Load<TileMapData>($"{dataFilePath}{assetName}"));
-        _visitedMapData = Instantiate(Resources.Load<TileMapData>($"{dataFilePath}{assetName}Visited"));
+        int width = tileTexture[0].width;
+        int height = tileTexture[0].height;
+        TextureFormat format = tileTexture[0].format;
+        bool mipChain = false;
+        
+
+        Texture2DArray tileTextureArray = new(width, height, tileTexture.Length, format, mipChain);
+        tileTextureArray.anisoLevel = 1;
+
+        for (int i = 0; i < tileTexture.Length; i++)
+        {
+            tileTexture[i].filterMode = FilterMode.Point;
+            tileTexture[i].wrapMode = TextureWrapMode.Clamp;
+            Graphics.CopyTexture(tileTexture[i], 0, 0, tileTextureArray, i, 0);
+        }
+
+        return tileTextureArray;
     }
+
+    public bool CheckWall(Vector2Int tilePos)
+    {
+        return false;
+        for (int i = 0; i < DL.Instance.All.LayerCount; i++)
+        {
+            if (DL.Instance.All.TileMapLayerInfo[i].WallTileIndex.Contains(CM.Instance.GetTile(tilePos, i)))
+                return true;
+        }
+        return false;
+    }
+
 
     /// <summary>
     /// 현재 Map Asset Data를 기반으로 Buffer들을 생성한다.
     /// </summary>
-    private void SetDataBuffers()
+    private void SetDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
-        SetDataBuffer(_mapData, ref _mapDataBuffer, MapDataBufferHeaderSize,
-            _mapData.Width, _mapData.Height, _mapData.Width * _mapData.Height + MapDataBufferHeaderSize);
-        SetDataBuffer(_visitedMapData, ref _visitedMapDataBufferRow, VisitedMapDataBufferHeaderSize,
-            0);
-        SetDataBuffer(_visitedMapData.GetColumnData(), ref _visitedMapDataBufferColumn, VisitedMapDataBufferHeaderSize,
-            0);
-    }
-
-    public void ChangeMapDataAll(int[] mapData, GraphicsBuffer targetBuffer, int headerSize, params int[] headerData)
-    {
-        SetDataBuffer(mapData, ref targetBuffer, headerSize,
-            headerData);
+        SetMapDataBuffer(ChunkManager.Instance.GetViewBoxData(layer), ref buffer);
     }
 }

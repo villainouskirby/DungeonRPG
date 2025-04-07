@@ -7,6 +7,11 @@ public class FollowCamera : MonoBehaviour
     public Camera TargetCamera;
     private Vector3 _objPos;
 
+    private void Awake()
+    {
+        TargetCamera = TileMapMaster.Instance.TargetCamera;
+    }
+
     private void Start()
     {
         _objPos = transform.position - TargetCamera.transform.position;

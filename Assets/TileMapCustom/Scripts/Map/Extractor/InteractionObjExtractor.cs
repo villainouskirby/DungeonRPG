@@ -1,24 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class InteractionObjExtractor : MonoBehaviour
+public class InteractionObjExtractor : MonoBehaviour, IExtractor
 {
-    static public string    DataFilePath = "Assets/Resources/";
-    static public string    DataFileDirectory = "TileMapData/";
-
-
     public Tilemap          Tilemap;
 
-    public MapEnum         MapType;
-    void Start()
+    public void Extract(MapEnum mapEnum, ref TileMapData mapData)
     {
-        SaveInteractionObjData();
+        InteractionObjData interactionObjData = new();
+        interactionObjData.Interaction = ExtractTilemapToInteractionObj();
+        mapData.All.InteractionObjData = interactionObjData;
     }
 
     private List<InteractionObj> ExtractTilemapToInteractionObj()
@@ -51,29 +46,5 @@ public class InteractionObjExtractor : MonoBehaviour
         }
 
         return data;
-    }
-
-    private void SaveInteractionObjData()
-    {
-        string assetName = MapType.ToString();
-        string directoryPath = $"{DataFilePath}{DataFileDirectory}{assetName}/";
-
-        if (!Directory.Exists(directoryPath))
-            Directory.CreateDirectory(directoryPath);
-
-
-
-        InteractionObjData interactionObjData = ScriptableObject.CreateInstance<InteractionObjData>();
-        interactionObjData.Interaction = ExtractTilemapToInteractionObj();
-
-        string interactionObjDataName = $"{assetName}InteractionObjData";
-
-        // ScriptableObject를 에셋으로 저장
-        AssetDatabase.DeleteAsset($"{directoryPath}{interactionObjDataName}.asset");
-        AssetDatabase.CreateAsset(interactionObjData, $"{directoryPath}{interactionObjDataName}.asset");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        Debug.Log($"InteractionObjData asset created at: {directoryPath}");
     }
 }

@@ -1,67 +1,68 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TileMapData", menuName = "TileMap/TileMapData")]
-public class TileMapData : ScriptableObject
+
+[System.Serializable]
+public class TileMapData
 {
+    public TileMapDataAll All;
+
+    // StreamData
+    // 각 Layer 타일 정보
+    public TileMapLayerData[] LayerData;
+}
+
+[System.Serializable]
+public class TileMapDataAll
+{
+    // FixedData
+    // 청크가 가로 세로 몇개 있는지
     public int Width;
     public int Height;
-    public int[] Tile; // 인스펙터에서 배열 지원을 위해 1D 배열 사용
-    public Vector2 PlayerSpawnPos;
+    // 한 청크에서 가로 타일 길이 (가로 = 세로)
+    public int ChunkSize;
+    // Layer가 총 몇개인지
+    public int LayerCount;
+    // 전체 맵이 공유하는 Texture Mapping
+    public Texture2D[] MapTexture;
+    // MapSetting 데이터
+    public MapSettings Setting;
+
+    // Wall, LayerIndex 데이터
+    public TileMapLayerInfo[] TileMapLayerInfo;
 
 
-    public void SetTile(int x, int y, int value)
+    // SaveData
+    // Spawner 데이터
+    public SpawnerInfoData SpawnerInfoData;
+    public Dictionary<string, SpawnerData> SpawnerData;
+    // Interaction 데이터
+    public InteractionObjData InteractionObjData;
+    // 플레이어가 시작하는 위치
+    public Vector2Int PlayerSpawnTilePos;
+}
+[System.Serializable]
+public class TileMapDataStream
+{
+    public int[] MapStreamData;
+
+    public TileMapDataStream(int[] mapStreamData)
     {
-        Tile[y * Width + x] = value;
+        MapStreamData = mapStreamData;
     }
+}
 
-    public int GetTile(int x, int y)
-    {
-        return Tile[y * Width + x];
-    }
+[System.Serializable]
+public class TileMapLayerData
+{
+    public int[] Tile;
+}
 
-    public int[] GetColumnData()
-    {
-        int[] columnData = new int[Tile.Length];
-
-        for(int x = 0; x < Width; x++)
-        {
-            for(int y = 0; y < Height; y++)
-            {
-                columnData[x * Height + y] = Tile[y * Width + x];
-            }
-        }
-
-        return columnData;
-    }
-
-    // 2D 배열을 설정하는 함수
-    public void SetTileData(int[,] tileArray)
-    {
-        Width = tileArray.GetLength(0);
-        Height = tileArray.GetLength(1);
-        Tile = new int[Width * Height];
-
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                Tile[x + y * Width] = tileArray[x, y];
-            }
-        }
-    }
-
-    // 2D 배열로 변환하는 함수
-    public int[,] GetTileData()
-    {
-        int[,] tileArray = new int[Width, Height];
-
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                tileArray[x, y] = Tile[x + y * Width];
-            }
-        }
-        return tileArray;
-    }
+[System.Serializable]
+public class TileMapLayerInfo
+{
+    public int LayerIndex;
+    public int[] WallTileIndex;
 }

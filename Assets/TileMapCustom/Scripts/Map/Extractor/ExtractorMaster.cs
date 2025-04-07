@@ -7,102 +7,49 @@ using UnityEngine.Windows;
 
 public class ExtractorMaster : MonoBehaviour
 {
-    /*
-    static public string        DataFilePath = "Assets/Resources/";
+    public static ExtractorMaster Instance { get { return _instance; } }
+    private static ExtractorMaster _instance;
+
     static public string        DataFileDirectory = "TileMapData/";
-    static public string        SpawnerFileDirectory = "SpawnerData/";
-    static public MapEnum       MapType;
+    static public MapEnum       MapType = MapEnum.Map1;
+    static public int           ChunkSize = 16;
 
-    public Tilemap MapTile;
+    public GameObject           LayerRoot;
 
-    // 특정 스프라이트를 원하는 ID에 매핑
-    public Dictionary<Texture2D, int> SpriteToId = new();
+    [Header("Layer Wall Settings")]
+    public List<Sprite>         WallType;
+    public bool                 IndividualWall = false;
+    public List<List<Sprite>>   WallSettings;
 
-    public void TextureMapping()
+    private void Awake()
     {
-        for (int i = 0; i < Texture.Length; i++)
-        {
-            SpriteToId[Texture[i]] = i;
-        }
+        _instance = this;
     }
 
-    public int[,] ExtractTilemapToArray()
+    private void Start()
     {
-        Tilemap.CompressBounds();
-        BoundsInt bounds = Tilemap.cellBounds;
-        Vector2Int size = new(bounds.size.x, bounds.size.y);
-
-        int[,] tileArray = new int[size.x, size.y];
-        TileBase[] tiles = Tilemap.GetTilesBlock(bounds);
-
-        for (int y = 0; y < size.y; y++)
-        {
-            for (int x = 0; x < size.x; x++)
-            {
-                int index = x + y * size.x;
-                TileBase tileBase = tiles[index];
-                if (tileBase == null)
-                {
-                    tileArray[x, y] = -1;
-                    continue;
-                }
-                Tile tile = (Tile)tileBase;
-                if (SpriteToId.TryGetValue(tile.sprite.texture, out int id))
-                {
-                    tileArray[x, y] = id; // 스프라이트에 매핑된 ID 저장
-                }
-                else
-                {
-                    tileArray[x, y] = -1;
-                }
-            }
-        }
-        return tileArray;
+        Extract();
     }
 
-    public Vector2 GetPlayerSpawnPos()
+    public void Extract()
     {
-        var childs = Tilemap.GetComponentsInChildren<Transform>();
-        
-        foreach (var child in childs)
+        IExtractor[] extractor = gameObject.GetComponentsInChildren<IExtractor>();
+        TileMapData mapData = new();
+        mapData.All = new();
+
+        for (int i = 0; i < extractor.Length; i++)
         {
-            if (child.transform.name == "PlayerSpawnPoint")
-                return child.transform.position;
+            extractor[i].Extract(MapType, ref mapData);
         }
 
-        return Vector2.zero;
-    }
+        mapData.All.Setting = new();
+        if (mapData.All.InteractionObjData.Interaction.Count == 0)
+            mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.InteractionObjManager].Active = false;
+        if (mapData.All.SpawnerData == null)
+            mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.SpawnerManager].Active = false;
+        mapData.All.Setting.Init();
 
-    void Start()
-    {
-        TextureMapping(); // 텍스처 매핑 실행
-        int[,] tileArray = ExtractTilemapToArray(); // Tilemap을 배열로 변환
-        Vector2 playerSpawnPos = GetPlayerSpawnPos();
-        playerSpawnPos = new(playerSpawnPos.x + 9, playerSpawnPos.y + 5);
-        // ScriptableObject 생성
-        TileMapData tileMapData = ScriptableObject.CreateInstance<TileMapData>();
-        tileMapData.SetTileData(tileArray);
-        tileMapData.PlayerSpawnPos = playerSpawnPos;
-
-        TileMapData visitedMapData = ScriptableObject.CreateInstance<TileMapData>();
-        int[,] visitedTileArray = new int[tileMapData.Width, tileMapData.Height];
-        visitedMapData.SetTileData(visitedTileArray);
-
-        string assetName = MapType.ToString();
-        // 저장할 폴더 경로
-        string directoryPath = $"{DataFilePath}{DataFileDirectory}{assetName}/";
-
-        if (!Directory.Exists(directoryPath))
-            Directory.CreateDirectory(directoryPath);
-
-        // ScriptableObject를 에셋으로 저장
-        AssetDatabase.DeleteAsset($"{directoryPath}{assetName}.asset");
-        AssetDatabase.CreateAsset(tileMapData, $"{directoryPath}{assetName}.asset");
-        AssetDatabase.CreateAsset(visitedMapData, $"{directoryPath}{assetName}Visited.asset");
-        AssetDatabase.SaveAssets();
+        JJSave.RSave(mapData, $"{MapType}_MapData", DataFileDirectory);
         AssetDatabase.Refresh();
-
-        Debug.Log($"TilemapData asset created at: {directoryPath}");
     }
-    */
 }

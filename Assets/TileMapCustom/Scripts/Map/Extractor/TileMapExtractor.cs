@@ -3,105 +3,184 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
+using EM = ExtractorMaster;
+using System.Linq;
+using System;
 
-public class TileMapExtractor : MonoBehaviour
+public class TileMapExtractor : MonoBehaviour, IExtractor
 {
-    static public string DataFilePath = "Assets/Resources/";
-    static public string DataFileDirectory = "TileMapData/";
+    public List<Tilemap> Tilemap;
 
-    public Tilemap Tilemap;
+    private List<Sprite> _sprites;
 
-    public MapEnum MapType;
 
-    public Texture2D[] Texture;
-
-    // 특정 스프라이트를 원하는 ID에 매핑
-    public Dictionary<Texture2D, int> SpriteToId = new();
-
-    public void TextureMapping()
+    public void Extract(MapEnum mapType, ref TileMapData mapData)
     {
-        for(int i = 0; i < Texture.Length; i++)
+        Tilemap = EM.Instance.LayerRoot.GetComponentsInChildren<Tilemap>().ToList();
+        _sprites = new();
+
+        Vector2Int size = new();
+
+        List<int> emptyList = new();
+        for(int i = 0; i < Tilemap.Count; i++)
         {
-            SpriteToId[Texture[i]] = i;
-        }
-    }
-
-    public int[,] ExtractTilemapToArray()
-    {
-        Tilemap.CompressBounds();
-        BoundsInt bounds = Tilemap.cellBounds;
-        Vector2Int size = new(bounds.size.x, bounds.size.y);
-
-        int[,] tileArray = new int[size.x, size.y];
-        TileBase[] tiles = Tilemap.GetTilesBlock(bounds);
-
-        for (int y = 0; y < size.y; y++)
-        {
-            for (int x = 0; x < size.x; x++)
+            Tilemap[i].CompressBounds();
+            BoundsInt bounds = Tilemap[i].cellBounds;
+            Debug.Log($"layer{i}");
+            Debug.Log(bounds.size.x);
+            Debug.Log(bounds.size.y);
+            if (bounds.size.x == 0 && bounds.size.y == 0)
             {
-                int index = x + y * size.x;
-                TileBase tileBase = tiles[index];
-                if (tileBase == null)
-                {
-                    tileArray[x, y] = -1;
-                    continue;
-                }
-                Tile tile = (Tile)tileBase;
-                if (SpriteToId.TryGetValue(tile.sprite.texture, out int id))
-                {
-                    tileArray[x, y] = id; // 스프라이트에 매핑된 ID 저장
-                }
-                else
-                {
-                    tileArray[x, y] = -1;
-                }
+                emptyList.Add(i);
+                continue;
+            }
+
+            Vector3Int leftBottom = bounds.position;
+            Vector2Int rightTop = new(leftBottom.x + bounds.size.x - 1, leftBottom.y + bounds.size.y - 1);
+
+            size.x = Mathf.Max(size.x, rightTop.x);
+            size.y = Mathf.Max(size.y, rightTop.y);
+        }
+
+        for (int i = emptyList.Count - 1; i >= 0; i--)
+        {
+            Tilemap.RemoveAt(emptyList[i]);
+        }
+
+        // Chunk 단위로 업스케일링
+        Vector2Int chunkSize = new(Mathf.CeilToInt(((float)size.x / (float)EM.ChunkSize)), Mathf.CeilToInt(((float)size.y / (float)EM.ChunkSize)));
+        size.x = chunkSize.x * EM.ChunkSize;
+        size.y = chunkSize.y * EM.ChunkSize;
+
+        mapData.All.Width = chunkSize.x;
+        mapData.All.Height = chunkSize.y;
+        mapData.All.ChunkSize = EM.ChunkSize;
+        mapData.All.LayerCount = Tilemap.Count;
+        Vector2 spawnPos = GameObject.FindWithTag("SpawnPoint").transform.position;
+        mapData.All.PlayerSpawnTilePos = new(Mathf.FloorToInt(spawnPos.x), Mathf.FloorToInt(spawnPos.y));
+
+        mapData.LayerData = new TileMapLayerData[Tilemap.Count];
+        mapData.All.TileMapLayerInfo = new TileMapLayerInfo[Tilemap.Count];
+
+        for (int i = 0; i < Tilemap.Count; i++)
+        {
+            TileMapLayerData layerData = ExtractLayerToTileMapData(Tilemap[i], size, chunkSize);
+            mapData.All.TileMapLayerInfo[i] = new();
+            mapData.All.TileMapLayerInfo[i].LayerIndex = Tilemap[i].gameObject.GetComponent<TilemapRenderer>().sortingOrder;
+            mapData.LayerData[i] = layerData;
+        }
+
+        mapData.All.MapTexture = ConvertSprite2Texture2D(_sprites);
+
+        for (int i = 0; i < Tilemap.Count; i++)
+        {
+            if (EM.Instance.IndividualWall)
+            {
+                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertWallSprite2Int(EM.Instance.WallSettings[i]);
+            }
+            else
+            {
+                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertWallSprite2Int(EM.Instance.WallType);
             }
         }
-        return tileArray;
     }
 
-    public Vector2 GetPlayerSpawnPos()
+    public TileMapLayerData ExtractLayerToTileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize)
     {
-        var childs = Tilemap.GetComponentsInChildren<Transform>();
+        targetLayer.CompressBounds();
+        BoundsInt bounds = targetLayer.cellBounds;
+        Vector3Int startPos = bounds.position;
 
-        foreach(var child in childs)
+        // Data Info
+        // Header
+        int[] tileData = new int[1 + size.x * size.y];
+        Array.Fill(tileData, -1);
+
+        TileBase[] tiles = targetLayer.GetTilesBlock(bounds);
+
+        for (int y = 0; y < bounds.size.y; y++)
         {
-            if(child.transform.name == "PlayerSpawnPoint")
-                return child.transform.position;
+            for (int x = 0; x < bounds.size.x; x++)
+            {
+                int correctX = x + startPos.x;
+                int correctY = y + startPos.y;
+
+                Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
+                Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
+
+                int chunkStartIndex = chunkIndex.x + chunkIndex.y * chunkSize.y;
+                int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                TileBase tileBase = tiles[x + y * bounds.size.x];
+
+                Sprite sprite = null;
+
+                if (tileBase == null)
+                {
+                    tileData[index] = -1;
+                    continue;
+                }
+                else if (tileBase is Tile tile)
+                {
+                    sprite = tile.sprite;
+                }
+                else if (tileBase is RuleTile ruleTile)
+                {
+                    Vector3Int tilePos = new(correctX, correctY, 0);
+                    TileData tileDataOut = new();
+                    ruleTile.GetTileData(tilePos, targetLayer, ref tileDataOut);
+                    sprite = tileDataOut.sprite;
+                }
+                
+                tileData[index] = AddorGetSpriteIndex(sprite);
+            }
         }
 
-        return Vector2.zero;
+        TileMapLayerData result = new();
+        result.Tile = tileData;
+
+        return result;
     }
 
-    void Start()
+    public int AddorGetSpriteIndex(Sprite sprite)
     {
-        TextureMapping(); // 텍스처 매핑 실행
-        int[,] tileArray = ExtractTilemapToArray(); // Tilemap을 배열로 변환
-        Vector2 playerSpawnPos = GetPlayerSpawnPos();
-        playerSpawnPos = new(playerSpawnPos.x + 9, playerSpawnPos.y + 5);
-        // ScriptableObject 생성
-        TileMapData tileMapData = ScriptableObject.CreateInstance<TileMapData>();
-        tileMapData.SetTileData(tileArray);
-        tileMapData.PlayerSpawnPos = playerSpawnPos;
+        if (_sprites.Contains(sprite))
+            return _sprites.IndexOf(sprite);
+        else
+        {
+            _sprites.Add(sprite);
+            return _sprites.Count - 1;
+        }
+    }
 
-        TileMapData visitedMapData = ScriptableObject.CreateInstance<TileMapData>();
-        int[,] visitedTileArray = new int[tileMapData.Width, tileMapData.Height];
-        visitedMapData.SetTileData(visitedTileArray);
+    public int[] ConvertWallSprite2Int(List<Sprite> wallSprite)
+    {
+        List<int> wallType = new();
+        for(int i = 0; i < wallSprite.Count; i++)
+            if (_sprites.Contains(wallSprite[i]))
+                wallType.Add(_sprites.IndexOf(wallSprite[i]));
 
-        string assetName = MapType.ToString();
-        // 저장할 폴더 경로
-        string directoryPath = $"{DataFilePath}{DataFileDirectory}{assetName}/";
+        return wallType.ToArray();
+    }
 
-        if (!Directory.Exists(directoryPath))
-            Directory.CreateDirectory(directoryPath);
+    public Texture2D[] ConvertSprite2Texture2D(List<Sprite> sprite)
+    {
+        Texture2D[] result = new Texture2D[sprite.Count];
 
-        // ScriptableObject를 에셋으로 저장
-        AssetDatabase.DeleteAsset($"{directoryPath}{assetName}.asset");
-        AssetDatabase.CreateAsset(tileMapData, $"{directoryPath}{assetName}.asset");
-        AssetDatabase.CreateAsset(visitedMapData, $"{directoryPath}{assetName}Visited.asset");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        for(int i = 0; i < sprite.Count; i++)
+        {
+            Rect rect = sprite[i].rect;
+            Texture2D sourceTex = sprite[i].texture;
 
-        Debug.Log($"TilemapData asset created at: {directoryPath}");
+            Texture2D newTex = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+            Color[] newTexColor = sourceTex.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+            newTex.SetPixels(newTexColor);
+            newTex.Apply();
+
+            result[i] = newTex;
+        }
+
+        return result;
     }
 }

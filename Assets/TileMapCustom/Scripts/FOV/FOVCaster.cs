@@ -7,6 +7,10 @@ using UnityEngine;
 using MM = MapManager;
 using static MapBufferChanger;
 
+
+// FOV 시스템 변경으로 미사용
+
+/*
 [RequireComponent(typeof(MapManager))]
 public class FOVCaster : MonoBehaviour, ITileMapOption
 {
@@ -212,7 +216,6 @@ public class FOVCaster : MonoBehaviour, ITileMapOption
                 {
                     _blockedIntervalTree.Insert(currentBlockInterval);
                 }
-                /*
                 if (currentBlocked)
                 {
                     if (previousWasBlocked)
@@ -235,7 +238,6 @@ public class FOVCaster : MonoBehaviour, ITileMapOption
                     }
                     previousWasBlocked = false;
                 }
-                */
             }
 
             if (previousWasBlocked)
@@ -286,3 +288,4 @@ class OctantTransform
         this.yy = yy;
     }
 }
+*/
