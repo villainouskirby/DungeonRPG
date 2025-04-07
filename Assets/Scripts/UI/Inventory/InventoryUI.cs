@@ -92,6 +92,11 @@ public class InventoryUI : SlotInteractHandler
         _inventory.UseItem(index);
     }
 
+    public void SetItemToQuickSlot(int index)
+    {
+        _inventory.SetItemToQuickSlot(index);
+    }
+
     /// <summary> CountableItem을 특정 개수만큼 버리기 </summary>
     public void RemoveItem(int index, int amount)
     {

@@ -6,7 +6,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 {
     [SerializeField] private InventoryUI _inventoryUI;
 
-    [SerializeField] private Button _setHolderButton;
+    [SerializeField] private Button _setToQuickSlotButton;
     [SerializeField] private Button _useButton;
     [SerializeField] private Button _removeButton;
 
@@ -55,33 +55,35 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void InitButton(int index)
     {
         ItemData data = _inventoryUI.GetItemData(index);
-        _setHolderButton.interactable = data is PotionItemData;
+        _setToQuickSlotButton.interactable = data is PotionItemData;
         _useButton.interactable = _inventoryUI.CheckItemUsable(index);
         _removeButton.interactable = true;
 
-        _setHolderButton.onClick.AddListener(() =>
+        _setToQuickSlotButton.onClick.AddListener(() =>
         {
-            // 홀더에 장착
-            CloseUI(_setHolderButton);
+            _inventoryUI.SetItemToQuickSlot(index);
+            CloseUI();
         });
 
         _useButton.onClick.AddListener(() =>
         {
             _inventoryUI.UseItem(index);
-            CloseUI(_useButton);
+            CloseUI();
         });
 
         _removeButton.onClick.AddListener(() =>
         {
             _removePopUpUI.SetItemData(index);
-            CloseUI(_removeButton);
+            CloseUI();
         });
 
     }
 
-    private void CloseUI(Button button)
+    private void CloseUI()
     {
-        button.onClick.RemoveAllListeners();
+        _setToQuickSlotButton.onClick.RemoveAllListeners();
+        _useButton.onClick.RemoveAllListeners();
+        _removeButton.onClick.RemoveAllListeners();
         gameObject.SetActive(false);
     }
 }

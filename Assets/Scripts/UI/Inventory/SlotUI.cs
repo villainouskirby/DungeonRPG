@@ -8,7 +8,7 @@ public class SlotUI : MonoBehaviour
 
     private void Awake()
     {
-        _image = GetComponent<Image>();
+        if (_image == null) _image = GetComponent<Image>();
     }
 
     public void SetItemInfo(Sprite imageSprite)

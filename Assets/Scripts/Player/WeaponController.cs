@@ -1,5 +1,5 @@
 using UnityEngine;
-
+/*
 public class WeaponController : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -189,3 +189,4 @@ public class WeaponController : MonoBehaviour
         weaponHitbox.gameObject.SetActive(false);
     }
 }
+*/

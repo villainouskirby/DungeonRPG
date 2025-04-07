@@ -15,9 +15,9 @@ GameObject:
   - component: {fileID: 8404700359068864180}
   - component: {fileID: 302780046639961892}
   - component: {fileID: 5382554830589741717}
-  m_Layer: 20
+  m_Layer: 8
   m_Name: Player
-  m_TagString: Player
+  m_TagString: PlayerSound
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -52,8 +52,15 @@ MonoBehaviour:
   speed: 3
   slideForce: 6
   slideDuration: 0.4
-  comboResetTime: 1
-  minAttackInterval: 0.5
+  beforeSpeed: 0
+  per1: 0.3
+  duration1: 5
+  icon1: {fileID: 0}
+  per2: 0.2
+  duration2: 3
+  icon2: {fileID: 0}
+  direction: 0
+  looking: 0
 --- !u!114 &4262740636599311042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,8 +112,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1869315837
-  m_SortingLayer: 1
+  m_SortingLayerID: -105541197
+  m_SortingLayer: 3
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 1f2b808deed244e18d31ba3c25ad903b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
