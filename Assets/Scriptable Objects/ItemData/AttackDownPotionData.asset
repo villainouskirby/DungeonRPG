@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec844b6d77f4ca44da149c0ff9ab65ca, type: 3}
-  m_Name: PotionItemData
+  m_Name: AttackDownPotionData
   m_EditorClassIdentifier: 
-  _id: 1
-  _name: potion
-  _tooltip: potion1
+  _id: 2
+  _name: Attack_down
+  _tooltip: Attack_down potion
   _weight: 30
-  _iconSprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  _iconSprite: {fileID: 21300000, guid: d9accb4a84091d9479cc06dd8e47bace, type: 3}
   _maxAmount: 99

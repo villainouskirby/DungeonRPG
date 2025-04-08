@@ -15,6 +15,7 @@ public class QuickSlot : MonoBehaviour
         _quickSlotUI.InitQuickSlot();
     }
 
+   
     private void OnEnable()
     {
         for (int i = 0; i < _quickSlot.Count; i++)
@@ -60,3 +61,20 @@ public class QuickSlot : MonoBehaviour
         _quickSlotUI.SetSlotImage(idx2);
     }
 }
+////임시
+///* ▼ 인스펙터에 노출될 스크립트 오브젝트 배열 */
+//[SerializeField] private List<ItemData> _defaultItemDatas = new List<ItemData>(5);
+////임시
+
+////임시
+//private void Start()          // 여기서 스크립트오브젝트 → Item 변환
+//{
+//    for (int i = 0; i < _defaultItemDatas.Count && i < _quickSlot.Count; i++)
+//    {
+//        if (_defaultItemDatas[i] == null) continue;
+
+//        _quickSlot[i] = _defaultItemDatas[i].Createitem();   // 인스턴스 생성
+//        _quickSlotUI.SetSlotImage(i);                        // 아이콘 갱신
+//    }
+//}
+////임시
