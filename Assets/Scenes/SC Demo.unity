@@ -31892,10 +31892,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 378d82249b104e149b0b9ed4791dae59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseAtk: 100
-  baseSpeed: 5
-  currentAtk: 0
-  currentSpeed: 0
+  currentAtk: {fileID: 11400000, guid: 46cae976488384948b82d1d33b553e4e, type: 2}
+  currentSpeed: {fileID: 11400000, guid: 1908df05f23267a4695fbd5ca1dbc9c4, type: 2}
 --- !u!210 &1646806930
 SortingGroup:
   m_ObjectHideFlags: 0

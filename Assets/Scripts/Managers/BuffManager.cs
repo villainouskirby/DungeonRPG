@@ -28,7 +28,7 @@ public class BuffManager : MonoBehaviour
         };
         GameObject go = Instantiate(buffPrefab, transform);
         go.GetComponent<Image>().sprite = icon;
-        BuffImage buffImage = go.GetComponent<BuffImage>();
+        BaseBuff buffImage = go.GetComponent<BaseBuff>();
         buffImage.Init(type, percentage, duration);
     }
 }
