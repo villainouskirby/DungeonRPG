@@ -89,18 +89,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         //Debug.Log(GetCurrentState());
         UpdateByState();
         //버프 활성화 버튼
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            BuffManager.instance.CreateBuff(BuffType.AttackUp, per1, duration1, icon1);
-        }
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            BuffManager.instance.CreateBuff(BuffType.AttackDown, per2, duration2, icon2);
-        }
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            BuffManager.instance.CreateBuff(BuffType.SpeedUp, per1, duration1, icon1);
-        }
+        //if (Input.GetKeyDown(KeyCode.B))
+        //{
+        //    BuffManager.instance.CreateBuff(BuffType.AttackUp, per1, duration1, icon1);
+        //}
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    BuffManager.instance.CreateBuff(BuffType.AttackDown, per2, duration2, icon2);
+        //}
+        //if (Input.GetKeyDown(KeyCode.M))
+        //{
+        //    BuffManager.instance.CreateBuff(BuffType.SpeedUp, per1, duration1, icon1);
+        //}
     }
     public void UpdateByState()
     {
