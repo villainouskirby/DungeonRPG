@@ -9,6 +9,11 @@ public class QuickSlot : MonoBehaviour
 
     private List<Item> _quickSlot => _quickSlotList.Items;
 
+    private void Awake()
+    {
+        InitQuickSlot();
+    }
+
     public void InitQuickSlot()
     {
         if (_quickSlot.Count == 0) _quickSlotList.Items = new List<Item>(new Item[5]);

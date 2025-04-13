@@ -30,7 +30,7 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
     public void SetQuickSlot()
     {
         _quickSlotInGameUI.SetQuickSlotUI();
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     public void SetSlotImage(int index)

@@ -12,12 +12,19 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private SmithDataSO smithData;
 
+    [SerializeField] private QuickSlot quickSlot;
+
 
     [Header("Quest")]
     [SerializeField] private Quest quest;
     [SerializeField] private bool isMainQuest;
     [SerializeField] private Sprite sprite;
 
+
+    public void AddQuickSlot()
+    {
+        quickSlot.AddToSlot(testItemData.Createitem());
+    }
 
     public void AddInventory()
     {

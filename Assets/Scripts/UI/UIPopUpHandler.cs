@@ -9,6 +9,7 @@ public class UIPopUpHandler : MonoBehaviour
     [SerializeField] private GameObject _smith;
 
     private Inventory _inventoryScript;
+    public Inventory InventoryScript => _inventoryScript;
     private Shop _shopScript;
     private Storage _storageScript;
 
