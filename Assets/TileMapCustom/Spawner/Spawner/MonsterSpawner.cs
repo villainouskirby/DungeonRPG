@@ -13,6 +13,11 @@ public class MonsterSpawner : Spawner
     {
     }
 
+    public MonsterSpawner()
+    {
+
+    }
+
     public override void Spawn()
     {
         base.Spawn();

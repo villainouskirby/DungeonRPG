@@ -13,6 +13,11 @@ public class PlantSpawner : Spawner
     {
     }
 
+    public PlantSpawner()
+    {
+
+    }
+
     public override void Spawn()
     {
         base.Spawn();

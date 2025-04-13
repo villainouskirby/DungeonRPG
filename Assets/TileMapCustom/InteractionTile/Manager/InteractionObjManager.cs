@@ -25,9 +25,19 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
     {
         ResetInteractionObj();
 
-        for (int i = 0; i < DL.Instance.All.InteractionObjData.Interaction.Count; i++)
+        if (DL.Instance.All.InteractionObjData.Npc != null)
         {
-            GenerateInteractionObj(DL.Instance.All.InteractionObjData.Interaction[i]);
+            for (int i = 0; i < DL.Instance.All.InteractionObjData.Npc.Count; i++)
+            {
+                GenerateInteractionObj(DL.Instance.All.InteractionObjData.Npc[i]);
+            }
+        }
+        if (DL.Instance.All.InteractionObjData.Entry != null)
+        {
+            for (int i = 0; i < DL.Instance.All.InteractionObjData.Entry.Count; i++)
+            {
+                GenerateInteractionObj(DL.Instance.All.InteractionObjData.Entry[i]);
+            }
         }
     }
 
@@ -76,6 +86,7 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
                 interaction.transform.parent = _root.transform;
                 interaction.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize);
                 interaction.GetComponent<IT_EntryFunc>().Init((IT_EntryObj)interactionObj);
+                AllInteraction.Add(interaction);
                 break;
         }
     }

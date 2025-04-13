@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class SpawnerData
 {
-    [SerializeReference]
-    public Spawner[] Spawner;
+    public List<MonsterSpawner> Monster;
+    public List<PlantSpawner> Plant;
+    public List<MineralSpawner> Mineral;
 }

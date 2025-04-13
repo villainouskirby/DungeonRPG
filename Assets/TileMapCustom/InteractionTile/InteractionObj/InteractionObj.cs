@@ -10,9 +10,14 @@ public class InteractionObj
 
     public InteractionObj(InteractionTile interactionTile)
     {
-        int tileX = Mathf.FloorToInt((interactionTile.transform.position.x + 9) / 1f);
-        int tileY = Mathf.FloorToInt((interactionTile.transform.position.y + 5) / 1f);
+        int tileX = Mathf.FloorToInt((interactionTile.transform.position.x) / 1f);
+        int tileY = Mathf.FloorToInt((interactionTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
         Type = interactionTile.Type;
+    }
+
+    public InteractionObj()
+    {
+
     }
 }
