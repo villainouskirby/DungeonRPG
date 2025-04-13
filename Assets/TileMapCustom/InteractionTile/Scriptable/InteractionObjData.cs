@@ -5,6 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class InteractionObjData
 {
-    [SerializeReference]
-    public List<InteractionObj> Interaction;
+    public List<IT_EntryObj> Entry;
+    public List<IT_NpcObj> Npc;
 }

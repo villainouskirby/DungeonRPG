@@ -7,7 +7,7 @@ public class ContactOnCamera : MonoBehaviour
 {
     public Camera TargetCamera;
 
-    private void Awake()
+    private void Start()
     {
         TargetCamera = TileMapMaster.Instance.TargetCamera;
     }

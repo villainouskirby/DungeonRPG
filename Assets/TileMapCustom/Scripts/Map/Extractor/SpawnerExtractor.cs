@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -17,7 +18,7 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
     public float            GenericMaxRange;
 
 
-    private Dictionary<SpawnerGroupEnum, Dictionary<SpawnerCaseEnum, List<Spawner>>>
+    private Dictionary<SpawnerGroupEnum, Dictionary<SpawnerCaseEnum, SpawnerData>>
                             _spawners;            
 
 
@@ -53,8 +54,10 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
                         _spawners[spawnerTile.Group] = new();
                     if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
                         _spawners[spawnerTile.Group][spawnerTile.Case] = new();
+                    if (_spawners[spawnerTile.Group][spawnerTile.Case].Monster == null)
+                        _spawners[spawnerTile.Group][spawnerTile.Case].Monster = new();
 
-                    _spawners[spawnerTile.Group][spawnerTile.Case].Add(monster);
+                    _spawners[spawnerTile.Group][spawnerTile.Case].Monster.Add(monster);
                     break;
                 case SpawnerType.Plant:
                     PlantSpawner plant = new(spawnerTile, GenericMinRange, GenericMaxRange);
@@ -65,8 +68,10 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
                         _spawners[spawnerTile.Group] = new();
                     if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
                         _spawners[spawnerTile.Group][spawnerTile.Case] = new();
+                    if (_spawners[spawnerTile.Group][spawnerTile.Case].Plant == null)
+                        _spawners[spawnerTile.Group][spawnerTile.Case].Plant = new();
 
-                    _spawners[spawnerTile.Group][spawnerTile.Case].Add(plant);
+                    _spawners[spawnerTile.Group][spawnerTile.Case].Plant.Add(plant);
                     break;
                 case SpawnerType.Mineral:
                     MineralSpawner mineral = new(spawnerTile, GenericMinRange, GenericMaxRange);
@@ -77,8 +82,10 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
                         _spawners[spawnerTile.Group] = new();
                     if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
                         _spawners[spawnerTile.Group][spawnerTile.Case] = new();
+                    if (_spawners[spawnerTile.Group][spawnerTile.Case].Mineral == null)
+                        _spawners[spawnerTile.Group][spawnerTile.Case].Mineral = new();
 
-                    _spawners[spawnerTile.Group][spawnerTile.Case].Add(mineral);
+                    _spawners[spawnerTile.Group][spawnerTile.Case].Mineral.Add(mineral);
                     break;
             }
         }
@@ -105,10 +112,7 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
 
                 cases.Add(case_);
 
-                SpawnerData spawnerData = new();
-                spawnerData.Spawner = caseSpawner.Value.ToArray();
-
-                mapData.All.SpawnerData[$"{group}_{case_}"] = spawnerData;
+                mapData.All.SpawnerData[$"{group}_{case_}"] = caseSpawner.Value;
             }
 
             string caseInfo = string.Join("_", cases);

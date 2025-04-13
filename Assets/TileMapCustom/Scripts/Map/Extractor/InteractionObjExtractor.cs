@@ -11,14 +11,12 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
 
     public void Extract(MapEnum mapEnum, ref TileMapData mapData)
     {
-        InteractionObjData interactionObjData = new();
-        interactionObjData.Interaction = ExtractTilemapToInteractionObj();
-        mapData.All.InteractionObjData = interactionObjData;
+        mapData.All.InteractionObjData = ExtractTilemapToInteractionObj();
     }
 
-    private List<InteractionObj> ExtractTilemapToInteractionObj()
+    private InteractionObjData ExtractTilemapToInteractionObj()
     {
-        List<InteractionObj> data = new();
+        InteractionObjData result = null;
         var childs = Tilemap.transform.GetComponentsInChildren<Transform>();
         
         foreach(var child in childs)
@@ -26,25 +24,30 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
             if (child.name == Tilemap.name)
                 continue;
 
+            result = new();
             InteractionTile interactionTile = child.GetComponent<InteractionTile>();
 
             switch(interactionTile.Type)
             {
                 case InteractionEnum.Entry:
-                    IT_EntryObj interactionObj = new(interactionTile);
+                    IT_EntryObj entryObj = new(interactionTile);
                     IT_EntryTile entryTile = (IT_EntryTile)interactionTile;
-                    interactionObj.MapType = entryTile.MapType;
-                    data.Add(interactionObj);
+                    entryObj.MapType = entryTile.MapType;
+
+                    result.Entry ??= new();
+                    result.Entry.Add(entryObj);
                     break;
                 case InteractionEnum.Npc:
                     IT_NpcObj npcObj = new(interactionTile);
                     IT_NpcTile npcTile = (IT_NpcTile)interactionTile;
                     npcObj.NpcName = npcTile.NpcName;
-                    data.Add(npcObj);
+
+                    result.Npc ??= new();
+                    result.Npc.Add(npcObj);
                     break;
             }
         }
 
-        return data;
+        return result;
     }
 }

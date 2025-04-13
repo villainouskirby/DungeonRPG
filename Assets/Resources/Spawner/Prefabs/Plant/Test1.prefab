@@ -99,7 +99,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Level: 0
-  DropItemList: []
+  DropItemList:
+  - {fileID: 11400000, guid: fc906e953f6fd3b47a6623266ba5781c, type: 2}
   TilePos: {x: 0, y: 0}
 --- !u!58 &468415865209268751
 CircleCollider2D:

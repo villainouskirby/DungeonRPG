@@ -154,7 +154,9 @@ public class PlayerFarming : MonoBehaviour
     {
         IsFarming = false;
 
-        // 채집 성공
+        Debug.Log("실행됨");
+        // 채집 성공 - 임시 코드
+        //UIPopUpHandler.Instance.InvertoryScript.AddItem(TargetFarm.DropItemList[0]);
         _rangedFarmObj.Remove(TargetObj);
         switch (TargetFarm.Type)
         {
@@ -179,6 +181,7 @@ public class PlayerFarming : MonoBehaviour
     {
         _time = 0;
         _requiredTime = 0;
+        IsFarming = false;
         FarmGageBar.gameObject.SetActive(false);
         TargetObj = null;
         TargetFarm = null;

@@ -31,7 +31,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
         ResetSpawnwer();
         AllSpawner.Clear();
         ActiveSpawner.Clear();
-        SetSpawner(mapType.ToString());
+        SetSpawner();
     }
 
     public void StartMap(MapEnum mapType)
@@ -89,7 +89,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
     public TileMapOptionEnum OptionType { get { return TileMapOptionEnum.SpawnerManager; } }
 
 
-    private void SetSpawner(string assetName)
+    private void SetSpawner()
     {
         foreach (var groupInfo in DL.Instance.All.SpawnerInfoData.GroupInfo)
         {
@@ -115,9 +115,24 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
                 {
                     string path = $"{group}_{case_}";
                     SpawnerData caseSpawnerData = DL.Instance.All.SpawnerData[path];
-                    AllSpawner.AddRange(caseSpawnerData.Spawner);
-                    foreach (var spawner in caseSpawnerData.Spawner)
-                        spawner.Init();
+                    if (caseSpawnerData.Mineral != null)
+                    {
+                        AllSpawner.AddRange(caseSpawnerData.Mineral);
+                        foreach (var spawner in caseSpawnerData.Mineral)
+                            spawner.Init();
+                    }
+                    if (caseSpawnerData.Monster != null)
+                    {
+                        AllSpawner.AddRange(caseSpawnerData.Monster);
+                        foreach (var spawner in caseSpawnerData.Monster)
+                            spawner.Init();
+                    }
+                    if (caseSpawnerData.Plant != null)
+                    {
+                        AllSpawner.AddRange(caseSpawnerData.Plant);
+                        foreach (var spawner in caseSpawnerData.Plant)
+                            spawner.Init();
+                    }
                 }
             }
         }

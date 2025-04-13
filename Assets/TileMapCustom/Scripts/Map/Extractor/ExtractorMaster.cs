@@ -43,7 +43,7 @@ public class ExtractorMaster : MonoBehaviour
         }
 
         mapData.All.Setting = new();
-        if (mapData.All.InteractionObjData.Interaction.Count == 0)
+        if (mapData.All.InteractionObjData == null)
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.InteractionObjManager].Active = false;
         if (mapData.All.SpawnerData == null)
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.SpawnerManager].Active = false;

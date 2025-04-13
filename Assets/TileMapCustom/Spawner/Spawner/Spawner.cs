@@ -81,8 +81,8 @@ public class Spawner
 
     public Spawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange)
     {
-        int tileX = Mathf.FloorToInt((spawnerTile.transform.position.x + 9) / 1f);
-        int tileY = Mathf.FloorToInt((spawnerTile.transform.position.y + 5) / 1f);
+        int tileX = Mathf.FloorToInt((spawnerTile.transform.position.x) / 1f);
+        int tileY = Mathf.FloorToInt((spawnerTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
         CoolTime = spawnerTile.CoolTime;
         Type = spawnerTile.Type;

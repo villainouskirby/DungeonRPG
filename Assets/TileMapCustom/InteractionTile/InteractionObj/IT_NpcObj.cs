@@ -9,4 +9,9 @@ public class IT_NpcObj : InteractionObj
     public IT_NpcObj(InteractionTile interactionTile) : base(interactionTile)
     {
     }
+
+    public IT_NpcObj()
+    {
+
+    }
 }

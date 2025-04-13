@@ -10,8 +10,10 @@ using static UnityEngine.PlayerLoop.Update;
 public static class TimeSystemUpdate
 {
     public static float        Time;
+    public static int          Day { get { return (int)(Time * InGameTimeScale / 86400); } }
     public static bool         IsPlaying = true;
     public static float        TimeScale = 1;
+    public static float        InGameTimeScale = 60;
 
     public static void Stop()
     {

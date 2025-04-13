@@ -12,6 +12,11 @@ public class MineralSpawner : Spawner
     {
     }
 
+    public MineralSpawner()
+    {
+        
+    }
+
     public override void Spawn()
     {
         base.Spawn();

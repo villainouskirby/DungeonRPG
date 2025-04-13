@@ -9,4 +9,9 @@ public class IT_EntryObj : InteractionObj
     public IT_EntryObj(InteractionTile interactionTile) : base(interactionTile)
     {
     }
+
+    public IT_EntryObj()
+    {
+
+    }
 }
