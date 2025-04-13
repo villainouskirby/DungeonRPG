@@ -47,8 +47,13 @@ public class SmithUI : SlotInteractHandler
 
     private GameObject _currentContent;
 
-    protected void Awake()
-    {_currentContent = _armorContent.gameObject;
+    protected override void Awake()
+    {
+        base.Awake();
+
+        _category = EquipmentType.bodyArmor;
+
+        _currentContent = _armorContent.gameObject;
 
         _armorButton.onClick.AddListener(() => OpenContent(_armorContent));
         _weaponButton.onClick.AddListener(() => OpenContent(_weaponContent));
