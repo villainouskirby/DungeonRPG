@@ -15,6 +15,7 @@ public class PotionItem : CountableItem, IUsableItem
     {
         if (Amount > 0)
         {
+            BuffManager.instance.CreateBuff(Data.ID, percentage: 0.4f, duration: 10f, Data.IconSprite);
             Amount--;
             return true;
         }

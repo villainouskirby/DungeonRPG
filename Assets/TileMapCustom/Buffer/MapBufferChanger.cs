@@ -20,6 +20,22 @@ public static class MapBufferChanger
             _change.Add(0);
     }
 
+    public static void SetMapDataBuffer(Span<int> mapData, ref GraphicsBuffer buffer)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = mapData.Length;
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
+        buffer.SetData(mapData.ToArray());
+    }
+
+    public static void ChangeMapDataBuffer(int[] mapData, GraphicsBuffer buffer)
+    {
+        buffer.SetData(mapData);
+    }
+
+    /*
     /// <summary>
     /// Buffer를 생성한다.
     /// </summary>
@@ -271,4 +287,5 @@ public static class MapBufferChanger
             targetBuffer.SetData(_changeList[i].change, 0, _changeList[i].start, _changeList[i].length);
         }
     }
+    */
 }

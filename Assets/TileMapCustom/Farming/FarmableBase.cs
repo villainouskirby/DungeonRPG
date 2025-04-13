@@ -22,34 +22,12 @@ public abstract class FarmableBase : MonoBehaviour
     private MaterialPropertyBlock _block;
     private SpriteRenderer _renderer;
     private bool _isCheckVisible;
-    private float _strength;
 
     private void Awake()
     {
         Init();
     }
 
-    private void FixedUpdate()
-    {
-        if (!_isCheckVisible)
-            return;
-
-        _strength = MapManager.Instance.FOVCaster.IsInFOV(TilePos);
-
-        if (0 < _strength)
-        {
-            _block.SetFloat("_IsDisable", 0f);
-            _block.SetFloat("_BlurCorrect", _strength);
-            _renderer.SetPropertyBlock(_block);
-        }
-        else
-        {
-            Debug.Log(_strength);
-            _block.SetFloat("_IsDisable", 1f);
-            _block.SetFloat("_BlurCorrect", 1f);
-            _renderer.SetPropertyBlock(_block);
-        }
-    }
 
     // 기본값을 Init한다. 최초 1회
     public virtual void Init()
@@ -81,7 +59,6 @@ public abstract class FarmableBase : MonoBehaviour
         // 기본값을 전부 세팅해준다.
         TilePos = new(Mathf.FloorToInt(transform.position.x / MapManager.Instance.TileSize), Mathf.FloorToInt(transform.position.y / MapManager.Instance.TileSize));
         _block.SetFloat("_IsDisable", 0f);
-        _block.SetFloat("_BlurCorrect", 1f);
         _renderer.SetPropertyBlock(_block);
         _isCheckVisible = true;
     }

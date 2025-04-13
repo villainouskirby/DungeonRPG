@@ -2,18 +2,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class BuffImage : MonoBehaviour
+public class BaseBuff : MonoBehaviour
 {
     [Header("UI 레퍼런스")]
     public Image icon;   // 버프 아이콘 자체 (ex: Skill 아이콘)
-
+    private PlayerData playerData;
     private float duration;   // 버프 지속 시간(초)
     private float currentTime; // 남은 시간
-
+    private bool reverted = false;
     private BuffType buffType; 
     private float percentage;
     public void Awake()
     {
+        playerData = FindObjectOfType<PlayerData>();  // 첫 한 번만
         icon = GetComponent<Image>();
     }
     /// <summary>
@@ -29,7 +30,7 @@ public class BuffImage : MonoBehaviour
 
 
         // 스탯에 버프 적용
-        PlayerData.instance.ApplyBuff(type, percentage);
+        playerData.ApplyBuff(type, percentage);
 
         // 코루틴 시작 (0.1초마다 남은 시간을 감소시키는 방식)
         StartCoroutine(Activation());
@@ -45,11 +46,20 @@ public class BuffImage : MonoBehaviour
         }
         yield return null;
         icon.fillAmount = 0;
-
-        PlayerData.instance.RemoveBuff(buffType, percentage);
+        Revert();
 
         // 아이콘 오브젝트 제거
         Destroy(gameObject);
+    }
+
+    private void OnDestroy() => Revert();
+    private void OnApplicationQuit() => Revert();   // 빌드·에디터 공통
+    private void OnDisable() => Revert();
+    private void Revert()
+    {
+        if (reverted) return;          // 두 번 이상 호출 방지
+        playerData.RemoveBuff(buffType, percentage);
+        reverted = true;
     }
 }
 /*

@@ -15,6 +15,7 @@ public class QuickSlot : MonoBehaviour
         _quickSlotUI.InitQuickSlotUI();
     }
 
+   
     private void OnEnable()
     {
         for (int i = 0; i < _quickSlot.Count; i++)

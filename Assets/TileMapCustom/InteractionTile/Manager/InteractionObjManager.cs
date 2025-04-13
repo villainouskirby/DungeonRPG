@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TM = TileMapMaster;
+using DL = DataLoader;
 
 public class InteractionObjManager : MonoBehaviour, ITileMapOption
 {
@@ -10,7 +11,6 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
     private GameObject _root;
 
     public List<GameObject> AllInteraction;
-    private InteractionObjData _interactionObjData;
 
     private bool _isActive = false;
 
@@ -25,11 +25,9 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
     {
         ResetInteractionObj();
 
-        SetDataAsset(mapType.ToString());
-
-        for (int i = 0; i < _interactionObjData.Interaction.Count; i++)
+        for (int i = 0; i < DL.Instance.All.InteractionObjData.Interaction.Count; i++)
         {
-            GenerateInteractionObj(_interactionObjData.Interaction[i]);
+            GenerateInteractionObj(DL.Instance.All.InteractionObjData.Interaction[i]);
         }
     }
 
@@ -80,11 +78,5 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
                 interaction.GetComponent<IT_EntryFunc>().Init((IT_EntryObj)interactionObj);
                 break;
         }
-    }
-
-    private void SetDataAsset(string assetName)
-    {
-        string dataFilePath = $"{InteractionObjExtractor.DataFileDirectory}{assetName}/";
-        _interactionObjData = Instantiate(Resources.Load<InteractionObjData>($"{dataFilePath}{assetName}InteractionObjData"));
     }
 }

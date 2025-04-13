@@ -2,6 +2,7 @@
 // 원래 Collider 없이 MapData 기반으로 벽 구현할려고 했는데 훨씬 좋은 방식이 떠올라서 폐기..
 // 방식은 아까워서 냅둠
 
+/*
 using System.Linq;
 using UnityEngine;
 
@@ -101,3 +102,4 @@ public class TileMapColliderMovement : MonoBehaviour
         return WallTileType.Contains(tileType);
     }
 }
+*/

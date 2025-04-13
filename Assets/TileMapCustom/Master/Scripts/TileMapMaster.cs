@@ -2,27 +2,31 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DL = DataLoader;
 
 public class TileMapMaster : MonoBehaviour
 {
     public static TileMapMaster Instance { get { return _instance; } }
     private static TileMapMaster _instance;
 
-    [Header("Map Settings")]
-    public List<MapSettings> MapSettings;
 
     [Header("Camera Settings")]
     public Camera TargetCamera;
 
+    [Header("ViewBox Size")]
+    public int ViewBoxSize = 10;
+
     [Header("Player Settings")]
     public GameObject Player;
 
+    [Header("Wall Settings")]
+    public GameObject WallRoot;
+
+    [Header("Layer Settings")]
+    public GameObject LayerRoot;
+
     private List<ITileMapBase> _base;
     private List<ITileMapOption> _option;
-    private Dictionary<MapEnum, MapSettings> _mapSettings;
-
-    public TileMapController Controller;
-    public TileMapController GuideController;
 
     public void Awake()
     {
@@ -30,25 +34,6 @@ public class TileMapMaster : MonoBehaviour
         StartTileMap(MapEnum.Map1);
     }
 
-    [ContextMenu("Init MapSettings InSpector")]
-    public void InitMapSettingsInSpector()
-    {
-        for(int i = 0; i < (int)MapEnum.End; i++)
-        {
-            bool exit = false;
-            for (int j = 0; j < MapSettings.Count; j++)
-            {
-                if (MapSettings[j].MapType == (MapEnum)i)
-                {
-                    exit = true;
-                    break;
-                }
-            }
-
-            if (!exit)
-                MapSettings.Add(new((MapEnum)i));
-        }
-    }
 
     public void Init()
     {
@@ -65,11 +50,12 @@ public class TileMapMaster : MonoBehaviour
         // 일련의 과정을 해주는 이유는 서순 문제를 해소하기 위함임.
 
         // Map Settings를 Dic에 맵핑 해준다.
-        SetMapSettingDic();
     }
 
     public void StartTileMap(MapEnum mapType)
     {
+
+
         for(int i = 0; i < _base.Count; i++)
         {
             _base[i].StartMap(mapType);
@@ -87,27 +73,17 @@ public class TileMapMaster : MonoBehaviour
         for (int i = 0; i < _option.Count; i++)
         {
             ITileMapOption option = _option[i];
-            if (_mapSettings[mapType].IsOptionActive(option.OptionType))
+            if (DL.Instance.All.Setting.IsOptionActive(option.OptionType))
             {
                 option.OnOption();
                 _option[i].StartMap(mapType);
             }
         }
 
-        Controller.InitializeTileMap();
         //GuideController.InitializeTileMap();
     }
 
 
-    private void SetMapSettingDic()
-    {
-        _mapSettings = new();
-        for(int i = 0; i < MapSettings.Count; i++)
-        {
-            _mapSettings[MapSettings[i].MapType] = MapSettings[i];
-            MapSettings[i].Init();
-        }
-    }
 
     public void CollectTarget<T>(out List<T> result)
     {
@@ -152,28 +128,26 @@ public class TileMapMaster : MonoBehaviour
 [System.Serializable]
 public class MapSettings
 {
-    public MapEnum MapType;
     public OptionActive[] OptionsActive;
-    private Dictionary<TileMapOptionEnum, bool> _optionsActive;
+    public Dictionary<TileMapOptionEnum, bool> OptionsActiveDic;
 
     public void Init()
     {
-        _optionsActive = new();
+        OptionsActiveDic = new();
 
         for (int i = 0; i < OptionsActive.Length; i++)
         {
-            _optionsActive[OptionsActive[i].OptionType] = OptionsActive[i].Active;
+            OptionsActiveDic[OptionsActive[i].OptionType] = OptionsActive[i].Active;
         }
     }
 
     public bool IsOptionActive(TileMapOptionEnum optionType)
     {
-        return _optionsActive[optionType];
+        return OptionsActiveDic[optionType];
     }
 
-    public MapSettings(MapEnum mapEnum)
+    public MapSettings()
     {
-        MapType = mapEnum;
         OptionsActive = new OptionActive[(int)TileMapOptionEnum.End];
         for(int i = 0 ;i < (int)TileMapOptionEnum.End; i++)
         {
@@ -192,5 +166,11 @@ public class OptionActive
     {
         OptionType = optionType;
         Active = active;
+    }
+
+    public OptionActive()
+    {
+        OptionType = TileMapOptionEnum.End;
+        Active = false;
     }
 }

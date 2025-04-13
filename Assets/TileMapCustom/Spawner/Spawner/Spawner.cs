@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,7 @@ public class Spawner
 
     public bool         IsSpawn = false;
     public bool         IsIdentify = false;
+    [NonSerialized]
     public GameObject   SpawnObj;
 
     public void TrySpawn()
@@ -45,11 +47,8 @@ public class Spawner
         if (IsIdentify)
             return;
 
-        if (0 < MapManager.Instance.FOVCaster.IsInFOV(TilePos))
-        {
-            IsIdentify = true;
-            SpawnObj.SetActive(true);
-        }
+        IsIdentify = true;
+        SpawnObj.SetActive(true);
     }
 
     public virtual GameObject GetSpawnObject()
@@ -63,11 +62,8 @@ public class Spawner
             return;
 
         target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, 0);
-        if (0 < MapManager.Instance.FOVCaster.IsInFOV(TilePos))
-        {
-            IsIdentify = true;
-            target.SetActive(true);
-        }
+        IsIdentify = true;
+        SpawnObj.SetActive(true);
     }
 
     public virtual void Init()
@@ -100,5 +96,12 @@ public class Spawner
             MinRange = genericMinRange;
             MaxRange = genericMaxRange;
         }
+    }
+
+    public Spawner()
+    {
+        IsSpawn = false;
+        IsIdentify = false;
+        SpawnObj = null;
     }
 }

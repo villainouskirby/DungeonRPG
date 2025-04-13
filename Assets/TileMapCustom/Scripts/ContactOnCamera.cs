@@ -7,6 +7,11 @@ public class ContactOnCamera : MonoBehaviour
 {
     public Camera TargetCamera;
 
+    private void Awake()
+    {
+        TargetCamera = TileMapMaster.Instance.TargetCamera;
+    }
+
     private void FixedUpdate()
     {
         Vector3 cameraPos = TargetCamera.transform.position;

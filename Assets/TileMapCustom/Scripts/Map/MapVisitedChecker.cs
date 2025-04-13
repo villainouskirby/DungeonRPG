@@ -7,6 +7,10 @@ using MM = MapManager;
 using static MapBufferChanger;
 using System;
 
+
+// 일단은 미루고 지도는 나중에 다시
+
+/*
 [RequireComponent(typeof(MapManager))]
 public class MapVisitedChecker : MonoBehaviour, ITileMapOption
 {
@@ -86,8 +90,8 @@ public class MapVisitedChecker : MonoBehaviour, ITileMapOption
 
     private void SetDataAsset(string assetName)
     {
-        string dataFilePath = $"{TileMapExtractor.DataFileDirectory}{assetName}/";
-        _visitedMapData = Instantiate(Resources.Load<TileMapData>($"{dataFilePath}{assetName}Visited"));
+        //string dataFilePath = $"{TileMapExtractor.DataFileDirectory}{assetName}/";
+        //_visitedMapData = Instantiate(Resources.Load<TileMapData>($"{dataFilePath}{assetName}Visited"));
     }
 
     /// <summary>
@@ -122,11 +126,6 @@ public class MapVisitedChecker : MonoBehaviour, ITileMapOption
         }
     }
 
-    /*
-       x = x
-       y = y
-       z = value
-    */
 
     private List<Vector3Int> _changeList;
 
@@ -153,13 +152,6 @@ public class MapVisitedChecker : MonoBehaviour, ITileMapOption
 
        ChangeMapDataByRow(MM.Instance.VisitedMapData, _changeList, MM.Instance.VisitedMapDataBufferRow, MM.Instance.VisitedMapDataBufferHeaderSize);
     }
-
-    /*
-        xMin x
-        xMax y
-        yMin z
-        yMax w
-    */
 
     void SetViewed(Vector4Int newViewTilePos)
     {
@@ -254,3 +246,4 @@ public struct Vector4Int
         return !(lhs == rhs);
     }
 }
+*/
