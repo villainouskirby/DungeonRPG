@@ -6,7 +6,10 @@ using UnityEngine.UI;
 public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private QuickSlot _quickSlot;
+    [SerializeField] private QuickSlotInGameUI _quickSlotInGameUI;
+
     [SerializeField] private Transform _slotsParent;
+    [SerializeField] private Button _confirmButton;
 
     private List<SlotUI> _quickSlots = new List<SlotUI>();
 
@@ -14,12 +17,20 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
     private Transform _selectedSlot;
     private Vector3 _selectedSlotPosition;
 
-    public void InitQuickSlot()
+    public void InitQuickSlotUI()
     {
         foreach (Transform child in _slotsParent)
         {
             _quickSlots.Add(child.GetComponent<SlotUI>());
         }
+
+        _confirmButton.onClick.AddListener(SetQuickSlot);
+    }
+
+    public void SetQuickSlot()
+    {
+        _quickSlotInGameUI.SetQuickSlotUI();
+        gameObject.SetActive(false);
     }
 
     public void SetSlotImage(int index)

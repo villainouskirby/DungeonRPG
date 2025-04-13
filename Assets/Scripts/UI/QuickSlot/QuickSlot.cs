@@ -9,12 +9,13 @@ public class QuickSlot : MonoBehaviour
 
     private List<Item> _quickSlot => _quickSlotList.Items;
 
-    private void Awake()
+    public void InitQuickSlot()
     {
         if (_quickSlot.Count == 0) _quickSlotList.Items = new List<Item>(new Item[5]);
-        _quickSlotUI.InitQuickSlot();
+        _quickSlotUI.InitQuickSlotUI();
     }
 
+   
     private void OnEnable()
     {
         for (int i = 0; i < _quickSlot.Count; i++)
@@ -31,6 +32,7 @@ public class QuickSlot : MonoBehaviour
             {
                 _quickSlot[i] = item;
                 _quickSlotUI.SetSlotImage(i);
+                _quickSlotUI.SetQuickSlot();
 
                 return true;
             }

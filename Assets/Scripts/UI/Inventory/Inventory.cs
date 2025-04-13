@@ -34,6 +34,8 @@ public class Inventory : MonoBehaviour
     /// <summary> 인벤토리 닫기 </summary>
     public void CloseInventory() => gameObject.SetActive(false);
 
+    public void OpenQuickSlotPanel() => _quickSlot.gameObject.SetActive(true);
+
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
     /// <summary> 인벤 초기화 </summary>
@@ -53,6 +55,11 @@ public class Inventory : MonoBehaviour
             {
                 AddItem(item.Data);
             }
+        }
+
+        if (_quickSlot)
+        {
+            _quickSlot.InitQuickSlot();
         }
     }
 

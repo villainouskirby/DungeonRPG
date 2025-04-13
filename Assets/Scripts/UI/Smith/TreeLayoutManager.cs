@@ -25,7 +25,7 @@ public class TreeLayoutManager : MonoBehaviour
 
     private Vector2 GetContentPos(Vector2 grid)
     {
-        return new Vector2(_startPosition.x - (2 * grid.x * _cellSize.x), _startPosition.y - (2 * grid.y * _cellSize.y));
+        return new Vector2(_startPosition.x + (2 * grid.x * _cellSize.x), _startPosition.y - (2 * grid.y * _cellSize.y));
     }
 
     /// <summary> 생성된 슬롯 위치 설정 </summary>

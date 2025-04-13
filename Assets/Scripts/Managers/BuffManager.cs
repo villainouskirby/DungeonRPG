@@ -18,12 +18,17 @@ public class BuffManager : MonoBehaviour
     /// <summary>
     /// 버프 아이콘 생성
     /// </summary>
-    public void CreateBuff(BuffType type, float percentage, float duration, Sprite icon)
+    public void CreateBuff(int buffID, float percentage, float duration, Sprite icon)
     {
-        
+        BuffType type = buffID switch
+        {
+            1 => BuffType.AttackUp,
+            2 => BuffType.AttackDown,
+            _ => BuffType.AttackUp
+        };
         GameObject go = Instantiate(buffPrefab, transform);
         go.GetComponent<Image>().sprite = icon;
-        BuffImage buffImage = go.GetComponent<BuffImage>();
+        BaseBuff buffImage = go.GetComponent<BaseBuff>();
         buffImage.Init(type, percentage, duration);
     }
 }

@@ -10,11 +10,24 @@ public class QuickSlotInGameUI : MonoBehaviour
     [SerializeField] private ItemsSO _quickSlotList;
 
     private List<Item> _items => _quickSlotList.Items;
-    private List<int> _itemIndexList = new List<int>() { 0 };
+    private List<int> _itemIndexList = new List<int>();
     private int _slotCount => _itemIndexList.Count;
 
     private int _currentIndex = 0;
-    private int _actualIndex => _itemIndexList.Count != 0 ? _itemIndexList[_currentIndex] : 0;
+    private int _actualIndex
+    {
+        get
+        {
+            if (_slotCount == 0 || _slotCount <= _currentIndex)
+            {
+                _currentIndex = 0;
+
+                if (_slotCount == 0) return 0;
+            }
+
+            return _itemIndexList[_currentIndex];
+        }
+    }
 
     private void Start()
     {
@@ -23,6 +36,8 @@ public class QuickSlotInGameUI : MonoBehaviour
 
     private void Update()
     {
+        if (_slotCount == 0) return;
+
         if (Input.GetKeyUp(KeyCode.Alpha1))
         {
             _currentIndex = (_currentIndex - 1 + _slotCount) % _slotCount;
@@ -34,7 +49,7 @@ public class QuickSlotInGameUI : MonoBehaviour
             if (((IUsableItem)_items[_actualIndex]).Use())
             {
                 _quickSlotUI.RemoveSlot(_actualIndex);
-                _currentIndex = (_currentIndex + 1) % _slotCount;
+                _itemIndexList.RemoveAt(_currentIndex);
                 SetSlotSprite(_actualIndex);
             }
         }

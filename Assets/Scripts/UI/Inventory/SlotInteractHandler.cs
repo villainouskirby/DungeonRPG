@@ -14,7 +14,7 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
     // 더블클릭 감지용 시간 저장
     protected float clickTime = 0;
     
-    protected void Awake()
+    protected virtual void Awake()
     {
         _raycaster = GetGraphicRaycasterFromParent();
         _rrList = new List<RaycastResult>();
