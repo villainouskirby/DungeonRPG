@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class VariableSO<T> : ScriptableObject
 {
-    [SerializeField] private T value;
+    [SerializeField] protected T value;
 
     /// <summary> 값이 변하면 Invoke 된다. </summary>
     public event ValueChanged OnValueChanged;
 
-    public T Value
+    public virtual T Value
     {
         get => value;
         set
