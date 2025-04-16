@@ -14,7 +14,7 @@ public class BaseBuff : MonoBehaviour
     private float percentage;
     public void Awake()
     {
-        playerData = FindObjectOfType<PlayerData>();  // 첫 한 번만
+        playerData = FindObjectOfType<PlayerData>();
         icon = GetComponent<Image>();
     }
     /// <summary>
