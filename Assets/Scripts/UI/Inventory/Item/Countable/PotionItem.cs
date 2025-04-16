@@ -15,16 +15,7 @@ public class PotionItem : CountableItem, IUsableItem
     {
         if (Amount > 0)
         {
-            if (Data.ID <= 10) // 1~10은 버프 포션
-            {
-                // ID에 따른 버프 종류는 BuffManager에서 할당
-                BuffManager.instance.CreateBuff(Data.ID, ((PotionItemData)Data).Percentage, ((PotionItemData)Data).Duration, Data.IconSprite);
-                
-            }
-            else if (Data.ID <= 20) // 11~20은 HP 회복 포션
-            {
-                PlayerData.instance.HPValueChange(((PotionItemData)Data).Healamount);
-            }
+            PotionManager.instance.GetPotionID(Data);
             Amount--;
             return true;
         }

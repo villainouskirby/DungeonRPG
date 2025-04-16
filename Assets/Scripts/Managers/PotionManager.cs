@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BuffManager : MonoBehaviour
+public class PotionManager : MonoBehaviour
 {
-    public static BuffManager instance;
+    public static PotionManager instance;
 
     [Header("버프 아이콘 프리팹")]
     public GameObject buffPrefab;
@@ -14,7 +14,19 @@ public class BuffManager : MonoBehaviour
     {
         instance = this;
     }
+    public void GetPotionID(ItemData data)
+    {
+        PotionItemData piData = data as PotionItemData;
 
+        if (piData.ID <= 10)
+        {
+            CreateBuff(piData.ID, piData.Percentage, piData.Duration, piData.IconSprite);
+        }
+        else if (piData.ID <= 20) 
+        {
+            PlayerData.instance.HPValueChange(piData.Healamount);
+        }
+    }
     /// <summary>
     /// 버프 아이콘 생성
     /// </summary>
