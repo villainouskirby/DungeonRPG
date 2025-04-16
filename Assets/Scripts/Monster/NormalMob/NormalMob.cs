@@ -19,7 +19,7 @@ public class NormalMob : MonoBehaviour
     [SerializeField] private float detectSpeed = 1f;   // 소리를 듣고 탐색 중
     [SerializeField] private float combatSpeed = 3f;   // 전투 시
 
-    // **스포너와의 거리 관련**
+    // 스포너와의 거리 관련
     [SerializeField] private float maxSpawnerDistance = 15f; // 이 거리 이상 멀어지면 Return
     [SerializeField] private float nearSpawnerDistance = 2f; // 이 거리 안에 도달하면 도착으로 간주
 
@@ -115,7 +115,7 @@ public class NormalMob : MonoBehaviour
         }
     }
 
-    // 2) Detect: 소리 감지 지점으로 이동
+    // Detect: 소리 감지 지점으로 이동
     private IEnumerator Detect()
     {
         PlayAnimation("WalkFWD");

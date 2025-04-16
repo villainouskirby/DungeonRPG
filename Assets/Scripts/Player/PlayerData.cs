@@ -27,6 +27,18 @@ public class PlayerData : MonoBehaviour
     private void Start()
     {
     }
+
+    private void Update()
+    {
+        if (currentHP.Value > 100f)
+        {
+            currentHP.Value = 100f;
+        }
+        if (currentStamina.Value > 100f)
+        {
+            currentStamina.Value = 100f;
+        }
+    }
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
     {
