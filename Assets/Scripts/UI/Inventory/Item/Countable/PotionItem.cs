@@ -17,12 +17,13 @@ public class PotionItem : CountableItem, IUsableItem
         {
             if (Data.ID <= 10) // 1~10은 버프 포션
             {
-                BuffManager.instance.CreateBuff(Data.ID, percentage: 0.4f, duration: 10f, Data.IconSprite);
-                //TODO : 스크립터블 오브젝트에서 포션 데이터 얻는 로직 고민해보기
+                // ID에 따른 버프 종류는 BuffManager에서 할당
+                BuffManager.instance.CreateBuff(Data.ID, ((PotionItemData)Data).Percentage, ((PotionItemData)Data).Duration, Data.IconSprite);
+                
             }
             else if (Data.ID <= 20) // 11~20은 HP 회복 포션
             {
-                PlayerData.instance.HPValueChange(10f); //TODO : 스크립터블 오브젝트에서 힐량 얻기
+                PlayerData.instance.HPValueChange(((PotionItemData)Data).Healamount);
             }
             Amount--;
             return true;
