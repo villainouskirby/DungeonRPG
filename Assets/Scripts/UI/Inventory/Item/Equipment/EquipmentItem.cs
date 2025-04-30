@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+
 public abstract class EquipmentItem : Item, IUsableItem
 {
     public EquipmentItemData EquipmentData { get; private set; }

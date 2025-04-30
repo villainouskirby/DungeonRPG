@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+
 public class PotionItem : CountableItem, IUsableItem
 {
     public PotionItemData PotionData { get; private set; }
@@ -11,14 +13,20 @@ public class PotionItem : CountableItem, IUsableItem
         return new PotionItem(PotionData, amount);
     }
 
-    public bool Use()
+    public async UniTask<bool> AsyncUse()
     {
         if (Amount > 0)
         {
-            PotionManager.instance.GetPotionID(Data);
+            await PotionManager.instance.GetPotionID(Data);
             Amount--;
             return true;
         }
         else return false;
+    }
+
+    public bool Use()
+    {
+        AsyncUse();
+        return true;
     }
 }

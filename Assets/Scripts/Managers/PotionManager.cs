@@ -1,7 +1,10 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 public class PotionManager : MonoBehaviour
 {
@@ -14,9 +17,11 @@ public class PotionManager : MonoBehaviour
     {
         instance = this;
     }
-    public void GetPotionID(ItemData data)
+    public async UniTask<bool> GetPotionID(ItemData data)
     {
         PotionItemData piData = data as PotionItemData;
+
+        if (!await Drink()) return false;
 
         if (piData.ID <= 10)
         {
@@ -26,7 +31,28 @@ public class PotionManager : MonoBehaviour
         {
             PlayerData.instance.HPValueChange(piData.Healamount);
         }
+
+        return true;
+
     }
+
+    private async UniTask<bool> Drink()
+    {
+        float timeSum = 0;
+
+        while (timeSum < 2)
+        {
+            // 피격감지 => 피격시 false 반환
+
+            float deltaTime = Time.deltaTime;
+            timeSum += deltaTime;
+            await UniTask.WaitForSeconds(deltaTime);
+        }
+
+        return true;
+
+    }
+
     /// <summary>
     /// 버프 아이콘 생성
     /// </summary>

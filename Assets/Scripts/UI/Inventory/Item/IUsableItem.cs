@@ -1,4 +1,4 @@
 public interface IUsableItem
 {
-    bool Use();
+    public bool Use();
 }
