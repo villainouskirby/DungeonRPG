@@ -11,9 +11,9 @@ public class FloatMaxVaraibleSO : VariableSO<float>
     {
         set
         {
-            if (!EqualityComparer<float>.Default.Equals(base.value, value))
+            if (!EqualityComparer<float>.Default.Equals(base.Value, value))
             {
-                base.value = Mathf.Min(base.value + value, _maxValue);
+                base.Value = Mathf.Min(base.Value + value, _maxValue);
             }
         }
     }

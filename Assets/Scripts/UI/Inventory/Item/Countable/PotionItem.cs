@@ -13,20 +13,15 @@ public class PotionItem : CountableItem, IUsableItem
         return new PotionItem(PotionData, amount);
     }
 
-    public async UniTask<bool> AsyncUse()
+    public async UniTask<bool> Use()
     {
         if (Amount > 0)
         {
-            await PotionManager.instance.GetPotionID(Data);
+            if (!await PotionManager.instance.GetPotionID(Data)) return false;
+
             Amount--;
             return true;
         }
         else return false;
-    }
-
-    public bool Use()
-    {
-        AsyncUse();
-        return true;
     }
 }
