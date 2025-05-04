@@ -13,7 +13,9 @@ public class MonsterData : ScriptableObject
     [Header("이동 / 시야")]
     public float detectSpeed = 1f;
     public float combatSpeed = 3f;
+    public float FleeSpeed = 3f;
     public float stoppingDistance = 1f;
+    public float sightDistance = 6f;
     public float lostDistance = 5f;
 
     [Header("스포너")]
@@ -21,5 +23,5 @@ public class MonsterData : ScriptableObject
     public float nearSpawnerDist = 2f;
 
     //[Header("애니메이터")]
-    //public RuntimeAnimatorController animator;
+    public RuntimeAnimatorController animator;
 }
