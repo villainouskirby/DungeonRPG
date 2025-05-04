@@ -41,20 +41,30 @@ public class BeetleMonster : MonsterBase
 
         while (t < fleeTime && state == State.Flee)
         {
-            if (!player) { ChangeState(State.Return); yield break; }
-            if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
 
             // ── 도망 목적지 계산 ───────────────────────
             Vector2 away = (transform.position - player.position).normalized;
-            Vector2 perp = Vector2.Perpendicular(away).normalized;      // cos ≈ 0
-            // dot 계산해가며 왼쪽·오른쪽 중 더 멀리 갈 방향을 택함
-            Vector2 dir =
-                (Vector2.Dot(perp, player.right) > 0f) ? perp : -perp;
+            Vector2 bestDir = Vector2.zero;
+            float bestScore = 1f;  // dot이 -1에 가까운 게 목표니까 초기값은 1
 
-            float fleeDist = 4f; // 한 번에 4m 정도 이동
-            Vector3 dest = transform.position + (Vector3)dir * fleeDist;
+            int numSamples = 16;
+            for (int i = 0; i < numSamples; i++)
+            {
+                float angle = (360f / numSamples) * i;
+                Vector2 sampleDir = Quaternion.Euler(0f, 0f, angle) * Vector2.right;
+
+                // 도망 방향이어야 함 (플레이어로부터 멀어지는 쪽)
+                if (Vector2.Dot(sampleDir, away) <= 0f) continue;
+
+                float score = Vector2.Dot(sampleDir.normalized, player.right.normalized);
+                if (score < bestScore)  // 더 -1에 가까운 걸 선택
+                {
+                    bestScore = score;
+                    bestDir = sampleDir;
+                }
+            }
+            Vector3 dest = transform.position + (Vector3)bestDir.normalized * 4f;
             agent.SetDestination(dest);
-
             // 다음 목적지를 1초 주기로 새로 잡는다
             float interval = 1f;
             float intTimer = 0f;

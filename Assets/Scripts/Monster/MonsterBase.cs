@@ -16,6 +16,7 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected enum State { Idle, Detect, Combat, Flee, Return, Escaped, Killed }
     protected State state;
+    Coroutine stateRoutine;
     protected Vector3 detectedPos;   // Detect 시 목표 지점
 
     /* ----------- 애니메이션 이름(하위 클래스별 상이) ----------- */
@@ -38,12 +39,20 @@ public abstract class MonsterBase : MonoBehaviour
 
         if (data.animator) anim.runtimeAnimatorController = data.animator;
     }
-
+    
     protected virtual void Start()
     {
-        ChangeState(State.Idle);
-        StartCoroutine(StateMachine());
+        StartState(State.Idle);      // 처음 상태
     }
+
+    void StartState(State s)
+    {
+        if (stateRoutine != null) StopCoroutine(stateRoutine);
+        state = s;
+        stateRoutine = StartCoroutine(s.ToString());
+    }
+
+    
     #endregion
 
     #region 상태 머신
@@ -56,6 +65,15 @@ public abstract class MonsterBase : MonoBehaviour
             yield return StartCoroutine(nameof(Killed));
         else if (state == State.Escaped)
             yield return StartCoroutine(nameof(Escaped));
+    }
+    IEnumerator BreakableWait(float seconds, State myState)
+    {
+        float t = 0f;
+        while (t < seconds && state == myState)
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
     }
 
     /* ----- Idle ----- */
@@ -77,10 +95,25 @@ public abstract class MonsterBase : MonoBehaviour
             agent.SetDestination(dest);
 
             Play(WalkAnim);
-            yield return WaitUntilReached();
+            float timeout = 1f;
+            float timer = 0f;
+
+            while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance) // 해당 로직으로 목표한 지점까지 계속 가려는 무한루프 끝낼수있음
+            {
+                if (state != State.Idle) yield break;
+
+                timer += Time.deltaTime;
+                if (timer > timeout)
+                {
+                    Debug.Log("Idle 산책 타임아웃: 경로 도달 실패 → 다음 이동");
+                    break;
+                }
+
+                yield return null;
+            }
 
             Play(IdleAnim);
-            yield return new WaitForSeconds(Random.Range(1f, 3f));
+            yield return BreakableWait(Random.Range(1f, 3f), State.Idle);
         }
     }
 
@@ -91,15 +124,15 @@ public abstract class MonsterBase : MonoBehaviour
         agent.speed = data.detectSpeed;
         agent.SetDestination(detectedPos);
 
-        float timer = 0f, dur = 5f;
-        while (timer < dur && state == State.Detect)
+        while (state == State.Detect)
         {
             if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
-            if (CanSeePlayer(player, data.stoppingDistance))
+
+            if (player && CanSeePlayer(player, data.stoppingDistance))
             {
                 ChangeState(State.Combat); yield break;
             }
-            timer += Time.deltaTime;
+
             yield return null;
         }
         ChangeState(State.Return);
@@ -175,7 +208,11 @@ public abstract class MonsterBase : MonoBehaviour
     #endregion
 
     #region 공통 메서드
-    protected void ChangeState(State s) => state = s;
+    protected void ChangeState(State s)
+    {
+        if (state == s) return;
+        StartState(s);
+    }
 
     protected bool CanSeePlayer(Transform tgt, float maxDist)
     {
