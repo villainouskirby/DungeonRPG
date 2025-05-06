@@ -11,7 +11,7 @@ public class DataLoader : MonoBehaviour, ITileMapBase
     [ContextMenu("Make New Slot")]
     public void NewSlot()
     {
-        for (int i = 0; i < (int)MapEnum.Map1 + 1; i++)
+        for (int i = 0; i < (int)MapEnum.Map2 + 1; i++)
         {
             TileMapData oriData;
             JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", ExtractorMaster.DataFileDirectory);

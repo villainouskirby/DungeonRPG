@@ -9,7 +9,8 @@ public class TileMapController : MonoBehaviour
         if (_tileMaterial == null)
         {
             SpriteRenderer rend = GetComponent<SpriteRenderer>();
-            if (rend != null) _tileMaterial = rend.sharedMaterial;
+            Material layerTileMapMaterial = rend.material;
+            if (rend != null) _tileMaterial = layerTileMapMaterial;
         }
 
         _tileMaterial.SetBuffer("_MapDataBuffer", buffer);

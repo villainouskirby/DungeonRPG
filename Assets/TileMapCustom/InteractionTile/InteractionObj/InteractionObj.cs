@@ -7,6 +7,7 @@ public class InteractionObj
 {
     public InteractionEnum Type;
     public Vector2 TilePos;
+    public float Z;
 
     public InteractionObj(InteractionTile interactionTile)
     {
@@ -14,6 +15,7 @@ public class InteractionObj
         int tileY = Mathf.FloorToInt((interactionTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
         Type = interactionTile.Type;
+        Z = interactionTile.Z;
     }
 
     public InteractionObj()

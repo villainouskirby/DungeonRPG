@@ -5,8 +5,8 @@ Shader "Test/Test"
         _MainTex("Diffuse", 2D) = "white" {}
         _MaskTex("Mask", 2D) = "white" {}
         _NormalMap("Normal Map", 2D) = "bump" {}
+        _DefaultColor("DefaultColor", color) = (0, 0, 0, 1)
 
-        // Legacy properties. They're here so that materials using this shader can gracefully fallback to the legacy sprite shader.
         [HideInInspector] _Color("Tint", Color) = (1,1,1,1)
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
         [HideInInspector] _Flip("Flip", Vector) = (1,1,1,1)
@@ -52,8 +52,11 @@ Shader "Test/Test"
                 half4   color       : COLOR;
                 float2  uv          : TEXCOORD0;
                 half2   lightingUV  : TEXCOORD1;
+                float2  tilePos     : TEXCOORD2;
+                float2  worldPos    : TexCOORD3;
+                nointerpolation int2 playerTilePos : TEXCOORD4;
                 #if defined(DEBUG_DISPLAY)
-                float3  positionWS  : TEXCOORD2;
+                float3  positionWS  : TEXCOORD5;
                 #endif
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -107,16 +110,11 @@ Shader "Test/Test"
             SHAPE_LIGHT(3)
             #endif
 
-            float4 MySampleTex2DArray(Texture2DArray tex, SamplerState samp, float3 uvw, float4 defaultColor)
+
+            int PosToIndex(int2 pos, int sizeX)
             {
-                if(uvw.z < 0.5)
-                {
-                    return defaultColor;
-                }
-                else
-                {
-                    return tex.Sample(samp, uvw);
-                }
+                // indexing [x, y] to Row Array
+                return mad(pos.y, sizeX, pos.x);
             }
 
 
@@ -134,6 +132,15 @@ Shader "Test/Test"
                 o.lightingUV = half2(ComputeScreenPos(o.positionCS / o.positionCS.w).xy);
 
                 o.color = v.color * _Color * _RendererColor;
+
+                // TileMap Logic
+                float scaleX = length(float3(unity_ObjectToWorld._m00, unity_ObjectToWorld._m10, unity_ObjectToWorld._m20));
+                float scaleY = length(float3(unity_ObjectToWorld._m01, unity_ObjectToWorld._m11, unity_ObjectToWorld._m21));
+                float2 cameraCorrectWorldPos = float2(scaleX * v.positionOS.x, scaleY * v.positionOS.y) + _TileMapTargetCamera.xy;
+                o.worldPos = cameraCorrectWorldPos;
+                o.tilePos = cameraCorrectWorldPos / _TileSize;
+                o.playerTilePos = floor(_PlayerPos / _TileSize);
+
                 return o;
             }
 
@@ -141,7 +148,37 @@ Shader "Test/Test"
 
             half4 CombinedShapeLightFragment(Varyings i) : SV_Target
             {
-                const half4 main = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
+                //TileMap Logic
+                int2 chunkPos = floor(i.tilePos / _ChunkSize);
+
+                int sideViewChunkSize = (int)((_ViewChunkSize - 1) * 0.5);
+
+                int2 localChunkPos = chunkPos - int2(_CenterChunkX, _CenterChunkY) + sideViewChunkSize;
+                float2 localPos = fmod(i.tilePos, _ChunkSize);
+                int2 localTileIndex = floor(localPos);
+                float2 tileUV = frac(i.tilePos);
+
+                int localChunkIndex = PosToIndex(localChunkPos, _ViewChunkSize);
+                int localChunkOffset = _MappingBuffer[localChunkIndex];
+
+                int2 distance = abs(_PlayerPos - i.worldPos);
+                int maxDistance = max(distance.x, distance.y);
+                
+                float validCoord = step(maxDistance, _ViewBoxSize);
+
+                int index = localChunkOffset * _ChunkSize * _ChunkSize + PosToIndex(localTileIndex, _ChunkSize);
+                index = validCoord * index;
+
+                int tileType = _MapDataBuffer[index];
+
+                float validTile = step(-0.5, tileType);
+                int safeTileType = clamp(tileType, 0, _TextureSize - 1);
+
+                float valid = validCoord * validTile;
+
+                float4 targetColor = _TileTexture.Sample(sampler_TileTexture, float3(tileUV, safeTileType));
+
+                const half4 main = i.color * targetColor;
                 const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, i.uv);
                 SurfaceData2D surfaceData;
                 InputData2D inputData;
@@ -149,145 +186,7 @@ Shader "Test/Test"
                 InitializeSurfaceData(main.rgb, main.a, mask, surfaceData);
                 InitializeInputData(i.uv, i.lightingUV, inputData);
 
-                // 기본 라이팅 계산 결과를 반환
-                return CombinedShapeLightShared(surfaceData, inputData);
-            }
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Tags { "LightMode" = "NormalsRendering"}
-
-            HLSLPROGRAM
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            #pragma vertex NormalsRenderingVertex
-            #pragma fragment NormalsRenderingFragment
-
-            struct Attributes
-            {
-                float3 positionOS   : POSITION;
-                float4 color        : COLOR;
-                float2 uv           : TEXCOORD0;
-                float4 tangent      : TANGENT;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float4  positionCS      : SV_POSITION;
-                half4   color           : COLOR;
-                float2  uv              : TEXCOORD0;
-                half3   normalWS        : TEXCOORD1;
-                half3   tangentWS       : TEXCOORD2;
-                half3   bitangentWS     : TEXCOORD3;
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
-            TEXTURE2D(_NormalMap);
-            SAMPLER(sampler_NormalMap);
-            half4 _NormalMap_ST;  // Is this the right way to do this?
-
-            Varyings NormalsRenderingVertex(Attributes attributes)
-            {
-                Varyings o = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(attributes);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-
-                o.positionCS = TransformObjectToHClip(attributes.positionOS);
-                o.uv = TRANSFORM_TEX(attributes.uv, _NormalMap);
-                o.color = attributes.color;
-                o.normalWS = -GetViewForwardDir();
-                o.tangentWS = TransformObjectToWorldDir(attributes.tangent.xyz);
-                o.bitangentWS = cross(o.normalWS, o.tangentWS) * attributes.tangent.w;
-                return o;
-            }
-
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/NormalsRenderingShared.hlsl"
-
-            half4 NormalsRenderingFragment(Varyings i) : SV_Target
-            {
-                const half4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
-                const half3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, i.uv));
-
-                return NormalsRenderingShared(mainTex, normalTS, i.tangentWS.xyz, i.bitangentWS.xyz, i.normalWS.xyz);
-            }
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Tags { "LightMode" = "UniversalForward" "Queue"="Transparent" "RenderType"="Transparent"}
-
-            HLSLPROGRAM
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            #pragma vertex UnlitVertex
-            #pragma fragment UnlitFragment
-
-            struct Attributes
-            {
-                float3 positionOS   : POSITION;
-                float4 color        : COLOR;
-                float2 uv           : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float4  positionCS      : SV_POSITION;
-                float4  color           : COLOR;
-                float2  uv              : TEXCOORD0;
-                #if defined(DEBUG_DISPLAY)
-                float3  positionWS  : TEXCOORD2;
-                #endif
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
-            float4 _MainTex_ST;
-            float4 _Color;
-            half4 _RendererColor;
-
-            Varyings UnlitVertex(Attributes attributes)
-            {
-                Varyings o = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(attributes);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-
-                o.positionCS = TransformObjectToHClip(attributes.positionOS);
-                #if defined(DEBUG_DISPLAY)
-                o.positionWS = TransformObjectToWorld(attributes.positionOS);
-                #endif
-                o.uv = TRANSFORM_TEX(attributes.uv, _MainTex);
-                o.color = attributes.color * _Color * _RendererColor;
-                return o;
-            }
-
-            float4 UnlitFragment(Varyings i) : SV_Target
-            {
-                float4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
-
-                #if defined(DEBUG_DISPLAY)
-                SurfaceData2D surfaceData;
-                InputData2D inputData;
-                half4 debugColor = 0;
-
-                InitializeSurfaceData(mainTex.rgb, mainTex.a, surfaceData);
-                InitializeInputData(i.uv, inputData);
-                SETUP_DEBUG_DATA_2D(inputData, i.positionWS);
-
-                if(CanDebugOverrideOutputColor(surfaceData, inputData, debugColor))
-                {
-                    return debugColor;
-                }
-                #endif
-
-                return mainTex;
+                return lerp(_DefaultColor, CombinedShapeLightShared(surfaceData, inputData), valid);
             }
             ENDHLSL
         }

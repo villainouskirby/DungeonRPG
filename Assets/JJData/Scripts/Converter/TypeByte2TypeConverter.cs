@@ -151,6 +151,8 @@ public partial class TypeByte2TypeConverter
 
         TextureFormat texFormat = (TextureFormat)Enum.Parse(typeof(TextureFormat), format);
         Texture2D tex = new Texture2D(width, height, texFormat, mipmapCount > 1);
+        tex.filterMode = FilterMode.Point;
+        tex.wrapMode = TextureWrapMode.Clamp;
         tex.LoadRawTextureData(rawData);
         tex.Apply();
 

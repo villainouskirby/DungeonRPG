@@ -86,9 +86,11 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public Span<int> GetViewBoxData(int layerIndex)
     {
-        return new Span<int>(LoadedChunkData,
+        var a = new Span<int>(LoadedChunkData,
             GetLayerChunkStartIndex(layerIndex, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
             DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize);
+
+        return a;
     }
 
     public int[] GetMappingArray()
@@ -140,14 +142,27 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         {
             // 사라질 청크들의 유산을 이어 받는다..
             LoadedChunkIndex.Add(added[i], LoadedChunkIndex[removed[i]]);
-            LoadedChunkIndex.Remove(removed[i]);
 
             for (int j = 0; j < DL.Instance.All.LayerCount; j++)
             {
                 int offset = GetLayerChunkStartIndex(j, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
-                offset += Pos2ArrayIndex(GetLocalChunkPos(added[i], NewChunkPos), _viewChunkSize) * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
+                offset += LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
                 LoadChunkFromStream(added[i], j).CopyTo(LoadedChunkData.AsSpan(offset));
             }
+
+            LoadedChunkIndex.Remove(removed[i]);
+        }
+
+        SetMapBuffer();
+    }
+
+    private void SetMapBuffer()
+    {
+        for(int i = 0; i < DL.Instance.All.LayerCount; i++)
+        {
+            int offset = GetLayerChunkStartIndex(i, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
+            Span<int> data = LoadedChunkData.AsSpan(offset, DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize);
+            MapManager.Instance.ChangeMapData(data, i);
         }
     }
 

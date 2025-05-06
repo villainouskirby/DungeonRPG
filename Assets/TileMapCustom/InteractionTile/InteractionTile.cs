@@ -7,4 +7,5 @@ public class InteractionTile : MonoBehaviour
 {
     [Header("Interaction Settings")]
     public InteractionEnum Type;
+    public float Z;
 }

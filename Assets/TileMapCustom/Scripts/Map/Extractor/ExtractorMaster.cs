@@ -15,6 +15,7 @@ public class ExtractorMaster : MonoBehaviour
     static public int           ChunkSize = 16;
 
     public GameObject           LayerRoot;
+    public MapEnum              Map;
 
     [Header("Layer Wall Settings")]
     public List<Sprite>         WallType;
@@ -28,6 +29,7 @@ public class ExtractorMaster : MonoBehaviour
 
     private void Start()
     {
+        MapType = Map;
         Extract();
     }
 

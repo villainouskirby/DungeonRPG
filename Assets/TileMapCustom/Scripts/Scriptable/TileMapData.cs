@@ -29,6 +29,8 @@ public class TileMapDataAll
     public Texture2D[] MapTexture;
     // MapSetting 데이터
     public MapSettings Setting;
+    // Deco 데이터
+    public Dictionary<Vector2Int, List<DecoObjData>> decoObjData;
 
     // Wall, LayerIndex 데이터
     public TileMapLayerInfo[] TileMapLayerInfo;
@@ -65,4 +67,5 @@ public class TileMapLayerInfo
 {
     public int LayerIndex;
     public int[] WallTileIndex;
+    public float Z;
 }
