@@ -47,6 +47,9 @@ public class MapManager : MonoBehaviour, ITileMapBase
             Instantiate(TileMapPrefab, TM.Instance.LayerRoot.transform, false).GetComponent<TileMapController>();
             SetDataBuffer(ref _layerBuffer[i], i);
             _controller[i].InitTileMap(_layerBuffer[i]);
+            SpriteRenderer rd = _controller[i].GetComponent<SpriteRenderer>();
+            rd.sortingOrder = DL.Instance.All.TileMapLayerInfo[i].LayerIndex;
+            _controller[i].transform.position = new(0, 0, DL.Instance.All.TileMapLayerInfo[i].Z);
         }
 
         SetMapDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
@@ -55,6 +58,11 @@ public class MapManager : MonoBehaviour, ITileMapBase
     public void ChangeMapping()
     {
         _mappingBuffer.SetData(CM.Instance.GetMappingArray());
+    }
+
+    public void ChangeMapData(Span<int> data, int layer)
+    {
+        ChangeMapDataBuffer(data, _layerBuffer[layer]);
     }
 
     public void StartMap(MapEnum type)
@@ -120,6 +128,8 @@ public class MapManager : MonoBehaviour, ITileMapBase
 
         Texture2DArray tileTextureArray = new(width, height, tileTexture.Length, format, mipChain);
         tileTextureArray.anisoLevel = 1;
+        tileTextureArray.filterMode = FilterMode.Point;
+        tileTextureArray.wrapMode = TextureWrapMode.Clamp;
 
         for (int i = 0; i < tileTexture.Length; i++)
         {
@@ -148,6 +158,6 @@ public class MapManager : MonoBehaviour, ITileMapBase
     /// </summary>
     private void SetDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
-        SetMapDataBuffer(ChunkManager.Instance.GetViewBoxData(layer), ref buffer);
+        SetMapDataBuffer(CM.Instance.GetViewBoxData(layer), ref buffer);
     }
 }

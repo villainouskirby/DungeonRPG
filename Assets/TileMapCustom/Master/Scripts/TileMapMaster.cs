@@ -31,7 +31,7 @@ public class TileMapMaster : MonoBehaviour
     public void Awake()
     {
         Init();
-        StartTileMap(MapEnum.Map1);
+        StartTileMap(MapEnum.Map2);
     }
 
 

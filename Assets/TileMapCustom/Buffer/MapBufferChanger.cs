@@ -30,9 +30,9 @@ public static class MapBufferChanger
         buffer.SetData(mapData.ToArray());
     }
 
-    public static void ChangeMapDataBuffer(int[] mapData, GraphicsBuffer buffer)
+    public static void ChangeMapDataBuffer(Span<int> mapData, GraphicsBuffer buffer)
     {
-        buffer.SetData(mapData);
+        buffer.SetData(mapData.ToArray());
     }
 
     /*

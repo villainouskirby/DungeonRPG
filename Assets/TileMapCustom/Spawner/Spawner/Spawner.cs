@@ -10,6 +10,7 @@ public class Spawner
     public float        MinRange;
     public float        MaxRange;
     public Vector2Int   TilePos;
+    public float        Z;
     public float        CoolTime;
     public SpawnerType  Type;
 
@@ -61,7 +62,7 @@ public class Spawner
         if (target == null)
             return;
 
-        target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, 0);
+        target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, Z);
         IsIdentify = true;
         SpawnObj.SetActive(true);
     }
@@ -74,6 +75,7 @@ public class Spawner
     public virtual void SpawnerReset()
     {
         CurrentTime = 0;
+        Z = 0;
         IsSpawn = false;
         IsIdentify = false;
         SpawnObj = null;
@@ -84,6 +86,7 @@ public class Spawner
         int tileX = Mathf.FloorToInt((spawnerTile.transform.position.x) / 1f);
         int tileY = Mathf.FloorToInt((spawnerTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
+        Z = spawnerTile.transform.position.z;
         CoolTime = spawnerTile.CoolTime;
         Type = spawnerTile.Type;
         if (spawnerTile.CustomSpawn)

@@ -6,6 +6,7 @@ using System.IO;
 using EM = ExtractorMaster;
 using System.Linq;
 using System;
+using UnityEngine.UIElements;
 
 public class TileMapExtractor : MonoBehaviour, IExtractor
 {
@@ -26,9 +27,6 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         {
             Tilemap[i].CompressBounds();
             BoundsInt bounds = Tilemap[i].cellBounds;
-            Debug.Log($"layer{i}");
-            Debug.Log(bounds.size.x);
-            Debug.Log(bounds.size.y);
             if (bounds.size.x == 0 && bounds.size.y == 0)
             {
                 emptyList.Add(i);
@@ -67,6 +65,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
             TileMapLayerData layerData = ExtractLayerToTileMapData(Tilemap[i], size, chunkSize);
             mapData.All.TileMapLayerInfo[i] = new();
             mapData.All.TileMapLayerInfo[i].LayerIndex = Tilemap[i].gameObject.GetComponent<TilemapRenderer>().sortingOrder;
+            mapData.All.TileMapLayerInfo[i].Z = Tilemap[i].transform.position.z;
             mapData.LayerData[i] = layerData;
         }
 
@@ -93,8 +92,8 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
         // Data Info
         // Header
-        int[] tileData = new int[1 + size.x * size.y];
-        Array.Fill(tileData, -1);
+        int[] tileData = new int[size.x * size.y];
+        Array.Fill(tileData, 0);
 
         TileBase[] tiles = targetLayer.GetTilesBlock(bounds);
 
@@ -118,7 +117,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
                 if (tileBase == null)
                 {
-                    tileData[index] = -1;
+                    tileData[index] = 0;
                     continue;
                 }
                 else if (tileBase is Tile tile)
@@ -146,11 +145,11 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
     public int AddorGetSpriteIndex(Sprite sprite)
     {
         if (_sprites.Contains(sprite))
-            return _sprites.IndexOf(sprite);
+            return _sprites.IndexOf(sprite) + 1; // 0은 기본 이미지가 들어가야함으로 1 추가하고 계산
         else
         {
             _sprites.Add(sprite);
-            return _sprites.Count - 1;
+            return _sprites.Count;
         }
     }
 
@@ -166,19 +165,32 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
     public Texture2D[] ConvertSprite2Texture2D(List<Sprite> sprite)
     {
-        Texture2D[] result = new Texture2D[sprite.Count];
+        Texture2D[] result = new Texture2D[sprite.Count + 1];
 
-        for(int i = 0; i < sprite.Count; i++)
+        Rect defaultRect = sprite[0].rect;
+        Texture2D defaultTex = new((int)defaultRect.width, (int)defaultRect.height, TextureFormat.RGBA32, false);
+        defaultTex.filterMode = FilterMode.Point;
+        Color[] clearColors = new Color[defaultTex.width * defaultTex.height];
+        for (int i = 0; i < clearColors.Length; i++)
+        {
+            clearColors[i] = Color.clear;
+        }
+        defaultTex.SetPixels(clearColors);
+        defaultTex.Apply();
+        result[0] = defaultTex;
+
+        for (int i = 0; i < sprite.Count; i++)
         {
             Rect rect = sprite[i].rect;
             Texture2D sourceTex = sprite[i].texture;
 
             Texture2D newTex = new((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+            newTex.filterMode = FilterMode.Point;
             Color[] newTexColor = sourceTex.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
             newTex.SetPixels(newTexColor);
             newTex.Apply();
 
-            result[i] = newTex;
+            result[i + 1] = newTex;
         }
 
         return result;
