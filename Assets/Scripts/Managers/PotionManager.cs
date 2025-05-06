@@ -1,7 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,10 +14,16 @@ public class PotionManager : MonoBehaviour
     {
         instance = this;
     }
+
+    private bool isDrinking = false;
+
     public async UniTask<bool> GetPotionID(ItemData data)
     {
-        PotionItemData piData = data as PotionItemData;
+        if (isDrinking) return false;
+        isDrinking = true;
 
+        PotionItemData piData = data as PotionItemData;
+        
         if (!await Drink()) return false;
 
         if (piData.ID <= 10)
@@ -32,25 +35,23 @@ public class PotionManager : MonoBehaviour
             PlayerData.instance.HPValueChange(piData.Healamount);
         }
 
-        return true;
+        isDrinking = false;
 
+        return true;
     }
 
     private async UniTask<bool> Drink()
     {
-        float timeSum = 0;
+        float startTime = Time.time;
 
-        while (timeSum < 2)
+        while (Time.time - startTime < 2)
         {
             // 피격감지 => 피격시 false 반환
 
-            float deltaTime = Time.deltaTime;
-            timeSum += deltaTime;
-            await UniTask.WaitForSeconds(deltaTime);
+            await UniTask.NextFrame();
         }
 
         return true;
-
     }
 
     /// <summary>

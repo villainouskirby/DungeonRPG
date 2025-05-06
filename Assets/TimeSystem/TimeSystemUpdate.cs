@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -29,6 +30,8 @@ public static class TimeSystemUpdate
     private static void Init()
     {
         var defaultSystems = PlayerLoop.GetDefaultPlayerLoop();
+        PlayerLoopHelper.Initialize(ref defaultSystems);
+
         var myUpdateSystem = new PlayerLoopSystem
         {
             subSystemList = null,
@@ -37,6 +40,7 @@ public static class TimeSystemUpdate
         };
 
         var loopWithUpdate = AddSystemAfter<Update, ScriptRunBehaviourUpdate>(in defaultSystems, myUpdateSystem);
+
         PlayerLoop.SetPlayerLoop(loopWithUpdate);
     }
 
