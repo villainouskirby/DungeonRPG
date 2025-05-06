@@ -39,6 +39,13 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
                 GenerateInteractionObj(DL.Instance.All.InteractionObjData.Entry[i]);
             }
         }
+        if (DL.Instance.All.InteractionObjData.Teleport != null)
+        {
+            for (int i = 0; i < DL.Instance.All.InteractionObjData.Teleport.Count; i++)
+            {
+                GenerateInteractionObj(DL.Instance.All.InteractionObjData.Teleport[i]);
+            }
+        }
     }
 
     public void StartMap(MapEnum mapType)
@@ -84,9 +91,20 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
                 );
 
                 interaction.transform.parent = _root.transform;
-                interaction.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize);
+                interaction.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize, interactionObj.Z);
                 interaction.GetComponent<IT_EntryFunc>().Init((IT_EntryObj)interactionObj);
                 AllInteraction.Add(interaction);
+                break;
+
+            case InteractionEnum.Teleport:
+                GameObject teleport = Instantiate(
+                    Resources.Load<GameObject>($"{DataFilePath}IT_{interactionObj.Type.ToString()}")
+                );
+
+                teleport.transform.parent = _root.transform;
+                teleport.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize, interactionObj.Z);
+                teleport.GetComponent<IT_TeleportFunc>().Init((IT_TeleportObj)interactionObj);
+                AllInteraction.Add(teleport);
                 break;
         }
     }

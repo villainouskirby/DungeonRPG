@@ -158,7 +158,7 @@ public class Inventory : MonoBehaviour
         return AddItemForce(itemData, amount);
     }
 
-    public void UseItem(int index = -1)
+    public async void UseItem(int index = -1)
     {
         if (index == -1) // -1인 경우 제일 마지막 아이템을 사용함
         {
@@ -168,7 +168,7 @@ public class Inventory : MonoBehaviour
         Item item = _items[index];
         if (item is IUsableItem uItem)
         {
-            bool succeeded = uItem.Use();
+            bool succeeded = await uItem.Use();
 
             if (succeeded)
             {

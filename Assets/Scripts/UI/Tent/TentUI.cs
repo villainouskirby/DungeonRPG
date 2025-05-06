@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class TentUI : MonoBehaviour
 {
+    [Header("HP")]
+    [SerializeField] private FloatVariableSO _hpSO;
+
     [Header("Time Text")]
     [SerializeField] private TextMeshProUGUI _currentTimeText;
     [SerializeField] private TextMeshProUGUI _wakeUpTimeText;
@@ -51,7 +54,9 @@ public class TentUI : MonoBehaviour
     /// <summary> 취침 </summary>
     private void SleepAndHeal()
     {
-        int healPercent = _timeDiff * 10; // TODO => 플레이어와 연동시켜 체력회복시키기
+        int maxHP = 100; // TODO => 전체체력에 대한 값을 불러오는 작업 필요
+        _hpSO.Value = Mathf.Min(maxHP, _hpSO.Value + (maxHP - _hpSO.Value) * _timeDiff * 10); // 잃은 체력에 회복률 곱하여 회복
+
         // TODO => 시간 시스템에서 자는것을 어떻게 더할지에 대한 그런거 필요할듯
     }
 

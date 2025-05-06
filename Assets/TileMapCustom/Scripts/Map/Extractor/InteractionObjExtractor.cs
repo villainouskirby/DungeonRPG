@@ -16,7 +16,7 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
 
     private InteractionObjData ExtractTilemapToInteractionObj()
     {
-        InteractionObjData result = null;
+        InteractionObjData result = new();
         var childs = Tilemap.transform.GetComponentsInChildren<Transform>();
         
         foreach(var child in childs)
@@ -24,8 +24,8 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
             if (child.name == Tilemap.name)
                 continue;
 
-            result = new();
             InteractionTile interactionTile = child.GetComponent<InteractionTile>();
+            interactionTile.Z = child.transform.position.z;
 
             switch(interactionTile.Type)
             {
@@ -44,6 +44,14 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
 
                     result.Npc ??= new();
                     result.Npc.Add(npcObj);
+                    break;
+                case InteractionEnum.Teleport:
+                    IT_TeleportObj teleportObj = new(interactionTile);
+                    IT_TeleportTile teleportTile = (IT_TeleportTile)interactionTile;
+                    teleportObj.TargetPos = teleportTile.TargetPos;
+
+                    result.Teleport ??= new();
+                    result.Teleport.Add(teleportObj);
                     break;
             }
         }

@@ -3,6 +3,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PotionData", menuName = "ItemData/CountableItem/PotionData")]
 public class PotionItemData : CountableItemData
 {
+    public float Percentage => percentage;
+    public float Duration => duration;
+    public float Healamount => healamount;
+
+    [SerializeField] private float percentage;
+
+    [SerializeField] private float duration;
+
+    [SerializeField] private float healamount;
+
     // Start is called before the first frame update
     void Start()
     {

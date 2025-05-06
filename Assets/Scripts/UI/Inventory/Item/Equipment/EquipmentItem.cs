@@ -1,4 +1,6 @@
-public abstract class EquipmentItem : Item, IUsableItem
+using Cysharp.Threading.Tasks;
+
+public abstract class EquipmentItem : Item, ISyncUsableItem
 {
     public EquipmentItemData EquipmentData { get; private set; }
 
@@ -7,5 +9,7 @@ public abstract class EquipmentItem : Item, IUsableItem
         EquipmentData = data;
     }
 
-    public bool Use() { return true; }
+    public bool UseSync() { return true; }
+
+    public UniTask<bool> Use() => UniTask.FromResult(UseSync());
 }

@@ -30,7 +30,7 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
     public void SetQuickSlot()
     {
         _quickSlotInGameUI.SetQuickSlotUI();
-        //gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void SetSlotImage(int index)
@@ -84,11 +84,16 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
     {
         if (_selectedIndex == -1) return;
 
-        _quickSlot.SwapSlots(_selectedIndex, GetItemSlotIndex(_pointedSlot));
-
         // UI 배치 정상화
         _selectedSlot.position = _selectedSlotPosition;
         _selectedSlot.GetComponent<Image>().raycastTarget = true;
+
+        int droppedSlotIndex = GetItemSlotIndex(_pointedSlot);
+        if (droppedSlotIndex == -1) return;
+
+        _quickSlot.SwapSlots(_selectedIndex, droppedSlotIndex);
+
+        // 변수 초기화
         _selectedIndex = -1;
         _selectedSlot = null;
         _selectedSlotPosition = Vector3.zero;

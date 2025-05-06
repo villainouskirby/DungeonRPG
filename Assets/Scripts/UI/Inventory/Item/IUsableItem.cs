@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
+
 public interface IUsableItem
 {
-    bool Use();
+    UniTask<bool> Use();
 }

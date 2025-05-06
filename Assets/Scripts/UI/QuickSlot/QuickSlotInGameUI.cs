@@ -29,6 +29,8 @@ public class QuickSlotInGameUI : MonoBehaviour
         }
     }
 
+    private bool isUsingItem = false;
+
     private void Start()
     {
         SetQuickSlotUI();
@@ -46,11 +48,9 @@ public class QuickSlotInGameUI : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.Alpha2))
         {
-            if (((IUsableItem)_items[_actualIndex]).Use())
+            if (!isUsingItem)
             {
-                _quickSlotUI.RemoveSlot(_actualIndex);
-                _itemIndexList.RemoveAt(_currentIndex);
-                SetSlotSprite(_actualIndex);
+                UseItem();
             }
         }
 
@@ -59,6 +59,20 @@ public class QuickSlotInGameUI : MonoBehaviour
             _currentIndex = (_currentIndex + 1) % _slotCount;
             SetSlotSprite(_actualIndex);
         }
+    }
+
+    private async void UseItem()
+    {
+        isUsingItem = true;
+
+        if (await ((IUsableItem)_items[_actualIndex]).Use())
+        {
+            _quickSlotUI.RemoveSlot(_actualIndex);
+            _itemIndexList.RemoveAt(_currentIndex);
+            SetSlotSprite(_actualIndex);
+        }
+
+        isUsingItem = false;
     }
 
     public void SetQuickSlotUI()
