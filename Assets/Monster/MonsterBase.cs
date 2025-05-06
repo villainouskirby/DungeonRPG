@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor.Connect;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,6 +19,7 @@ public abstract class MonsterBase : MonoBehaviour
     protected State state;
     Coroutine stateRoutine;
     protected Vector3 detectedPos;   // Detect 시 목표 지점
+    protected bool isfastReturn = false; // 스포너로부터 멀어져서 일어나는 귀환이면 빠르게 귀환
 
     /* ----------- 애니메이션 이름(하위 클래스별 상이) ----------- */
     protected virtual string IdleAnim => "Idle";
@@ -31,10 +33,11 @@ public abstract class MonsterBase : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         agent.updateRotation = false;  
         agent.updateUpAxis = false;
-
+        HealthBarManager.Instance?.Register(this);
         hp = data.maxHp;
 
         if (data.animator) anim.runtimeAnimatorController = data.animator;
@@ -51,8 +54,8 @@ public abstract class MonsterBase : MonoBehaviour
         state = s;
         stateRoutine = StartCoroutine(s.ToString());
     }
+    bool SeePlayer(float maxDist) => player && CanSeePlayer(player, maxDist);
 
-    
     #endregion
 
     #region 상태 머신
@@ -80,13 +83,18 @@ public abstract class MonsterBase : MonoBehaviour
     protected virtual IEnumerator Idle()
     {
         Play(IdleAnim);
-
+        isfastReturn = false;
         while (state == State.Idle)
         {
             // 스포너 초과 거리면 복귀
             if (TooFarFromSpawner())
             {
                 ChangeState(State.Return); yield break;
+            }
+
+            if (SeePlayer(data.sightDistance))            {
+                ChangeState(data.isagrresive ? State.Combat : State.Flee);
+                yield break;
             }
 
             // 가벼운 산책
@@ -113,7 +121,7 @@ public abstract class MonsterBase : MonoBehaviour
             }
 
             Play(IdleAnim);
-            yield return BreakableWait(Random.Range(1f, 3f), State.Idle);
+            yield return BreakableWait(Random.Range(0.5f, 2f), State.Idle);
         }
     }
 
@@ -126,12 +134,19 @@ public abstract class MonsterBase : MonoBehaviour
 
         while (state == State.Detect)
         {
-            if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
-
-            if (player && CanSeePlayer(player, data.stoppingDistance))
+            if (SeePlayer(data.stoppingDistance))
             {
-                ChangeState(State.Combat); yield break;
+                ChangeState(data.isagrresive ? State.Combat : State.Flee);
+                yield break;
             }
+
+            if (TooFarFromSpawner())
+            {
+                isfastReturn = true; 
+                ChangeState(State.Return); 
+                yield break; 
+            }
+            yield return null;
 
             yield return null;
         }
@@ -147,7 +162,12 @@ public abstract class MonsterBase : MonoBehaviour
         while (state == State.Combat)
         {
             if (!player) { ChangeState(State.Return); yield break; }
-            if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
+            if (TooFarFromSpawner()) 
+            { 
+                isfastReturn = true;
+                ChangeState(State.Return);
+                yield break; 
+            }
 
             agent.speed = data.combatSpeed;
             agent.SetDestination(player.position);
@@ -176,15 +196,34 @@ public abstract class MonsterBase : MonoBehaviour
 
     /* ----- Flee ----- */
     protected virtual IEnumerator Flee() { yield break; }
-
     /* ----- Return (스포너 복귀) ----- */
     protected virtual IEnumerator Return()
     {
         Play(WalkAnim);
-        agent.speed = data.detectSpeed;
+        if (isfastReturn)
+        {
+            agent.speed = data.FleeSpeed;
+        }
+        else
+        {
+            agent.speed = data.detectSpeed;
+        }
+
+        float checkInterval = 2f;
+        float timer = 0f;
 
         while (state == State.Return)
         {
+            timer += Time.deltaTime; //간격을 두고 플레이어 체크
+            if (timer >= checkInterval)
+            {
+                timer = 0f;
+                if (SeePlayer(data.sightDistance))
+                {
+                    ChangeState(data.isagrresive ? State.Combat : State.Flee);
+                    yield break;
+                }
+            }
             if (spawner) agent.SetDestination(spawner.position);
 
             if (Vector2.Distance(transform.position, spawner.position)
@@ -201,11 +240,16 @@ public abstract class MonsterBase : MonoBehaviour
     {
         Play(DieAnim);
         yield return new WaitForSeconds(2f);
+        HealthBarManager.Instance?.Unregister(this);
         Destroy(gameObject);
     }
     /* ----- Escaped ----- */
     protected virtual IEnumerator Escaped() { yield break; }
+
+
     #endregion
+
+
 
     #region 공통 메서드
     protected void ChangeState(State s)
@@ -248,8 +292,12 @@ public abstract class MonsterBase : MonoBehaviour
     public virtual void TakeDamage(float dmg)
     {
         hp -= dmg;
+        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
+        Debug.Log("현재 몬스터 체력" + hp);
         if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
     }
+    public float GetCurrentHP() => hp;             // 절대값
+    public float GetHPRatio() => hp / data.maxHp;
 
     /* ----------- 트리거 (소리·플레이어) ----------- */
     protected virtual void OnTriggerEnter2D(Collider2D col)
@@ -267,8 +315,9 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual void OnTriggerStay2D(Collider2D col)
     {
-        if (col.CompareTag("Player") &&
-    CanSeePlayer(col.transform, data.sightDistance))
+        if (isfastReturn) { return; }
+
+        if (col.CompareTag("Player") && CanSeePlayer(col.transform, data.sightDistance))
         {
             player = col.transform;
             if (state != State.Killed) ChangeState(State.Combat);

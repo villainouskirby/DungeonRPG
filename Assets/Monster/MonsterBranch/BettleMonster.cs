@@ -16,14 +16,14 @@ public class BeetleMonster : MonsterBase
     // OnTriggerStay2D에서 ‘Combat’ 대신 바로 Flee 상태로 전환 
     protected override void OnTriggerStay2D(Collider2D col)
     {
-        if (col.CompareTag("Player") &&
-        CanSeePlayer(col.transform, data.sightDistance))
-    {
-        player = col.transform;
-        if (state != State.Killed && state != State.Escaped)
-            ChangeState(State.Flee);
+        if (col.CompareTag("Player") && CanSeePlayer(col.transform, data.sightDistance))
+        {
+            player = col.transform;
+            if (state is not (State.Killed or State.Escaped))
+                ChangeState(State.Flee);    // ▶ Combat 건너뛰고 바로 Flee
+        }
     }
-    }
+    protected virtual void OnTriggerEnter2D(Collider2D col) { return; }
     protected override IEnumerator Combat()
     {
         ChangeState(State.Flee);
@@ -32,7 +32,6 @@ public class BeetleMonster : MonsterBase
     // 2. Flee 코루틴 구현 (4초 도망 → 1초 burrow → 소멸) 
     protected override IEnumerator Flee()
     {
-        Debug.Log("Flee 상태 시작");
         float fleeTime = 4f;
         float t = 0f;
 
@@ -41,34 +40,34 @@ public class BeetleMonster : MonsterBase
 
         while (t < fleeTime && state == State.Flee)
         {
-
-            // ── 도망 목적지 계산 ───────────────────────
+            // ── 가장 'x' 성분이 큰, 플레이어와 반대 방향 샘플 찾기 ──
             Vector2 away = (transform.position - player.position).normalized;
-            Vector2 bestDir = Vector2.zero;
-            float bestScore = 1f;  // dot이 -1에 가까운 게 목표니까 초기값은 1
+            Vector2 bestDir = away;             // fallback
+            float bestScore = -1f;
 
-            int numSamples = 16;
+            const int numSamples = 16;
             for (int i = 0; i < numSamples; i++)
             {
-                float angle = (360f / numSamples) * i;
-                Vector2 sampleDir = Quaternion.Euler(0f, 0f, angle) * Vector2.right;
+                float rad = Mathf.Deg2Rad * (360f / numSamples) * i;
+                Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
 
-                // 도망 방향이어야 함 (플레이어로부터 멀어지는 쪽)
-                if (Vector2.Dot(sampleDir, away) <= 0f) continue;
+                // 플레이어와 멀어지는 방향만 고려
+                if (Vector2.Dot(dir, away) <= 0f) continue;
 
-                float score = Vector2.Dot(sampleDir.normalized, player.right.normalized);
-                if (score < bestScore)  // 더 -1에 가까운 걸 선택
+                float score = Mathf.Abs(dir.x);   // x 우선
+                if (score > bestScore)
                 {
                     bestScore = score;
-                    bestDir = sampleDir;
+                    bestDir = dir;
                 }
             }
-            Vector3 dest = transform.position + (Vector3)bestDir.normalized * 4f;
+
+            Vector3 dest = transform.position + (Vector3)(bestDir.normalized * 4f);
             agent.SetDestination(dest);
-            // 다음 목적지를 1초 주기로 새로 잡는다
-            float interval = 1f;
+
+            // 1초마다 목적지 재계산
             float intTimer = 0f;
-            while (intTimer < interval && state == State.Flee)
+            while (intTimer < 1f && state == State.Flee)
             {
                 intTimer += Time.deltaTime;
                 t += Time.deltaTime;
@@ -76,8 +75,9 @@ public class BeetleMonster : MonsterBase
             }
         }
 
-        ChangeState(State.Escaped);   
+        ChangeState(State.Escaped);
     }
+
 
     /* 3. Killed 코루틴만 ‘숨기 → 파괴’ 로 오버라이드 */
     protected override IEnumerator Escaped()
