@@ -21,7 +21,6 @@ public abstract class MonsterBase : MonoBehaviour
     protected Vector3 detectedPos;   // Detect 시 목표 지점
     protected bool isfastReturn = false; // 스포너로부터 멀어져서 일어나는 귀환이면 빠르게 귀환
 
-    /* ----------- 애니메이션 이름(하위 클래스별 상이) ----------- */
     protected virtual string IdleAnim => "Idle";
     protected virtual string WalkAnim => "Walk";
     protected virtual string RunAnim => "Run";
@@ -92,7 +91,8 @@ public abstract class MonsterBase : MonoBehaviour
                 ChangeState(State.Return); yield break;
             }
 
-            if (SeePlayer(data.sightDistance))            {
+            if (SeePlayer(data.sightDistance))            
+            {
                 ChangeState(data.isagrresive ? State.Combat : State.Flee);
                 yield break;
             }
@@ -125,7 +125,6 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
-    /* ----- Detect (소리 추적) ----- */
     protected virtual IEnumerator Detect()
     {
         Play(WalkAnim);
@@ -153,7 +152,6 @@ public abstract class MonsterBase : MonoBehaviour
         ChangeState(State.Return);
     }
 
-    /* ----- Combat ----- */
     protected virtual IEnumerator Combat()
     {
         Play(RunAnim);
@@ -194,9 +192,8 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
-    /* ----- Flee ----- */
     protected virtual IEnumerator Flee() { yield break; }
-    /* ----- Return (스포너 복귀) ----- */
+ 
     protected virtual IEnumerator Return()
     {
         Play(WalkAnim);
@@ -209,7 +206,7 @@ public abstract class MonsterBase : MonoBehaviour
             agent.speed = data.detectSpeed;
         }
 
-        float checkInterval = 2f;
+        float checkInterval = 4f;
         float timer = 0f;
 
         while (state == State.Return)
@@ -235,7 +232,6 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
-    /* ----- Killed ----- */
     protected virtual IEnumerator Killed()
     {
         Play(DieAnim);
@@ -243,7 +239,6 @@ public abstract class MonsterBase : MonoBehaviour
         HealthBarManager.Instance?.Unregister(this);
         Destroy(gameObject);
     }
-    /* ----- Escaped ----- */
     protected virtual IEnumerator Escaped() { yield break; }
 
 
@@ -288,7 +283,6 @@ public abstract class MonsterBase : MonoBehaviour
         while (agent.remainingDistance > agent.stoppingDistance) yield return null;
     }
 
-    /* ----------- 데미지 처리 ----------- */
     public virtual void TakeDamage(float dmg)
     {
         hp -= dmg;
@@ -299,7 +293,7 @@ public abstract class MonsterBase : MonoBehaviour
     public float GetCurrentHP() => hp;             // 절대값
     public float GetHPRatio() => hp / data.maxHp;
 
-    /* ----------- 트리거 (소리·플레이어) ----------- */
+    //트리거 (소리·플레이어)
     protected virtual void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("PlayerSound") && state is not (State.Combat or State.Killed))

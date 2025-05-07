@@ -190,7 +190,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         isAttacking = true;
 
-        /* ---- 방향, 애니메이션, 데미지 계산 ---- */
         m_facingDirection = DirFromMouse();
         Vector2 forward = FacingVector();
         m_animator.SetInteger("Direction", m_facingDirection);
@@ -208,10 +207,10 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (step == 1) DoThrust(dmg, (Vector2)transform.position, forward);
         else if (step == 2) DoSlash(dmg, (Vector2)transform.position, forward);
 
-        /* ---- 히트박스 지속 ---- */
+        //히트박스 지속
         yield return new WaitForSeconds(hitboxActiveTime);
 
-        /* ---- afterDelay 동안 이동·입력 금지 (쿨타임) ---- */
+        // afterDelay 동안 이동·입력 금지 (쿨타임)
         nextAttackReadyTime = Time.time + afterDelay[step - 1];
         yield return new WaitForSeconds(afterDelay[step - 1]);
 
@@ -246,7 +245,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         {
             if (!h.CompareTag("Monster")) continue;
 
-            if (h.TryGetComponent(out MonsterBase monster)   // ★ 변수에 먼저 담는다
+            if (h.TryGetComponent(out MonsterBase monster)   // 변수에 먼저 담는다
                 && already.Add(monster))
             {
                 monster.TakeDamage(damage);
@@ -282,7 +281,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         Vector2 origin = transform.position;
         Vector2 dir    = FacingVector();
 
-        /* ---- ① Slash(직사각형) ---- */
+        // Slash(직사각형)
         float width  = 2f;
         float length = 1f;
         Vector2 center   = origin + dir * (length * 0.5f);
@@ -295,7 +294,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         Gizmos.DrawCube(Vector3.zero, new Vector3(width, length, 0));
         Gizmos.matrix = old;
 
-        /* ---- ② Thrust(부채꼴) ---- */
+        // Thrust(부채꼴)
 #if UNITY_EDITOR
         Handles.color = new Color(1f, 0f, 0f, 0.25f);
         float radius   = 2.0f;

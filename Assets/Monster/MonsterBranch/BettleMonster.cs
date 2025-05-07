@@ -29,7 +29,16 @@ public class BeetleMonster : MonsterBase
         ChangeState(State.Flee);
         yield break;
     }
-    // 2. Flee 코루틴 구현 (4초 도망 → 1초 burrow → 소멸) 
+
+    public override void TakeDamage(float dmg)
+    {
+        ChangeState(State.Flee);
+        hp -= dmg;
+        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
+        Debug.Log("현재 몬스터 체력" + hp);
+        if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
+    }
+    // Flee 코루틴 (4초 도망 → 1초 burrow → 소멸) 
     protected override IEnumerator Flee()
     {
         float fleeTime = 4f;
@@ -78,8 +87,6 @@ public class BeetleMonster : MonsterBase
         ChangeState(State.Escaped);
     }
 
-
-    /* 3. Killed 코루틴만 ‘숨기 → 파괴’ 로 오버라이드 */
     protected override IEnumerator Escaped()
     {
         Play(DieAnim);              // "BeetleBurrow"

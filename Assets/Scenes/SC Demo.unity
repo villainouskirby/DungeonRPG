@@ -40016,6 +40016,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 520806936726057043, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1126491100, guid: 597da7211ff4a084cb7b9ff8f0cded3e,
+        type: 3}
+    - target: {fileID: 520806936726057043, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
       propertyPath: m_SortingLayer
       value: 3
       objectReference: {fileID: 0}
@@ -40055,6 +40061,21 @@ PrefabInstance:
         type: 3}
       propertyPath: triggerCollider
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5382554830589741717, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 71a394b3b3df92b469aa53f4ebb3d0a9, type: 2}
+    - target: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
