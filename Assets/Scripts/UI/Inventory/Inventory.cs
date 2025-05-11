@@ -44,6 +44,7 @@ public class Inventory : MonoBehaviour
         _inventoryUI.InitInventoryUI();
         List<Item> tempItems = new List<Item>(_items);
         _items.Clear();
+        RestCapacity = _maxCapacity;
 
         foreach (Item item in tempItems)
         {

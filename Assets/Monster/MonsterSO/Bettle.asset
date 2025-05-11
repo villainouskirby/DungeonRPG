@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5cca207d06034d34fb5bade7c8bbd05e, type: 3}
-  m_Name: Bettle Monster
+  m_Name: Bettle
   m_EditorClassIdentifier: 
   monsterName: Normal
-  maxHp: 10
+  maxHp: 50
   attackPower: 2
   detectSpeed: 1
   combatSpeed: 3
-  FleeSpeed: 4
+  FleeSpeed: 3
   stoppingDistance: 1
-  sightDistance: 9
+  sightDistance: 6
   lostDistance: 5
   maxSpawnerDist: 15
   nearSpawnerDist: 2
+  isagrresive: 0
   animator: {fileID: 0}

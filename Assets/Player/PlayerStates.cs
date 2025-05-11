@@ -158,7 +158,7 @@ public class AttackState : IPlayerState
 
     public void Enter()
     {
-        //Debug.Log("Attack 상태 시작");
+        Debug.Log("Attack 상태 시작");
     }
 
     public void Update()
@@ -183,7 +183,7 @@ public class ForageState : IPlayerState
 
     public void Enter()
     {
-        //Debug.Log("Forage 상태 시작");
+        Debug.Log("Forage 상태 시작");
     }
 
     public void Update()

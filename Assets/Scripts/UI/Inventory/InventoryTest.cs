@@ -1,4 +1,5 @@
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class InventoryTest : MonoBehaviour
 {
@@ -92,5 +93,17 @@ public class InventoryTest : MonoBehaviour
             });
 
         }
+    }
+
+    public void UniTaskTest()
+    {
+        DelayDebug().Forget();
+    }
+
+    public async UniTaskVoid DelayDebug()
+    {
+        Debug.Log("호출시작");
+        await UniTask.Delay(2000);
+        Debug.Log("호출된지 2초 후");
     }
 }

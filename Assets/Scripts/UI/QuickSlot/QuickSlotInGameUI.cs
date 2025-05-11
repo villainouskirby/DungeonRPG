@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,8 +30,6 @@ public class QuickSlotInGameUI : MonoBehaviour
         }
     }
 
-    private bool isUsingItem = false;
-
     private void Start()
     {
         SetQuickSlotUI();
@@ -48,10 +47,7 @@ public class QuickSlotInGameUI : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.Alpha2))
         {
-            if (!isUsingItem)
-            {
-                UseItem();
-            }
+            UseItem().Forget();
         }
 
         if (Input.GetKeyUp(KeyCode.Alpha3))
@@ -61,18 +57,14 @@ public class QuickSlotInGameUI : MonoBehaviour
         }
     }
 
-    private async void UseItem()
+    private async UniTaskVoid UseItem()
     {
-        isUsingItem = true;
-
         if (await ((IUsableItem)_items[_actualIndex]).Use())
         {
             _quickSlotUI.RemoveSlot(_actualIndex);
             _itemIndexList.RemoveAt(_currentIndex);
             SetSlotSprite(_actualIndex);
         }
-
-        isUsingItem = false;
     }
 
     public void SetQuickSlotUI()

@@ -7,7 +7,7 @@ public class MonsterData : ScriptableObject
 {
     [Header("공통 스탯")]
     public string monsterName = "Normal";
-    public float maxHp = 10f;
+    public float maxHp = 100f;
     public float attackPower = 2f;
 
     [Header("이동 / 시야")]
@@ -22,6 +22,8 @@ public class MonsterData : ScriptableObject
     public float maxSpawnerDist = 15f;
     public float nearSpawnerDist = 2f;
 
+    [Header("적대적/비적대적 몬스터")]
+    public bool isagrresive = true;
     //[Header("애니메이터")]
     public RuntimeAnimatorController animator;
 }
