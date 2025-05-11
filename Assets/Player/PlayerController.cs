@@ -3,6 +3,7 @@ using UnityEditor;      // Handles
 #endif
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerChangeState
@@ -13,6 +14,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     [SerializeField] IPlayerState nowState;
 
+    [Header("UI References")]
+    [SerializeField] private Slider AttackchargeSlider;        // 차징 게이지 표현
+    [SerializeField] private Slider PotionchargeSlider;        // 차징 게이지 표현
+    [SerializeField] private Canvas chargeCanvas;   // 월드-스페이스 Canvas
+    [SerializeField] private CanvasGroup canvasGroup;
 
     [Header("Movement Settings")]
     public float speed = 5f;            // 일반 이동 속도
@@ -29,6 +35,19 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     private bool isAttacking = false;
     private int comboStep = 0;   // 0=콤보 없음, 1=1타, 2=2타
     float nextAttackReadyTime = 0f;
+
+    [Header("Heavy-Attack Settings")]
+    [SerializeField] private float heavyMultiplier = 1.0f;  // 배율 k
+    [SerializeField] public float maxChargeTime = 1.0f;  // 완충 시간 Tmax
+    [SerializeField] private float heavyRadius = 2.5f;  // 범위 반경 r
+    [SerializeField] private float heavyAfterDelay = 0.7f;  // 후딜
+
+    private bool isAttackCharging = false;
+    private bool isPotionCharging = false;
+    private bool chargeCanceled = false;
+    private float chargeStart = 0f;
+    
+    private bool stateLocked = false; // 상태 잠금용
 
     [SerializeField] private float beforeSpeed = 0;
     private float moveInput = 0f;
@@ -58,12 +77,16 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         looking = PlayerLookingDirection.Right;
         canSneak = true;
 
-
+        if (chargeCanvas)                       // 안전장치
+        {
+            chargeCanvas.renderMode = RenderMode.WorldSpace;
+            chargeCanvas.worldCamera = Camera.main;
+        }
     }
     void Start()
     {
         m_animator = GetComponent<Animator>();
-
+        canvasGroup.alpha = 0f;
     }
     
     public void SetMoveInput(float input)
@@ -77,12 +100,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     public void ChangeState(IPlayerState newState)
     {
+        if (stateLocked) return;
         stateMachine.ChangeState(newState);
     }
+    
     public IPlayerState GetCurrentState()
     {
         return stateMachine.GetCurrentState();
     }
+
     public void RestorePreviousState()
     {
         stateMachine.RestorePreviousState();
@@ -93,7 +119,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (isAttacking) return;
         UpdateByState();
 
-        if (Input.GetMouseButtonDown(1) && !m_sliding)
+        if (Input.GetMouseButtonDown(0) && !m_sliding)
         {
             float now = Time.time;
 
@@ -114,15 +140,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         var current = GetCurrentState();
 
-        // 예시로, 상태 이름(string) 또는 타입으로 분기
+        // 상태에 따른 플레이어 이동 속도
         if (current is IdleState || current is SneakState)
         {
         }
-        else if (current is SneakMoveState)
+        else if (current is SneakMoveState || current is ChargingState)
         {
             speed = 1f;
         }
-        else if (current is MoveState || current is ForageState || current is AttackState)
+        else if (current is MoveState || current is ForageState)
         {
             speed = 3f;
         }
@@ -131,6 +157,51 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             speed = 5f;
         }
     }
+
+    #region 포션 사용 로직
+    // 차징 게이지 출력
+    public void UpdatePotionChargeGauge(float ratio)   // 0~1
+    {
+        if (PotionchargeSlider)
+            PotionchargeSlider.value = ratio;
+    }
+    public float PotionChargeRatio
+    {
+        get
+        {
+            if (!isPotionCharging) return 0f;
+            return Mathf.Clamp01((Time.time - chargeStart) / 2f);
+        }
+    }
+    public void LockState()
+    {
+        // 이미 Idle이 아니면 Idle로 돌려놓기
+        if (!(stateMachine.GetCurrentState() is IdleState))
+            ChangeState(new IdleState(this));
+
+        stateLocked = true;
+        rb.velocity = Vector2.zero;           // 혹시 움직이고 있었다면 정지
+    }
+    public void StartPotionGuage()
+    {
+        isPotionCharging = true;
+        if (canvasGroup) canvasGroup.alpha = 1f;
+        if (PotionchargeSlider) PotionchargeSlider.value = 0f;
+    }
+    public void CancelPotionGuage()
+    {
+        isPotionCharging = false;
+        if (canvasGroup) canvasGroup.alpha = 0f;
+    }
+    public void EndPotionGuage()
+    {
+        isPotionCharging = false;
+        if (canvasGroup) canvasGroup.alpha = 0f;
+    }
+    public void UnlockState() => stateLocked = false;
+    #endregion
+
+    #region 이동 로직
     void FixedUpdate()
     {
         if (isAttacking)       // 공격 중이면 강제로 제동
@@ -173,6 +244,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 sprite.flipX = false;
         }
     }
+    #endregion
+
     #region 공격 로직
     private int DirFromMouse()
     {
@@ -216,7 +289,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         isAttacking = false;
     }
-
+    // 바라보는 방향 계산
     private Vector2 FacingVector()
     {
         return m_facingDirection switch
@@ -228,7 +301,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             _ => Vector2.zero
         };
     }
-
+    // 직사각형 범위의 공격
     void DoSlash(int damage, Vector2 origin, Vector2 dir)
     {
         float width = 2f;
@@ -252,6 +325,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             }
         }
     }
+    // 부채꼴 범위의 공격
     void DoThrust(int damage, Vector2 origin, Vector2 dir)
     {
         float radius = 2.0f;
@@ -305,5 +379,85 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 #endif
     }
 #endif
+    #endregion
+
+    #region 강공격 로직
+    public void UpdateAttackChargeGauge(float ratio)   // 0~1
+    {
+        if (AttackchargeSlider)
+            AttackchargeSlider.value = ratio;
+    }
+    public void StartCharging()
+    {
+        isAttackCharging = true;
+        chargeCanceled = false;
+        chargeStart = Time.time;
+
+        m_animator.SetTrigger("ChargeStart");
+
+        if (canvasGroup) canvasGroup.alpha = 1f;   // ON
+        if (AttackchargeSlider) AttackchargeSlider.value = 0f;
+    }
+
+    public void CancelCharging()
+    {
+        if (!isAttackCharging) return;
+
+        isAttackCharging = false;
+        chargeCanceled = true;
+        m_animator.SetTrigger("ChargeCancel");
+
+        if (canvasGroup) canvasGroup.alpha = 0f;   // OFF
+    }
+    public void ReleaseCharging()        // 버튼을 떼거나 시간 만료
+    {
+        if (!isAttackCharging || chargeCanceled) return;
+        isAttackCharging = false;
+
+        // 데미지 산출
+        float elapsed = Mathf.Clamp(Time.time - chargeStart, 0, maxChargeTime);
+        float ratio = elapsed / maxChargeTime;         // 0~1
+        int damage = Mathf.RoundToInt(
+            baseDamage * (1f + heavyMultiplier * ratio));
+
+        // 애니메이션 & 타격
+        m_facingDirection = DirFromMouse();
+        m_animator.SetInteger("Direction", m_facingDirection);
+        m_animator.SetTrigger("HeavyAttack");
+
+        DoHeavyCircle(damage, transform.position, heavyRadius);
+        StartCoroutine(HeavyCooldown());
+
+        if (canvasGroup) canvasGroup.alpha = 0f;
+    }
+    // 쿨타임
+    private IEnumerator HeavyCooldown()
+    {
+        isAttacking = true;
+        nextAttackReadyTime = Time.time + heavyAfterDelay;
+        yield return new WaitForSeconds(heavyAfterDelay);
+        isAttacking = false;
+    }
+    // 원형 범위 공격
+    private void DoHeavyCircle(int damage, Vector2 origin, float radius)
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, radius);
+        HashSet<MonsterBase> already = new();
+
+        foreach (var h in hits)
+        {
+            if (!h.CompareTag("Monster")) continue;
+            if (h.TryGetComponent(out MonsterBase m) && already.Add(m))
+                m.TakeDamage(damage);
+        }
+    }
+    public float AttackChargeRatio
+    {
+        get
+        {
+            if (!isAttackCharging) return 0f;
+            return Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime);
+        }
+    }
     #endregion
 }

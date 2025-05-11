@@ -8,14 +8,14 @@ public class PlayerStaminaSlider : MonoBehaviour
     [SerializeField] private Slider StaminaSlider;
     [SerializeField] private TMP_Text StaminaText;
     [Header("Max Stamina")]
-    [SerializeField] private float maxStamina = 100f;
+    [SerializeField] private FloatVariableSO maxStamina;
     [Header("Current Stamina (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentStamina;
     private void Start()
     {
         StaminaSlider.minValue = 0f;
         StaminaSlider.maxValue = 1f;
-        float StaminaRatio = currentStamina.Value / maxStamina;
+        float StaminaRatio = currentStamina.Value / maxStamina.Value;
         StaminaSlider.value = StaminaRatio;
     }
     private void Awake()
@@ -23,10 +23,10 @@ public class PlayerStaminaSlider : MonoBehaviour
     }
     private void Update()
     {
-        float StaminaRatio = currentStamina.Value / maxStamina;
+        float StaminaRatio = currentStamina.Value / maxStamina.Value;
 
         // 슬라이더의 값 글자로 표현
         StaminaSlider.value = StaminaRatio;
-        //StaminaText.text = $"{(int)currentStamina.Value}/{(int)maxStamina}";
+        StaminaText.text = $"{(int)currentStamina.Value}/{(int)maxStamina.Value}";
     }
 }

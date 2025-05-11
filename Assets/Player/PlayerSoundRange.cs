@@ -61,7 +61,7 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
             triggerCollider.radius = 3f;
 
         }
-        else if (current is MoveState || current is ForageState || current is AttackState)
+        else if (current is MoveState || current is ForageState)
         {
             // Move, Forage, Attack -> 조금 크게
             triggerCollider.enabled = true;

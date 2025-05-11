@@ -1,5 +1,6 @@
 using UnityEngine;
-
+using System.Collections;
+using System.Collections.Generic;
 
 
 public class PlayerData : MonoBehaviour
@@ -11,14 +12,19 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private float baseSpeed = 10f;
 
     [Header("Max Stats (스탯 최대 값)")]
-    [SerializeField] private float MaxHP = 100f;
-    [SerializeField] private float MaxStamina = 100f;
+    [SerializeField] private FloatVariableSO MaxHP;
+    [SerializeField] private FloatVariableSO MaxStamina;
 
     [Header("Current Stats (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentAtk;
     [SerializeField] private FloatVariableSO currentSpeed;
     [SerializeField] private FloatVariableSO currentHP;
     [SerializeField] private FloatVariableSO currentStamina;
+
+    [Header("스테미나 리젠 속도")]
+    [SerializeField] private float StaminaSpeed = 2f;
+
+    private bool isStaminaBlocked = false;
     private void Awake()
     {
         instance = this;
@@ -26,18 +32,55 @@ public class PlayerData : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(StaminaRegen());
     }
 
     private void Update()
     {
-        if (currentHP.Value > 100f)
+        if (currentHP.Value > MaxHP.Value)
         {
-            currentHP.Value = 100f;
+            currentHP.Value = MaxHP.Value;
         }
-        if (currentStamina.Value > 100f)
+        if (currentStamina.Value > MaxStamina.Value)
         {
-            currentStamina.Value = 100f;
+            currentStamina.Value = MaxHP.Value;
         }
+
+    }
+    public void HPValueChange(float value)
+    {
+        currentHP.Value += value;
+    }
+    public void StaminaValueChange(float value)
+    {
+        currentStamina.Value += value;
+    }
+    private IEnumerator StaminaRegen()
+    {
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
+        while (true)
+        {
+            if (!isStaminaBlocked)
+            {
+                currentStamina.Value += StaminaSpeed;
+
+                if (currentStamina.Value > MaxStamina.Value)
+                    currentStamina.Value = MaxStamina.Value;
+            }
+
+            yield return wait;
+        }
+    }
+    public void BlockStaminaRegen(float seconds)
+    {
+        StartCoroutine(BlockRegenCoroutine(seconds));
+    }
+
+    private IEnumerator BlockRegenCoroutine(float seconds)
+    {
+        isStaminaBlocked = true;
+        yield return new WaitForSeconds(seconds);
+        isStaminaBlocked = false;
     }
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
@@ -61,10 +104,6 @@ public class PlayerData : MonoBehaviour
                 break;
         }
     }
-    public void HPValueChange(float value)
-    {
-        currentHP.Value += value;
-    }
     // 버프가 끝날 때 호출: ApplyBuff에서 적용했던 값 반대로 적용하기
     public void RemoveBuff(BuffType type, float percentage)
     {
@@ -81,76 +120,3 @@ public class PlayerData : MonoBehaviour
         _ => t
     };
 }
-
-/*
-public class Player
-{
-    public float Atk;
-    public float Speed;
-}
-public class PlayerData : MonoBehaviour
-{
-    public static PlayerData instance;
-    private void Awake()
-    {
-        instance = this;
-    }
-    public Player player;
-    public float originalAtk = 100;
-    public float originalSpeed = 5;
-    void Start()
-    {
-        player.Atk = originalAtk;
-        player.Speed = originalSpeed;
-    }
-
-    public List<BaseBuff> onBuff = new List<BaseBuff>();
-
-    // 이런식으로 값이 보정된 값은 따로 만들어두고
-    public float BuffAtk;
-
-    // 버프 효과가 적용된 값을 얻는 건 좋아보이는데
-    // 이러면 값을 확인할려고 할때마다 Buff들을 전부 탐색해서
-    // 낭비가 좀 심할거같네요
-    // 버프가 추가/제거 될때마다 해당 값을 변경하는 식으로 제작하면
-    // 괜찮을거같네요
-
-    public float BuffChange(string type, float origin)
-    {
-        if (onBuff.Count > 0)
-        {
-            float temp = 0;
-            for (int i = 0; i < onBuff.Count; i++) 
-            {
-                if (onBuff[i].type.Equals(type))
-                    temp += origin * onBuff[i].percentage;
-            }
-            return origin + temp;
-        }
-        else
-        {
-            return origin;
-        }
-    }
-    public void ChooseBuff(string type) 
-    {
-        BuffType ex = BuffType.AttackDown;
-        switch(type)
-        {
-            case "Atk":
-                player.Atk = BuffChange(type, originalAtk); break;
-            case "Speed":
-                player.Speed = BuffChange(type, originalSpeed); break;
-        }
-
-        switch (ex)
-        {
-            // 아까 얘기하던거 연장선인데 이러면 유지보수가 훨씬 쉽죠
-            case BuffType.AttackUp:
-                player.Atk = BuffChange(type, originalAtk); break;
-            case BuffType.AttackDown:
-                player.Speed = BuffChange(type, originalSpeed); break;
-        }
-    }
-}
-*/

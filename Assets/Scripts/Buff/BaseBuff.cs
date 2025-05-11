@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class BaseBuff : MonoBehaviour
 {
     [Header("UI 레퍼런스")]
-    public Image icon;   // 버프 아이콘 자체 (ex: Skill 아이콘)
+    [SerializeField] public Image icon;   // 버프 아이콘 자체 (ex: Skill 아이콘)
+    [SerializeField] private TextMeshProUGUI timerTMP;   // 남은 시간 표시(선택)
     private PlayerData playerData;
     private float duration;   // 버프 지속 시간(초)
     private float currentTime; // 남은 시간
@@ -16,6 +18,7 @@ public class BaseBuff : MonoBehaviour
     {
         playerData = FindObjectOfType<PlayerData>();
         icon = GetComponent<Image>();
+        if (!timerTMP) timerTMP = GetComponentInChildren<TextMeshProUGUI>(true);
     }
     /// <summary>
     /// BuffManager에서 버프를 생성할 때 호출함
@@ -42,6 +45,7 @@ public class BaseBuff : MonoBehaviour
         {
             currentTime -= 0.1f;
             icon.fillAmount = currentTime / duration;
+            UpdateTimerText();
             yield return new WaitForSeconds(0.1f);
         }
         yield return null;
@@ -50,6 +54,22 @@ public class BaseBuff : MonoBehaviour
 
         // 아이콘 오브젝트 제거
         Destroy(gameObject);
+    }
+    private void UpdateTimerText()
+    {
+        if (!timerTMP) return;              // 텍스트 UI가 없다면 무시
+
+        if (currentTime > 60f)              // 1 분 초과 ➜ 분:초 표기
+        {
+            int m = Mathf.FloorToInt(currentTime / 60f);
+            int s = Mathf.FloorToInt(currentTime % 60f);
+            timerTMP.text = $"{m}:{s:00}";
+        }
+        else                                // 1 분 이하 ➜ 초만 표기
+        {
+            int s = Mathf.CeilToInt(currentTime);
+            timerTMP.text = $"{s}s";
+        }
     }
 
     private void OnDestroy() => Revert();
@@ -62,67 +82,3 @@ public class BaseBuff : MonoBehaviour
         reverted = true;
     }
 }
-/*
-// EX
-public enum BuffType
-{
-    AttackUp = 0,
-    AttackDown = 1,
-}
-
-public class BaseBuff : MonoBehaviour
-{
-    //버프 아이콘 인스펙터에 붙일 것
-    public BuffType Type; // 이런식으로? string으로 하면 결국 오타나 실수 나오는 부분이 생겨서
-    // 나중에 종류 많아지는거 생각하면 이 방향이 좋을거같네요
-    public string type; // 요거는 편의성 문제긴한데 Enum으로 빼고 사용하면 편할거같아요
-    public float percentage;
-    public float duration;
-    public float currenttime;
-    public Image icon;
-    public void Awake()
-    {
-        icon = GetComponent<Image>();
-    }
-    public void Init(string type, float per, float du)
-    {
-        this.type = type;
-        percentage = per;
-        duration = du;
-        currenttime = duration;
-        icon.fillAmount = 1; // 버프 표기 방식에 따라 바꿀 수 있음
-        Execute();
-    }
-    public void Execute()
-    {
-        PlayerData.instance.onBuff.Add(this);
-        PlayerData.instance.ChooseBuff(type);
-        StartCoroutine(Activation());
-    }
-
-    IEnumerator Activation()
-    {
-        while (currenttime > 0)
-        {
-            currenttime -= 0.1f;
-            icon.fillAmount = currenttime/duration;
-            yield return new WaitForSeconds(0.1f);
-        }
-        yield return null;
-        icon.fillAmount = 0;
-        currenttime = 0;
-        DeActivation();
-    }
-    public void DeActivation()
-    {
-        PlayerData.instance.onBuff.Remove(this);
-        PlayerData.instance.ChooseBuff(type);
-        Destroy(gameObject);
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}
-*/

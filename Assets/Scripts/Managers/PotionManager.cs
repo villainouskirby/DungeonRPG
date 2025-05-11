@@ -39,24 +39,35 @@ public class PotionManager : MonoBehaviour
 
         return true;
     }
-
+    private void Update()
+    {
+        PlayerController player = FindObjectOfType<PlayerController>();
+        player.UpdatePotionChargeGauge(player.PotionChargeRatio);
+    }
     private async UniTask<bool> Drink()
     {
         float startTime = Time.time;
 
+        // 상태 변화 잠금
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player == null) return false;
+        player.LockState();
+        player.StartPotionGuage();
         while (Time.time - startTime < 2)
         {
             // 피격감지 => 피격시 false 반환
 
+            player.CancelPotionGuage();
             await UniTask.NextFrame();
         }
+        // 잠금해제
 
+        player.EndPotionGuage();
+        player.UnlockState();
         return true;
     }
 
-    /// <summary>
-    /// 버프 아이콘 생성
-    /// </summary>
+    // 버프 아이콘 생성
     public void CreateBuff(int buffID, float percentage, float duration, Sprite icon)
     {
         BuffType type = buffID switch
@@ -71,31 +82,3 @@ public class PotionManager : MonoBehaviour
         buffImage.Init(type, percentage, duration);
     }
 }
-
-
-/*
-using Cainos.PixelArtTopDown_Basic;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
-public class BuffManager : MonoBehaviour
-{
-    public static BuffManager instance;
-    private void Awake()
-    {
-        instance = this;
-    }
-    public GameObject buffPrefab;
-
-    public void CreateBuff(string type, float per, float du, Sprite icon)
-    {
-        // 여기 부분은 Instantiate 보단 오브젝트 풀링 사용하시면 좋을거같아요
-        // 나중에 버프 좀 많아지면 살짝 문제 생길수도있어서
-        GameObject go = Instantiate(buffPrefab, transform);
-        go.GetComponent<BaseBuff>().Init(type, per, du);
-        go.GetComponent<Image>().sprite = icon;
-    }
-}
-*/
