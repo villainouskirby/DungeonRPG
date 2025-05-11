@@ -244,41 +244,47 @@ public class GuardState : IPlayerState
 }
 public class ChargingState : IPlayerState
 {
-    private readonly PlayerController pc;
     private readonly IPlayerChangeState player;
+    private readonly PlayerController pc;
+    private readonly AttackController ac;
+
     private float timer;
 
     public ChargingState(IPlayerChangeState p)
     {
         player = p;
         pc = p as PlayerController;
-        if (pc == null) return;
-            
+        if (pc) ac = pc.GetComponent<AttackController>();  
+        else ac = (p as MonoBehaviour)?.GetComponent<AttackController>();
+
     }
 
     public void Enter()
     {
-        if (pc == null) { player.ChangeState(new IdleState(player)); return; }
-        timer = pc.maxChargeTime;     // 최대 충전 시간
-        pc.StartCharging();
+        if (ac == null || ac.HeavyOnCooldown)          // 쿨타임이면 진입 거부
+        { player.ChangeState(new IdleState(player)); return; }
+
+        timer = ac.maxChargeTime;    // 최대 충전 시간
+
+        bool ok = ac.TryStartCharging();               // 시도
+        if (!ok) { player.ChangeState(new IdleState(player)); return; }
         Debug.Log("Charging…");
     }
 
     public void Update()
     {
-        if (pc == null) return;
+        if (ac == null) return;
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            pc.CancelCharging();
+            ac.CancelCharging();
             player.ChangeState(new EscapeState(player));
             return;
         }
-        pc.UpdateAttackChargeGauge(pc.AttackChargeRatio); //게이지 전달
 
         // 우클릭을 떼면 공격 발사
         if (Input.GetMouseButtonUp(1))
         {
-            pc.ReleaseCharging();
+            ac.ReleaseCharging();
             player.ChangeState(new IdleState(player));
             return;
         }
@@ -287,11 +293,21 @@ public class ChargingState : IPlayerState
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
-            pc.ReleaseCharging();
+            ac.ReleaseCharging();
             player.ChangeState(new IdleState(player));
         }
     }
 
     public void Exit() { }
     public override string ToString() => "Charging";
+}
+public class NormalAttackState : IPlayerState
+{
+    private readonly IPlayerChangeState owner;
+    public NormalAttackState(IPlayerChangeState p) => owner = p;
+
+    public void Enter() { }
+    public void Update() { }
+    public void Exit() { }
+    public override string ToString() => "NormalAttack";
 }
