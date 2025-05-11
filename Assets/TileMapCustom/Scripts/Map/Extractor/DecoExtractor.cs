@@ -9,6 +9,8 @@ using System.Linq;
 using System.IO;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
+using System.Net;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 
 public class DecoExtractor : MonoBehaviour, IExtractor
 {
@@ -24,7 +26,11 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         _chunkSize = mapData.All.ChunkSize;
         _decoSprite = new();
         ExtractTilemap2Deco(ref mapData);
-        CreateAtlas(mapType);
+
+        string assetPath = $"Assets/TileMapAtals/{mapType.ToString()}/{mapType}DecoAtlas.spriteatlas";
+
+        CreateAtlas(mapType, assetPath);
+        RegisterAddressable($"{mapType.ToString()}_DecoAtlas", assetPath);
     }
 
     public void ExtractTilemap2Deco(ref TileMapData mapData)
@@ -110,16 +116,22 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         return result;
     }
 
-    public void CreateAtlas(MapEnum mapType)
+    public void CreateAtlas(MapEnum mapType, string assetPath)
     {
         string folder = $"{DataPath}{mapType.ToString()}/";
-        string assetPath = $"Assets/TileMapAtals/{mapType.ToString()}/{mapType}DecoAtlas.spriteatlas";
 
         if (Directory.Exists(folder))
             Directory.Delete(folder, true);
         Directory.CreateDirectory(folder);
 
+
         SpriteAtlas atlas = new();
+
+        SpriteAtlasTextureSettings textureSettings = new();
+        textureSettings.filterMode = FilterMode.Point;
+
+        atlas.SetTextureSettings(textureSettings);
+
         SerializedObject so = new(atlas);
 
         SpriteAtlasExtensions.Add(atlas, _decoSprite.ToArray());
@@ -131,7 +143,38 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         Debug.Log($"DecoExtractor : SpriteAtlas 에셋 생성 완료: {assetPath}");
     }
 
+    public void RegisterAddressable(string groupName, string assetPath)
+    {
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
 
+        var group = settings.FindGroup(groupName);
+
+        if (group != null)
+            settings.RemoveGroup(group);
+
+        group = settings.CreateGroup(
+            groupName,
+            false,
+            false,
+            false,
+            new List<AddressableAssetGroupSchema>(),
+            new[] { typeof(BundledAssetGroupSchema) }
+        );
+
+        string guid = AssetDatabase.AssetPathToGUID(assetPath);
+
+        var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
+        entry.address = groupName;
+
+        settings.SetDirty(
+            AddressableAssetSettings.ModificationEvent.EntryMoved,
+            entry,
+            true
+        );
+
+        AssetDatabase.SaveAssets();
+        Debug.Log($"DecoExtractor : {groupName} 그룹에 Addressable로 등록 완료");
+    }
 }
 
 [System.Serializable]

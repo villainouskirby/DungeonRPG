@@ -11,15 +11,15 @@ SpriteAtlas:
     serializedVersion: 2
     textureSettings:
       serializedVersion: 2
-      anisoLevel: 1
-      compressionQuality: 50
-      maxTextureSize: 2048
+      anisoLevel: 0
+      compressionQuality: 0
+      maxTextureSize: 0
       textureCompression: 0
-      filterMode: 1
+      filterMode: 0
       generateMipMaps: 0
       readable: 0
       crunchedCompression: 0
-      sRGB: 1
+      sRGB: 0
     platformSettings: []
     packingSettings:
       serializedVersion: 2
@@ -31,14 +31,26 @@ SpriteAtlas:
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
-    packables: []
+    packables:
+    - {fileID: 21300000, guid: bf886f0da04a86143bdaba6e7d8fea4f, type: 3}
+    - {fileID: 21300000, guid: f7ed0da14d3193743a178ab8c6869661, type: 3}
+    - {fileID: 21300000, guid: 8811cb5490b74ce44914fe4494f0e60b, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys: []
+    packedSpriteRenderDataKeys:
+    - f7ed0da14d3193743a178ab8c6869661: 21300000
+    - 8811cb5490b74ce44914fe4494f0e60b: 21300000
+    - bf886f0da04a86143bdaba6e7d8fea4f: 21300000
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: 21300000, guid: f7ed0da14d3193743a178ab8c6869661, type: 3}
+  - {fileID: 21300000, guid: 8811cb5490b74ce44914fe4494f0e60b, type: 3}
+  - {fileID: 21300000, guid: bf886f0da04a86143bdaba6e7d8fea4f, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - skill3
+  - 576x576x2 (1)
+  - skill2
   m_RenderDataMap: {}
   m_Tag: Map2DecoAtlas
   m_IsVariant: 0

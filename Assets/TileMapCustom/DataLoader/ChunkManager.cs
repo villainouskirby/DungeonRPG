@@ -19,6 +19,9 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     public Dictionary<Vector2Int, int> LoadedChunkIndex;
     public Dictionary<Vector3Int, ChunkGen> CachedChunk;
 
+    public Action<Vector2Int> ChunkLoadAction;
+    public Action<Vector2Int> ChunkUnloadAction;
+
     public int ViewChunkSize { get { return _viewChunkSize; } }
     private int _viewChunkSize;
 
@@ -52,7 +55,9 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         LastChunkPos = GetChunkPos(PlayerMoveChecker.Instance.LastTilePos);
         LoadedChunkIndex.Clear();
+        SetViewChunkSize(TM.Instance.ViewBoxSize);
         LoadedChunkData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
+        ViewBoxBuffer = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
         CachedChunk.Clear();
 
 
@@ -84,13 +89,18 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     }
 
-    public Span<int> GetViewBoxData(int layerIndex)
-    {
-        var a = new Span<int>(LoadedChunkData,
-            GetLayerChunkStartIndex(layerIndex, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
-            DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize);
+    // 병렬 고려 X 임!
+    public int[] ViewBoxBuffer;
 
-        return a;
+    public void GetViewBoxData(int layerIndex)
+    {
+        Array.Copy(
+            LoadedChunkData,
+            GetLayerChunkStartIndex(layerIndex, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
+            ViewBoxBuffer,
+            0,
+            ViewBoxBuffer.Length
+            );
     }
 
     public int[] GetMappingArray()
@@ -98,7 +108,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         int[] mapping = new int[_viewChunkSize * _viewChunkSize];
 
         for (int i = 0; i < _viewChunkSize; i++)
-        {
+        {   
             for (int j = 0; j < _viewChunkSize; j++)
             {
                 mapping[Pos2ArrayIndex(new(j, i), _viewChunkSize)] = LoadedChunkIndex[ConvertLocalChunkPos2WorldChunkPos(new(j, i), LastChunkPos)];
@@ -142,6 +152,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         {
             // 사라질 청크들의 유산을 이어 받는다..
             LoadedChunkIndex.Add(added[i], LoadedChunkIndex[removed[i]]);
+            ChunkLoadAction?.Invoke(added[i]);
 
             for (int j = 0; j < DL.Instance.All.LayerCount; j++)
             {
@@ -151,6 +162,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
             }
 
             LoadedChunkIndex.Remove(removed[i]);
+            ChunkUnloadAction?.Invoke(removed[i]);
         }
 
         SetMapBuffer();
@@ -160,9 +172,14 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         for(int i = 0; i < DL.Instance.All.LayerCount; i++)
         {
-            int offset = GetLayerChunkStartIndex(i, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
-            Span<int> data = LoadedChunkData.AsSpan(offset, DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize);
-            MapManager.Instance.ChangeMapData(data, i);
+            Array.Copy(
+            LoadedChunkData,
+            GetLayerChunkStartIndex(i, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
+            ViewBoxBuffer,
+            0,
+            ViewBoxBuffer.Length
+            );
+            MapManager.Instance.ChangeMapData(i);
         }
     }
 
@@ -206,7 +223,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public int[] LoadChunkFromStream(Vector2Int chunkPos, int layerIndex)
     {
-        Debug.Log(chunkPos + "가 로드됨");
+
         int tileCount = DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
 
         if (chunkPos.x < 0 || chunkPos.x >= DL.Instance.All.Width || chunkPos.y < 0 || chunkPos.y >= DL.Instance.All.Height)
@@ -231,8 +248,6 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         data.AddRange(buffer);
 
         int[] result = TypeByte2TypeConverter.Convert<int[]>(data.ToArray());
-
-        Debug.Log($"{offset}에서 {buffer.Length} 만큼 읽어옴 그건 {chunkPos} 이고 index는 {chunkIndex}임 총길이는 {DL.Instance.All.Width}임");
 
         return result;
     }

@@ -20,19 +20,34 @@ public static class MapBufferChanger
             _change.Add(0);
     }
 
-    public static void SetMapDataBuffer(Span<int> mapData, ref GraphicsBuffer buffer)
+    public static void SetMappingDataBuffer(int[] data, ref GraphicsBuffer buffer)
     {
         buffer?.Dispose();
 
-        int bufferSize = mapData.Length;
+        int bufferSize = data.Length;
 
         buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
-        buffer.SetData(mapData.ToArray());
+        buffer.SetData(data);
     }
 
-    public static void ChangeMapDataBuffer(Span<int> mapData, GraphicsBuffer buffer)
+    public static void SetMapDataBuffer(ref GraphicsBuffer buffer)
     {
-        buffer.SetData(mapData.ToArray());
+        buffer?.Dispose();
+
+        int bufferSize = ChunkManager.Instance.ViewBoxBuffer.Length;
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
+        buffer.SetData(ChunkManager.Instance.ViewBoxBuffer);
+    }
+
+    public static void ChangeMappingDataBuffer(int[] data, GraphicsBuffer buffer)
+    {
+        buffer.SetData(data);
+    }
+
+    public static void ChangeMapDataBuffer(GraphicsBuffer buffer)
+    {
+        buffer.SetData(ChunkManager.Instance.ViewBoxBuffer);
     }
 
     /*

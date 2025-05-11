@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.XR;
+using Unity.Collections.LowLevel.Unsafe;
 
 public partial class TypeByte2TypeConverter
 {
@@ -72,13 +73,16 @@ public partial class TypeByte2TypeConverter
     }
 
 
-    // 캐시: 제네릭 Convert 메서드, 필드 정보, 필드 설정 델리게이트 등을 캐싱합니다.
-    private static readonly Dictionary<Type, MethodInfo> _convertMethodCache = new Dictionary<Type, MethodInfo>();
-    private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new Dictionary<Type, FieldInfo[]>();
+    private static readonly Dictionary<Type, MethodInfo> _convertMethodCache = new();
+    private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new();
     private static readonly Dictionary<(Type, string), Action<object, object>> _fieldSetterCache = new Dictionary<(Type, string), Action<object, object>>();
+    private static Dictionary<Type, ConvertDelegate> _convertDelegateCache = new();
+    private delegate object ConvertDelegate(byte[] data, ref int offset);
+
 
     public static T Convert<T>(byte[] data)
     {
+
         int offset = 0;
         return Convert<T>(data, ref offset);
     }
@@ -114,7 +118,7 @@ public partial class TypeByte2TypeConverter
         }
 
         if (type.IsPrimitive)
-            return (T)ConvertTypeByte2Primitive(data, ref offset, type);
+            return ConvertTypeByte2Primitive<T>(data, ref offset);
 
         if (type.IsEnum)
             return (T)ConvertTypeByte2Enum(data, ref offset, type);
@@ -130,7 +134,7 @@ public partial class TypeByte2TypeConverter
 
     public static string ConvertTypeByte2LenString(byte[] data, ref int offset)
     {
-        int length = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int length = ConvertTypeByte2Primitive<int>(data, ref offset);
         string result = Encoding.UTF8.GetString(data, offset, length);
         offset += length;
         return result;
@@ -138,11 +142,11 @@ public partial class TypeByte2TypeConverter
 
     public static Texture2D ConvertTypeByte2Texture2D(byte[] data, ref int offset)
     {
-        int width = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
-        int height = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int width = ConvertTypeByte2Primitive<int>(data, ref offset);
+        int height = ConvertTypeByte2Primitive<int>(data, ref offset);
         string format = ConvertTypeByte2LenString(data, ref offset);
-        int mipmapCount = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
-        int rawDataLength = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int mipmapCount = ConvertTypeByte2Primitive<int>(data, ref offset);
+        int rawDataLength = ConvertTypeByte2Primitive<int>(data, ref offset);
 
         // Buffer.BlockCopy를 사용하여 빠르게 복사
         byte[] rawData = new byte[rawDataLength];
@@ -161,79 +165,48 @@ public partial class TypeByte2TypeConverter
 
     public static object ConvertTypeByte2Enum(byte[] data, ref int offset, Type type)
     {
-        int enumValue = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int enumValue = ConvertTypeByte2Primitive<int>(data, ref offset);
         return Enum.ToObject(type, enumValue);
     }
 
-    public static object ConvertTypeByte2Primitive(byte[] data, ref int offset, Type type)
+    public static T ConvertTypeByte2Primitive<T>(byte[] data, ref int offset)
     {
         ReadOnlySpan<byte> span = data.AsSpan(offset);
-        object result = null;
+        T result;
 
-        if (type == typeof(short))
+        if (typeof(T) == typeof(short))
         {
-            result = BinaryPrimitives.ReadInt16LittleEndian(span);
+            result = (T)(object)BinaryPrimitives.ReadInt16LittleEndian(span);
             offset += sizeof(short);
         }
-        else if (type == typeof(ushort))
+        else if (typeof(T) == typeof(int))
         {
-            result = BinaryPrimitives.ReadUInt16LittleEndian(span);
-            offset += sizeof(ushort);
-        }
-        else if (type == typeof(int))
-        {
-            result = BinaryPrimitives.ReadInt32LittleEndian(span);
+            result = (T)(object)BinaryPrimitives.ReadInt32LittleEndian(span);
             offset += sizeof(int);
         }
-        else if (type == typeof(uint))
+        else if (typeof(T) == typeof(long))
         {
-            result = BinaryPrimitives.ReadUInt32LittleEndian(span);
-            offset += sizeof(uint);
-        }
-        else if (type == typeof(long))
-        {
-            result = BinaryPrimitives.ReadInt64LittleEndian(span);
+            result = (T)(object)BinaryPrimitives.ReadInt64LittleEndian(span);
             offset += sizeof(long);
         }
-        else if (type == typeof(ulong))
+        else if (typeof(T) == typeof(float))
         {
-            result = BinaryPrimitives.ReadUInt64LittleEndian(span);
-            offset += sizeof(ulong);
-        }
-        else if (type == typeof(float))
-        {
-            result = BitConverter.ToSingle(data, offset);
+            result = (T)(object)BitConverter.ToSingle(data, offset);
             offset += sizeof(float);
         }
-        else if (type == typeof(double))
+        else if (typeof(T) == typeof(double))
         {
-            result = BitConverter.ToDouble(data, offset);
+            result = (T)(object)BitConverter.ToDouble(data, offset);
             offset += sizeof(double);
         }
-        else if (type == typeof(bool))
+        else if (typeof(T) == typeof(bool))
         {
-            // bool은 1바이트이므로 그대로 읽어도 괜찮습니다.
-            result = data[offset] != 0;
+            result = (T)(object)(data[offset] != 0);
             offset += sizeof(bool);
         }
-
         else
         {
-            // 안전한 fallback: 기존의 Marshal 방식을 사용
-            int size = Marshal.SizeOf(type);
-            byte[] buffer = new byte[size];
-            Buffer.BlockCopy(data, offset, buffer, 0, size);
-            offset += size;
-            IntPtr ptr = Marshal.AllocHGlobal(size);
-            try
-            {
-                Marshal.Copy(buffer, 0, ptr, size);
-                result = Marshal.PtrToStructure(ptr, type);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
+            result = default;
         }
 
         return result;
@@ -241,33 +214,66 @@ public partial class TypeByte2TypeConverter
 
     public static object ConvertTypeByte2Struct(byte[] data, ref int offset, Type type)
     {
-        return ConvertTypeByte2Primitive(data, ref offset, type);
+        object result = null;
+
+        int size = Marshal.SizeOf(type);
+        byte[] buffer = new byte[size];
+        Buffer.BlockCopy(data, offset, buffer, 0, size);
+        offset += size;
+        IntPtr ptr = Marshal.AllocHGlobal(size);
+        try
+        {
+            Marshal.Copy(buffer, 0, ptr, size);
+            result = Marshal.PtrToStructure(ptr, type);
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
+
+        return result;
     }
 
-    // 캐싱된 제네릭 Convert 메서드 호출 (컬렉션 역직렬화 시 반복되는 Reflection 호출 최소화)
-    private static MethodInfo GetConvertMethod(Type elementType)
+    // 새로 추가할 BuildDelegate 헬퍼
+    private static ConvertDelegate BuildDelegate(MethodInfo mi)
     {
-        if (!_convertMethodCache.TryGetValue(elementType, out var method))
-        {
-            method = typeof(TypeByte2TypeConverter)
-                .GetMethod(nameof(Convert), new[] { typeof(byte[]), typeof(int).MakeByRefType() })
-                .MakeGenericMethod(elementType);
-            _convertMethodCache[elementType] = method;
-        }
-        return method;
+        var dataParam = Expression.Parameter(typeof(byte[]), "data");
+        var offsetParam = Expression.Parameter(typeof(int).MakeByRefType(), "offset");
+        // mi(data, ref offset)
+        var call = Expression.Call(mi, dataParam, offsetParam);
+        // object로 박싱
+        var body = Expression.Convert(call, typeof(object));
+        return Expression.Lambda<ConvertDelegate>(body, dataParam, offsetParam).Compile();
     }
+
+    // GetConvertDelegate로 이름 변경
+    private static ConvertDelegate GetConvertDelegate(Type elementType)
+    {
+        if (_convertDelegateCache.TryGetValue(elementType, out var del))
+            return del;
+
+        // 기존 로직으로 MethodInfo 얻기
+        MethodInfo mi = typeof(TypeByte2TypeConverter)
+            .GetMethod(nameof(Convert), new[] { typeof(byte[]), typeof(int).MakeByRefType() })
+            .MakeGenericMethod(elementType);
+
+        // Expression 기반 델리게이트 생성
+        del = BuildDelegate(mi);
+        _convertDelegateCache[elementType] = del;
+        return del;
+    }
+
 
     public static Array ConvertTypeByte2Array(byte[] data, ref int offset, Type elementType)
     {
-        int length = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int length = ConvertTypeByte2Primitive<int>(data, ref offset);
         Array array = Array.CreateInstance(elementType, length);
-        MethodInfo convertMethod = GetConvertMethod(elementType);
+        var convertMethod = GetConvertDelegate(elementType);
+
 
         for (int i = 0; i < length; i++)
         {
-            object[] parameters = new object[] { data, offset };
-            object item = convertMethod.Invoke(null, parameters);
-            offset = (int)parameters[1];
+            object item = convertMethod(data, ref offset);
             array.SetValue(item, i);
         }
         return array;
@@ -275,17 +281,15 @@ public partial class TypeByte2TypeConverter
 
     public static object ConvertTypeByte2List(byte[] data, ref int offset, Type elementType)
     {
-        int count = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int count = ConvertTypeByte2Primitive<int>(data, ref offset);
 
         Type listType = typeof(List<>).MakeGenericType(elementType);
         IList list = (IList)Activator.CreateInstance(listType, count);
-        MethodInfo convertMethod = GetConvertMethod(elementType);
+        var convertMethod = GetConvertDelegate(elementType);
 
         for (int i = 0; i < count; i++)
         {
-            object[] parameters = new object[] { data, offset };
-            object item = convertMethod.Invoke(null, parameters);
-            offset = (int)parameters[1];
+            object item = convertMethod.Invoke(data, ref offset);
             list.Add(item);
         }
         return list;
@@ -293,22 +297,17 @@ public partial class TypeByte2TypeConverter
 
     public static object ConvertTypeByte2Dictionary(byte[] data, ref int offset, Type keyType, Type valueType)
     {
-        int count = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int count = ConvertTypeByte2Primitive<int>(data, ref offset);
         Type dictType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
 
         IDictionary dict = (IDictionary)Activator.CreateInstance(dictType, count);
-        MethodInfo convertKeyMethod = GetConvertMethod(keyType);
-        MethodInfo convertValueMethod = GetConvertMethod(valueType);
+        var convertKeyMethod = GetConvertDelegate(keyType);
+        var convertValueMethod = GetConvertDelegate(valueType);
 
         for (int i = 0; i < count; i++)
         {
-            object[] keyParams = new object[] { data, offset };
-            object key = convertKeyMethod.Invoke(null, keyParams);
-            offset = (int)keyParams[1];
-
-            object[] valueParams = new object[] { data, offset };
-            object value = convertValueMethod.Invoke(null, valueParams);
-            offset = (int)valueParams[1];
+            object key = convertKeyMethod.Invoke(data, ref offset);
+            object value = convertValueMethod.Invoke(data, ref offset);
 
             dict.Add(key, value);
         }
@@ -317,17 +316,15 @@ public partial class TypeByte2TypeConverter
 
     public static object ConvertTypeByte2HashSet(byte[] data, ref int offset, Type elementType)
     {
-        int count = (int)ConvertTypeByte2Primitive(data, ref offset, typeof(int));
+        int count = ConvertTypeByte2Primitive<int>(data, ref offset);
         Type setType = typeof(HashSet<>).MakeGenericType(elementType);
         object set = Activator.CreateInstance(setType);
         MethodInfo addMethod = setType.GetMethod("Add");
-        MethodInfo convertMethod = GetConvertMethod(elementType);
+        var convertMethod = GetConvertDelegate(elementType);
 
         for (int i = 0; i < count; i++)
         {
-            object[] parameters = new object[] { data, offset };
-            object item = convertMethod.Invoke(null, parameters);
-            offset = (int)parameters[1];
+            object item = convertMethod(data, ref offset);
             addMethod.Invoke(set, new object[] { item });
         }
         return set;
@@ -354,7 +351,7 @@ public partial class TypeByte2TypeConverter
         foreach (var field in fields)
         {
             bool isSerializeReference = field.GetCustomAttribute<SerializeReference>() != null;
-            bool isNull = !(bool)ConvertTypeByte2Primitive(data, ref offset, typeof(bool));
+            bool isNull = !ConvertTypeByte2Primitive<bool>(data, ref offset);
             if (isNull)
             {
                 SetFieldValue(instance, field, null);
@@ -365,19 +362,15 @@ public partial class TypeByte2TypeConverter
             {
                 string typeName = ConvertTypeByte2LenString(data, ref offset);
                 Type realType = Type.GetType(typeName);
-                MethodInfo convertMethod = GetConvertMethod(realType);
-                object[] parameters = new object[] { data, offset };
-                object fieldValue = convertMethod.Invoke(null, parameters);
-                offset = (int)parameters[1];
+                var convertMethod = GetConvertDelegate(realType);
+                object fieldValue = convertMethod(data, ref offset);
                 SetFieldValue(instance, field, fieldValue);
             }
             else
             {
                 Type fieldType = field.FieldType;
-                MethodInfo convertMethod = GetConvertMethod(fieldType);
-                object[] parameters = new object[] { data, offset };
-                object fieldValue = convertMethod.Invoke(null, parameters);
-                offset = (int)parameters[1];
+                var convertMethod = GetConvertDelegate(fieldType);
+                object fieldValue = convertMethod.Invoke(data, ref offset);
                 SetFieldValue(instance, field, fieldValue);
             }
         }

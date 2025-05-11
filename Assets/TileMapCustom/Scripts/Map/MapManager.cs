@@ -52,7 +52,7 @@ public class MapManager : MonoBehaviour, ITileMapBase
             _controller[i].transform.position = new(0, 0, DL.Instance.All.TileMapLayerInfo[i].Z);
         }
 
-        SetMapDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
+        SetMappingDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
     }
 
     public void ChangeMapping()
@@ -60,10 +60,11 @@ public class MapManager : MonoBehaviour, ITileMapBase
         _mappingBuffer.SetData(CM.Instance.GetMappingArray());
     }
 
-    public void ChangeMapData(Span<int> data, int layer)
+    public void ChangeMapData( int layer)
     {
-        ChangeMapDataBuffer(data, _layerBuffer[layer]);
+        ChangeMapDataBuffer(_layerBuffer[layer]);
     }
+
 
     public void StartMap(MapEnum type)
     {
@@ -158,6 +159,7 @@ public class MapManager : MonoBehaviour, ITileMapBase
     /// </summary>
     private void SetDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
-        SetMapDataBuffer(CM.Instance.GetViewBoxData(layer), ref buffer);
+        CM.Instance.GetViewBoxData(layer);
+        SetMapDataBuffer(ref buffer);
     }
 }

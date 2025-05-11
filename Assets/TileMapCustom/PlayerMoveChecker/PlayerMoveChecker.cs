@@ -74,10 +74,27 @@ public class PlayerMoveChecker : MonoBehaviour, ITileMapBase
 
         if (NewTilePos != LastTilePos)
         {
-            _moveAction?.Invoke(NewTilePos);
+            Test1();
+            //_moveAction?.Invoke(NewTilePos);
             LastTilePos = NewTilePos;
-            _moveEndAction?.Invoke(NewTilePos);
+            Test2();
+            //_moveEndAction?.Invoke(NewTilePos);
         }
+        Test3();
+        //_checkEndAction?.Invoke();
+    }
+
+    void Test1()
+    {
+        _moveAction?.Invoke(NewTilePos);
+    }
+
+    void Test2()
+    {
+        _moveEndAction?.Invoke(NewTilePos);
+    }
+    void Test3()
+    {
         _checkEndAction?.Invoke();
     }
 
