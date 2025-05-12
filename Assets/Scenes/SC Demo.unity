@@ -34712,6 +34712,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bd0dc186169bf442bb4b2464617eb28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &1646806945 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5382554830589741717, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+    type: 3}
+  m_PrefabInstance: {fileID: 4337611276896568934}
+  m_PrefabAsset: {fileID: 0}
+--- !u!50 &1646806946 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 302780046639961892, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+    type: 3}
+  m_PrefabInstance: {fileID: 4337611276896568934}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &1646806948 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 520806936726057043, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+    type: 3}
+  m_PrefabInstance: {fileID: 4337611276896568934}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1647048540
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40959,6 +40977,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
+      propertyPath: rb
+      value: 
+      objectReference: {fileID: 1646806946}
+    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: anim
+      value: 
+      objectReference: {fileID: 1646806945}
+    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
       propertyPath: per2
       value: 0.2
       objectReference: {fileID: 0}
@@ -40989,6 +41017,11 @@ PrefabInstance:
       propertyPath: canvas
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: sprite
+      value: 
+      objectReference: {fileID: 1646806948}
     - target: {fileID: 1176493953370868176, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
       propertyPath: chargeUI

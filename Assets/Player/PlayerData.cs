@@ -18,8 +18,8 @@ public class PlayerData : MonoBehaviour
     [Header("Current Stats (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentAtk;
     [SerializeField] private FloatVariableSO currentSpeed;
-    [SerializeField] private FloatVariableSO currentHP;
-    [SerializeField] private FloatVariableSO currentStamina;
+    [SerializeField] public FloatVariableSO currentHP;
+    [SerializeField] public FloatVariableSO currentStamina;
 
     [Header("스테미나 리젠 속도")]
     [SerializeField] private float StaminaSpeed = 2f;
@@ -65,6 +65,12 @@ public class PlayerData : MonoBehaviour
     public void StaminaValueChange(float value)
     {
         currentStamina.Value += value;
+    }
+    public bool SpendStamina(float amount)
+    {
+        if (currentStamina.Value < amount) return false;
+        currentStamina.Value -= amount;
+        return true;
     }
     private IEnumerator StaminaRegen()
     {

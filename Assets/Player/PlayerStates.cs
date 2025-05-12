@@ -200,31 +200,6 @@ public class ForageState : IPlayerState
     public void Exit() { }// Debug.Log("Forage 상태 종료");
     public override string ToString() => "Forage";
 }
-public class EscapeState : IPlayerState
-{
-    private readonly IPlayerChangeState player;
-    private float timer;
-    private const float duration = 0.5f;   // 회피 모션 길이
-
-    public EscapeState(IPlayerChangeState player) => this.player = player;
-
-    public void Enter()
-    {
-        timer = duration;
-        // 회피 애니메이션, 무적 프레임, 힘 적용 등
-        Debug.Log("Escape!");
-    }
-
-    public void Update()
-    {
-        timer -= Time.deltaTime;
-        if (timer <= 0f) player.ChangeState(new IdleState(player));
-        // Escape 동안엔 아무 입력도 받지 않음
-    }
-
-    public void Exit() { }
-    public override string ToString() => "Escape";
-}
 public class GuardState : IPlayerState
 {
     private readonly IPlayerChangeState player;
@@ -310,4 +285,44 @@ public class NormalAttackState : IPlayerState
     public void Update() { }
     public void Exit() { }
     public override string ToString() => "NormalAttack";
+}
+public class EscapeState : IPlayerState
+{
+    private readonly PlayerController pc;   // 반드시 PlayerController
+    private float timer;                    // dive + prone + getUp 총 시간
+    private bool invalid = false;
+
+    public EscapeState(IPlayerChangeState owner)
+    {
+        pc = owner as PlayerController;
+        if (pc == null)
+        {
+            //Debug.LogError("EscapeState: owner is not PlayerController!");
+            invalid = true;
+            return;
+        }
+        timer = pc.diveTime + pc.proneTime + pc.getUpTime;
+    }
+
+    public void Enter()
+    {
+        if (invalid || !pc.TryBeginEscape())
+        {
+            pc?.ChangeState(new IdleState(pc));  // pc가 null이면 아무 일도 안 함
+        }
+    }
+
+    public void Update()
+    {
+        if (invalid) return;
+        timer -= Time.deltaTime;
+        if (timer <= 0f || !pc.EscapeActive)
+        {
+            pc.ChangeState(new IdleState(pc));
+        }
+    }
+
+    public void Exit() { }
+
+    public override string ToString() => "Escape";
 }
