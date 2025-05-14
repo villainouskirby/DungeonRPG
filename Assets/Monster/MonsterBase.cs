@@ -113,45 +113,62 @@ public abstract class MonsterBase : MonoBehaviour
         {
             if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
 
-            // 산책
-            Vector3 dest = transform.position + (Vector3)Random.insideUnitCircle.normalized;
+            Vector3 dest;
+            do
+            {
+                Vector2 rnd = Random.insideUnitCircle * data.wanderRadius; // 길이 0~R
+                dest = transform.position + (Vector3)rnd;
+            }
+            while (Vector2.Distance(transform.position, dest) < agent.stoppingDistance + 0.5f);
+
             agent.speed = data.detectSpeed;
             agent.SetDestination(dest);
-
             Play(WalkAnim);
-            yield return WaitUntilArrivedOr(1f, () => state != State.Idle);
+
+            /* 도착 or 타임아웃 대기 */
+            yield return WaitUntilArrivedOr(3f, () => state != State.Idle);
 
             Play(IdleAnim);
             yield return BreakableWait(Random.Range(0.5f, 2f), State.Idle);
         }
     }
 
-
     protected virtual IEnumerator Detect()
     {
+        const float detectMax = 4f;              // ▶ 4 초 한도
         Play(WalkAnim);
+
         agent.speed = data.detectSpeed;
         agent.SetDestination(detectedPos);
 
+        float t = 0f;
         while (state == State.Detect)
         {
-            if (SeePlayer(data.stoppingDistance))
+            // 시야 확보 → 바로 Combat/Flee
+            if (SeePlayer(data.sightDistance))
             {
                 ChangeState(data.isaggressive ? State.Combat : State.Flee);
                 yield break;
             }
 
-            if (TooFarFromSpawner())
+            /* 2) 4 초 경과 or 목적지 도달 */
+            bool reached = ReachedDestination();
+            t += Time.deltaTime;
+
+            if (t >= detectMax || reached)
             {
-                isfastReturn = true; 
-                ChangeState(State.Return); 
-                yield break; 
+                bool nearSpawner = spawner &&
+                                   Vector2.Distance(transform.position,
+                                                    spawner.position)
+                                   <= data.nearSpawnerDist;
+
+                ChangeState(nearSpawner ? State.Idle : State.Return);
+                yield break;
             }
+
             yield return null;
         }
-        ChangeState(State.Return);
     }
-
     protected virtual IEnumerator Combat()
     {
         Play(RunAnim);
@@ -239,8 +256,6 @@ public abstract class MonsterBase : MonoBehaviour
 
     #endregion
 
-
-
     #region 공통 메서드
     
     protected bool CanSeePlayer(Transform tgt, float maxDist)
@@ -264,8 +279,8 @@ public abstract class MonsterBase : MonoBehaviour
     protected void Play(string name)
     {
         if (!anim) return;
-        var cur = anim.GetCurrentAnimatorStateInfo(0);
-        if (!cur.IsName(name)) anim.Play(name, 0, 0f);
+        //var cur = anim.GetCurrentAnimatorStateInfo(0);
+        //if (!cur.IsName(name)) anim.Play(name, 0, 0f);
     }
 
     protected IEnumerator WaitUntilReached()

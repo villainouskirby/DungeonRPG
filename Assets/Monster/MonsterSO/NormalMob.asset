@@ -15,13 +15,18 @@ MonoBehaviour:
   monsterName: Normal
   maxHp: 100
   attackPower: 2
-  detectSpeed: 1
-  combatSpeed: 3
-  FleeSpeed: 3
-  stoppingDistance: 2
+  attackCooldown: 1.5
+  attackRange: 1.2
+  hearRange: 3
   sightDistance: 8
   lostDistance: 8
+  wanderRadius: 12
+  detectSpeed: 1
+  combatSpeed: 3
+  fleeSpeed: 3.5
+  stoppingDistance: 2
   maxSpawnerDist: 15
   nearSpawnerDist: 2
-  isagrresive: 1
+  isaggressive: 1
   animator: {fileID: 0}
+  expReward: 10

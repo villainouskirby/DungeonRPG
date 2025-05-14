@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-using UnityEditor;      // ← 반드시 다른 using 들과 함께 맨 위!
+using UnityEditor;
 #endif
 using UnityEngine;
 using System.Collections;
@@ -107,7 +107,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         yield return new WaitForSeconds(afterDelay[step - 1]);
 
         isAttacking = false;
-        pc.RestorePreviousState();
+        pc.ChangeState(new IdleState(pc));
     }
 
     // 강공격 차징 
@@ -208,7 +208,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 m.TakeDamage(dmg);
     }
 
-    // IPlayerChangeState 위임
     public void ChangeState(IPlayerState s) => pc.ChangeState(s);
     public IPlayerState GetCurrentState() => pc.GetCurrentState();
     public void RestorePreviousState() => pc.RestorePreviousState();
@@ -221,7 +220,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         int dirInt = pc ? pc.FacingDir : 1;
         Vector2 dir = FacingVector(dirInt);
 
-        // ① Slash (직사각형) – 빨간색
+        // Slash (직사각형) – 빨간색
         float w = 2f, l = 1f;
         Vector2 center   = origin + dir * (l * 0.5f);
         float   angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
@@ -234,14 +233,14 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         Gizmos.DrawCube(Vector3.zero, new Vector3(w, l, 0));
         Gizmos.matrix = old;
 
-        // ② Thrust (부채꼴) – 파란색
+        // Thrust (부채꼴) – 파란색
         Handles.color = new Color(0f, 0f, 1f, 0.25f);
         float radius = 2f, arc = 60f;
         Handles.DrawSolidArc(origin, Vector3.forward,
                              Quaternion.Euler(0, 0, -arc * 0.5f) * dir,
                              arc, radius);
 
-        // ③ Heavy (원형) – 노란색
+        // Heavy (원형) – 노란색
         Gizmos.color = new Color(1f, 1f, 0f, 0.15f);
         Gizmos.DrawSphere(origin, heavyRadius);
     }
