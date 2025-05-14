@@ -23197,7 +23197,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad10ee2120bd2b4c88eeab34a8fe7dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerCollider: {fileID: 1207265431}
 --- !u!58 &1207265431
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -30691,7 +30690,7 @@ PrefabInstance:
     - target: {fileID: 6674535644009902687, guid: 87c5259e3767024408968a72b51a1c5f,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6674535644009902687, guid: 87c5259e3767024408968a72b51a1c5f,
         type: 3}
