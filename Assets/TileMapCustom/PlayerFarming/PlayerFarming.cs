@@ -156,7 +156,7 @@ public class PlayerFarming : MonoBehaviour
 
         Debug.Log("실행됨");
         // 채집 성공 - 임시 코드
-        //UIPopUpHandler.Instance.InvertoryScript.AddItem(TargetFarm.DropItemList[0]);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(TargetFarm.DropItemList[0]);
         _rangedFarmObj.Remove(TargetObj);
         switch (TargetFarm.Type)
         {
