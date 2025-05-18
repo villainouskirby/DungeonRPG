@@ -200,31 +200,6 @@ public class ForageState : IPlayerState
     public void Exit() { }// Debug.Log("Forage 상태 종료");
     public override string ToString() => "Forage";
 }
-public class EscapeState : IPlayerState
-{
-    private readonly IPlayerChangeState player;
-    private float timer;
-    private const float duration = 0.5f;   // 회피 모션 길이
-
-    public EscapeState(IPlayerChangeState player) => this.player = player;
-
-    public void Enter()
-    {
-        timer = duration;
-        // 회피 애니메이션, 무적 프레임, 힘 적용 등
-        Debug.Log("Escape!");
-    }
-
-    public void Update()
-    {
-        timer -= Time.deltaTime;
-        if (timer <= 0f) player.ChangeState(new IdleState(player));
-        // Escape 동안엔 아무 입력도 받지 않음
-    }
-
-    public void Exit() { }
-    public override string ToString() => "Escape";
-}
 public class GuardState : IPlayerState
 {
     private readonly IPlayerChangeState player;
@@ -244,41 +219,47 @@ public class GuardState : IPlayerState
 }
 public class ChargingState : IPlayerState
 {
-    private readonly PlayerController pc;
     private readonly IPlayerChangeState player;
+    private readonly PlayerController pc;
+    private readonly AttackController ac;
+
     private float timer;
 
     public ChargingState(IPlayerChangeState p)
     {
         player = p;
         pc = p as PlayerController;
-        if (pc == null) return;
-            
+        if (pc) ac = pc.GetComponent<AttackController>();  
+        else ac = (p as MonoBehaviour)?.GetComponent<AttackController>();
+
     }
 
     public void Enter()
     {
-        if (pc == null) { player.ChangeState(new IdleState(player)); return; }
-        timer = pc.maxChargeTime;     // 최대 충전 시간
-        pc.StartCharging();
+        if (ac == null || ac.HeavyOnCooldown)          // 쿨타임이면 진입 거부
+        { player.ChangeState(new IdleState(player)); return; }
+
+        timer = ac.maxChargeTime;    // 최대 충전 시간
+
+        bool ok = ac.TryStartCharging();               // 시도
+        if (!ok) { player.ChangeState(new IdleState(player)); return; }
         Debug.Log("Charging…");
     }
 
     public void Update()
     {
-        if (pc == null) return;
+        if (ac == null) return;
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            pc.CancelCharging();
+            ac.CancelCharging();
             player.ChangeState(new EscapeState(player));
             return;
         }
-        pc.UpdateAttackChargeGauge(pc.AttackChargeRatio); //게이지 전달
 
         // 우클릭을 떼면 공격 발사
         if (Input.GetMouseButtonUp(1))
         {
-            pc.ReleaseCharging();
+            ac.ReleaseCharging();
             player.ChangeState(new IdleState(player));
             return;
         }
@@ -287,11 +268,61 @@ public class ChargingState : IPlayerState
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
-            pc.ReleaseCharging();
+            ac.ReleaseCharging();
             player.ChangeState(new IdleState(player));
         }
     }
 
     public void Exit() { }
     public override string ToString() => "Charging";
+}
+public class NormalAttackState : IPlayerState
+{
+    private readonly IPlayerChangeState owner;
+    public NormalAttackState(IPlayerChangeState p) => owner = p;
+
+    public void Enter() { }
+    public void Update() { }
+    public void Exit() { }
+    public override string ToString() => "NormalAttack";
+}
+public class EscapeState : IPlayerState
+{
+    private readonly PlayerController pc;   // 반드시 PlayerController
+    private float timer;                    // dive + prone + getUp 총 시간
+    private bool invalid = false;
+
+    public EscapeState(IPlayerChangeState owner)
+    {
+        pc = owner as PlayerController;
+        if (pc == null)
+        {
+            //Debug.LogError("EscapeState: owner is not PlayerController!");
+            invalid = true;
+            return;
+        }
+        timer = pc.diveTime + pc.proneTime + pc.getUpTime;
+    }
+
+    public void Enter()
+    {
+        if (invalid || !pc.TryBeginEscape())
+        {
+            pc?.ChangeState(new IdleState(pc));  // pc가 null이면 아무 일도 안 함
+        }
+    }
+
+    public void Update()
+    {
+        if (invalid) return;
+        timer -= Time.deltaTime;
+        if (timer <= 0f || !pc.EscapeActive)
+        {
+            pc.ChangeState(new IdleState(pc));
+        }
+    }
+
+    public void Exit() { }
+
+    public override string ToString() => "Escape";
 }

@@ -18,13 +18,22 @@ public class PlayerData : MonoBehaviour
     [Header("Current Stats (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentAtk;
     [SerializeField] private FloatVariableSO currentSpeed;
-    [SerializeField] private FloatVariableSO currentHP;
-    [SerializeField] private FloatVariableSO currentStamina;
+    [SerializeField] public FloatVariableSO currentHP;
+    [SerializeField] public FloatVariableSO currentStamina;
 
     [Header("스테미나 리젠 속도")]
     [SerializeField] private float StaminaSpeed = 2f;
 
     private bool isStaminaBlocked = false;
+
+    [Header("포션 UI")]
+    [SerializeField] private ChargeUIController chargeUI;
+    private bool isPotionCharging = false;
+    private float potionChargeStart;
+    private float potionDuration = 2f;   // 기본값, StartPotionGauge 때 갱신
+
+    public float PotionChargeRatio =>
+        isPotionCharging ? Mathf.Clamp01((Time.time - potionChargeStart) / 2f) : 0f;
     private void Awake()
     {
         instance = this;
@@ -33,6 +42,7 @@ public class PlayerData : MonoBehaviour
     private void Start()
     {
         StartCoroutine(StaminaRegen());
+        if (chargeUI) chargeUI.HideAll();
     }
 
     private void Update()
@@ -45,7 +55,8 @@ public class PlayerData : MonoBehaviour
         {
             currentStamina.Value = MaxHP.Value;
         }
-
+        if (isPotionCharging)
+            chargeUI.SetPotionRatio(PotionChargeRatio);
     }
     public void HPValueChange(float value)
     {
@@ -54,6 +65,12 @@ public class PlayerData : MonoBehaviour
     public void StaminaValueChange(float value)
     {
         currentStamina.Value += value;
+    }
+    public bool SpendStamina(float amount)
+    {
+        if (currentStamina.Value < amount) return false;
+        currentStamina.Value -= amount;
+        return true;
     }
     private IEnumerator StaminaRegen()
     {
@@ -81,6 +98,25 @@ public class PlayerData : MonoBehaviour
         isStaminaBlocked = true;
         yield return new WaitForSeconds(seconds);
         isStaminaBlocked = false;
+    }
+    // 포션 게이지 UI
+    public void StartPotionGauge(float durationSec)
+    {
+        potionDuration = durationSec;
+        potionChargeStart = Time.time;
+        isPotionCharging = true;
+
+        chargeUI.ShowPotionGauge();
+    }
+    public void CancelPotionGauge()
+    {
+        isPotionCharging = false;
+        chargeUI.HideAll();
+    }
+    public void EndPotionGauge()
+    {
+        isPotionCharging = false;
+        chargeUI.HideAll();
     }
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)

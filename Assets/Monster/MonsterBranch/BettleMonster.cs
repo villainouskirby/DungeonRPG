@@ -13,17 +13,7 @@ public class BeetleMonster : MonsterBase
     protected override string AttackAnim => "";            // 사용 안 함
     protected override string DieAnim => "BeetleBurrow"; // 땅속 숨기
 
-    // OnTriggerStay2D에서 ‘Combat’ 대신 바로 Flee 상태로 전환 
-    protected override void OnTriggerStay2D(Collider2D col)
-    {
-        if (col.CompareTag("Player") && CanSeePlayer(col.transform, data.sightDistance))
-        {
-            player = col.transform;
-            if (state is not (State.Killed or State.Escaped))
-                ChangeState(State.Flee);    // ▶ Combat 건너뛰고 바로 Flee
-        }
-    }
-    protected virtual void OnTriggerEnter2D(Collider2D col) { return; }
+    //Combat’ 대신 바로 Flee 상태로 전환 
     protected override IEnumerator Combat()
     {
         ChangeState(State.Flee);
@@ -41,86 +31,68 @@ public class BeetleMonster : MonsterBase
     // Flee 코루틴 (4초 도망 → 1초 burrow → 소멸) 
     protected override IEnumerator Flee()
     {
-        const float fleeTime = 4f;     // Flee 전체 한도
-        const float checkStuck = 0.2f;   // “막힘” 판단 시간
-        const float stuckMoveEps = 0.05f;  // 움직임 판정 오차
-        const float fallbackRun = 1f;     // fallback 달리기 시간
-        const float sampleRadius = 4f;     // 목적지까지 거리
+        const float fleeDuration = 4f;   // 총 도주 시간
+        const float resampleCycle = 1f;   // 목적지 재계산 주기
+        const float dirSampleDist = 4f;   // 1회 이동 거리
+        const float stuckCheckTime = 0.25f;
+        const float stuckMoveEps = 0.05f;
+
+        Play(RunAnim);
+        agent.speed = data.fleeSpeed;
 
         float t = 0f;
-        Play(RunAnim);
-        agent.speed = data.FleeSpeed;
-
-        while (t < fleeTime && state == State.Flee)
+        while (t < fleeDuration && state == State.Flee)
         {
-            // flee 목적지 계산 
+            /* ① 플레이어 반대 + x 성분 큰 방향 찾기 */
             Vector2 away = (transform.position - player.position).normalized;
-            Vector2 bestDir = away;                // fallback
-            float bestScore = -1f;
+            Vector2 bestDir = away;
+            float bestDot = -1f;
 
-            const int numSamples = 16;
-            for (int i = 0; i < numSamples; ++i)
+            const int samples = 16;
+            for (int i = 0; i < samples; ++i)
             {
-                float rad = Mathf.Deg2Rad * (360f / numSamples) * i;
-                Vector2 dir = new(Mathf.Cos(rad), Mathf.Sin(rad));
+                float angle = 360f / samples * i * Mathf.Deg2Rad;
+                Vector2 dir = new(Mathf.Cos(angle), Mathf.Sin(angle));
 
-                if (Vector2.Dot(dir, away) <= 0f) continue;     // 플레이어와 반대가 아니면 무시
-
-                float score = Mathf.Abs(dir.x);                 // “x 성분”이 클수록 우선
-                if (score > bestScore) { bestScore = score; bestDir = dir; }
+                if (Vector2.Dot(dir, away) <= 0f) continue;      // 반대쪽이 아니면 skip
+                float score = Mathf.Abs(dir.x);                  // x 절대값 우선
+                if (score > bestDot) { bestDot = score; bestDir = dir; }
             }
 
-            // 이동 시작 
-            Vector3 dest = transform.position + (Vector3)(bestDir.normalized * sampleRadius);
-            agent.SetDestination(dest);
+            agent.SetDestination(transform.position + (Vector3)(bestDir * dirSampleDist));
 
-            // 0.2 초 동안 움직였는지 감시
-            Vector3 prev = transform.position;
+            /* ② 막힘 확인 */
+            Vector3 prevPos = transform.position;
             float stuckT = 0f;
             bool moved = false;
 
-            while (stuckT < checkStuck && state == State.Flee)
+            while (stuckT < stuckCheckTime && state == State.Flee)
             {
                 stuckT += Time.deltaTime;
                 t += Time.deltaTime;
 
-                if ((transform.position - prev).sqrMagnitude > stuckMoveEps * stuckMoveEps)
-                { moved = true; break; }          // 정상 이동 시작 → 루프 탈출
+                if ((transform.position - prevPos).sqrMagnitude >
+                    stuckMoveEps * stuckMoveEps)
+                { moved = true; break; }
                 yield return null;
             }
 
-            //“막다름” 판정 시 X‑축 반대로 1 초간 달림
+            /* ③ 막혔으면 X 축 반대방향으로 한번 더 뛰기 */
             if (!moved && state == State.Flee)
             {
-                // 현재 bestDir.x 가 0 이면 플레이어 기준으로 방향 결정
                 float dirX = bestDir.x != 0f
-                             ? -Mathf.Sign(bestDir.x)
-                             : -Mathf.Sign(player.position.x - transform.position.x);
+                           ? -Mathf.Sign(bestDir.x)
+                           : -Mathf.Sign(player.position.x - transform.position.x);
 
-                Vector3 fallbackDir = new(dirX, 0f, 0f);
-                Vector3 fallbackDest = transform.position + fallbackDir * sampleRadius;
-                agent.SetDestination(fallbackDest);
-
-                float fbT = 0f;
-                while (fbT < fallbackRun && state == State.Flee)
-                {
-                    fbT += Time.deltaTime;
-                    t += Time.deltaTime;
-                    yield return null;
-                }
-
-                // 다음 루프에서 새 경로 샘플링
-                continue;
+                agent.SetDestination(transform.position + new Vector3(dirX, 0f) * dirSampleDist);
+                yield return new WaitForSeconds(1f);
+                t += 1f;
+                continue;   // 다음 루프에서 재샘플
             }
 
-            // 정상 이동 중이면 1 초마다 목적지 재계산
-            float intTimer = 0f;
-            while (intTimer < 1f && state == State.Flee)
-            {
-                intTimer += Time.deltaTime;
-                t += Time.deltaTime;
-                yield return null;
-            }
+            /* ④ 정상 이동 중이면 resampleCycle 후 경로 재계산 */
+            yield return new WaitForSeconds(resampleCycle);
+            t += resampleCycle;
         }
 
         ChangeState(State.Escaped);

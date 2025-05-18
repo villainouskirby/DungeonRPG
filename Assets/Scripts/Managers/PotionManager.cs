@@ -9,61 +9,60 @@ public class PotionManager : MonoBehaviour
 
     [Header("버프 아이콘 프리팹")]
     public GameObject buffPrefab;
+    [Header("포션 마시는 시간")]
+    public float DRINK_DURATION = 2f;
 
+    PlayerController player;
     private void Awake()
     {
         instance = this;
     }
+    void Start() => player = FindObjectOfType<PlayerController>();
 
     private bool isDrinking = false;
 
     public async UniTask<bool> GetPotionID(ItemData data)
     {
-        if (isDrinking) return false;
+        if (isDrinking || player == null) return false;
         isDrinking = true;
 
-        PotionItemData piData = data as PotionItemData;
-        
-        if (!await Drink()) return false;
+        PotionItemData pi = data as PotionItemData;
+        bool success = await Drink();
 
-        if (piData.ID <= 10)
+        if (success)
         {
-            CreateBuff(piData.ID, piData.Percentage, piData.Duration, piData.IconSprite);
-        }
-        else if (piData.ID <= 20) 
-        {
-            PlayerData.instance.HPValueChange(piData.Healamount);
+            if (pi.ID <= 10)
+                CreateBuff(pi.ID, pi.Percentage, pi.Duration, pi.IconSprite);
+            else if (pi.ID <= 20)
+                PlayerData.instance.HPValueChange(pi.Healamount);
         }
 
         isDrinking = false;
-
-        return true;
+        return success;
     }
     private void Update()
     {
-        PlayerController player = FindObjectOfType<PlayerController>();
-        player.UpdatePotionChargeGauge(player.PotionChargeRatio);
+
     }
     private async UniTask<bool> Drink()
     {
-        float startTime = Time.time;
-
-        // 상태 변화 잠금
-        PlayerController player = FindObjectOfType<PlayerController>();
         if (player == null) return false;
+
         player.LockState();
-        player.StartPotionGuage();
-        while (Time.time - startTime < 2)
+        PlayerData.instance.StartPotionGauge(DRINK_DURATION);
+
+        float endTime = Time.time + DRINK_DURATION;
+
+        while (Time.time < endTime)
         {
             // 피격감지 => 피격시 false 반환
-
-            player.CancelPotionGuage();
             await UniTask.NextFrame();
         }
         // 잠금해제
 
-        player.EndPotionGuage();
+        PlayerData.instance.EndPotionGauge();
         player.UnlockState();
+
         return true;
     }
 

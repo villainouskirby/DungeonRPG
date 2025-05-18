@@ -1,463 +1,214 @@
-#if UNITY_EDITOR
-using UnityEditor;      // Handles
-#endif
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerChangeState
 {
-    private PlayerStateMachine stateMachine;
-    private Rigidbody2D rb;
-    private SpriteRenderer sprite;
-
-    [SerializeField] IPlayerState nowState;
-
-    [Header("UI References")]
-    [SerializeField] private Slider AttackchargeSlider;        // 차징 게이지 표현
-    [SerializeField] private Slider PotionchargeSlider;        // 차징 게이지 표현
-    [SerializeField] private Canvas chargeCanvas;   // 월드-스페이스 Canvas
-    [SerializeField] private CanvasGroup canvasGroup;
+    /* ---------- 이동/애니메이션 ---------- */
+    public Rigidbody2D rb;
+    public SpriteRenderer sprite;
+    public Animator anim;
 
     [Header("Movement Settings")]
-    public float speed = 5f;            // 일반 이동 속도
-    public float slideForce = 30f;       // 회피 시 속도
-    public float slideDuration = 0.4f;  // 회피 지속 시간
+    public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
 
-    [Header("Attack Settings")]
-    [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
-    [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
-    [SerializeField] private float[] afterDelay = { 0.3f, 0.5f }; // 1 타, 2 타 후딜
-    [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
-    [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
+    [Header(" Escape Settings")]
+    public int dodgeCost = 50;    // 스태미너 소모
+    public float diveTime = 0.30f; // 몸 던짐 구간 길이
+    public float proneTime = 0.55f; // 땅에 엎드린 구간
+    public float getUpTime = 0.45f; // 일어나기 구간
+    public float invincibleTime = 0.20f; // 무적 프레임
+    public float slideForce = 30f;  // 회피용
+    public float getUpBoost = 2.0f;  // 일어나면서 밀어줄 속도(작으면 거의 제자리)
 
-    private bool isAttacking = false;
-    private int comboStep = 0;   // 0=콤보 없음, 1=1타, 2=2타
-    float nextAttackReadyTime = 0f;
+    /* ---------- 상태머신 ---------- */
+    private PlayerStateMachine stateMachine;
+    [SerializeField] IPlayerState nowState;
 
-    [Header("Heavy-Attack Settings")]
-    [SerializeField] private float heavyMultiplier = 1.0f;  // 배율 k
-    [SerializeField] public float maxChargeTime = 1.0f;  // 완충 시간 Tmax
-    [SerializeField] private float heavyRadius = 2.5f;  // 범위 반경 r
-    [SerializeField] private float heavyAfterDelay = 0.7f;  // 후딜
+    /* ---------- Escape 내부 상태 ---------- */
+    enum EscapePhase { None, Dive, Down, GetUp }
+    EscapePhase escPhase = EscapePhase.None;
+    float phaseT = 0f;          // 현재 페이즈 남은 시간
+    Vector2 escDir = Vector2.zero;
+    bool isInvincible = false;
+    public bool EscapeActive => escPhase != EscapePhase.None;
 
-    private bool isAttackCharging = false;
-    private bool isPotionCharging = false;
-    private bool chargeCanceled = false;
-    private float chargeStart = 0f;
-    
-    private bool stateLocked = false; // 상태 잠금용
+    /* ---------- 내부 ---------- */
+    private bool stateLocked = false; // 외부(포션 등) 잠금
+    private int facingDir = 1;     // 0=Up,1=Down,2=Left,3=Right
+    public int FacingDir => facingDir;
+    public void SetFacingDirection(int d)
+    {
+        facingDir = d;
 
-    [SerializeField] private float beforeSpeed = 0;
-    private float moveInput = 0f;
+        // 애니메이션·스프라이트도 즉시 갱신
+        anim.SetInteger("Direction", d);
 
-    public bool canSneak { get; set; }
-  
-    [Header("Direction")]
-    [SerializeField] private PlayerInputDirection direction;
-    [SerializeField] private PlayerLookingDirection looking;
+        if (d == 3) sprite.flipX = true;   // Right
+        else if (d == 2) sprite.flipX = false;   // Left
+    }
+ 
 
-    private Animator m_animator;
-
-
-    // 회피 중인지 여부
-    private bool m_sliding = false;
-    private float m_slidingTimer = 0f;
-
-    // 플레이어가 바라보는 방향 (0=위,1=아래,2=왼,3=오른쪽)
-    private int m_facingDirection = 1; // 기본 아래(1)로 가정
+    /* ---------- 초기화 ---------- */
     private void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        sprite = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
+
         stateMachine = new PlayerStateMachine();
         stateMachine.ChangeState(new IdleState(this));
-        direction = PlayerInputDirection.None;
-        looking = PlayerLookingDirection.Right;
-        canSneak = true;
-
-        if (chargeCanvas)                       // 안전장치
-        {
-            chargeCanvas.renderMode = RenderMode.WorldSpace;
-            chargeCanvas.worldCamera = Camera.main;
-        }
-    }
-    void Start()
-    {
-        m_animator = GetComponent<Animator>();
-        canvasGroup.alpha = 0f;
-    }
-    
-    public void SetMoveInput(float input)
-    {
-        moveInput = input;
-    }
-    
-    public void StopMovement()
-    {
-        rb.velocity = new Vector2(0, rb.velocity.y);
-    }
-    public void ChangeState(IPlayerState newState)
-    {
-        if (stateLocked) return;
-        stateMachine.ChangeState(newState);
-    }
-    
-    public IPlayerState GetCurrentState()
-    {
-        return stateMachine.GetCurrentState();
     }
 
-    public void RestorePreviousState()
-    {
-        stateMachine.RestorePreviousState();
-    }
-    void Update() // 이동, 공격 로직
+    /* ---------- 상태 갱신 ---------- */
+    private void Update()
     {
         stateMachine.Update();
-        if (isAttacking) return;
         UpdateByState();
+        if (EscapeActive) UpdateEscape();
+    }
+    private void FixedUpdate()
+    {
+        if (EscapeActive) return;
+        /* 이동 */
+        float hx = Input.GetAxis("Horizontal");
+        float hy = Input.GetAxis("Vertical");
 
-        if (Input.GetMouseButtonDown(0) && !m_sliding)
+        if (hx == 0f && hy == 0f) { rb.velocity = Vector2.zero; return; }
+
+        Vector2 dir = new(hx, hy);
+        rb.velocity = dir.normalized * speed;
+        anim.SetBool("iswalking", true);
+
+        /* 바라보는 방향(좌우 Flip 포함) */
+        if (Mathf.Abs(hx) > 0f) facingDir = (hx < 0) ? 2 : 3;
+        else if (Mathf.Abs(hy) > 0f) facingDir = (hy > 0) ? 0 : 1;
+
+        anim.SetInteger("Direction", facingDir);
+        if (facingDir == 3) sprite.flipX = true;
+        else if (facingDir == 2) sprite.flipX = false;
+    }
+    private void UpdateByState() // 상태에 따른 속력
+    {
+        var cur = stateMachine.GetCurrentState();
+        speed = cur switch
         {
-            float now = Time.time;
-
-            // 아직 쿨타임이 안 끝났으면 입력 무시
-            if (now < nextAttackReadyTime) return;
-
-            if (now - nextAttackReadyTime <= comboInputTime)
-                comboStep++;        // 콤보 이어가기
-            else
-                comboStep = 1;      // 첫 타로 리셋
-
-            if (comboStep > 2) comboStep = 1;     // 현재 2단까지
-
-            StartCoroutine(PerformAttack(comboStep));
-        }
-    }
-    public void UpdateByState()
-    {
-        var current = GetCurrentState();
-
-        // 상태에 따른 플레이어 이동 속도
-        if (current is IdleState || current is SneakState)
-        {
-        }
-        else if (current is SneakMoveState || current is ChargingState)
-        {
-            speed = 1f;
-        }
-        else if (current is MoveState || current is ForageState)
-        {
-            speed = 3f;
-        }
-        else if (current is RunState)
-        {
-            speed = 5f;
-        }
-    }
-
-    #region 포션 사용 로직
-    // 차징 게이지 출력
-    public void UpdatePotionChargeGauge(float ratio)   // 0~1
-    {
-        if (PotionchargeSlider)
-            PotionchargeSlider.value = ratio;
-    }
-    public float PotionChargeRatio
-    {
-        get
-        {
-            if (!isPotionCharging) return 0f;
-            return Mathf.Clamp01((Time.time - chargeStart) / 2f);
-        }
-    }
-    public void LockState()
-    {
-        // 이미 Idle이 아니면 Idle로 돌려놓기
-        if (!(stateMachine.GetCurrentState() is IdleState))
-            ChangeState(new IdleState(this));
-
-        stateLocked = true;
-        rb.velocity = Vector2.zero;           // 혹시 움직이고 있었다면 정지
-    }
-    public void StartPotionGuage()
-    {
-        isPotionCharging = true;
-        if (canvasGroup) canvasGroup.alpha = 1f;
-        if (PotionchargeSlider) PotionchargeSlider.value = 0f;
-    }
-    public void CancelPotionGuage()
-    {
-        isPotionCharging = false;
-        if (canvasGroup) canvasGroup.alpha = 0f;
-    }
-    public void EndPotionGuage()
-    {
-        isPotionCharging = false;
-        if (canvasGroup) canvasGroup.alpha = 0f;
-    }
-    public void UnlockState() => stateLocked = false;
-    #endregion
-
-    #region 이동 로직
-    void FixedUpdate()
-    {
-        if (isAttacking)       // 공격 중이면 강제로 제동
-        {
-            rb.velocity = Vector2.zero;
-            return;
-        }
-        // 이동 입력 (Input.GetAxis)
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-
-        Vector2 dir = new Vector2(moveX, moveY);
-        Vector2 velocity = new Vector2(moveX, moveY).normalized * speed;
-        rb.velocity = velocity;
-        bool isWalk = dir.magnitude > 0f;
-        m_animator.SetBool("iswalking", isWalk);
-
-
-        // 바라보는 방향 업데이트
-        if (isWalk)
-        {
-            // 1) 가로축 입력이 있다면 → 좌/우 방향 우선
-            if (Mathf.Abs(moveX) > 0f)
-            {
-                m_facingDirection = (moveX < 0) ? 2 : 3; // 왼쪽:2, 오른쪽:3
-            }
-            // 2) 가로축 입력이 없고, 세로축 입력이 있다면 → 위/아래 방향
-            else if (Mathf.Abs(moveY) > 0f)
-            {
-                m_facingDirection = (moveY > 0) ? 0 : 1; // 위:0, 아래:1
-            }
-
-            // 애니메이터 Direction 파라미터 갱신
-            m_animator.SetInteger("Direction", m_facingDirection);
-
-            // 좌우 Flip 처리 (왼쪽:2 = flipX=false, 오른쪽:3 = flipX=true)
-            if (m_facingDirection == 3)
-                sprite.flipX = true;
-            else if (m_facingDirection == 2)
-                sprite.flipX = false;
-        }
-    }
-    #endregion
-
-    #region 공격 로직
-    private int DirFromMouse()
-    {
-        // 0=Up, 1=Down, 2=Left, 3=Right 반환
-        Vector2 v = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) -
-                    (Vector2)transform.position;
-
-        // X‑자(대각선) 경계: |x| > |y| → 좌/우 , 그 반대 → 상/하
-        if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
-            return (v.x > 0) ? 3 : 2;
-        else
-            return (v.y > 0) ? 0 : 1;
-    }
-    private IEnumerator PerformAttack(int step)
-    {
-        isAttacking = true;
-
-        m_facingDirection = DirFromMouse();
-        Vector2 forward = FacingVector();
-        m_animator.SetInteger("Direction", m_facingDirection);
-
-        string trig = $"Attack{step}" + (m_facingDirection switch
-        {
-            0 => "Up",
-            1 => "Down",
-            2 => "Left",
-            _ => "Right"
-        });
-        m_animator.SetTrigger(trig);
-
-        int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
-        if (step == 1) DoThrust(dmg, (Vector2)transform.position, forward);
-        else if (step == 2) DoSlash(dmg, (Vector2)transform.position, forward);
-
-        //히트박스 지속
-        yield return new WaitForSeconds(hitboxActiveTime);
-
-        // afterDelay 동안 이동·입력 금지 (쿨타임)
-        nextAttackReadyTime = Time.time + afterDelay[step - 1];
-        yield return new WaitForSeconds(afterDelay[step - 1]);
-
-        isAttacking = false;
-    }
-    // 바라보는 방향 계산
-    private Vector2 FacingVector()
-    {
-        return m_facingDirection switch
-        {
-            0 => Vector2.up,
-            1 => Vector2.down,
-            2 => Vector2.left,
-            3 => Vector2.right,
-            _ => Vector2.zero
+            IdleState or SneakState => 0f,
+            SneakMoveState or ChargingState
+            or NormalAttackState => 1f,
+            MoveState or ForageState => 3f,
+            RunState => 5f,
+            _ => speed
         };
     }
-    // 직사각형 범위의 공격
-    void DoSlash(int damage, Vector2 origin, Vector2 dir)
+
+    #region 회피 기동 로직
+    public bool TryBeginEscape()
     {
-        float width = 2f;
-        float length = 1f;
+        if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
+            return false;
 
-        Vector2 center = origin + dir * (length * 0.5f);
-        Vector2 size = new(width, length);
-        float angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        escPhase = EscapePhase.Dive;
+        phaseT = diveTime;
+        isInvincible = true;
 
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg);
+        // 방향 캡처 (키 없으면 현 facing)
+        escDir = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        if (escDir == Vector2.zero)
+            escDir = facingDir switch
+            { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
-        HashSet<MonsterBase> already = new();      // 같은 몬스터 두 번 때리지 않음
-        foreach (var h in hits)
+        rb.velocity = escDir.normalized * slideForce;
+        anim.SetTrigger("Dive");
+        return true;
+    }
+
+    /* ---------- Escape 진행 업데이트 ---------- */
+    void UpdateEscape()
+    {
+        phaseT -= Time.deltaTime;
+
+        switch (escPhase)
         {
-            if (!h.CompareTag("Monster")) continue;
+            case EscapePhase.Dive:
+                if (isInvincible && phaseT <= diveTime - invincibleTime)
+                    isInvincible = false;
+                if (phaseT <= 0f)
+                {
+                    StartDown();
+                }
+                break;
 
-            if (h.TryGetComponent(out MonsterBase monster)   // 변수에 먼저 담는다
-                && already.Add(monster))
-            {
-                monster.TakeDamage(damage);
-            }
+            case EscapePhase.Down:
+                if (phaseT <= 0f)
+                {
+                    StartGetUp();
+                }
+                break;
+
+            case EscapePhase.GetUp:
+                // 전진 감속
+                rb.velocity = Vector2.Lerp(escDir * getUpBoost, Vector2.zero,
+                                           1f - phaseT / getUpTime);
+                if (phaseT <= 0f)
+                {
+                    EndEscape();
+                }
+                break;
         }
     }
-    // 부채꼴 범위의 공격
-    void DoThrust(int damage, Vector2 origin, Vector2 dir)
+
+    void StartDown()
     {
-        float radius = 2.0f;
-        float arcAngle = 60f;
+        escPhase = EscapePhase.Down;
+        phaseT = proneTime;
+        rb.velocity = Vector2.zero;
+        anim.SetTrigger("Down");
+    }
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, radius);
+    void StartGetUp()
+    {
+        escPhase = EscapePhase.GetUp;
+        phaseT = getUpTime;
 
-        HashSet<MonsterBase> already = new();
-        foreach (var h in hits)
+        // 키 입력으로 방향 교정
+        Vector2 dir = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        if (dir != Vector2.zero)
         {
-            if (!h.CompareTag("Monster")) continue;
-
-            Vector2 to = (Vector2)h.transform.position - origin;
-            if (Vector2.Angle(dir, to) <= arcAngle * 0.5f
-                && h.TryGetComponent(out MonsterBase monster)
-                && already.Add(monster))
-            {
-                monster.TakeDamage(damage);
-            }
+            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                SetFacingDirection(dir.x < 0 ? 2 : 3);
+            else
+                SetFacingDirection(dir.y > 0 ? 0 : 1);
         }
+
+        escDir = facingDir switch
+        { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
+
+        rb.velocity = escDir * getUpBoost;
+        anim.SetTrigger("GetUp");
     }
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+
+    void EndEscape()
     {
-        if (!Application.isPlaying) return;   // 플레이 중일 때만
-
-        Vector2 origin = transform.position;
-        Vector2 dir    = FacingVector();
-
-        // Slash(직사각형)
-        float width  = 2f;
-        float length = 1f;
-        Vector2 center   = origin + dir * (length * 0.5f);
-        float   angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-
-        Matrix4x4 old = Gizmos.matrix;
-        Gizmos.color = new Color(1f, 0f, 0f, 0.25f);   // 붉은색 반투명
-        Gizmos.matrix =
-            Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angleDeg), Vector3.one);
-        Gizmos.DrawCube(Vector3.zero, new Vector3(width, length, 0));
-        Gizmos.matrix = old;
-
-        // Thrust(부채꼴)
-#if UNITY_EDITOR
-        Handles.color = new Color(1f, 0f, 0f, 0.25f);
-        float radius   = 2.0f;
-        float arcAngle = 60f;
-        Handles.DrawSolidArc(origin, Vector3.forward,
-                             Quaternion.Euler(0, 0, -arcAngle * 0.5f) * dir,
-                             arcAngle, radius);
-#endif
+        escPhase = EscapePhase.None;
+        rb.velocity = Vector2.zero;
+        isInvincible = false;
     }
-#endif
     #endregion
 
-    #region 강공격 로직
-    public void UpdateAttackChargeGauge(float ratio)   // 0~1
+    #region 공통 메소드
+    /* ---------- IPlayerChangeState ---------- */
+    public void ChangeState(IPlayerState s) { if (!stateLocked) stateMachine.ChangeState(s); }
+    public IPlayerState GetCurrentState() => stateMachine.GetCurrentState();
+    public void RestorePreviousState() => stateMachine.RestorePreviousState();
+
+    /* ---------- 외부에서 상태 잠그기/풀기 ---------- */
+    public void LockState()
     {
-        if (AttackchargeSlider)
-            AttackchargeSlider.value = ratio;
+        if (!(stateMachine.GetCurrentState() is IdleState))
+            ChangeState(new IdleState(this));
+        stateLocked = true;
+        rb.velocity = Vector2.zero;
     }
-    public void StartCharging()
-    {
-        isAttackCharging = true;
-        chargeCanceled = false;
-        chargeStart = Time.time;
-
-        m_animator.SetTrigger("ChargeStart");
-
-        if (canvasGroup) canvasGroup.alpha = 1f;   // ON
-        if (AttackchargeSlider) AttackchargeSlider.value = 0f;
-    }
-
-    public void CancelCharging()
-    {
-        if (!isAttackCharging) return;
-
-        isAttackCharging = false;
-        chargeCanceled = true;
-        m_animator.SetTrigger("ChargeCancel");
-
-        if (canvasGroup) canvasGroup.alpha = 0f;   // OFF
-    }
-    public void ReleaseCharging()        // 버튼을 떼거나 시간 만료
-    {
-        if (!isAttackCharging || chargeCanceled) return;
-        isAttackCharging = false;
-
-        // 데미지 산출
-        float elapsed = Mathf.Clamp(Time.time - chargeStart, 0, maxChargeTime);
-        float ratio = elapsed / maxChargeTime;         // 0~1
-        int damage = Mathf.RoundToInt(
-            baseDamage * (1f + heavyMultiplier * ratio));
-
-        // 애니메이션 & 타격
-        m_facingDirection = DirFromMouse();
-        m_animator.SetInteger("Direction", m_facingDirection);
-        m_animator.SetTrigger("HeavyAttack");
-
-        DoHeavyCircle(damage, transform.position, heavyRadius);
-        StartCoroutine(HeavyCooldown());
-
-        if (canvasGroup) canvasGroup.alpha = 0f;
-    }
-    // 쿨타임
-    private IEnumerator HeavyCooldown()
-    {
-        isAttacking = true;
-        nextAttackReadyTime = Time.time + heavyAfterDelay;
-        yield return new WaitForSeconds(heavyAfterDelay);
-        isAttacking = false;
-    }
-    // 원형 범위 공격
-    private void DoHeavyCircle(int damage, Vector2 origin, float radius)
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, radius);
-        HashSet<MonsterBase> already = new();
-
-        foreach (var h in hits)
-        {
-            if (!h.CompareTag("Monster")) continue;
-            if (h.TryGetComponent(out MonsterBase m) && already.Add(m))
-                m.TakeDamage(damage);
-        }
-    }
-    public float AttackChargeRatio
-    {
-        get
-        {
-            if (!isAttackCharging) return 0f;
-            return Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime);
-        }
-    }
+    public void UnlockState() => stateLocked = false;
     #endregion
 }
