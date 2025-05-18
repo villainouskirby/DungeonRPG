@@ -535,12 +535,12 @@ PrefabInstance:
     - target: {fileID: 7924456416834518146, guid: 0e1724575deb27f40bfe169f209b01fb,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5
+      value: 7.47
       objectReference: {fileID: 0}
     - target: {fileID: 7924456416834518146, guid: 0e1724575deb27f40bfe169f209b01fb,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.5
+      value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 7924456416834518146, guid: 0e1724575deb27f40bfe169f209b01fb,
         type: 3}
@@ -2759,10 +2759,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LayerRoot: {fileID: 1059977650}
-  Map: 1
+  Map: 2
   WallType:
-  - {fileID: 21300000, guid: e33c1f3ac2f501c4aae4d4a8eafd33d9, type: 3}
-  - {fileID: 21300000, guid: f315fa91b8947174f8f43af5dc42e90c, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   IndividualWall: 0
 --- !u!1 &1059977650
 GameObject:

@@ -144,9 +144,9 @@ public class MapManager : MonoBehaviour, ITileMapBase
 
     public bool CheckWall(Vector2Int tilePos)
     {
-        return false;
         for (int i = 0; i < DL.Instance.All.LayerCount; i++)
         {
+            Debug.Log("벽 체크중~");
             if (DL.Instance.All.TileMapLayerInfo[i].WallTileIndex.Contains(CM.Instance.GetTile(tilePos, i)))
                 return true;
         }
