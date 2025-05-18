@@ -81,7 +81,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         InitMap(mapType);
 
         // 맵 시작시 전체 청크 로딩
-        UpdateAllChunk(PlayerMoveChecker.Instance.LastTilePos);
+        UpdateAllChunk(LastChunkPos);
     }
 
     public void SaveMapData()
@@ -132,7 +132,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
             for (int j = 0; j < DL.Instance.All.LayerCount; j++)
             {
                 int offset = GetLayerChunkStartIndex(j, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
-                offset += Pos2ArrayIndex(GetLocalChunkPos(allChunk[i], NewChunkPos), _viewChunkSize) * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
+                offset += Pos2ArrayIndex(GetLocalChunkPos(allChunk[i], playerChunkPos), _viewChunkSize) * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
                 LoadChunkFromStream(allChunk[i], j).CopyTo(LoadedChunkData.AsSpan(offset));
             }
         }
@@ -214,7 +214,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         {
             for (int j = 0; j < viewChunkSize; j++)
             {
-                chunk[Pos2ArrayIndex(new(i, j), viewChunkSize)] = ConvertLocalChunkPos2WorldChunkPos(new(i, j), NewChunkPos);
+                chunk[Pos2ArrayIndex(new(i, j), viewChunkSize)] = ConvertLocalChunkPos2WorldChunkPos(new(i, j), LastChunkPos);
             }
         }
 
@@ -361,7 +361,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     private int GetIndexInViewBox(Vector2Int worldPos, int layerIndex)
     {
         Vector2Int localTilePos = GetLocalTilePos(worldPos);
-        Vector2Int localChunkPos = GetLocalChunkPos(GetChunkPos(worldPos), LastChunkPos);
+        Vector2Int localChunkPos = GetChunkPos(worldPos);
         int mappingIndex = LoadedChunkIndex[localChunkPos];
         int localIndex = GetChunkStartPos(mappingIndex, DL.Instance.All.ChunkSize)
             + Pos2ArrayIndex(localTilePos, DL.Instance.All.ChunkSize);

@@ -90,15 +90,19 @@ public static class JJSave
             typeByte = Type2TypeByteConverter.Convert(target);
 
         string path = GetSavePath(saveDataName, $"Resources/{fileRoot}");
+        using var fileStream = new FileStream(path, FileMode.Create);
         try
         {
-            using var fileStream = new FileStream(path, FileMode.Create);
             fileStream.Write(typeByte);
             Debug.Log($"JJSave : Data saved to {path}");
         }
         catch (Exception e)
         {
             Debug.LogError($"JJSave : Failed to save data - {e}");
+        }
+        finally
+        {
+            fileStream.Close();
         }
     }
 

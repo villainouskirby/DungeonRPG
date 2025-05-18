@@ -34,7 +34,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
             }
 
             Vector3Int leftBottom = bounds.position;
-            Vector2Int rightTop = new(leftBottom.x + bounds.size.x - 1, leftBottom.y + bounds.size.y - 1);
+            Vector2Int rightTop = new(leftBottom.x + bounds.size.x, leftBottom.y + bounds.size.y);
 
             size.x = Mathf.Max(size.x, rightTop.x);
             size.y = Mathf.Max(size.y, rightTop.y);
@@ -54,6 +54,9 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         mapData.All.Height = chunkSize.y;
         mapData.All.ChunkSize = EM.ChunkSize;
         mapData.All.LayerCount = Tilemap.Count;
+
+        Debug.Log($"맵 정보 - 가로 {mapData.All.Width} 세로 {mapData.All.Height}");
+
         Vector2 spawnPos = GameObject.FindWithTag("SpawnPoint").transform.position;
         mapData.All.PlayerSpawnTilePos = new(Mathf.FloorToInt(spawnPos.x), Mathf.FloorToInt(spawnPos.y));
 
@@ -107,7 +110,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
                 Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
                 Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
 
-                int chunkStartIndex = chunkIndex.x + chunkIndex.y * chunkSize.y;
+                int chunkStartIndex = chunkIndex.x + chunkIndex.y * chunkSize.x;
                 int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
                 int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
 
@@ -158,7 +161,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         List<int> wallType = new();
         for(int i = 0; i < wallSprite.Count; i++)
             if (_sprites.Contains(wallSprite[i]))
-                wallType.Add(_sprites.IndexOf(wallSprite[i]));
+                wallType.Add(_sprites.IndexOf(wallSprite[i]) + 1);
 
         return wallType.ToArray();
     }

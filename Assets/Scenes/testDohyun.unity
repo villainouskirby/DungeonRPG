@@ -9419,6 +9419,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 695941673}
+    - targetCorrespondingSourceObject: {fileID: 6623701870858405499, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 695941680}
   m_SourcePrefab: {fileID: 100100000, guid: ccdbe8f60e63dde45aecbcdd76056e32, type: 3}
 --- !u!1 &513478218
 GameObject:
@@ -9575,7 +9579,7 @@ Transform:
   m_GameObject: {fileID: 524322941}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13539,6 +13543,7 @@ MonoBehaviour:
   currentHP: {fileID: 11400000, guid: e25990f3ef3e20a4e85bcbcdbf249453, type: 2}
   currentStamina: {fileID: 11400000, guid: 70fa28d0b71b2794e972a597db4337aa, type: 2}
   StaminaSpeed: 2
+  chargeUI: {fileID: 0}
 --- !u!4 &695941666 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
@@ -13558,6 +13563,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ActiveRange: 1
+--- !u!114 &695941680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695941657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b639cab864ac3b643ba01225f3b193f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IconObj: {fileID: 1189766522915618635, guid: 85cc01b3d2b11a84d9e4d0b4cf09a6c1, type: 3}
+  FarmIcon: {fileID: 0}
+  TargetingObjPosCorrect: {x: 0, y: 0.2, z: 0}
+  TargetObj: {fileID: 0}
+  TargetFarm: {fileID: 0}
+  IsTargeting: 0
+  IsFarming: 0
+  Level: 0
+  FarmingKey: 102
+  MinLevelDifference: -3
+  FarmGageBarObj: {fileID: 6754062585048974638, guid: 2f2ddb442c920cd4d93a50793f90ebab,
+    type: 3}
+  FarmGageBar: {fileID: 0}
 --- !u!1 &709721995
 GameObject:
   m_ObjectHideFlags: 0
@@ -25185,7 +25215,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad10ee2120bd2b4c88eeab34a8fe7dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerCollider: {fileID: 1537640993}
 --- !u!58 &1537640993
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -34400,7 +34429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TargetCamera: {fileID: 524322943}
-  ViewBoxSize: 10
+  ViewBoxSize: 60
   Player: {fileID: 695941657}
   WallRoot: {fileID: 1339463730}
   LayerRoot: {fileID: 446844720}
