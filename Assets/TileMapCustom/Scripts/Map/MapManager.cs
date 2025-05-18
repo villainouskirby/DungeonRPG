@@ -23,8 +23,6 @@ public class MapManager : MonoBehaviour, ITileMapBase
     public void Init()
     {
         _instance = this;
-
-        //_mapVisitedChecker = gameObject.GetComponent<MapVisitedChecker>();
     }
 
     public void InitMap(MapEnum mapType)
@@ -35,6 +33,12 @@ public class MapManager : MonoBehaviour, ITileMapBase
             {
                 Destroy(_controller[i].gameObject);
             }
+        }
+
+        if (_layerBuffer != null)
+        {
+            for (int i = 0; i < _layerBuffer.Length; i++)
+                _layerBuffer[i].Dispose();
         }
 
         _layerBuffer = new GraphicsBuffer[DL.Instance.All.LayerCount];

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class IT_NpcObj : InteractionObj
 {
-    public string NpcName;
+    public NPC NpcName;
 
     public IT_NpcObj(InteractionTile interactionTile) : base(interactionTile)
     {

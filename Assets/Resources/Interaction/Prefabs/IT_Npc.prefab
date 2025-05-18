@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 8229358462452720860}
   - component: {fileID: 8840058050914012880}
   - component: {fileID: 4035890742728401255}
-  - component: {fileID: 5734316986763455537}
-  - component: {fileID: 8639535962134042985}
+  - component: {fileID: -2010430421234633099}
+  - component: {fileID: 1889841447412736846}
   m_Layer: 0
-  m_Name: IT_Teleport
+  m_Name: IT_Npc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,7 +133,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &5734316986763455537
+--- !u!114 &-2010430421234633099
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -142,24 +142,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 8005084792869158309}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f672669e5a84f944b79153e506d757d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Type: 3
-  Z: 0
-  LayerName: 
-  LayerIndex: 0
-  TargetPos: {x: 0, y: 0, z: 0}
---- !u!114 &8639535962134042985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8005084792869158309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80e59f5c2f4803640aa73b3561d0c2e8, type: 3}
+  m_Script: {fileID: 11500000, guid: eb76e0f272a361241bf67076781cac8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SR: {fileID: 8840058050914012880}
+--- !u!114 &1889841447412736846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005084792869158309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b61d485a6ecb145a4311bcc4c0c040, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 2
+  Z: 0
+  LayerName: 
+  LayerIndex: 0
+  NpcName: 1

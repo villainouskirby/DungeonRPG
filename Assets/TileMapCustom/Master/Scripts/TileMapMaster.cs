@@ -9,6 +9,10 @@ public class TileMapMaster : MonoBehaviour
     public static TileMapMaster Instance { get { return _instance; } }
     private static TileMapMaster _instance;
 
+#if UNITY_EDITOR
+    [Header("Test Settings")]
+    public MapEnum MapType = MapEnum.Map1;
+#endif
 
     [Header("Camera Settings")]
     public Camera TargetCamera;
@@ -31,7 +35,7 @@ public class TileMapMaster : MonoBehaviour
     public void Awake()
     {
         Init();
-        StartTileMap(MapEnum.Map2);
+        StartTileMap(MapType);
     }
 
 
@@ -54,8 +58,6 @@ public class TileMapMaster : MonoBehaviour
 
     public void StartTileMap(MapEnum mapType)
     {
-
-
         for(int i = 0; i < _base.Count; i++)
         {
             _base[i].StartMap(mapType);
@@ -80,6 +82,8 @@ public class TileMapMaster : MonoBehaviour
             }
         }
 
+        // 벽 생성 시작
+        Player.GetComponent<WallColliderGenerator>().Init();
         //GuideController.InitializeTileMap();
     }
 

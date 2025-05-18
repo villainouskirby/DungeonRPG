@@ -17,6 +17,10 @@ public class WallColliderGenerator : MonoBehaviour
         Init();
     }
 
+    // 맵 이동 간에 벽 생성 스크립트를 다시 Init 해줘야함..
+    // 이 부분은 플레이어 초기화 부분과 연결될거같아서 그 때 추가하는 걸로 어처피 플레이말고는 해당사항없음
+    // (맵 이동시 남아있는 오브젝트는 플레이어가 유일)
+    // 일단 Master에서 임의로 실행
     public void Init()
     {
         _lastRange = 0;

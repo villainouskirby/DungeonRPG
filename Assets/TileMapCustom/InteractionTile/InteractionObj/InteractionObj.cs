@@ -8,6 +8,8 @@ public class InteractionObj
     public InteractionEnum Type;
     public Vector2 TilePos;
     public float Z;
+    public string LayerName;
+    public int LayerIndex;
 
     public InteractionObj(InteractionTile interactionTile)
     {
@@ -16,6 +18,8 @@ public class InteractionObj
         TilePos = new(tileX, tileY);
         Type = interactionTile.Type;
         Z = interactionTile.Z;
+        LayerName = interactionTile.LayerName;
+        LayerIndex = interactionTile.LayerIndex;
     }
 
     public InteractionObj()

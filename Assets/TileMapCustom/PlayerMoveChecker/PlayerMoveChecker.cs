@@ -55,7 +55,8 @@ public class PlayerMoveChecker : MonoBehaviour, ITileMapBase
     public void InitMap(MapEnum mapType)
     {
         Vector2Int spawnTilePos = DataLoader.Instance.All.PlayerSpawnTilePos;
-        Vector3 spawnPos = new(spawnTilePos.x * MM.Instance.TileSize, spawnTilePos.y * MM.Instance.TileSize, 0);
+        Vector3 spawnPos = new(spawnTilePos.x * MM.Instance.TileSize + 0.5f * MM.Instance.TileSize,
+            spawnTilePos.y * MM.Instance.TileSize + 0.5f * MM.Instance.TileSize, 0);
         TM.Instance.Player.transform.position = spawnPos;
         LastTilePos = GetCurrentTilePos();
         _checkEndAction = null;

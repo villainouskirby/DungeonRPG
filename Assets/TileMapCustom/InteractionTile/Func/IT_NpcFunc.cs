@@ -7,14 +7,30 @@ using UnityEngine.SceneManagement;
 public class IT_NpcFunc : MonoBehaviour
 {
     private BoxCollider2D _collider;
-    private string _npcName;
+    private NPC _npcName;
     private bool _isActive;
+    public SpriteRenderer SR;
 
     public void Init(IT_NpcObj npcObj)
     {
         _collider = GetComponent<BoxCollider2D>();
         _npcName = npcObj.NpcName;
         _isActive = false;
+        SR.sortingLayerName = npcObj.LayerName;
+        SR.sortingOrder = npcObj.LayerIndex;
+
+        switch (_npcName) // 대충 UI Open하는 코드 추가 작성
+        {
+            case NPC.A:
+                gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+                break;
+            case NPC.B:
+                gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+                break;
+            case NPC.C:
+                gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+                break;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -40,18 +56,18 @@ public class IT_NpcFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.O))
         {
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {
-                case "A":
-                    
+                case NPC.A:
+                    UIPopUpHandler.Instance.OpenSmith();
                     break;
-                case "B":
-
+                case NPC.B:
+                    UIPopUpHandler.Instance.OpenShop();
                     break;
-                case "C":
-
+                case NPC.C:
+                    UIPopUpHandler.Instance.OpenQuest();
                     break;
             }
         }

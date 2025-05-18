@@ -43,6 +43,11 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         }
     }
 
+    private void OnDisable()
+    {
+        Stream.Close();
+    }
+
 
     public void Init()
     {
@@ -53,6 +58,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        ChunkLoadAction = null;
+        ChunkUnloadAction = null;
         LastChunkPos = GetChunkPos(PlayerMoveChecker.Instance.LastTilePos);
         LoadedChunkIndex.Clear();
         SetViewChunkSize(TM.Instance.ViewBoxSize);
@@ -63,9 +70,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
         string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/{mapType.ToString()}/");
 
-        if (Stream != null)
-            Stream.Close();
-
+        Stream?.Close();
         Stream = new FileStream(
             path,
             FileMode.Open,

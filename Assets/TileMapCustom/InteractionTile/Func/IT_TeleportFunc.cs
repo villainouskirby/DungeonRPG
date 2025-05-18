@@ -10,12 +10,15 @@ public class IT_TeleportFunc : MonoBehaviour
     private Vector3 _targetPos;
     private bool _isActive;
     private GameObject _player;
+    public SpriteRenderer SR;
 
     public void Init(IT_TeleportObj teleportObj)
     {
         _collider = GetComponent<BoxCollider2D>();
         _targetPos = teleportObj.TargetPos;
         _isActive = false;
+        SR.sortingLayerName = teleportObj.LayerName;
+        SR.sortingOrder = teleportObj.LayerIndex;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -42,7 +45,7 @@ public class IT_TeleportFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.O))
         {
             _player.transform.position = _targetPos;
         }

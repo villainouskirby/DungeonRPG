@@ -106,6 +106,17 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
                 teleport.GetComponent<IT_TeleportFunc>().Init((IT_TeleportObj)interactionObj);
                 AllInteraction.Add(teleport);
                 break;
+
+            case InteractionEnum.Npc:
+                GameObject npc = Instantiate(
+                    Resources.Load<GameObject>($"{DataFilePath}IT_{interactionObj.Type.ToString()}")
+                );
+
+                npc.transform.parent = _root.transform;
+                npc.transform.position = new((interactionObj.TilePos.x + 0.5f) * MapManager.Instance.TileSize, (interactionObj.TilePos.y + 0.5f) * MapManager.Instance.TileSize, interactionObj.Z);
+                npc.GetComponent<IT_NpcFunc>().Init((IT_NpcObj)interactionObj);
+                AllInteraction.Add(npc);
+                break;
         }
     }
 }

@@ -18,7 +18,6 @@ public class DecoManager : MonoBehaviour, ITileMapBase
     public SpriteAtlas DecoAtlas;
 
     private AsyncOperationHandle<SpriteAtlas> _handle;
-    private bool _isInit;
 
     public void Init()
     {
@@ -34,6 +33,16 @@ public class DecoManager : MonoBehaviour, ITileMapBase
     {
         UnloadDecoAtlas();
         LoadDecoAtlas($"{mapType.ToString()}_DecoAtlas");
+
+        foreach(var decoObj in ActiveDecoObj.Values)
+        {
+            for(int i = 0; i < decoObj.Count; i++)
+            {
+                DecoPool.Return(decoObj[i]);
+            }
+        }
+
+        ActiveDecoObj = new();
 
         InitDeco();
     }
