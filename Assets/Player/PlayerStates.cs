@@ -224,7 +224,7 @@ public class ChargingState : IPlayerState
     private readonly AttackController ac;
 
     private float timer;
-
+    private bool released;
     public ChargingState(IPlayerChangeState p)
     {
         player = p;
@@ -241,8 +241,10 @@ public class ChargingState : IPlayerState
 
         timer = ac.maxChargeTime;    // 최대 충전 시간
 
-        bool ok = ac.TryStartCharging();               // 시도
-        if (!ok) { player.ChangeState(new IdleState(player)); return; }
+        if (!ac.TryStartCharging())      // 충전에 실패하면 즉시 Idle
+        { player.ChangeState(new IdleState(player)); return; }
+        timer = ac.maxChargeTime;
+        released = false;
         Debug.Log("Charging…");
     }
 
@@ -255,20 +257,22 @@ public class ChargingState : IPlayerState
             player.ChangeState(new EscapeState(player));
             return;
         }
-
+        bool upEvent = Input.GetMouseButtonUp(1);
+        bool isHolding = Input.GetMouseButton(1);
         // 우클릭을 떼면 공격 발사
-        if (Input.GetMouseButtonUp(1))
+        if (!released && (upEvent || !isHolding))
         {
             ac.ReleaseCharging();
+            released = true;                         // 중복 방지
             player.ChangeState(new IdleState(player));
             return;
         }
 
-        // 시간 경과로 자동 발사
         timer -= Time.deltaTime;
-        if (timer <= 0f)
+        if (!released && timer <= 0f)
         {
             ac.ReleaseCharging();
+            released = true;
             player.ChangeState(new IdleState(player));
         }
     }
