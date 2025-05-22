@@ -30,7 +30,7 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
 
         if (st is IdleState or SneakState) NoiseRadius = 1f;
         else if (st is SneakMoveState) NoiseRadius = 3f;
-        else if (st is MoveState or ForageState) NoiseRadius = 5f;
+        else if (st is MoveState) NoiseRadius = 5f;
         else if (st is RunState) NoiseRadius = 7f;
         else NoiseRadius = 0f;   // 예외·공격 등
     }
