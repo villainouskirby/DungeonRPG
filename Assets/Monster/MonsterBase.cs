@@ -10,11 +10,11 @@ public abstract class MonsterBase : MonoBehaviour
     [SerializeField] protected Transform spawner;
     [SerializeField] protected LayerMask obstacleMask;
 
-    protected Transform player;
+    protected GameObject player;
     protected NavMeshAgent agent;
     protected Animator anim;
     protected float hp;
-
+    protected Transform playertrans; 
     protected enum State { Idle, Detect, Combat, Flee, Return, Escaped, Killed }
     protected State state;
     Coroutine stateRoutine;
@@ -30,6 +30,10 @@ public abstract class MonsterBase : MonoBehaviour
     #region Unity Lifecycle
     protected virtual void Awake()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+            Debug.LogError("No Player!");
+        playertrans = player.GetComponent<Transform>();
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         hp = data.maxHp;
@@ -37,8 +41,6 @@ public abstract class MonsterBase : MonoBehaviour
         agent.stoppingDistance = data.stoppingDistance;
         agent.updateRotation = false;  
         agent.updateUpAxis = false;
-
-        HealthBarManager.Instance?.Register(this);
 
         if (data.animator) anim.runtimeAnimatorController = data.animator;
     }
@@ -53,6 +55,8 @@ public abstract class MonsterBase : MonoBehaviour
     protected virtual void Start()
     {
         StartState(State.Idle);      // 처음 상태
+        if (HealthBarManager.Instance)
+            HealthBarManager.Instance.Register(this);
     }
 
     void StartState(State s)
@@ -61,7 +65,7 @@ public abstract class MonsterBase : MonoBehaviour
         state = s;
         stateRoutine = StartCoroutine(s.ToString());
     }
-    bool SeePlayer(float maxDist) => player && CanSeePlayer(player, maxDist);
+    bool SeePlayer(float maxDist) => player && CanSeePlayer(playertrans, maxDist);
 
     #endregion
 
@@ -180,10 +184,10 @@ public abstract class MonsterBase : MonoBehaviour
             if (TooFarFromSpawner()) { isfastReturn = true; ChangeState(State.Return); yield break; }
 
             agent.speed = data.combatSpeed;
-            agent.SetDestination(player.position);
+            agent.SetDestination(playertrans.position);
 
-            float dist = Vector2.Distance(transform.position, player.position);
-            bool see = CanSeePlayer(player, data.lostDistance);
+            float dist = Vector2.Distance(transform.position, playertrans.position);
+            bool see = CanSeePlayer(playertrans, data.lostDistance);
 
             if (!see || dist > data.lostDistance)
             {
@@ -303,19 +307,19 @@ public abstract class MonsterBase : MonoBehaviour
     {
         if (!player) return;
 
-        float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Vector2.Distance(transform.position, playertrans.position);
 
         // Detect : 소리 + 내 hearRange
         if (state is not (State.Combat or State.Flee) &&
             dist <= data.hearRange + GetNoise())
         {
-            detectedPos = player.position;
+            detectedPos = playertrans.position;
             ChangeState(State.Detect);
         }
 
         // Combat / Flee
         if (dist <= data.hearRange &&
-            CanSeePlayer(player, data.sightDistance))
+            CanSeePlayer(playertrans, data.sightDistance))
         {
             ChangeState(data.isaggressive ? State.Combat : State.Flee);
         }
@@ -332,7 +336,7 @@ public abstract class MonsterBase : MonoBehaviour
     {
         if (player) return;
         var go = GameObject.FindGameObjectWithTag("Player");
-        if (go) player = go.transform;
+        if (go) playertrans = go.transform;
     }
     private float GetNoise()
     {

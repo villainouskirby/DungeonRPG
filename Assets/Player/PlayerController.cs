@@ -86,9 +86,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         var cur = stateMachine.GetCurrentState();
         speed = cur switch
         {
-            IdleState or SneakState => 0f,
-            SneakMoveState or ChargingState
-            or NormalAttackState => 1f,
+            IdleState or SneakState or NormalAttackState => 0f,
+            SneakMoveState or ChargingState => 1f,
             MoveState => 3f,
             RunState => 5f,
             _ => speed
