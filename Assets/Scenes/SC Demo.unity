@@ -2345,7 +2345,7 @@ GameObject:
   - component: {fileID: 160017828}
   - component: {fileID: 160017832}
   - component: {fileID: 160017831}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Layer 2 - Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24298,7 +24298,7 @@ GameObject:
   - component: {fileID: 1222015275}
   - component: {fileID: 1222015278}
   - component: {fileID: 1222015277}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Layer 1 - Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39033,6 +39033,11 @@ PrefabInstance:
       propertyPath: spawner
       value: 
       objectReference: {fileID: 1302068632}
+    - target: {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}
       propertyPath: m_Name

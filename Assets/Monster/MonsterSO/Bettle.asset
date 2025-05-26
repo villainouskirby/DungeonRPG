@@ -20,11 +20,12 @@ MonoBehaviour:
   hearRange: 3
   sightDistance: 6
   lostDistance: 5
-  wanderRadius: 12
+  wanderRadius: 4
   detectSpeed: 1
   combatSpeed: 3
   fleeSpeed: 3.5
   stoppingDistance: 1
+  soundObstaclePenalty: 4
   maxSpawnerDist: 15
   nearSpawnerDist: 2
   isaggressive: 1

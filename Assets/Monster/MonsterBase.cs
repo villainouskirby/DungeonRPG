@@ -1,7 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor.Connect;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.XR;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator))]
 public abstract class MonsterBase : MonoBehaviour
@@ -13,6 +15,7 @@ public abstract class MonsterBase : MonoBehaviour
     protected GameObject player;
     protected NavMeshAgent agent;
     protected Animator anim;
+    protected SpriteRenderer sr;
     protected float hp;
     protected Transform playertrans; 
     protected enum State { Idle, Detect, Combat, Flee, Return, Escaped, Killed }
@@ -20,6 +23,7 @@ public abstract class MonsterBase : MonoBehaviour
     Coroutine stateRoutine;
     protected Vector3 detectedPos;   // Detect 시 목표 지점
     protected bool isfastReturn = false; // 스포너로부터 멀어져서 일어나는 귀환이면 빠르게 귀환
+    float nextSenseTime = 0f; // SensePlayer 간격 만들기용 변수
 
     protected virtual string IdleAnim => "Idle";
     protected virtual string WalkAnim => "Walk";
@@ -37,7 +41,8 @@ public abstract class MonsterBase : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         hp = data.maxHp;
-
+        sr = GetComponent<SpriteRenderer>();
+        SetStateColor(State.Idle);
         agent.stoppingDistance = data.stoppingDistance;
         agent.updateRotation = false;  
         agent.updateUpAxis = false;
@@ -49,7 +54,11 @@ public abstract class MonsterBase : MonoBehaviour
         if (state is State.Killed or State.Escaped) return;
 
         EnsurePlayer();
-        SensePlayer();
+        if (Time.time >= nextSenseTime)
+        {
+            nextSenseTime = Time.time + 1f;
+            SensePlayer();
+        }
     }
 
     protected virtual void Start()
@@ -86,6 +95,8 @@ public abstract class MonsterBase : MonoBehaviour
 
         if (stateRoutine != null) StopCoroutine(stateRoutine);
         state = s;
+        SetStateColor(s);  
+
         stateRoutine = StartCoroutine(s switch
         {
             State.Idle => Idle(),
@@ -108,15 +119,15 @@ public abstract class MonsterBase : MonoBehaviour
         }
     }
 
-    /* ----- Idle ----- */
     protected virtual IEnumerator Idle()
     {
         Play(IdleAnim);
-
+        isfastReturn = false;
         while (state == State.Idle)
         {
             if (TooFarFromSpawner()) { ChangeState(State.Return); yield break; }
-
+            agent.ResetPath();
+            yield return BreakableWait(1f, State.Idle);
             Vector3 dest;
             do
             {
@@ -139,27 +150,35 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual IEnumerator Detect()
     {
-        const float detectMax = 4f;              // ▶ 4 초 한도
+        const float NOISE_TIMEOUT = 2f;          // 새 소리 없으면 포기
         Play(WalkAnim);
-
         agent.speed = data.detectSpeed;
+
+        float sinceLastNoise = 0f;
+
+        // 첫 목표
         agent.SetDestination(detectedPos);
 
-        float t = 0f;
         while (state == State.Detect)
         {
-            // 시야 확보 → 바로 Combat/Flee
+            // 시야 확보 → Combat/Flee 
             if (SeePlayer(data.sightDistance))
             {
                 ChangeState(data.isaggressive ? State.Combat : State.Flee);
                 yield break;
             }
 
-            /* 2) 4 초 경과 or 목적지 도달 */
-            bool reached = ReachedDestination();
-            t += Time.deltaTime;
+            // SensePlayer()가 1초마다 detectedPos를 갱신함
+            if (agent.destination != detectedPos)
+            {
+                agent.SetDestination(detectedPos);
+                sinceLastNoise = 0f;             // 새 소리 → 타이머 리셋
+            }
 
-            if (t >= detectMax || reached)
+            sinceLastNoise += Time.deltaTime;
+
+            // 현재 목표 도착 + 2초 동안 새 소리 없음 → 종료
+            if (ReachedDestination() || sinceLastNoise >= NOISE_TIMEOUT)
             {
                 bool nearSpawner = spawner &&
                                    Vector2.Distance(transform.position,
@@ -270,10 +289,20 @@ public abstract class MonsterBase : MonoBehaviour
 
         if (dist > maxDist) return false;
 
-        var hit = Physics2D.Raycast(start, dir, dist, obstacleMask);
+        RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, ~0);
         return hit.collider && hit.collider.CompareTag("Player");
     }
+    void SetStateColor(State s)
+    {
+        if (!sr) return;
 
+        sr.color = s switch
+        {
+            State.Detect => Color.yellow,
+            State.Combat => Color.red,
+            _ => Color.white
+        };
+    }
     protected bool TooFarFromSpawner()
     {
         if (!spawner) return false;
@@ -303,28 +332,31 @@ public abstract class MonsterBase : MonoBehaviour
     public float GetHPRatio() => hp / data.maxHp;
 
 
-    private void SensePlayer()
+    void SensePlayer()
     {
         if (!player) return;
 
         float dist = Vector2.Distance(transform.position, playertrans.position);
+        bool heard = CanHearPlayer(data.hearRange);
+        bool seen = dist <= data.sightDistance &&
+                     CanSeePlayer(playertrans, data.sightDistance);
 
-        // Detect : 소리 + 내 hearRange
-        if (state is not (State.Combat or State.Flee) &&
-            dist <= data.hearRange + GetNoise())
+        // Detect : ‘소리’ + 내 hearRange 
+        if (heard)
         {
-            detectedPos = playertrans.position;
-            ChangeState(State.Detect);
-        }
+            detectedPos = playertrans.position;        // 가장 최신 위치 저장
 
-        // Combat / Flee
-        if (dist <= data.hearRange &&
-            CanSeePlayer(playertrans, data.sightDistance))
+            if (state != State.Detect && state is not (State.Combat or State.Flee))
+                ChangeState(State.Detect);             // Idle/Return → Detect 진입
+            /* Detect 중이라면 목표만 갱신하고 그대로 둔다 */
+        }
+        //  Combat / Flee : 시야 탐지로 상태 진입
+        if (seen)
         {
             ChangeState(data.isaggressive ? State.Combat : State.Flee);
         }
 
-        // 원거리 벗어남→Return
+        // 먼 거리 벗어나면 Return
         if (state is not State.Return &&
             dist > data.maxSpawnerDist &&
             spawner)
@@ -343,6 +375,30 @@ public abstract class MonsterBase : MonoBehaviour
         var psr = player.GetComponent<PlayerSoundRange>();
         return psr ? psr.NoiseRadius : 0f;
     }
+    // 소리 감쇠 보정치 계산 
+    int CountObstaclesBetween(Vector2 from, Vector2 to)
+    {
+        Vector2 dir = (to - from).normalized;
+        float dist = Vector2.Distance(from, to);
+
+        // obstacleMask에 포함되는 모든 충돌체를 조사
+        RaycastHit2D[] hits = Physics2D.RaycastAll(from, dir, dist, obstacleMask);
+        return hits.Length;          // 벽이 n개면 n 반환
+    }
+
+    // 소리를 들을 수 있는지?
+    bool CanHearPlayer(float baseRange)
+    {
+        if (!player) return false;
+
+        float dist = Vector2.Distance(transform.position, playertrans.position);
+
+        // 벽 개수 × 감쇠치만큼 거리를 늘려 “실질 거리”로 환산
+        int walls = CountObstaclesBetween(transform.position, playertrans.position);
+        float effective = dist + walls * data.soundObstaclePenalty;
+
+        return effective <= baseRange + GetNoise();
+    }
     private bool ReachedDestination()
         => !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance;
 
@@ -355,32 +411,5 @@ public abstract class MonsterBase : MonoBehaviour
             yield return null;
         }
     }
-
-    /*
-    //트리거 (소리·플레이어)
-    protected virtual void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.CompareTag("PlayerSound") && state is not (State.Combat or State.Killed))
-        {
-            detectedPos = col.transform.position;
-            ChangeState(State.Detect);
-        }
-        else if (col.CompareTag("Spawner") && state == State.Return)
-        {
-            ChangeState(State.Idle);
-        }
-    }
-
-    protected virtual void OnTriggerStay2D(Collider2D col)
-    {
-        if (isfastReturn) { return; }
-
-        if (col.CompareTag("Player") && CanSeePlayer(col.transform, data.sightDistance))
-        {
-            player = col.transform;
-            if (state != State.Killed) ChangeState(State.Combat);
-        }
-    }
-    */
     #endregion
 }
