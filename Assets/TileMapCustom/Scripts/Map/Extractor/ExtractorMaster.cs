@@ -18,9 +18,17 @@ public class ExtractorMaster : MonoBehaviour
     public MapEnum              Map;
 
     [Header("Layer Wall Settings")]
-    public List<Sprite>         WallType;
+    public MapSpriteList        WallType;
     public bool                 IndividualWall = false;
-    public List<List<Sprite>>   WallSettings;
+    public List<MapSpriteList>  WallSettings;
+
+    [Header("Shadow Settings")]
+    public MapSpriteList ShadowType;
+    public bool IndividualShadow = false;
+    public List<MapSpriteList> ShadowSettings;
+
+    [HideInInspector]
+    public int[] ShadowSpriteIndex;
 
     private void Awake()
     {
@@ -36,12 +44,17 @@ public class ExtractorMaster : MonoBehaviour
     public void Extract()
     {
         IExtractor[] extractor = gameObject.GetComponentsInChildren<IExtractor>();
+        IExtractorLate[] extractorLate = gameObject.GetComponentsInChildren<IExtractorLate>();
         TileMapData mapData = new();
         mapData.All = new();
 
         for (int i = 0; i < extractor.Length; i++)
         {
-            extractor[i].Extract(MapType, ref mapData);
+            extractor[i].Extract(MapType, mapData);
+        }
+        for (int i = 0; i < extractorLate.Length; i++)
+        {
+            extractorLate[i].Extract(MapType, mapData);
         }
 
         mapData.All.Setting = new();
@@ -54,4 +67,10 @@ public class ExtractorMaster : MonoBehaviour
         JJSave.RSave(mapData, $"{MapType}_MapData", DataFileDirectory);
         AssetDatabase.Refresh();
     }
+}
+
+[System.Serializable]
+public class MapSpriteList
+{
+    public List<Sprite> Sprites = new();
 }

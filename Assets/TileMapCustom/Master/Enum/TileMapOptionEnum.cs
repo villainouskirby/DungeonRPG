@@ -22,4 +22,5 @@ public enum TileMapBasePrimeEnum
     ChunkManager =          PlayerMoveChecker + 1,
     MapManager =            ChunkManager + 1,
     DecoManager =           MapManager + 1,
+    ShadowManager = DecoManager + 1,
 }

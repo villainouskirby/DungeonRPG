@@ -15,7 +15,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
     private List<Sprite> _sprites;
 
 
-    public void Extract(MapEnum mapType, ref TileMapData mapData)
+    public void Extract(MapEnum mapType, TileMapData mapData)
     {
         Tilemap = EM.Instance.LayerRoot.GetComponentsInChildren<Tilemap>().ToList();
         _sprites = new();
@@ -65,7 +65,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
         for (int i = 0; i < Tilemap.Count; i++)
         {
-            TileMapLayerData layerData = ExtractLayerToTileMapData(Tilemap[i], size, chunkSize);
+            TileMapLayerData layerData = ExtractLayer2TileMapData(Tilemap[i], size, chunkSize);
             mapData.All.TileMapLayerInfo[i] = new();
             mapData.All.TileMapLayerInfo[i].LayerIndex = Tilemap[i].gameObject.GetComponent<TilemapRenderer>().sortingOrder;
             mapData.All.TileMapLayerInfo[i].Z = Tilemap[i].transform.position.z;
@@ -78,16 +78,20 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         {
             if (EM.Instance.IndividualWall)
             {
-                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertWallSprite2Int(EM.Instance.WallSettings[i]);
+                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertSprite2Int(EM.Instance.WallSettings[i].Sprites);
             }
             else
             {
-                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertWallSprite2Int(EM.Instance.WallType);
+                mapData.All.TileMapLayerInfo[i].WallTileIndex = ConvertSprite2Int(EM.Instance.WallType.Sprites);
             }
         }
+
+        // 그림자 타일 세팅
+        // 일단 여기서 진행
+        EM.Instance.ShadowSpriteIndex = ConvertSprite2Int(EM.Instance.ShadowType.Sprites);
     }
 
-    public TileMapLayerData ExtractLayerToTileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize)
+    public TileMapLayerData ExtractLayer2TileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize)
     {
         targetLayer.CompressBounds();
         BoundsInt bounds = targetLayer.cellBounds;
@@ -156,14 +160,14 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         }
     }
 
-    public int[] ConvertWallSprite2Int(List<Sprite> wallSprite)
+    public int[] ConvertSprite2Int(List<Sprite> sprite)
     {
-        List<int> wallType = new();
-        for(int i = 0; i < wallSprite.Count; i++)
-            if (_sprites.Contains(wallSprite[i]))
-                wallType.Add(_sprites.IndexOf(wallSprite[i]) + 1);
+        List<int> spriteType = new();
+        for(int i = 0; i < sprite.Count; i++)
+            if (_sprites.Contains(sprite[i]))
+                spriteType.Add(_sprites.IndexOf(sprite[i]) + 1);
 
-        return wallType.ToArray();
+        return spriteType.ToArray();
     }
 
     public Texture2D[] ConvertSprite2Texture2D(List<Sprite> sprite)

@@ -20,20 +20,20 @@ public class DecoExtractor : MonoBehaviour, IExtractor
     private HashSet<Sprite> _decoSprite;
 
 
-    public void Extract(MapEnum mapType, ref TileMapData mapData)
+    public void Extract(MapEnum mapType, TileMapData mapData)
     {
         DataPath = $"{Application.dataPath}/TileMapAtals/";
         _chunkSize = mapData.All.ChunkSize;
         _decoSprite = new();
-        ExtractTilemap2Deco(ref mapData);
+        ExtractTilemap2Deco(mapData);
 
         string assetPath = $"Assets/TileMapAtals/{mapType.ToString()}/{mapType}DecoAtlas.spriteatlas";
 
         CreateAtlas(mapType, assetPath);
-        RegisterAddressable($"{mapType.ToString()}_DecoAtlas", assetPath);
+        RegisterAddressable("DecoAtlas", $"{mapType.ToString()}_DecoAtlas", assetPath);
     }
 
-    public void ExtractTilemap2Deco(ref TileMapData mapData)
+    public void ExtractTilemap2Deco(TileMapData mapData)
     {
         mapData.All.decoObjData = new();
 
@@ -143,16 +143,15 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         Debug.Log($"DecoExtractor : SpriteAtlas 에셋 생성 완료: {assetPath}");
     }
 
-    public void RegisterAddressable(string groupName, string assetPath)
+    public void RegisterAddressable(string groupName, string keyName, string assetPath)
     {
         var settings = AddressableAssetSettingsDefaultObject.Settings;
 
         var group = settings.FindGroup(groupName);
 
-        if (group != null)
-            settings.RemoveGroup(group);
-
-        group = settings.CreateGroup(
+        if (group == null)
+        {
+            group = settings.CreateGroup(
             groupName,
             false,
             false,
@@ -160,11 +159,13 @@ public class DecoExtractor : MonoBehaviour, IExtractor
             new List<AddressableAssetGroupSchema>(),
             new[] { typeof(BundledAssetGroupSchema) }
         );
+        }
 
         string guid = AssetDatabase.AssetPathToGUID(assetPath);
 
+        settings.RemoveAssetEntry(guid);
         var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
-        entry.address = groupName;
+        entry.address = keyName;
 
         settings.SetDirty(
             AddressableAssetSettings.ModificationEvent.EntryMoved,

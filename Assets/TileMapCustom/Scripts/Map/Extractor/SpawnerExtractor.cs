@@ -22,14 +22,14 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
                             _spawners;            
 
 
-    public void Extract(MapEnum mapType, ref TileMapData mapData)
+    public void Extract(MapEnum mapType, TileMapData mapData)
     {
         mapData.All.SpawnerData = new();
-        ExtractTilemapToSpawner();
+        ExtractTilemap2Spawner();
         SaveSpawnerData(ref mapData);
     }
 
-    private void ExtractTilemapToSpawner()
+    private void ExtractTilemap2Spawner()
     {
         _spawners = new();
 

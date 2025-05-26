@@ -9,12 +9,12 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
 {
     public Tilemap          Tilemap;
 
-    public void Extract(MapEnum mapEnum, ref TileMapData mapData)
+    public void Extract(MapEnum mapEnum, TileMapData mapData)
     {
-        mapData.All.InteractionObjData = ExtractTilemapToInteractionObj();
+        mapData.All.InteractionObjData = ExtractTilemap2InteractionObj();
     }
 
-    private InteractionObjData ExtractTilemapToInteractionObj()
+    private InteractionObjData ExtractTilemap2InteractionObj()
     {
         InteractionObjData result = new();
         var childs = Tilemap.transform.GetComponentsInChildren<Transform>();

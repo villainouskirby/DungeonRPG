@@ -6,7 +6,7 @@ using UnityEngine;
 public class DataLoader : MonoBehaviour, ITileMapBase
 {
     public static DataLoader Instance {get {return _instance;}}
-    public static DataLoader _instance;
+    private static DataLoader _instance;
 
     [ContextMenu("Make New Slot")]
     public void NewSlot()
