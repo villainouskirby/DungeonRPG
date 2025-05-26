@@ -20,7 +20,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float slideForce = 30f;  // 회피용
     public float getUpBoost = 2.0f;  // 일어나면서 밀어줄 속도(작으면 거의 제자리)
 
-    /* ---------- 상태머신 ---------- */
     private PlayerStateMachine stateMachine;
     [SerializeField] IPlayerState nowState;
 
@@ -46,9 +45,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (d == 3) sprite.flipX = true;   // Right
         else if (d == 2) sprite.flipX = false;   // Left
     }
- 
-
-    /* ---------- 초기화 ---------- */
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -59,7 +55,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         stateMachine.ChangeState(new IdleState(this));
     }
 
-    /* ---------- 상태 갱신 ---------- */
     private void Update()
     {
         stateMachine.Update();
@@ -79,7 +74,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         rb.velocity = dir.normalized * speed;
         anim.SetBool("iswalking", true);
 
-        /* 바라보는 방향(좌우 Flip 포함) */
         if (Mathf.Abs(hx) > 0f) facingDir = (hx < 0) ? 2 : 3;
         else if (Mathf.Abs(hy) > 0f) facingDir = (hy > 0) ? 0 : 1;
 
@@ -92,10 +86,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         var cur = stateMachine.GetCurrentState();
         speed = cur switch
         {
-            IdleState or SneakState => 0f,
-            SneakMoveState or ChargingState
-            or NormalAttackState => 1f,
-            MoveState or ForageState => 3f,
+            IdleState or SneakState or NormalAttackState => 0f,
+            SneakMoveState or ChargingState => 1f,
+            MoveState => 3f,
             RunState => 5f,
             _ => speed
         };
@@ -122,7 +115,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         return true;
     }
 
-    /* ---------- Escape 진행 업데이트 ---------- */
+    // Escape 진행 업데이트 
     void UpdateEscape()
     {
         phaseT -= Time.deltaTime;
@@ -196,12 +189,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #endregion
 
     #region 공통 메소드
-    /* ---------- IPlayerChangeState ---------- */
     public void ChangeState(IPlayerState s) { if (!stateLocked) stateMachine.ChangeState(s); }
     public IPlayerState GetCurrentState() => stateMachine.GetCurrentState();
     public void RestorePreviousState() => stateMachine.RestorePreviousState();
 
-    /* ---------- 외부에서 상태 잠그기/풀기 ---------- */
+    // 외부에서 상태 잠그기/풀기
     public void LockState()
     {
         if (!(stateMachine.GetCurrentState() is IdleState))

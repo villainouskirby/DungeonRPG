@@ -153,7 +153,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     {
         yield return new WaitForSeconds(heavyAfterDelay);
         heavyOnCooldown = false;   // 쿨타임 해제
-        pc.RestorePreviousState();
+        pc.ChangeState(new IdleState(pc));
     }
 
     // UI 실시간 갱신

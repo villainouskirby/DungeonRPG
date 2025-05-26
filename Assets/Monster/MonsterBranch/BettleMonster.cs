@@ -44,7 +44,7 @@ public class BeetleMonster : MonsterBase
         while (t < fleeDuration && state == State.Flee)
         {
             /* ① 플레이어 반대 + x 성분 큰 방향 찾기 */
-            Vector2 away = (transform.position - player.position).normalized;
+            Vector2 away = (transform.position - playertrans.position).normalized;
             Vector2 bestDir = away;
             float bestDot = -1f;
 
@@ -82,7 +82,7 @@ public class BeetleMonster : MonsterBase
             {
                 float dirX = bestDir.x != 0f
                            ? -Mathf.Sign(bestDir.x)
-                           : -Mathf.Sign(player.position.x - transform.position.x);
+                           : -Mathf.Sign(playertrans.position.x - transform.position.x);
 
                 agent.SetDestination(transform.position + new Vector3(dirX, 0f) * dirSampleDist);
                 yield return new WaitForSeconds(1f);

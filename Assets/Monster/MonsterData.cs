@@ -23,6 +23,9 @@ public class MonsterData : ScriptableObject
     public float fleeSpeed = 3.5f; // Flee 도주 속도
     public float stoppingDistance = 1f;   // NavMeshAgent.stoppingDistance
 
+    [Header("소리 탐지 로직")]
+    public float soundObstaclePenalty = 2f;   // 벽 1개당 거리 보정치(또는 dB 감쇠)
+
     [Header("스포너")]
     public float maxSpawnerDist = 15f;  // 이 거리 이상이면 Return
     public float nearSpawnerDist = 2f; // 이 거리만큼 스포너 근접 시 Idle 복귀

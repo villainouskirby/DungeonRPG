@@ -15,8 +15,8 @@ public class IdleState : IPlayerState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetKeyDown(KeyCode.E))
-        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
         { player.ChangeState(new ChargingState(player)); return; }
 
@@ -25,7 +25,7 @@ public class IdleState : IPlayerState
         if (moveX != 0 || moveY != 0) player.ChangeState(new MoveState(player));
 
         else if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakState(player));
-        else if (Input.GetKeyDown(KeyCode.F)) player.ChangeState(new ForageState(player));
+        
     }
 
     public void Exit() { } //Debug.Log("Idle 상태 종료");
@@ -45,8 +45,8 @@ public class MoveState : IPlayerState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetKeyDown(KeyCode.E))
-        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
         { player.ChangeState(new ChargingState(player)); return; }
 
@@ -79,8 +79,8 @@ public class RunState : IPlayerState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetKeyDown(KeyCode.E))
-        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
         { player.ChangeState(new ChargingState(player)); return; }
 
@@ -149,8 +149,8 @@ public class SneakState : IPlayerState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift))
         { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetKeyDown(KeyCode.E))
-        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
         { player.ChangeState(new ChargingState(player)); return; }
 
@@ -171,6 +171,7 @@ public class SneakState : IPlayerState
 
     public override string ToString() => "SneakState";
 }
+/*
 public class ForageState : IPlayerState
 {
     private IPlayerChangeState player;
@@ -210,13 +211,14 @@ public class GuardState : IPlayerState
 
     public void Update()
     {
-        /* 가드 해제 */
+         가드 해제 
         if (Input.GetKeyUp(KeyCode.Q))
             player.ChangeState(new IdleState(player));
     }
 
     public override string ToString() => "Guard";
 }
+*/
 public class ChargingState : IPlayerState
 {
     private readonly IPlayerChangeState player;
@@ -224,7 +226,7 @@ public class ChargingState : IPlayerState
     private readonly AttackController ac;
 
     private float timer;
-
+    private bool released;
     public ChargingState(IPlayerChangeState p)
     {
         player = p;
@@ -241,8 +243,10 @@ public class ChargingState : IPlayerState
 
         timer = ac.maxChargeTime;    // 최대 충전 시간
 
-        bool ok = ac.TryStartCharging();               // 시도
-        if (!ok) { player.ChangeState(new IdleState(player)); return; }
+        if (!ac.TryStartCharging())      // 충전에 실패하면 즉시 Idle
+        { player.ChangeState(new IdleState(player)); return; }
+        timer = ac.maxChargeTime;
+        released = false;
         Debug.Log("Charging…");
     }
 
@@ -255,20 +259,22 @@ public class ChargingState : IPlayerState
             player.ChangeState(new EscapeState(player));
             return;
         }
-
+        bool upEvent = Input.GetMouseButtonUp(1);
+        bool isHolding = Input.GetMouseButton(1);
         // 우클릭을 떼면 공격 발사
-        if (Input.GetMouseButtonUp(1))
+        if (!released && (upEvent || !isHolding))
         {
             ac.ReleaseCharging();
+            released = true;                         // 중복 방지
             player.ChangeState(new IdleState(player));
             return;
         }
 
-        // 시간 경과로 자동 발사
         timer -= Time.deltaTime;
-        if (timer <= 0f)
+        if (!released && timer <= 0f)
         {
             ac.ReleaseCharging();
+            released = true;
             player.ChangeState(new IdleState(player));
         }
     }
