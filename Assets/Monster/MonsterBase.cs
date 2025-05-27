@@ -17,13 +17,14 @@ public abstract class MonsterBase : MonoBehaviour
     protected Animator anim;
     protected SpriteRenderer sr;
     protected float hp;
-    protected Transform playertrans; 
+    protected Transform playertrans;
+    private PlayerSoundRange psr;
     protected enum State { Idle, Detect, Combat, Flee, Return, Escaped, Killed }
     protected State state;
     Coroutine stateRoutine;
     protected Vector3 detectedPos;   // Detect 시 목표 지점
     protected bool isfastReturn = false; // 스포너로부터 멀어져서 일어나는 귀환이면 빠르게 귀환
-    float nextSenseTime = 0f; // SensePlayer 간격 만들기용 변수
+    float senseTimer = 0f; // SensePlayer 간격 만들기용 변수
 
     protected virtual string IdleAnim => "Idle";
     protected virtual string WalkAnim => "Walk";
@@ -34,6 +35,7 @@ public abstract class MonsterBase : MonoBehaviour
     #region Unity Lifecycle
     protected virtual void Awake()
     {
+        psr = player ? player.GetComponent<PlayerSoundRange>() : null;
         player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
             Debug.LogError("No Player!");
@@ -53,10 +55,10 @@ public abstract class MonsterBase : MonoBehaviour
     {
         if (state is State.Killed or State.Escaped) return;
 
-        EnsurePlayer();
-        if (Time.time >= nextSenseTime)
+        senseTimer += Time.deltaTime;
+        if (senseTimer >= 1f)        // 1 초가 넘었을 때만
         {
-            nextSenseTime = Time.time + 1f;
+            senseTimer -= 1f;        // 남은 초과분 보존
             SensePlayer();
         }
     }
@@ -150,48 +152,77 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual IEnumerator Detect()
     {
-        const float NOISE_TIMEOUT = 2f;          // 새 소리 없으면 포기
+        const float NOISE_TIMEOUT = 2f;     // 최근 소리가 2 초 이상 업데이트 안되면 포기
+        const float DEST_TIMEOUT = 2f;     // 같은 목표로 2 초 이상 이동하면 포기
+        const float TARGET_EPS = 0.05f;  // 목적지 변경 허용 오차
+
         Play(WalkAnim);
         agent.speed = data.detectSpeed;
 
-        float sinceLastNoise = 0f;
+        float lostNoiseTimer = 0f;          // 들리지 않은 누적 시간
+        float travelTimer = 0f;          // 현재 목적지까지 달린 시간
 
-        // 첫 목표
-        agent.SetDestination(detectedPos);
-
+        Vector3 curTarget = detectedPos;
+        agent.SetDestination(curTarget);
+        if (TooFarFromSpawner()) { isfastReturn = true; ChangeState(State.Return); yield break; }
         while (state == State.Detect)
         {
-            // 시야 확보 → Combat/Flee 
+            // 아직 ‘듣고’ 있는가?
+            bool heardNow = CanHearPlayer(data.hearRange);
+
+            // 보이면 즉시 Combat/Flee
             if (SeePlayer(data.sightDistance))
             {
                 ChangeState(data.isaggressive ? State.Combat : State.Flee);
                 yield break;
             }
 
-            // SensePlayer()가 1초마다 detectedPos를 갱신함
-            if (agent.destination != detectedPos)
+            // 들리고 있다면 목표 좌표 계속 갱신
+            if (heardNow)
             {
-                agent.SetDestination(detectedPos);
-                sinceLastNoise = 0f;             // 새 소리 → 타이머 리셋
+                lostNoiseTimer = 0f;                        // 리셋
+                if (Vector2.Distance(curTarget, playertrans.position) > TARGET_EPS)
+                {
+                    curTarget = playertrans.position;   // 최신 위치
+                    agent.SetDestination(curTarget);
+                    travelTimer = 0f;                     // 새 목표이므로 리셋
+                }
+            }
+            else
+            {
+                lostNoiseTimer += Time.deltaTime;
             }
 
-            sinceLastNoise += Time.deltaTime;
-
-            // 현재 목표 도착 + 2초 동안 새 소리 없음 → 종료
-            if (ReachedDestination() || sinceLastNoise >= NOISE_TIMEOUT)
+            // 경로 계산 실패 시 즉시 포기
+            if (!agent.pathPending &&
+                agent.pathStatus != NavMeshPathStatus.PathComplete)
             {
-                bool nearSpawner = spawner &&
-                                   Vector2.Distance(transform.position,
-                                                    spawner.position)
-                                   <= data.nearSpawnerDist;
+                BreakToIdleOrReturn();   // 험지·막다른길 등
+                yield break;
+            }
 
-                ChangeState(nearSpawner ? State.Idle : State.Return);
+            // 목적 도착·타임아웃·소음 사라짐 판정
+            travelTimer += Time.deltaTime;
+            if (ReachedDestination() ||
+                travelTimer >= DEST_TIMEOUT ||
+                lostNoiseTimer >= NOISE_TIMEOUT)
+            {
+                BreakToIdleOrReturn();
                 yield break;
             }
 
             yield return null;
         }
+
+        void BreakToIdleOrReturn()
+        {
+            bool nearSpawner = spawner &&
+                               Vector2.Distance(transform.position, spawner.position)
+                               <= data.nearSpawnerDist;
+            ChangeState(nearSpawner ? State.Idle : State.Return);
+        }
     }
+
     protected virtual IEnumerator Combat()
     {
         Play(RunAnim);
@@ -292,46 +323,6 @@ public abstract class MonsterBase : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, ~0);
         return hit.collider && hit.collider.CompareTag("Player");
     }
-    void SetStateColor(State s)
-    {
-        if (!sr) return;
-
-        sr.color = s switch
-        {
-            State.Detect => Color.yellow,
-            State.Combat => Color.red,
-            _ => Color.white
-        };
-    }
-    protected bool TooFarFromSpawner()
-    {
-        if (!spawner) return false;
-        return Vector2.Distance(transform.position, spawner.position) >= data.maxSpawnerDist;
-    }
-
-    protected void Play(string name)
-    {
-        if (!anim) return;
-        //var cur = anim.GetCurrentAnimatorStateInfo(0);
-        //if (!cur.IsName(name)) anim.Play(name, 0, 0f);
-    }
-
-    protected IEnumerator WaitUntilReached()
-    {
-        while (agent.remainingDistance > agent.stoppingDistance) yield return null;
-    }
-
-    public virtual void TakeDamage(float dmg)
-    {
-        hp -= dmg;
-        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
-        Debug.Log("현재 몬스터 체력" + hp);
-        if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
-    }
-    public float GetCurrentHP() => hp;             // 절대값
-    public float GetHPRatio() => hp / data.maxHp;
-
-
     void SensePlayer()
     {
         if (!player) return;
@@ -364,16 +355,10 @@ public abstract class MonsterBase : MonoBehaviour
             ChangeState(State.Return);
         }
     }
-    private void EnsurePlayer()
-    {
-        if (player) return;
-        var go = GameObject.FindGameObjectWithTag("Player");
-        if (go) playertrans = go.transform;
-    }
+
     private float GetNoise()
     {
-        var psr = player.GetComponent<PlayerSoundRange>();
-        return psr ? psr.NoiseRadius : 0f;
+        return PlayerSoundRange.Instance ? PlayerSoundRange.Instance.NoiseRadius : 0f;
     }
     // 소리 감쇠 보정치 계산 
     int CountObstaclesBetween(Vector2 from, Vector2 to)
@@ -399,6 +384,41 @@ public abstract class MonsterBase : MonoBehaviour
 
         return effective <= baseRange + GetNoise();
     }
+    void SetStateColor(State s)
+    {
+        if (!sr) return;
+
+        sr.color = s switch
+        {
+            State.Detect => Color.yellow,
+            State.Combat => Color.red,
+            _ => Color.white
+        };
+    }
+    
+
+    protected void Play(string name)
+    {
+        if (!anim) return;
+        //var cur = anim.GetCurrentAnimatorStateInfo(0);
+        //if (!cur.IsName(name)) anim.Play(name, 0, 0f);
+    }
+
+    protected IEnumerator WaitUntilReached()
+    {
+        while (agent.remainingDistance > agent.stoppingDistance) yield return null;
+    }
+
+    public virtual void TakeDamage(float dmg)
+    {
+        hp -= dmg;
+        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
+        Debug.Log("현재 몬스터 체력" + hp);
+        if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
+    }
+    public float GetCurrentHP() => hp;             // 절대값
+    public float GetHPRatio() => hp / data.maxHp;
+
     private bool ReachedDestination()
         => !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance;
 
@@ -410,6 +430,11 @@ public abstract class MonsterBase : MonoBehaviour
             t += Time.deltaTime;
             yield return null;
         }
+    }
+    protected bool TooFarFromSpawner()
+    {
+        if (!spawner) return false;
+        return Vector2.Distance(transform.position, spawner.position) >= data.maxSpawnerDist;
     }
     #endregion
 }
