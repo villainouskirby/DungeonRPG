@@ -85,8 +85,8 @@ public class BeetleMonster : MonsterBase
                            : -Mathf.Sign(playertrans.position.x - transform.position.x);
 
                 agent.SetDestination(transform.position + new Vector3(dirX, 0f) * dirSampleDist);
-                yield return new WaitForSeconds(1f);
-                t += 1f;
+                yield return new WaitForSeconds(0.4f);
+                t += 2f;
                 continue;   // 다음 루프에서 재샘플
             }
 

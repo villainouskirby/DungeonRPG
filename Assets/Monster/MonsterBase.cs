@@ -328,7 +328,7 @@ public abstract class MonsterBase : MonoBehaviour
         if (!player) return;
 
         float dist = Vector2.Distance(transform.position, playertrans.position);
-        bool heard = CanHearPlayer(data.hearRange);
+        bool heard = data.canHearNoise && CanHearPlayer(data.hearRange);
         bool seen = dist <= data.sightDistance &&
                      CanSeePlayer(playertrans, data.sightDistance);
 
@@ -337,9 +337,15 @@ public abstract class MonsterBase : MonoBehaviour
         {
             detectedPos = playertrans.position;        // 가장 최신 위치 저장
 
-            if (state != State.Detect && state is not (State.Combat or State.Flee))
-                ChangeState(State.Detect);             // Idle/Return → Detect 진입
-            /* Detect 중이라면 목표만 갱신하고 그대로 둔다 */
+            if (data.hearToCombat)          // “소리 = 전투” 타입
+            {
+                ChangeState(data.isaggressive ? State.Combat : State.Flee);
+            }
+            else
+            {
+                if (state is not (State.Detect or State.Combat or State.Flee))
+                    ChangeState(State.Detect);          // Idle/Return → Detect
+            }
         }
         //  Combat / Flee : 시야 탐지로 상태 진입
         if (seen)
