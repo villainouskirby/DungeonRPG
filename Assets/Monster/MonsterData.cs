@@ -32,6 +32,9 @@ public class MonsterData : ScriptableObject
 
     [Header("적대적/비적대적 몬스터")]
     public bool isaggressive = true;
+    [Header("지각 능력")]
+    public bool canHearNoise = true;   // 청각 보유 여부
+    public bool hearToCombat = false;  // 소리만 들어도 바로 전투
     //[Header("애니메이터")]
     public RuntimeAnimatorController animator;
 
