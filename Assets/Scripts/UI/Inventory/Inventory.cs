@@ -50,11 +50,11 @@ public class Inventory : MonoBehaviour
         {
             if (item is CountableItem ci)
             {
-                AddItem(ci.Data, ci.Amount);
+                AddItem(ci.Data, ci.Amount, false);
             }
             else
             {
-                AddItem(item.Data);
+                AddItem(item.Data, 1, false);
             }
         }
 
@@ -65,7 +65,7 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
-    public int AddItemForce(ItemData itemData, int amount = 1)
+    public int AddItemForce(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
         int index;
 
@@ -73,7 +73,7 @@ public class Inventory : MonoBehaviour
         if (_equipment)
         {
             if (itemData is not EquipmentItemData ||
-                _equipment.GetItemData((itemData as EquipmentItemData).EquipmentType) != itemData)
+                isGetItem)
             {
                 CalculateRestWeight(itemData.Weight, -amount);
             }
@@ -83,9 +83,15 @@ public class Inventory : MonoBehaviour
             CalculateRestWeight(itemData.Weight, -amount);
         }
 
-        if (_maxCapacity > 0 && RestCapacity <= 0)
+        if (_maxCapacity > 0 && RestCapacity <= 0 && isGetItem)
         {
             _inventoryUI.OpenExcessPopUp();
+        }
+
+        // 아이템 획득시 팝업되도록 순서대로 큐에 저장
+        if (isGetItem)
+        {
+            _inventoryUI.AddItemPopUpQueue(itemData, amount);
         }
 
         // 수량이 있는 아이템
@@ -147,7 +153,7 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary> 아이템 넣기 </summary>
-    public int AddItem(ItemData itemData, int amount = 1)
+    public int AddItem(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
         // 가방에 넣을 수 있는 개수 체크
         if (_maxCapacity > 0 && RestCapacity <= 0)
@@ -156,7 +162,7 @@ public class Inventory : MonoBehaviour
             return amount;
         }
 
-        return AddItemForce(itemData, amount);
+        return AddItemForce(itemData, amount, isGetItem);
     }
 
     public async void UseItem(int index = -1)
@@ -188,6 +194,8 @@ public class Inventory : MonoBehaviour
                 }
             }
         }
+
+
     }
 
     public void SetItemToQuickSlot(int index)
