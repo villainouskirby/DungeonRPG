@@ -145,7 +145,7 @@ public static class XlsxDataManager
             catch (Exception ex)
             {
                 retryCount++;
-                Debug.LogError($"{xlsxName} : 데이터 생성 실패 - {ex.Message}");
+                Debug.LogError($"{xlsxName} : 데이터 생성 실패 - {ex.Message} {ex.StackTrace} {ex.InnerException}");
 
                 if (maxRetries > 0 && retryCount >= maxRetries)
                 {
@@ -266,7 +266,7 @@ public static class XlsxDataManager
     {
         Debug.Log($"{Path.GetFileName(path)} {type} : 삭제 시작");
         const int retryDelayMs = 500; // 재시도 간격 (밀리초)
-        const int maxRetryAttempts = 5; // 0이면 무제한 시도
+        const int maxRetryAttempts = 1; // 0이면 무제한 시도
         int retryCount = 0;
 
         while (Directory.Exists(path))

@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         stateMachine.Update();
         UpdateByState();
         if (EscapeActive) UpdateEscape();
-        Debug.Log(stateMachine.GetCurrentState());
+        //Debug.Log(stateMachine.GetCurrentState());
     }
     private void FixedUpdate()
     {

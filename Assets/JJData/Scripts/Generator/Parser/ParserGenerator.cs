@@ -63,13 +63,19 @@ public class ParserGenerator : IParserGenerator
 
         foreach (var dataName in dataNamePair)
         {
-            if (skipColumns.Contains(dataName.Key))
-                continue;
-
-            if (dataTypePair[dataName.Key] == "string")
-                BuildStringSetter(sb, dataName.Value);
-            else
-                BuildVariableSetter(sb, String2TypeByteConverter.TypeByteLength[dataTypePair[dataName.Key]], dataName.Value, dataTypePair[dataName.Key]);
+            try
+            {
+                if (skipColumns.Contains(dataName.Key))
+                    continue;
+                if (dataTypePair[dataName.Key] == "string")
+                    BuildStringSetter(sb, dataName.Value);
+                else
+                    BuildVariableSetter(sb, String2TypeByteConverter.TypeByteLength[dataTypePair[dataName.Key]], dataName.Value, dataTypePair[dataName.Key]);
+            }
+            catch(Exception ex)
+            {
+                Debug.LogWarning($"{dataName.Key}와 {dataName.Value}에 오류 발생 {ex.Message}");
+            }
         }
 
         sb.AppendLine($"            {xlsxName}.{sheetName}[row] = sheetRowData;");

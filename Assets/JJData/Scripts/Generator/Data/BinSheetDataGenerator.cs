@@ -12,6 +12,17 @@ public class BinSheetDataGenerator : ISheetDataGenerator
     private ConcurrentDictionary<string, Dictionary<int, string>> _sheetVariableType = new();
     private String2TypeByteConverter _converter = new();
 
+    ~BinSheetDataGenerator()
+    {
+        if (_writer != null)
+        {
+            foreach(var a in  _writer)
+            {
+                a.Value.Dispose();
+            }
+        }
+    }
+
     public void StartSheetDataGenerate(string sheetName, string xlsxName, string sheetDataFilePath)
     {
         _converter = new();
@@ -56,10 +67,17 @@ public class BinSheetDataGenerator : ISheetDataGenerator
         _sheetRowNum[sheetName] += 1;
         foreach (var cellValue in rowData)
         {
-            if (skipColumns.Contains(cellValue.Key))
-                continue;
-            byte[] dataBytes = _converter.Convert(_sheetVariableType[sheetName][cellValue.Key] ,cellValue.Value);
-            _writer[sheetName].Write(dataBytes);
+            try
+            {
+                if (skipColumns.Contains(cellValue.Key))
+                    continue;
+                byte[] dataBytes = _converter.Convert(_sheetVariableType[sheetName][cellValue.Key], cellValue.Value);
+                _writer[sheetName].Write(dataBytes);
+            }
+            catch(Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"{cellValue.Key} 에 {cellValue.Value} {ex.Message}");
+            }
         }
     }
 }

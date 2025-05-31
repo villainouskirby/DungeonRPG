@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -33,20 +35,27 @@ public class ClassGenerator : IClassGenerator
         // 각 필드 생성
         foreach (var dataType in dataTypePair)
         {
-            int key = dataType.Key;
-
-            if (skipColumns.Contains(key))
-                continue; // #처리된 열은 스킵
-
-            // 설명이 있다면 주석 추가
-            if (descriptionPair.ContainsKey(key) && !string.IsNullOrEmpty(descriptionPair[key]))
+            try
             {
-                sb.AppendLine($"    /// <summary>");
-                sb.AppendLine($"    /// {descriptionPair[key]}");
-                sb.AppendLine($"    /// </summary>");
+                int key = dataType.Key;
+
+                if (skipColumns.Contains(key))
+                    continue; // #처리된 열은 스킵
+
+                // 설명이 있다면 주석 추가
+                if (descriptionPair.ContainsKey(key) && !string.IsNullOrEmpty(descriptionPair[key]))
+                {
+                    sb.AppendLine($"    /// <summary>");
+                    sb.AppendLine($"    /// {descriptionPair[key]}");
+                    sb.AppendLine($"    /// </summary>");
+                }
+                // 필드 선언
+                sb.AppendLine($"    public {dataType.Value} {dataNamePair[key]};");
             }
-            // 필드 선언
-            sb.AppendLine($"    public {dataType.Value} {dataNamePair[key]};");
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"{dataType.Key} 에 {dataType.Value} {ex.Message}");
+            }
         }
 
         FinishClass($"{xlsxName}_{sheetName}", path, sb);

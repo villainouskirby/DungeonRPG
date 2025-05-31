@@ -54,7 +54,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     private int DirFromMouse()
     {
-        Vector2 v = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition)
+        Vector3 pos = Input.mousePosition;
+        pos.z = transform.position.z - Camera.main.transform.position.z;
+        Vector2 v = (Vector2)Camera.main.ScreenToWorldPoint(pos)
                     - (Vector2)transform.position;
 
         // X자 대각선(|x| > |y|?)을 기준으로 4분면 분리
@@ -94,7 +96,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         string trig = $"Attack{step}" + Suffix(dir); // ← ex) Attack1Right
         anim.SetTrigger(trig);
-
 
         Vector2 forward = FacingVector(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
@@ -178,12 +179,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float w = 2f, l = 1f;
         Vector2 center = origin + dir * (l * .5f);
         float angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(w, l), angleDeg);
         HashSet<MonsterBase> done = new();
         foreach (var h in hits)
+        {
             if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase m) && done.Add(m))
                 m.TakeDamage(dmg);
+            if (h.CompareTag("Farm") && h.TryGetComponent(out FarmableBase f))
+                Debug.Log($"채집물 공격! {h.gameObject.name}");
+        }
     }
     private void DoThrust(int dmg, Vector2 origin, Vector2 dir)
     {
@@ -192,8 +196,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         HashSet<MonsterBase> done = new();
         foreach (var h in hits)
         {
-            if (!h.CompareTag("Monster")) continue;
             Vector2 to = (Vector2)h.transform.position - origin;
+            if (h.CompareTag("Farm") && Vector2.Angle(dir, to) <= arc * .5f &&
+                h.TryGetComponent(out FarmableBase f))
+                Debug.Log($"채집물 공격! {h.gameObject.name}");
+            if (!h.CompareTag("Monster")) continue;
             if (Vector2.Angle(dir, to) <= arc * .5f &&
                 h.TryGetComponent(out MonsterBase m) && done.Add(m))
                 m.TakeDamage(dmg);
@@ -246,5 +253,3 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
 #endif
 }
-
-

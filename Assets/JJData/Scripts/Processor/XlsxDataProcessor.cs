@@ -117,9 +117,34 @@ public class XlsxDataProcessor : IDataProcessor
                     var currentRowData = ExtractRowData(sheetReader);
                     currentRow++;
                     if (currentRow == (int)DataForm.Description) // Description
+                    {
                         descriptionPair = currentRowData;
+                        foreach (var pair in descriptionPair)
+                        {
+                            if (pair.Value.StartsWith("#")) // #으로 시작시 스킵
+                            {
+                                if (!skipColumns.Contains(pair.Key))
+                                    skipColumns.Add(pair.Key);
+                            }
+                        }
+                    }
                     else if (currentRow == (int)DataForm.DataType) // DataType
+                    {
                         dataTypePair = currentRowData;
+                        foreach (var pair in dataTypePair)
+                        {
+                            if (pair.Value.StartsWith("#")) // #으로 시작시 스킵
+                            {
+                                if (!skipColumns.Contains(pair.Key))
+                                    skipColumns.Add(pair.Key);
+                            }
+                            if (pair.Value.Trim() == "")
+                            {
+                                if (!skipColumns.Contains(pair.Key))
+                                    skipColumns.Add(pair.Key);
+                            }
+                        }
+                    }
                     else if (currentRow == (int)DataForm.DataName) // DataName
                     {
                         dataNamePair = currentRowData;
@@ -127,7 +152,13 @@ public class XlsxDataProcessor : IDataProcessor
                         {
                             if (pair.Value.StartsWith("#")) // #으로 시작시 스킵
                             {
-                                skipColumns.Add(pair.Key);
+                                if (!skipColumns.Contains(pair.Key))
+                                    skipColumns.Add(pair.Key);
+                            }
+                            if (pair.Value.Trim() == "")
+                            {
+                                if (!skipColumns.Contains(pair.Key))
+                                    skipColumns.Add(pair.Key);
                             }
                         }
 
@@ -144,6 +175,15 @@ public class XlsxDataProcessor : IDataProcessor
                         {
                             rowData.Remove(skipColumn);
                         }
+
+                        int emptyData = 0;
+                        foreach (var data in rowData)
+                        {
+                            if (data.Value.Trim() == "")
+                                emptyData++;
+                        }
+                        if (rowData.Count == emptyData)
+                            continue;
 
                         dataGenerator.WriteRowData(sheetInfo.sheetName, rowData, skipColumns);
                     }
