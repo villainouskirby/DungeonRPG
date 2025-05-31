@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CircleCollider2D))]
+[RequireComponent(typeof(PolygonCollider2D))]
 public abstract class FarmableBase : MonoBehaviour
 {
     public FarmEnum Type { get { return _type; } }
@@ -32,7 +32,6 @@ public abstract class FarmableBase : MonoBehaviour
     // 기본값을 Init한다. 최초 1회
     public virtual void Init()
     {
-        _block = new();
         _renderer = GetComponent<SpriteRenderer>();
     }   
 
@@ -58,8 +57,6 @@ public abstract class FarmableBase : MonoBehaviour
     {
         // 기본값을 전부 세팅해준다.
         TilePos = new(Mathf.FloorToInt(transform.position.x / MapManager.Instance.TileSize), Mathf.FloorToInt(transform.position.y / MapManager.Instance.TileSize));
-        _block.SetFloat("_IsDisable", 0f);
-        _renderer.SetPropertyBlock(_block);
         _isCheckVisible = true;
     }
 }

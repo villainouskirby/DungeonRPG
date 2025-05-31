@@ -63,6 +63,7 @@ public class Spawner
             return;
 
         target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, Z);
+        
         IsIdentify = true;
         SpawnObj.SetActive(true);
     }

@@ -5,10 +5,21 @@ using UnityEngine;
 
 public class PlayerFarming : MonoBehaviour
 {
+    public static PlayerFarming Instance { get { return _instance; } }
+    private static PlayerFarming _instance;
+
     private List<GameObject> _rangedFarmObj = new();
+
+
+    [Header("Outline Color Settings")]
+    public Color AbleColor;
+    public Color DisableColor;
+
+
 
     [Header("Targeting Settings")]
     public GameObject IconObj;
+    public LayerMask FarmLayerMask;
     [HideInInspector]
     public FarmIconFunc FarmIcon;
     public Vector3 TargetingObjPosCorrect = new(0, 0.2f);
@@ -17,6 +28,9 @@ public class PlayerFarming : MonoBehaviour
     public GameObject TargetObj;
     [HideInInspector]
     public FarmableBase TargetFarm;
+    [HideInInspector]
+    public OutlineGenerator TargetFarmOutline;
+    public bool IsMouseSelect;
     public bool IsTargeting;
     public bool IsFarming;
 
@@ -30,15 +44,19 @@ public class PlayerFarming : MonoBehaviour
     [HideInInspector]
     public FarmGageBarFunc FarmGageBar;
 
+    private Camera _mainCamera;
+
 
     private void Start()
     {
         _rangedFarmObj = new();
         TargetFarm = null;
         TargetObj = null;
+        IsMouseSelect = false;
         IsTargeting = false;
         IsFarming = false;
         FarmGageBar = Instantiate(FarmGageBarObj, transform, false).GetComponent<FarmGageBarFunc>();
+        _mainCamera = Camera.main;
     }
 
     private float   _minDistance;
@@ -50,6 +68,10 @@ public class PlayerFarming : MonoBehaviour
         if (IsFarming)
             return;
 
+        if (IsMouseSelect)
+        {
+            return;
+        }
 
         _minDistance = 9999999;
         _targetIndex = 0;
@@ -68,17 +90,31 @@ public class PlayerFarming : MonoBehaviour
 
         if (TargetObj != _rangedFarmObj[_targetIndex])
         {
-            TargetObj = _rangedFarmObj[_targetIndex];
-            TargetFarm = TargetObj.GetComponent<FarmableBase>();
-
-
-            if(FarmIcon == null)
-                FarmIcon = Instantiate(IconObj, TargetObj.transform.position + TargetingObjPosCorrect, Quaternion.identity).GetComponent<FarmIconFunc>();
-
-            FarmIcon.gameObject.SetActive(true);
-            FarmIcon.transform.position = TargetObj.transform.position + TargetingObjPosCorrect;
-            FarmIcon.SetIcon(TargetFarm.Type, CheckFarmable());
+            SelectFarm(_rangedFarmObj[_targetIndex]);
         }
+    }
+
+    private Color GetOutlineColor()
+    {
+        return CheckFarmable() ? AbleColor : DisableColor;
+    }
+
+    private void SelectFarm(GameObject target)
+    {
+        if (TargetFarmOutline != null)
+            TargetFarmOutline.OffOutline();
+
+        TargetObj = target;
+        TargetFarm = TargetObj.GetComponent<FarmableBase>();
+        TargetFarmOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
+        TargetFarmOutline.OnOutline(GetOutlineColor());
+
+        if (FarmIcon == null)
+            FarmIcon = Instantiate(IconObj, TargetObj.transform.position + TargetingObjPosCorrect, Quaternion.identity).GetComponent<FarmIconFunc>();
+
+        FarmIcon.gameObject.SetActive(true);
+        FarmIcon.transform.position = TargetObj.transform.position + TargetingObjPosCorrect;
+        FarmIcon.SetIcon(TargetFarm.Type, CheckFarmable());
     }
 
     private void Update()
@@ -98,6 +134,24 @@ public class PlayerFarming : MonoBehaviour
 
         if (!IsTargeting)
             return;
+
+        Vector3 pos = Input.mousePosition;
+        pos.z = transform.position.z - _mainCamera.transform.position.z;
+        Vector2 mouseWorldPos = _mainCamera.ScreenToWorldPoint(pos);
+        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, Mathf.Infinity, FarmLayerMask);
+        if (hit.collider != null && hit.collider.gameObject != TargetObj)
+        {
+            GameObject firstFarm = hit.collider.gameObject;
+            if (_rangedFarmObj.Contains(firstFarm))
+            {
+                IsMouseSelect = true;
+                SelectFarm(firstFarm);
+            }
+        }
+        else
+        {
+            IsMouseSelect = false;
+        }
 
         if (Input.GetKeyDown(FarmingKey))
         {
@@ -190,9 +244,9 @@ public class PlayerFarming : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Farm"))
+        if(collision.CompareTag("FarmRange"))
         {
-            _rangedFarmObj.Add(collision.gameObject);
+            _rangedFarmObj.Add(collision.transform.parent.gameObject);
 
             if (_rangedFarmObj.Count >= 1)
                 IsTargeting = true;
@@ -201,12 +255,16 @@ public class PlayerFarming : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Farm"))
+        if (collision.CompareTag("FarmRange"))
         {
-            _rangedFarmObj.Remove(collision.gameObject);
-            if (collision.gameObject == TargetObj)
+            _rangedFarmObj.Remove(collision.transform.parent.gameObject);
+            if (collision.transform.parent.gameObject == TargetObj)
             {
-                if(IsFarming)
+                TargetFarmOutline.OffOutline();
+                TargetObj = null;
+                TargetFarm = null;
+                TargetFarmOutline = null;
+                if (IsFarming)
                 {
                     Debug.Log("채집 실패 - 범위를 벗어남");
                     ResetFarm();
@@ -218,6 +276,7 @@ public class PlayerFarming : MonoBehaviour
                 IsFarming = false;
                 TargetObj = null;
                 TargetFarm = null;
+                TargetFarmOutline = null;
                 FarmIcon.gameObject.SetActive(false);
             }
         }

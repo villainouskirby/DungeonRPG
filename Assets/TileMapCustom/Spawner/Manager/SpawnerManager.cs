@@ -132,7 +132,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
                         AllSpawner.AddRange(caseSpawnerData.Plant);
                         foreach (var spawner in caseSpawnerData.Plant)
                             spawner.Init();
-                    }
+                    } 
                 }
             }
         }

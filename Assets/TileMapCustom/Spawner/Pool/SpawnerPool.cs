@@ -7,6 +7,8 @@ public class SpawnerPool : MonoBehaviour
 {
     [Header("Pool Settings")]
     public int                      PoolSize;
+    [Header("Outline Prefab")]
+    public GameObject               OutlinePrefab;
 
     public static SpawnerPool       Instance { get { return _instance; } }
     public static SpawnerPool       _instance;
@@ -29,26 +31,32 @@ public class SpawnerPool : MonoBehaviour
         _mineralRoot = new GameObject("MineralRoot").transform;
         _plantRoot = new GameObject("PlantRoot").transform;
 
-        MonsterPool = new(DataFilePath, "Monster", _monsterRoot);
-        PlantPool = new(DataFilePath, "Plant", _plantRoot);
-        MineralPool = new(DataFilePath, "Mineral", _mineralRoot);
+        _monsterRoot.SetParent(transform, true);
+        _mineralRoot.SetParent(transform, true);
+        _plantRoot.SetParent(transform, true);
+
+        MonsterPool = new(DataFilePath, "Monster", _monsterRoot, OutlinePrefab);
+        PlantPool = new(DataFilePath, "Plant", _plantRoot, OutlinePrefab);
+        MineralPool = new(DataFilePath, "Mineral", _mineralRoot, OutlinePrefab);
     }
 }
 
 
 public class GenericPool<TEnum> where TEnum : Enum
 {
+    private GameObject _outlinePrefab;
     private readonly string _folderName;
     private readonly Transform _root;
     private readonly string _dataFilePath;
     private readonly Dictionary<TEnum, GameObject> _caching = new();
     private readonly Dictionary<TEnum, Queue<GameObject>> _pool = new();
 
-    public GenericPool(string dataFilePath, string folderName, Transform root)
+    public GenericPool(string dataFilePath, string folderName, Transform root, GameObject outlinePrefab)
     {
         _dataFilePath = dataFilePath;
         _folderName = folderName;
         _root = root;
+        _outlinePrefab = outlinePrefab;
     }
 
     public void Generate(TEnum type)
@@ -66,8 +74,12 @@ public class GenericPool<TEnum> where TEnum : Enum
         }
 
         GameObject obj = GameObject.Instantiate(target);
+
         obj.transform.parent = _root;
         obj.SetActive(false);
+        
+        GameObject.Instantiate(_outlinePrefab, obj.transform, false);
+
 
         if (!_pool.ContainsKey(type))
             _pool[type] = new();
