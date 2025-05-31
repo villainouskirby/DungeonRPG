@@ -6,6 +6,7 @@ public class InventoryUI : SlotInteractHandler
 {
     [SerializeField] private Inventory _inventory;
     [SerializeField] private InventoryPopUpUI _inventoryPopUpUI;
+    [SerializeField] private ItemGetPopUpUI _itemGetPopUpUI;
 
     [SerializeField] private Transform _inventoryContent;
     [SerializeField] private GameObject _itemSlotPrefab;
@@ -126,6 +127,12 @@ public class InventoryUI : SlotInteractHandler
     public bool CheckItemUsable(int index)
     {
         return _inventory.CheckItemUsable(index);
+    }
+
+    /// <summary> 아이템 획득시 팝업될 아이템 큐에 추가 </summary>
+    public void AddItemPopUpQueue(ItemData itemData, int amount = 1)
+    {
+        _itemGetPopUpUI.AddItemPopUpQueue(itemData, amount);
     }
 
     /// <returns> 해당 슬롯의 인덱스 값 </returns>

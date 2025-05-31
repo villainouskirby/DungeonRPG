@@ -31,7 +31,7 @@ public class Equipment : MonoBehaviour
         if (!_playerEquipments.TryGetValue(type, out ei)) return;
 
         // 인벤에 넣은 후 장비창에서 제거
-        _inventory.AddItem(ei.Data);
+        _inventory.AddItem(ei.Data, 1, false);
 
         UpdateEquipmentEffect(type, false);
         _playerEquipments.Remove(type);
