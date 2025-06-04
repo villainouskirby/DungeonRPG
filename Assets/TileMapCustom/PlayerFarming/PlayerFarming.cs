@@ -8,7 +8,7 @@ public class PlayerFarming : MonoBehaviour
     public static PlayerFarming Instance { get { return _instance; } }
     private static PlayerFarming _instance;
 
-    private List<GameObject> _rangedFarmObj = new();
+    private List<GameObject> _rangedResourceNodeObj = new();
 
 
     [Header("Outline Color Settings")]
@@ -19,17 +19,19 @@ public class PlayerFarming : MonoBehaviour
 
     [Header("Targeting Settings")]
     public GameObject IconObj;
-    public LayerMask FarmLayerMask;
+    public LayerMask ResourceNodeLayerMask;
     [HideInInspector]
     public FarmIconFunc FarmIcon;
     public Vector3 TargetingObjPosCorrect = new(0, 0.2f);
 
     [HideInInspector]
+    public DropItem TargetDropItem;
+    [HideInInspector]
     public GameObject TargetObj;
     [HideInInspector]
-    public FarmableBase TargetFarm;
+    public ResourceNodeBase TargetResourceNode;
     [HideInInspector]
-    public OutlineGenerator TargetFarmOutline;
+    public OutlineGenerator TargetResourceNodeOutline;
     public bool IsMouseSelect;
     public bool IsTargeting;
     public bool IsFarming;
@@ -37,6 +39,7 @@ public class PlayerFarming : MonoBehaviour
     [Header("Player Settings")]
     public int Level;
     public KeyCode FarmingKey = KeyCode.F;
+    public KeyCode DropItemKey = KeyCode.U;
 
     [Header("Farm Settings")]
     public int MinLevelDifference = -3;
@@ -49,8 +52,9 @@ public class PlayerFarming : MonoBehaviour
 
     private void Start()
     {
-        _rangedFarmObj = new();
-        TargetFarm = null;
+        _instance = this;
+        _rangedResourceNodeObj = new();
+        TargetResourceNode = null;
         TargetObj = null;
         IsMouseSelect = false;
         IsTargeting = false;
@@ -76,9 +80,9 @@ public class PlayerFarming : MonoBehaviour
         _minDistance = 9999999;
         _targetIndex = 0;
 
-        for (int i = 0; i < _rangedFarmObj.Count; i++)
+        for (int i = 0; i < _rangedResourceNodeObj.Count; i++)
         {
-            GameObject farmObj = _rangedFarmObj[i];
+            GameObject farmObj = _rangedResourceNodeObj[i];
             float distance = Mathf.Pow(farmObj.transform.position.x - transform.position.x, 2)
                              + Mathf.Pow(farmObj.transform.position.y - transform.position.y, 2);
             if (_minDistance >= distance)
@@ -88,9 +92,9 @@ public class PlayerFarming : MonoBehaviour
             }
         }
 
-        if (TargetObj != _rangedFarmObj[_targetIndex])
+        if (TargetObj != _rangedResourceNodeObj[_targetIndex])
         {
-            SelectFarm(_rangedFarmObj[_targetIndex]);
+            SelectFarm(_rangedResourceNodeObj[_targetIndex]);
         }
     }
 
@@ -101,20 +105,20 @@ public class PlayerFarming : MonoBehaviour
 
     private void SelectFarm(GameObject target)
     {
-        if (TargetFarmOutline != null)
-            TargetFarmOutline.OffOutline();
+        if (TargetResourceNodeOutline != null)
+            TargetResourceNodeOutline.OffOutline();
 
         TargetObj = target;
-        TargetFarm = TargetObj.GetComponent<FarmableBase>();
-        TargetFarmOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
-        TargetFarmOutline.OnOutline(GetOutlineColor());
+        TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
+        TargetResourceNodeOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
+        TargetResourceNodeOutline.OnOutline(GetOutlineColor());
 
         if (FarmIcon == null)
             FarmIcon = Instantiate(IconObj, TargetObj.transform.position + TargetingObjPosCorrect, Quaternion.identity).GetComponent<FarmIconFunc>();
 
         FarmIcon.gameObject.SetActive(true);
         FarmIcon.transform.position = TargetObj.transform.position + TargetingObjPosCorrect;
-        FarmIcon.SetIcon(TargetFarm.Type, CheckFarmable());
+        FarmIcon.SetIcon(CheckFarmable());
     }
 
     private void Update()
@@ -132,17 +136,23 @@ public class PlayerFarming : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(DropItemKey))
+        {
+            if (TargetDropItem != null)
+                TargetDropItem.Get();
+        }
+
         if (!IsTargeting)
             return;
 
         Vector3 pos = Input.mousePosition;
         pos.z = transform.position.z - _mainCamera.transform.position.z;
         Vector2 mouseWorldPos = _mainCamera.ScreenToWorldPoint(pos);
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, Mathf.Infinity, FarmLayerMask);
+        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, Mathf.Infinity, ResourceNodeLayerMask);
         if (hit.collider != null && hit.collider.gameObject != TargetObj)
         {
             GameObject firstFarm = hit.collider.gameObject;
-            if (_rangedFarmObj.Contains(firstFarm))
+            if (_rangedResourceNodeObj.Contains(firstFarm))
             {
                 IsMouseSelect = true;
                 SelectFarm(firstFarm);
@@ -179,7 +189,7 @@ public class PlayerFarming : MonoBehaviour
 
     private bool CheckFarmable()
     {
-        int levelDifference = Level - TargetFarm.Level;
+        int levelDifference = Level - TargetResourceNode.Info.Resistance;
         return levelDifference >= MinLevelDifference;
     }
 
@@ -207,20 +217,17 @@ public class PlayerFarming : MonoBehaviour
     private void SuccessFarm()
     {
         IsFarming = false;
+        _time = 0;
+        FarmGageBar.gameObject.SetActive(false);
 
-        Debug.Log("실행됨");
         // 채집 성공 - 임시 코드
-        UIPopUpHandler.Instance.InventoryScript.AddItem(TargetFarm.DropItemList[0]);
-        _rangedFarmObj.Remove(TargetObj);
-        switch (TargetFarm.Type)
-        {
-            case FarmEnum.Plant:
-                SpawnerPool.Instance.PlantPool.Release(TargetFarm.PlantType, TargetObj);
-                break;
-            case FarmEnum.Mineral:
-                SpawnerPool.Instance.MineralPool.Release(TargetFarm.MineralType, TargetObj);
-                break;
-        }
+        TargetResourceNode.GetItem(ClearFarm);
+    }
+
+    private void ClearFarm()
+    {
+        _rangedResourceNodeObj.Remove(TargetObj);
+        SpawnerPool.Instance.ResourceNodePool.Return(TargetResourceNode);
 
         Debug.Log("채집 성공!");
         ResetFarm();
@@ -238,7 +245,7 @@ public class PlayerFarming : MonoBehaviour
         IsFarming = false;
         FarmGageBar.gameObject.SetActive(false);
         TargetObj = null;
-        TargetFarm = null;
+        TargetResourceNode = null;
     }
 
 
@@ -246,9 +253,9 @@ public class PlayerFarming : MonoBehaviour
     {
         if(collision.CompareTag("FarmRange"))
         {
-            _rangedFarmObj.Add(collision.transform.parent.gameObject);
+            _rangedResourceNodeObj.Add(collision.transform.parent.gameObject);
 
-            if (_rangedFarmObj.Count >= 1)
+            if (_rangedResourceNodeObj.Count >= 1)
                 IsTargeting = true;
         }
     }
@@ -257,26 +264,26 @@ public class PlayerFarming : MonoBehaviour
     {
         if (collision.CompareTag("FarmRange"))
         {
-            _rangedFarmObj.Remove(collision.transform.parent.gameObject);
+            _rangedResourceNodeObj.Remove(collision.transform.parent.gameObject);
             if (collision.transform.parent.gameObject == TargetObj)
             {
-                TargetFarmOutline.OffOutline();
+                TargetResourceNodeOutline.OffOutline();
                 TargetObj = null;
-                TargetFarm = null;
-                TargetFarmOutline = null;
+                TargetResourceNode = null;
+                TargetResourceNodeOutline = null;
                 if (IsFarming)
                 {
                     Debug.Log("채집 실패 - 범위를 벗어남");
                     ResetFarm();
                 }
             }
-            if (_rangedFarmObj.Count <= 0)
+            if (_rangedResourceNodeObj.Count <= 0)
             {
                 IsTargeting = false;
                 IsFarming = false;
                 TargetObj = null;
-                TargetFarm = null;
-                TargetFarmOutline = null;
+                TargetResourceNode = null;
+                TargetResourceNodeOutline = null;
                 FarmIcon.gameObject.SetActive(false);
             }
         }

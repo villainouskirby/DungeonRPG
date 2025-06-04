@@ -12,7 +12,6 @@ public partial class String2TypeByteConverter
     private readonly Dictionary<string, Func<string, byte[]>> _converters = new();
     public static Dictionary<string, int> TypeByteLength = new();
 
-    // Static constructor to initialize the dictionary
     public String2TypeByteConverter()
     {
         AutoConverter();
@@ -49,7 +48,6 @@ public partial class String2TypeByteConverter
             string converterName = converter.Name;
             if (converterName.StartsWith("Convert2") && converterName.EndsWith("Byte") && converter.ReturnType == typeof(byte[]))
             {
-                // Extract type name between "Convert2" and "Byte"
                 string typeName = converterName.Substring("Convert2".Length, converterName.Length - "Convert2".Length - "Byte".Length);
                 if (defaultConveter.Contains(typeName))
                     continue;
@@ -161,6 +159,7 @@ public partial class String2TypeByteConverter
     }
     private byte[] Convert2boolByte(string value)
     {
+        Debug.Log(value);
         Span<byte> bytes = stackalloc byte[1];
         bytes[0] = value.Equals("true", StringComparison.OrdinalIgnoreCase) ? (byte)1 :
                    value.Equals("false", StringComparison.OrdinalIgnoreCase) ? (byte)0 :

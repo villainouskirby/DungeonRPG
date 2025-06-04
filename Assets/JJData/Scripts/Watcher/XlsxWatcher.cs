@@ -15,7 +15,8 @@ public class XlsxFileWatcher
         EditorApplication.quitting += DisposeWatcher;
         AppDomain.CurrentDomain.DomainUnload += (sender, e) => DisposeWatcher();
 
-        StartWatching();
+        // 디폴트값은 미실행
+        //StartWatching();
     }
 
     /// <summary>

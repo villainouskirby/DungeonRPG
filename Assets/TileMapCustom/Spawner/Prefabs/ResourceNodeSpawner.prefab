@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8456683388528773320}
   - component: {fileID: 1242392596866940645}
-  - component: {fileID: 7744454608758416320}
+  - component: {fileID: 6014660216418646312}
   m_Layer: 0
-  m_Name: 'MineralSpawner '
+  m_Name: ResourceNodeSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -85,7 +85,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7744454608758416320
+--- !u!114 &6014660216418646312
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,14 +94,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6415908526726647503}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3aa13afee749c984383ceb079eb84b47, type: 3}
+  m_Script: {fileID: 11500000, guid: 54bfd5223d32e544e95f631495d9ec83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Group: 0
   Case: 0
-  Type: 2
+  Type: 1
   CustomSpawn: 0
   MinRange: 0
   MaxRange: 0
-  CoolTime: 0
-  Minerals: 
+  CoolTime: 3
+  ResourceNodes: 

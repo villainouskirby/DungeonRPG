@@ -42,6 +42,11 @@ public class ItemGetPopUpSlotUI : SlotUI
 
     public async UniTask PopUpSlot(Vector2 destPos, float targetTime, CancellationToken token)
     {
+        if(_rect == null)
+            _rect = GetComponent<RectTransform>();
+        if(_image == null)
+            _image = GetComponent<Image>();
+
         Vector2 startPos = destPos + Vector2.right * _rect.sizeDelta.x;
         _rect.position = startPos;
 

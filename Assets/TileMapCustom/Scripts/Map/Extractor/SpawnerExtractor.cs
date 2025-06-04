@@ -59,33 +59,19 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
 
                     _spawners[spawnerTile.Group][spawnerTile.Case].Monster.Add(monster);
                     break;
-                case SpawnerType.Plant:
-                    PlantSpawner plant = new(spawnerTile, GenericMinRange, GenericMaxRange);
-                    PlantSpawnerTile plantTile = (PlantSpawnerTile)spawnerTile;
-                    plant.Plants = plantTile.Plants;
+                case SpawnerType.ResourceNode:
+                    ResourceNodeSpawner resourceNode = new(spawnerTile, GenericMinRange, GenericMaxRange);
+                    ResourceNodeSpawnerTile resourceNodeTile = (ResourceNodeSpawnerTile)spawnerTile;
+                    resourceNode.ResourceNodes = resourceNodeTile.ResourceNodes;
 
                     if (!_spawners.ContainsKey(spawnerTile.Group))
                         _spawners[spawnerTile.Group] = new();
                     if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
                         _spawners[spawnerTile.Group][spawnerTile.Case] = new();
-                    if (_spawners[spawnerTile.Group][spawnerTile.Case].Plant == null)
-                        _spawners[spawnerTile.Group][spawnerTile.Case].Plant = new();
+                    if (_spawners[spawnerTile.Group][spawnerTile.Case].ResourceNode == null)
+                        _spawners[spawnerTile.Group][spawnerTile.Case].ResourceNode = new();
 
-                    _spawners[spawnerTile.Group][spawnerTile.Case].Plant.Add(plant);
-                    break;
-                case SpawnerType.Mineral:
-                    MineralSpawner mineral = new(spawnerTile, GenericMinRange, GenericMaxRange);
-                    MineralSpawnerTile mineralTile = (MineralSpawnerTile)spawnerTile;
-                    mineral.Minerals = mineralTile.Minerals;
-
-                    if (!_spawners.ContainsKey(spawnerTile.Group))
-                        _spawners[spawnerTile.Group] = new();
-                    if (!_spawners[spawnerTile.Group].ContainsKey(spawnerTile.Case))
-                        _spawners[spawnerTile.Group][spawnerTile.Case] = new();
-                    if (_spawners[spawnerTile.Group][spawnerTile.Case].Mineral == null)
-                        _spawners[spawnerTile.Group][spawnerTile.Case].Mineral = new();
-
-                    _spawners[spawnerTile.Group][spawnerTile.Case].Mineral.Add(mineral);
+                    _spawners[spawnerTile.Group][spawnerTile.Case].ResourceNode.Add(resourceNode);
                     break;
             }
         }

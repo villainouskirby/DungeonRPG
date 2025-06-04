@@ -6,6 +6,5 @@ using UnityEngine;
 public class SpawnerData
 {
     public List<MonsterSpawner> Monster;
-    public List<PlantSpawner> Plant;
-    public List<MineralSpawner> Mineral;
+    public List<ResourceNodeSpawner> ResourceNode;
 }

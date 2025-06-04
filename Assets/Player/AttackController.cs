@@ -185,7 +185,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         {
             if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase m) && done.Add(m))
                 m.TakeDamage(dmg);
-            if (h.CompareTag("Farm") && h.TryGetComponent(out FarmableBase f))
+            if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
                 Debug.Log($"채집물 공격! {h.gameObject.name}");
         }
     }
@@ -198,8 +198,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         {
             Vector2 to = (Vector2)h.transform.position - origin;
             if (h.CompareTag("Farm") && Vector2.Angle(dir, to) <= arc * .5f &&
-                h.TryGetComponent(out FarmableBase f))
-                Debug.Log($"채집물 공격! {h.gameObject.name}");
+                h.TryGetComponent(out ResourceNodeBase f))
+                f.Damage(dmg);
             if (!h.CompareTag("Monster")) continue;
             if (Vector2.Angle(dir, to) <= arc * .5f &&
                 h.TryGetComponent(out MonsterBase m) && done.Add(m))

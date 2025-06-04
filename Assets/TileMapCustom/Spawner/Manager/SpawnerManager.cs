@@ -5,6 +5,8 @@ using UnityEngine;
 using TM = TileMapMaster;
 using MM = MapManager;
 using DL = DataLoader;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class SpawnerManager : MonoBehaviour, ITileMapOption
 {
@@ -24,6 +26,12 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
 #if UNITY_EDITOR
         spawnerGizmo = new();
 #endif
+
+        if (ResourceNodeBase.HpBarPrefab == null)
+        {
+            AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("FarmHpBar");
+            ResourceNodeBase.HpBarPrefab = handle.WaitForCompletion();
+        }
     }
 
     public void InitMap(MapEnum mapType)
@@ -38,6 +46,11 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
     {
         InitMap(mapType);
         CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
+
+        for(int i = 0; i < AllSpawner.Count; i++)
+        {
+            AllSpawner[i].ForceSpawn();
+        }
     }
 
     public void OnOption()
@@ -69,16 +82,9 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
         {
             if (AllSpawner[i].SpawnObj != null)
             {
-                FarmableBase targetFarm = AllSpawner[i].SpawnObj.GetComponent<FarmableBase>();
-                switch (targetFarm.Type)
-                {
-                    case FarmEnum.Plant:
-                        SpawnerPool.Instance.PlantPool.Release(targetFarm.PlantType, AllSpawner[i].SpawnObj);
-                        break;
-                    case FarmEnum.Mineral:
-                        SpawnerPool.Instance.MineralPool.Release(targetFarm.MineralType, AllSpawner[i].SpawnObj);
-                        break;
-                }
+                ResourceNodeBase targetResourceNode = AllSpawner[i].SpawnObj.GetComponent<ResourceNodeBase>();
+
+                SpawnerPool.Instance.ResourceNodePool.Return(targetResourceNode);
             }
         }
 
@@ -115,22 +121,16 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
                 {
                     string path = $"{group}_{case_}";
                     SpawnerData caseSpawnerData = DL.Instance.All.SpawnerData[path];
-                    if (caseSpawnerData.Mineral != null)
-                    {
-                        AllSpawner.AddRange(caseSpawnerData.Mineral);
-                        foreach (var spawner in caseSpawnerData.Mineral)
-                            spawner.Init();
-                    }
                     if (caseSpawnerData.Monster != null)
                     {
                         AllSpawner.AddRange(caseSpawnerData.Monster);
                         foreach (var spawner in caseSpawnerData.Monster)
                             spawner.Init();
                     }
-                    if (caseSpawnerData.Plant != null)
+                    if (caseSpawnerData.ResourceNode != null)
                     {
-                        AllSpawner.AddRange(caseSpawnerData.Plant);
-                        foreach (var spawner in caseSpawnerData.Plant)
+                        AllSpawner.AddRange(caseSpawnerData.ResourceNode);
+                        foreach (var spawner in caseSpawnerData.ResourceNode)
                             spawner.Init();
                     } 
                 }

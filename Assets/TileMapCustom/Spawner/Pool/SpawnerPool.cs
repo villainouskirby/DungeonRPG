@@ -7,56 +7,102 @@ public class SpawnerPool : MonoBehaviour
 {
     [Header("Pool Settings")]
     public int                      PoolSize;
-    [Header("Outline Prefab")]
-    public GameObject               OutlinePrefab;
+    [Header("ResourceNode Prefab")]
+    public GameObject               ResourceNodePrefab; 
 
     public static SpawnerPool       Instance { get { return _instance; } }
     public static SpawnerPool       _instance;
 
     public static string            DataFilePath = "Spawner/Prefabs/";
 
-    public GenericPool<MonsterEnum>        MonsterPool;
-    public GenericPool<PlantEnum>          PlantPool;
-    public GenericPool<MineralEnum>        MineralPool;
+    public MonsterPool<MonsterEnum>        MonsterPool;
+    public ResourceNodePool                ResourceNodePool;
 
     private Transform _monsterRoot;
-    private Transform _plantRoot;
-    private Transform _mineralRoot;
+    private Transform _resourceNodeRoot;
 
     void Awake()
     {
         if (Instance == null) _instance = this;
 
         _monsterRoot = new GameObject("MonsterRoot").transform;
-        _mineralRoot = new GameObject("MineralRoot").transform;
-        _plantRoot = new GameObject("PlantRoot").transform;
+        _resourceNodeRoot = new GameObject("ResourceNodeRoot").transform;
 
         _monsterRoot.SetParent(transform, true);
-        _mineralRoot.SetParent(transform, true);
-        _plantRoot.SetParent(transform, true);
+        _resourceNodeRoot.SetParent(transform, true);
 
-        MonsterPool = new(DataFilePath, "Monster", _monsterRoot, OutlinePrefab);
-        PlantPool = new(DataFilePath, "Plant", _plantRoot, OutlinePrefab);
-        MineralPool = new(DataFilePath, "Mineral", _mineralRoot, OutlinePrefab);
+        MonsterPool = new(DataFilePath, "Monster", _monsterRoot);
+        ResourceNodePool = new();
+    }
+}
+
+public class ResourceNodePool
+{
+    private int _poolSize;
+    private Queue<ResourceNodeBase> _pool;
+    private Transform _root;
+    private GameObject _resourceNodePrefab;
+
+    public void Awake()
+    {
+        _pool = new();
+        Init();
+    }
+
+    public void Init()
+    {
+        for (int i = 0; i < _poolSize; i++)
+        {
+            Generate();
+        }
+    }
+
+    public ResourceNodeBase Generate()
+    {
+        GameObject obj = GameObject.Instantiate(_resourceNodePrefab, _root);
+        obj.name = "ResourceNode";
+        obj.SetActive(false);
+
+        ResourceNodeBase resourceNode;
+        resourceNode = obj.GetComponent<ResourceNodeBase>();
+
+        _pool.Enqueue(resourceNode);
+
+        return resourceNode;
+    }
+
+    public ResourceNodeBase Get(ResourceNode_Info_ResourceNode info)
+    {
+        while (_pool.Count <= 0)
+        {
+            Generate();
+        }
+
+        ResourceNodeBase obj = _pool.Dequeue();
+        obj.Set(info);
+        return obj;
+    }
+
+    public void Return(ResourceNodeBase obj)
+    {
+        _pool.Enqueue(obj);
     }
 }
 
 
-public class GenericPool<TEnum> where TEnum : Enum
+public class MonsterPool<TEnum> where TEnum : Enum
 {
-    private GameObject _outlinePrefab;
     private readonly string _folderName;
     private readonly Transform _root;
     private readonly string _dataFilePath;
     private readonly Dictionary<TEnum, GameObject> _caching = new();
     private readonly Dictionary<TEnum, Queue<GameObject>> _pool = new();
 
-    public GenericPool(string dataFilePath, string folderName, Transform root, GameObject outlinePrefab)
+    public MonsterPool(string dataFilePath, string folderName, Transform root)
     {
         _dataFilePath = dataFilePath;
         _folderName = folderName;
         _root = root;
-        _outlinePrefab = outlinePrefab;
     }
 
     public void Generate(TEnum type)
@@ -78,9 +124,6 @@ public class GenericPool<TEnum> where TEnum : Enum
         obj.transform.parent = _root;
         obj.SetActive(false);
         
-        GameObject.Instantiate(_outlinePrefab, obj.transform, false);
-
-
         if (!_pool.ContainsKey(type))
             _pool[type] = new();
         _pool[type].Enqueue(obj);

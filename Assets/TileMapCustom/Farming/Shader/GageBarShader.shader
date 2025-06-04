@@ -20,12 +20,14 @@ Shader "Farm/GaugeBar"
             struct appdata_t
             {
                 float4 vertex : POSITION;
+                float4 color : COLOR;
                 float2 uv : TEXCOORD0;
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
+                float4 color : COLOR;
                 float4 vertex : SV_POSITION;
             };
 
@@ -37,6 +39,7 @@ Shader "Farm/GaugeBar"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
+                o.color = v.color;
                 return o;
             }
 
@@ -47,6 +50,7 @@ Shader "Farm/GaugeBar"
                 // 1 => able, 0 => disable
                 int able = 1 - step(_FillAmount, i.uv.x);
 
+                col = col * i.color;
                 col.a = able;
                 return col;
             }

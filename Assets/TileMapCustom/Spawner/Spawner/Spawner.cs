@@ -35,6 +35,13 @@ public class Spawner
         }
     }
 
+    public void ForceSpawn()
+    {
+        IsSpawn = true;
+        Spawn();
+        CurrentTime = 0;
+    }
+
     public virtual void Spawn()
     {
         SpawnObj = GetSpawnObject();
@@ -62,7 +69,7 @@ public class Spawner
         if (target == null)
             return;
 
-        target.transform.position = new((TilePos.x + 0.5f) * MapManager.Instance.TileSize, (TilePos.y + 0.5f) * MapManager.Instance.TileSize, Z);
+        target.transform.position = new((TilePos.x + UnityEngine.Random.Range(0f, 1f)) * MapManager.Instance.TileSize, (TilePos.y + UnityEngine.Random.Range(0f, 1f)) * MapManager.Instance.TileSize, Z);
         
         IsIdentify = true;
         SpawnObj.SetActive(true);

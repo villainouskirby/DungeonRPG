@@ -38,6 +38,7 @@ public class DataLoader : MonoBehaviour, ITileMapBase
     public void InitMap(MapEnum mapType)
     {
         JJSave.LLoad(out All, $"{mapType.ToString()}_All", $"{mapType.ToString()}/");
+        Debug.Log("a");
     }
 
     public void StartMap(MapEnum mapType)

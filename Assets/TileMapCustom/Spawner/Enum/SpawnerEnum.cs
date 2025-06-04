@@ -3,8 +3,7 @@
 public enum SpawnerType
 {
     Monster =   0,
-    Plant =     1,
-    Mineral =   2,
+    ResourceNode = 1,
 }
 
 public enum SpawnerCaseEnum
@@ -32,20 +31,4 @@ public enum MonsterEnum
     None =          0,
     Test1 =         1,
     Test2 =         2,
-}
-
-public enum PlantEnum
-{
-    None =          0,
-    Test1 =         1,
-    Test2 =         2,
-}
-
-public enum MineralEnum
-{
-    None =          0,
-    Test1 =         1,
-    Test2 =         2,
-    Test3 =         3,
-    Test4 =         4,
 }

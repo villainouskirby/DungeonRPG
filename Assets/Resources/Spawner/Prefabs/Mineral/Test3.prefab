@@ -100,9 +100,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Level: 0
+  Hp: 30
   DropItemList:
   - {fileID: 11400000, guid: 7ef6704893860fc48a6336d4f4aaace1, type: 2}
   TilePos: {x: 0, y: 0}
+  CurrentHp: 0
+  FirstDrop: 0
+  SecondDrop: 0
+  LastDrop: 0
+  HpBar: {fileID: 0}
+  HpBarFunc: {fileID: 0}
+  HpBarRemainTime: 4
+  HpBarCloseTime: 5
+  HpBarShowing: 0
 --- !u!60 &4691046085676335218
 PolygonCollider2D:
   m_ObjectHideFlags: 0

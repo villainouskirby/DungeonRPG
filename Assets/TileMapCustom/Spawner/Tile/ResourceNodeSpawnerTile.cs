@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class PlantSpawnerTile : SpawnerTile
+public class ResourceNodeSpawnerTile : SpawnerTile
 {
     [Header("Plant Settings")]
-    public PlantEnum[]     Plants;
-
-    public void Awake()
-    {
-    }
+    public ResourceNodeEnum[]     ResourceNodes;
 }
