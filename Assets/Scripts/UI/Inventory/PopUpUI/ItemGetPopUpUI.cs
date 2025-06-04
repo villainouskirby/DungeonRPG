@@ -37,7 +37,8 @@ public class ItemGetPopUpUI : MonoBehaviour
         foreach (var slot in _popUpSlotArr)
         {
             if (slot == null) continue;
-            slot.gameObject.SetActive(false);
+
+            slot.InitSlotUI();
             _popUpSlotStack.Push(slot);
         }
 

@@ -652,7 +652,7 @@ MonoBehaviour:
   proneTime: 0.55
   getUpTime: 0.45
   invincibleTime: 0.2
-  slideForce: 6
+  slideForce: 5
   getUpBoost: 2
 --- !u!114 &4262740636599311042
 MonoBehaviour:
@@ -870,14 +870,14 @@ MonoBehaviour:
   - 0.7
   - 1.3
   afterDelay:
-  - 0.3
   - 0.5
-  comboInputTime: 0.1
+  - 1
+  comboInputTime: 0.3
   hitboxActiveTime: 0.12
   maxChargeTime: 1
   heavyMultiplier: 1
   heavyRadius: 2.5
-  heavyAfterDelay: 0.7
+  heavyAfterDelay: 1.2
 --- !u!210 &8422171715171851318
 SortingGroup:
   m_ObjectHideFlags: 0

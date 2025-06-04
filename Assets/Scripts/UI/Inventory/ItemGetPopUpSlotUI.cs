@@ -27,10 +27,11 @@ public class ItemGetPopUpSlotUI : SlotUI
         OnPopUpClose = null;
     }
 
-    private void Awake()
+    public void InitSlotUI()
     {
         _rect = GetComponent<RectTransform>();
         _image = GetComponent<Image>();
+        gameObject.SetActive(false);
     }
 
     public void SetItemInfo(Sprite sprite, string name, int amount)
