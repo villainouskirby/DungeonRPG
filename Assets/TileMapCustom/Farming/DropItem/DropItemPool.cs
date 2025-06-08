@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.U2D;
 
 public class DropItemPool : MonoBehaviour
 {
     public static DropItemPool Instance { get { return _instance; } }
     private static DropItemPool _instance;
+
+    public static SpriteAtlas SpriteAtlas;
 
     [Header("DropItem Prefab")]
     public GameObject DropItemPrefab;
@@ -25,6 +30,13 @@ public class DropItemPool : MonoBehaviour
         for (int i = 0; i < PoolSize; i++)
         {
             Generate();
+        }
+
+        if (SpriteAtlas == null)
+        {
+            AsyncOperationHandle<SpriteAtlas> handle = Addressables.LoadAssetAsync<SpriteAtlas>("ResourceNodeAtlas");
+            handle.WaitForCompletion();
+            SpriteAtlas = handle.Result;
         }
     }
 
@@ -50,7 +62,7 @@ public class DropItemPool : MonoBehaviour
         }
 
         DropItem obj = _pool.Dequeue();
-        obj.Set(itemData);
+        obj.Set(itemData, SpriteAtlas.GetSprite(itemData.Info.Item_sprite));
         return obj;
     }
 

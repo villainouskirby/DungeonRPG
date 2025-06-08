@@ -159,10 +159,9 @@ public partial class String2TypeByteConverter
     }
     private byte[] Convert2boolByte(string value)
     {
-        Debug.Log(value);
         Span<byte> bytes = stackalloc byte[1];
-        bytes[0] = value.Equals("true", StringComparison.OrdinalIgnoreCase) ? (byte)1 :
-                   value.Equals("false", StringComparison.OrdinalIgnoreCase) ? (byte)0 :
+        bytes[0] = (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value == "1") ? (byte)1 :
+                   (value.Equals("false", StringComparison.OrdinalIgnoreCase) || value == "0") ? (byte)0 :
                    (byte)(BoolDefault ? 1 : 0);
         return bytes.ToArray();
     }

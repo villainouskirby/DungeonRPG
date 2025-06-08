@@ -92,7 +92,7 @@ public class PlayerFarming : MonoBehaviour
             }
         }
 
-        if (TargetObj != _rangedResourceNodeObj[_targetIndex])
+        if (_targetIndex < _rangedResourceNodeObj.Count && TargetObj != _rangedResourceNodeObj[_targetIndex])
         {
             SelectFarm(_rangedResourceNodeObj[_targetIndex]);
         }

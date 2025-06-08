@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.U2D;
 
 [RequireComponent(typeof(PolygonCollider2D))]
 public class ResourceNodeBase : MonoBehaviour
 {
+    public static SpriteAtlas SpriteAtlas;
 
     public ResourceNode_Info_ResourceNode Info;
-    public ResourceNode_Info_ResourceNode_DropTable DropTable;
-    public List<ItemData> DropItemList;
 
     [HideInInspector]
     public Vector2Int TilePos;
@@ -29,10 +29,10 @@ public class ResourceNodeBase : MonoBehaviour
     public float HpBarCloseTime = 3;
     public bool HpBarShowing;
     public Coroutine _hpCloseC;
-    public static GameObject HpBarPrefab;
 
     private MaterialPropertyBlock _block;
-    private SpriteRenderer _renderer;
+    private SpriteRenderer _sr;
+    private PolygonCollider2D _poly;
     private bool _isCheckVisible;
 
     private void Awake()
@@ -47,15 +47,26 @@ public class ResourceNodeBase : MonoBehaviour
         Array.Fill(DropAble, true);
         CurrentHp = Info.Hp;
         DropHpCut = CurrentHp / (float)Info.Gathering_count;
+        _sr.sprite = SpriteAtlas.GetSprite(Info.ResourceNode_sprite);
+
+        int shapeCount = _sr.sprite.GetPhysicsShapeCount();
+        _poly.pathCount = shapeCount;
+
+        for (int i = 0; i < shapeCount; i++)
+        {
+            var shape = new List<Vector2>();
+            _sr.sprite.GetPhysicsShape(i, shape);
+            _poly.SetPath(i, shape.ToArray());
+        }
     }
 
 
     // 기본값을 Init한다. 최초 1회
     public void Init()
     {
-        _renderer = GetComponent<SpriteRenderer>();
-        HpBar = Instantiate(HpBarPrefab, transform, false);
         HpBarFunc = HpBar.GetComponent<FarmHpBarFunc>();
+        _sr = GetComponent<SpriteRenderer>();
+        _poly = GetComponent<PolygonCollider2D>();
     } 
 
     public void ShowHpBar()
@@ -80,6 +91,16 @@ public class ResourceNodeBase : MonoBehaviour
         HpBar.SetActive(false);
     }
 
+    public void Shake(float time, float power)
+    {
+
+    }
+
+    private IEnumerator ShakeC(float time, float power)
+    {
+        yield return null;
+    }
+
     public void Damage(float damage)
     {
         if (!Info.isDestructible)
@@ -87,6 +108,7 @@ public class ResourceNodeBase : MonoBehaviour
             // 파괴 불가능한 채집물 임으로 이펙트를 따로 표시할 것
             return;
         }
+        
 
         CurrentHp -= damage;
         if (CurrentHp < 0)
@@ -119,9 +141,17 @@ public class ResourceNodeBase : MonoBehaviour
 
     public void DropItem(int num)
     {
-        DropItem dropItem = DropItemPool.Instance.Get(DropItemList[0]);
-        dropItem.gameObject.transform.position = transform.position + new Vector3(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 0);
-        dropItem.gameObject.SetActive(true);
+        List<(ResourceItemData data, int amount)> item = DropTableUtil.GetDropItemFromTable(Info.DT_destroy);
+
+        for (int i = 0; i < item.Count; i++)
+        {
+            for (int j = 0; j < item[i].amount; j++)
+            {
+                DropItem dropItem = DropItemPool.Instance.Get(item[i].data);
+                dropItem.gameObject.transform.position = transform.position + new Vector3(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 0);
+                dropItem.gameObject.SetActive(true);
+            }
+        }
     }
 
     public void GetItem(Action farmEnd)
@@ -131,8 +161,6 @@ public class ResourceNodeBase : MonoBehaviour
             if (DropAble[i])
             {
                 DropAble[i] = false;
-                // 임시 코드 나중에 드랍테이블과 연동 JJJJ
-                UIPopUpHandler.Instance.InventoryScript.AddItem(DropItemList[0]);
 
                 CurrentHp = Info.Hp - (i + 1) * DropHpCut;
                 ShowHpBar();
@@ -141,7 +169,22 @@ public class ResourceNodeBase : MonoBehaviour
                 _hpCloseC = StartCoroutine(ClosedHpBar(HpBarRemainTime, HpBarCloseTime));
 
                 if (i == Info.Gathering_count - 1)
+                {
+                    var item = DropTableUtil.GetDropItemFromTable(Info.DT_lastInteraction);
+                    for (int j = 0; j < item.Count; j++)
+                    {
+                        UIPopUpHandler.Instance.InventoryScript.AddItem(item[j].data, item[j].amount);
+                    }
                     farmEnd.Invoke();
+                }
+                else
+                {
+                    var item = DropTableUtil.GetDropItemFromTable(Info.DT_interaction);
+                    for (int j = 0; j < item.Count; j++)
+                    {
+                        UIPopUpHandler.Instance.InventoryScript.AddItem(item[j].data, item[j].amount);
+                    }
+                }
 
                 break;
             }

@@ -13,6 +13,10 @@ public class PotionItemData : CountableItemData
 
     [SerializeField] private float healamount;
 
+    public PotionItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    {
+    }
+
     // Start is called before the first frame update
     void Start()
     {

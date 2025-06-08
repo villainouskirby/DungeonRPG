@@ -26,12 +26,6 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
 #if UNITY_EDITOR
         spawnerGizmo = new();
 #endif
-
-        if (ResourceNodeBase.HpBarPrefab == null)
-        {
-            AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>("FarmHpBar");
-            ResourceNodeBase.HpBarPrefab = handle.WaitForCompletion();
-        }
     }
 
     public void InitMap(MapEnum mapType)

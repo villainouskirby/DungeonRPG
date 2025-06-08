@@ -62,6 +62,9 @@ public class ExtractorMaster : MonoBehaviour
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.InteractionObjManager].Active = false;
         if (mapData.All.SpawnerData == null || mapData.All.SpawnerData.Count == 0)
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.SpawnerManager].Active = false;
+        if (mapData.All.CameraAreaData == null || mapData.All.CameraAreaData.Length == 0)
+            mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.CameraAreaManager].Active = false;
+
         mapData.All.Setting.Init();
 
         JJSave.RSave(mapData, $"{MapType}_MapData", DataFileDirectory);

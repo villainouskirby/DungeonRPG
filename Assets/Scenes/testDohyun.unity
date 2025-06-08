@@ -2406,8 +2406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f8d4ea8b56312d49a4edbb540729e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1252477895}
-  followSpeed: 5
+  CameraAreaData: []
+  OriZ: -10
+  FollowSpeed: 5
 --- !u!114 &524322946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2782,9 +2783,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 0}
-  testItemData: {fileID: 11400000, guid: 1e26d04224909fa468423a82c776a84a, type: 2}
   amount: 1
-  allEquipment: []
   shopItems: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
@@ -3108,6 +3107,53 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &750859759
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 750859760}
+  - component: {fileID: 750859761}
+  m_Layer: 0
+  m_Name: '@CameraAreaManager'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &750859760
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750859759}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2082541861}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &750859761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750859759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1bbf33d5086b1049ac46add6ee9bb1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AllActiveCameraArea: []
+  CameraAreaPrefab: {fileID: 4104599531630750775, guid: e83c5831a5dce28469b62706b9c42b5f,
+    type: 3}
 --- !u!1 &794219370
 GameObject:
   m_ObjectHideFlags: 0
@@ -3467,6 +3513,7 @@ MonoBehaviour:
         Active: 1
       - OptionType: 3
         Active: 1
+    CameraAreaData: []
     TileMapLayerInfo: []
     SpawnerInfoData:
       GroupInfo: []
@@ -3604,17 +3651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 984141337}
-  testItemData: {fileID: 11400000, guid: 2e239ae4703eae74aad6bae7c8d146aa, type: 2}
   amount: 1
-  allEquipment:
-  - {fileID: 11400000, guid: cf88d9ae4a8c62445a01c723918b1d38, type: 2}
-  - {fileID: 11400000, guid: 230c07368bddf19468188c1f8f47cc9f, type: 2}
-  - {fileID: 11400000, guid: a9747721d1808674a83bb43fa8375ad9, type: 2}
-  - {fileID: 11400000, guid: eeaff6bfd8f05354b9fe5712ec7dc184, type: 2}
-  - {fileID: 11400000, guid: b038cc3c02acc034bb0d9966d24ab7b6, type: 2}
-  - {fileID: 11400000, guid: 171c36e41e2c5464ab059747d3bae37b, type: 2}
-  - {fileID: 11400000, guid: 31111f1830256ee4ba357fe995d51c3d, type: 2}
-  - {fileID: 11400000, guid: 2e239ae4703eae74aad6bae7c8d146aa, type: 2}
   shopItems: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
@@ -4285,7 +4322,7 @@ MonoBehaviour:
   IconObj: {fileID: 1189766522915618635, guid: 85cc01b3d2b11a84d9e4d0b4cf09a6c1, type: 3}
   ResourceNodeLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   FarmIcon: {fileID: 0}
   TargetingObjPosCorrect: {x: 0, y: 0.2, z: 0}
   TargetDropItem: {fileID: 0}
@@ -5086,13 +5123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 984141337}
-  testItemData: {fileID: 11400000, guid: f3a44da109cc904458d9891591915ce6, type: 2}
   amount: 1
-  allEquipment:
-  - {fileID: 11400000, guid: cf88d9ae4a8c62445a01c723918b1d38, type: 2}
-  - {fileID: 11400000, guid: a9747721d1808674a83bb43fa8375ad9, type: 2}
-  - {fileID: 11400000, guid: b038cc3c02acc034bb0d9966d24ab7b6, type: 2}
-  - {fileID: 11400000, guid: 31111f1830256ee4ba357fe995d51c3d, type: 2}
   shopItems: {fileID: 11400000, guid: a8a22f90c1a81b446b5c335cdd6221ee, type: 2}
   smithData: {fileID: 11400000, guid: 41c7e66d8567ca24b93f1f3c9fb091c8, type: 2}
   quickSlot: {fileID: 0}
@@ -6175,6 +6206,7 @@ Transform:
   - {fileID: 446844721}
   - {fileID: 1948763850}
   - {fileID: 1727831846}
+  - {fileID: 750859760}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2134047838
@@ -6295,6 +6327,12 @@ PrefabInstance:
       propertyPath: OutlinePrefab
       value: 
       objectReference: {fileID: 2638016611731260018, guid: e49b4e603851d464eb9ae559d2222bd8,
+        type: 3}
+    - target: {fileID: 4247578816833392253, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: ResourceNodePrefab
+      value: 
+      objectReference: {fileID: 5020927097896143681, guid: c740635e400cd6b4eb71da4817a991e4,
         type: 3}
     - target: {fileID: 7815136278687429938, guid: dbac8dd0854a974419fb793d0b4a1ace,
         type: 3}

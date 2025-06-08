@@ -8,4 +8,8 @@ public abstract class EquipmentItemData : ItemData
 
     [SerializeField] private EquipmentType _equipmentType;
     [SerializeField] private int _rank;
+
+    protected EquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    {
+    }
 }

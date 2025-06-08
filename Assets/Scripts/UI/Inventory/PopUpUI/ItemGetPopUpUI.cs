@@ -48,7 +48,7 @@ public class ItemGetPopUpUI : MonoBehaviour
     /// <summary> 아이템 획득시 팝업될 아이템 큐에 추가 </summary>
     public void AddItemPopUpQueue(ItemData itemData, int amount = 1)
     {
-        _itemQueue.Enqueue(new PopUpItemInfo(itemData.IconSprite, itemData.name, amount));
+        _itemQueue.Enqueue(new PopUpItemInfo(itemData.IconSprite, itemData.Name, amount));
 
         if (!_isProcessingQueue)
             ProcessItemQueue().Forget();

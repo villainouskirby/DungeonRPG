@@ -16,10 +16,10 @@ public class DropItem : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Set(ItemData itemData)
+    public void Set(ItemData itemData, Sprite sprite)
     {
         _itemData = itemData;
-        _spriteRenderer.sprite = itemData.IconSprite;
+        _spriteRenderer.sprite = sprite;
     }
 
     public void Get()

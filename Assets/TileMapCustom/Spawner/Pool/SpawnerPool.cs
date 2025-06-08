@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.U2D;
 
 public class SpawnerPool : MonoBehaviour
 {
@@ -33,6 +36,7 @@ public class SpawnerPool : MonoBehaviour
 
         MonsterPool = new(DataFilePath, "Monster", _monsterRoot);
         ResourceNodePool = new();
+        ResourceNodePool.Init(_resourceNodeRoot, ResourceNodePrefab);
     }
 }
 
@@ -43,14 +47,15 @@ public class ResourceNodePool
     private Transform _root;
     private GameObject _resourceNodePrefab;
 
-    public void Awake()
+    public void Init(Transform root, GameObject resoutceNodePrefab)
     {
-        _pool = new();
-        Init();
-    }
+        _root = root;
+        _resourceNodePrefab = resoutceNodePrefab;
 
-    public void Init()
-    {
+        AsyncOperationHandle<SpriteAtlas> handle = Addressables.LoadAssetAsync<SpriteAtlas>("ResourceNodeAtlas");
+        ResourceNodeBase.SpriteAtlas = handle.WaitForCompletion();
+
+        _pool = new();
         for (int i = 0; i < _poolSize; i++)
         {
             Generate();
@@ -65,6 +70,7 @@ public class ResourceNodePool
 
         ResourceNodeBase resourceNode;
         resourceNode = obj.GetComponent<ResourceNodeBase>();
+        resourceNode.Init();
 
         _pool.Enqueue(resourceNode);
 
@@ -85,6 +91,8 @@ public class ResourceNodePool
 
     public void Return(ResourceNodeBase obj)
     {
+        obj.gameObject.SetActive(false);
+        obj.transform.SetParent(_root);
         _pool.Enqueue(obj);
     }
 }

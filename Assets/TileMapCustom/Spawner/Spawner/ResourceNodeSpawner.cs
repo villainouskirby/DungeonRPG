@@ -5,8 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class ResourceNodeSpawner : Spawner
 {
-    public ResourceNodeEnum[]        ResourceNodes;
-    public ResourceNodeEnum          Select;
+    private static Dictionary<string, ResourceNode_Info_ResourceNode> _infoMapping;
+    public string[]        ResourceNodes;
+    public string          Select;
 
     public ResourceNodeSpawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange) : base(spawnerTile, genericMinRange, genericMaxRange)
     {
@@ -21,24 +22,23 @@ public class ResourceNodeSpawner : Spawner
     {
         base.Spawn();
         // SpawnManager에서 Enum을 통해 오브젝트를 풀링후 스폰한다.
-        Debug.Log($"Mineral {Select}이 스폰됨!");
+        Debug.Log($"Mineral {Select}이(가) 스폰됨!");
     }
 
     public override GameObject GetSpawnObject()
     {
-        // JJJJ 스포너 로직 수정해야함 Info 자체를 넘겨줘야지 데이터를 세팅해줌으로
-        // Info를 얻는 코드를 제작해야함
-        //return SpawnerPool.Instance.ResourceNodePool.Get().gameObject;
-        return null;
+        return SpawnerPool.Instance.ResourceNodePool.Get(_infoMapping[Select]).gameObject;
     }
 
     public override void Init()
     {
         base.Init();
+
+        _infoMapping ??= SheetDataUtil.DicByKey(ResourceNode_Info.ResourceNode, "ResourceNode_name", _infoMapping);
         if (ResourceNodes.Length == 0)
         {
-            Debug.LogWarning($"{TilePos.ToString()}에 위치한 Spawner의 Minerals가 비어있습니다.");
-            Select = ResourceNodeEnum.None;
+            Debug.LogWarning($"{TilePos.ToString()}에 위치한 Spawner의 ResourceNode가 비어있습니다.");
+            Select = "Error";
         }
         else
         {

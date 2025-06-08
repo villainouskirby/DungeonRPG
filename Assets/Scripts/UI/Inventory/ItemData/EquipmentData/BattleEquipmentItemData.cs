@@ -13,4 +13,8 @@ public abstract class BattleEquipmentItemData : EquipmentItemData
     [SerializeField] private int _stamina;
     [SerializeField] private int _duration;
     [SerializeField] private int _additionalEffect;
+
+    protected BattleEquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    {
+    }
 }

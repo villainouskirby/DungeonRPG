@@ -32,7 +32,7 @@ public class TileMapMaster : MonoBehaviour
     private List<ITileMapBase> _base;
     private List<ITileMapOption> _option;
 
-    public void Awake()
+    public void Start()
     {
         Init();
         StartTileMap(MapType);

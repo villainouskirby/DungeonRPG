@@ -29,6 +29,12 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        List<Vector2Int> target = new();
+        foreach(var pair in ActiveShadow)
+            target.Add(pair.Key);
+        for (int i = 0; i < target.Count; i++)
+            UnLoadShadow(target[i]);
+
         CM.Instance.ChunkLoadAction += LoadShadow;
         CM.Instance.ChunkUnloadAction += UnLoadShadow;
 
@@ -75,6 +81,9 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
 
         Pool.Return(ActiveShadow[chunkPos]);
         ActiveShadow.Remove(chunkPos);
+        Addressables.Release(_handleDic[chunkPos]);
+        _handleDic.Remove(chunkPos);
+
     }
 
     public int Prime => (int)TileMapBasePrimeEnum.ShadowManager;

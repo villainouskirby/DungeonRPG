@@ -2,7 +2,9 @@ Shader "Custom/PixelOutline_NoBranch"
 {
     Properties
     {
-        [PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
+        [PerRendererData]_MainTex          ("Sprite Texture",   2D)     = "white" {}
+        [PerRendererData]_MainTex_ST       ("MainTex ST",       Vector) = (1,1,0,0)
+        [PerRendererData]_MainTex_TexelSize("MainTex TexelSize",Vector) = (0,0,0,0)
 
         _Active("Active", float) = 0
         _OutlineColor("Outline Color", Color) = (0,0,0,1)
@@ -57,14 +59,13 @@ Shader "Custom/PixelOutline_NoBranch"
             {
                 v2f OUT;
                 OUT.vertex   = UnityObjectToClipPos(IN.vertex);
-                OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);
+                OUT.texcoord = IN.texcoord * _MainTex_ST.xy + _MainTex_ST.zw;
                 return OUT;
             }
 
             fixed4 frag(v2f IN) : SV_Target
             {
-                float2 uv = IN.texcoord;
-
+                float2 uv = IN.texcoord;// * _MainTex_ST.zw + _MainTex_ST.xy;
                 float2 baseTexel = float2(_MainTex_TexelSize.x, _MainTex_TexelSize.y);
                 float2 texelSize = baseTexel * _PixelSize;
                 float centerAlpha = tex2D(_MainTex, uv).a;

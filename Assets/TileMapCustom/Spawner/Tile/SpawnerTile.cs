@@ -7,6 +7,7 @@ public class SpawnerTile : MonoBehaviour
     [Header("Spawner Group Settings")]
     public SpawnerGroupEnum     Group = SpawnerGroupEnum.A;
     public SpawnerCaseEnum      Case = SpawnerCaseEnum.All;
+    [HideInInspector]
     public SpawnerType          Type;
 
     [Header("Custom Spawn Condition Settings")]

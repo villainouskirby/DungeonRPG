@@ -78,7 +78,6 @@ Transform:
   m_Children:
   - {fileID: 8288771951204848858}
   - {fileID: 5217840752535978789}
-  - {fileID: 6537078249165467660}
   m_Father: {fileID: 876094207037909525}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1839735485 &969354831055813625
@@ -205,10 +204,15 @@ PrefabInstance:
       propertyPath: m_DynamicOccludee
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6014660216418646312, guid: 238b6ce94d8feec47a4daf2057e0af31,
+        type: 3}
+      propertyPath: select
+      value: "\uAD6C\uB9AC"
+      objectReference: {fileID: 0}
     - target: {fileID: 6415908526726647503, guid: 238b6ce94d8feec47a4daf2057e0af31,
         type: 3}
       propertyPath: m_Name
-      value: 'MineralSpawner '
+      value: 'ResourceNodeSpawner '
       objectReference: {fileID: 0}
     - target: {fileID: 8456683388528773320, guid: 238b6ce94d8feec47a4daf2057e0af31,
         type: 3}
@@ -349,85 +353,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8919458623170179607, guid: 5278e7bb3542ffc4587390afee8045ce,
     type: 3}
   m_PrefabInstance: {fileID: 3720315071271579954}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &6837465913466323146
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 173184445652336751}
-    m_Modifications:
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5795149187104379566, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_Name
-      value: PlantSpawner
-      objectReference: {fileID: 0}
-    - target: {fileID: 8224441717361426338, guid: 38886d0b7d6cd354983e66a53860892f,
-        type: 3}
-      propertyPath: m_DynamicOccludee
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 38886d0b7d6cd354983e66a53860892f, type: 3}
---- !u!4 &6537078249165467660 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 314074456126402758, guid: 38886d0b7d6cd354983e66a53860892f,
-    type: 3}
-  m_PrefabInstance: {fileID: 6837465913466323146}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &5236723305197676426
 MonoBehaviour:

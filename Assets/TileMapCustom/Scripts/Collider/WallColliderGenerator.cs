@@ -14,7 +14,7 @@ public class WallColliderGenerator : MonoBehaviour
     void Start()
     {
         _lastRange = 0;
-        Init();
+        Invoke(nameof(Init), 0f);
     }
 
     // 맵 이동 간에 벽 생성 스크립트를 다시 Init 해줘야함..

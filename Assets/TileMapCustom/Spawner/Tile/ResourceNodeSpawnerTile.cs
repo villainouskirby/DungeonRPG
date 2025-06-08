@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class ResourceNodeSpawnerTile : SpawnerTile
 {
-    [Header("Plant Settings")]
-    public ResourceNodeEnum[]     ResourceNodes;
+    [Header("ResourceNode Settings")]
+    [HideInInspector]
+    public string[] ResourceNodes = new string[0];
 }

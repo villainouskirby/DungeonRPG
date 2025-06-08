@@ -6,4 +6,8 @@ public abstract class CountableItemData : ItemData
     public int MaxAmount => _maxAmount;
 
     [SerializeField] private int _maxAmount = 99;
+
+    protected CountableItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    {
+    }
 }
