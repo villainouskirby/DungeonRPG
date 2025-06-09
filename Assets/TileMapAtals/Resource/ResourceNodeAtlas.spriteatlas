@@ -34,19 +34,23 @@ SpriteAtlas:
     packables:
     - {fileID: 21300000, guid: bc87d4391f4cc1640822b3340b23ea3b, type: 3}
     - {fileID: 21300000, guid: 3a22f21826a160f4fb5df4cac2c2dade, type: 3}
+    - {fileID: 21300000, guid: 56c85c4f4f4dc5849bbb96085525909a, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
     - 3a22f21826a160f4fb5df4cac2c2dade: 21300000
     - bc87d4391f4cc1640822b3340b23ea3b: 21300000
+    - 56c85c4f4f4dc5849bbb96085525909a: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 3a22f21826a160f4fb5df4cac2c2dade, type: 3}
   - {fileID: 21300000, guid: bc87d4391f4cc1640822b3340b23ea3b, type: 3}
+  - {fileID: 21300000, guid: 56c85c4f4f4dc5849bbb96085525909a, type: 3}
   m_PackedSpriteNamesToIndex:
   - JSM_Node
   - CPR_Node
+  - Test_Node
   m_RenderDataMap: {}
   m_Tag: ResourceNodeAtlas
   m_IsVariant: 0

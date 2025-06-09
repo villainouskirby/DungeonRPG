@@ -49,14 +49,17 @@ public class ResourceNodeBase : MonoBehaviour
         DropHpCut = CurrentHp / (float)Info.Gathering_count;
         _sr.sprite = SpriteAtlas.GetSprite(Info.ResourceNode_sprite);
 
-        int shapeCount = _sr.sprite.GetPhysicsShapeCount();
-        _poly.pathCount = shapeCount;
-
-        for (int i = 0; i < shapeCount; i++)
+        if (_sr.sprite != null)
         {
-            var shape = new List<Vector2>();
-            _sr.sprite.GetPhysicsShape(i, shape);
-            _poly.SetPath(i, shape.ToArray());
+            int shapeCount = _sr.sprite.GetPhysicsShapeCount();
+            _poly.pathCount = shapeCount;
+
+            for (int i = 0; i < shapeCount; i++)
+            {
+                var shape = new List<Vector2>();
+                _sr.sprite.GetPhysicsShape(i, shape);
+                _poly.SetPath(i, shape.ToArray());
+            }
         }
     }
 
