@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     [Header("Movement Settings")]
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
-
+    private float baseMoveSpeed = 3f;
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
 
@@ -68,7 +68,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (EscapeActive) return;
 
-        // ── 입력 / 속도 계산 ──
+        // 입력 / 속도 계산
         float hx = Input.GetAxis("Horizontal");
         float hy = Input.GetAxis("Vertical");
         Vector2 dir = new(hx, hy);
@@ -78,24 +78,24 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                                           targetVel,
                                           accel * Time.fixedDeltaTime);
 
-        // ── 방향 결정 ──
+        // 방향 결정
         if (dir != Vector2.zero)
-    {
-        // 실제 키 입력이 있을 때
-        if (Mathf.Abs(hx) > Mathf.Abs(hy))
-            facingDir = hx < 0 ? 2 : 3;   // 2=Left, 3=Right
-        else
-            facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
-    }
-    else if (rb.velocity.sqrMagnitude > 0.0001f)
-    {
-        // 키는 떼었지만 아직 관성으로 움직이고 있을 때
-        Vector2 v = rb.velocity;
-        if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
-            facingDir = v.x < 0 ? 2 : 3;
-        else
-            facingDir = v.y > 0 ? 0 : 1;
-    }
+        {
+            // 실제 키 입력이 있을 때
+            if (Mathf.Abs(hx) > Mathf.Abs(hy))
+                facingDir = hx < 0 ? 2 : 3;   // 2=Left, 3=Right
+            else
+                facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
+        }
+        else if (rb.velocity.sqrMagnitude > 0.0001f)
+        {
+            // 키는 떼었지만 아직 관성으로 움직이고 있을 때
+            Vector2 v = rb.velocity;
+            if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
+                facingDir = v.x < 0 ? 2 : 3;
+            else
+                facingDir = v.y > 0 ? 0 : 1;
+        }
 
         sprite.flipX = facingDir == 2;
 
@@ -129,6 +129,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             RunState => 5f,
             _ => speed
         };
+        if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
+        {
+            // 0이면 그대로 1로, 아닐 때는 비율로 조절
+            anim.speed = speed > 0.01f
+                ? Mathf.Clamp(speed / baseMoveSpeed, 0.3f, 2.0f) // 하한·상한
+                : 1f;                                            // Idle은 1배속
+        }
+        else
+        {
+            // 특수 모션(회피, 공격 등)은 원래 속도로
+            anim.speed = 1f;
+        }
     }
 
     #region 회피 기동 로직
