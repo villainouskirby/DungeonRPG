@@ -8,7 +8,7 @@ public class HealthBarManager : MonoBehaviour
     [SerializeField] private RectTransform canvasRoot; // Screen‑Space‑Camera Canvas
     [SerializeField] private HealthBarUI prefab;
 
-    private readonly Dictionary<MonsterBase, HealthBarUI> map = new();
+    private readonly Dictionary<MonsterBase1, HealthBarUI> map = new();
 
     void Awake()
     {
@@ -16,7 +16,7 @@ public class HealthBarManager : MonoBehaviour
         Instance = this;
     }
 
-    public void Register(MonsterBase monster)
+    public void Register(MonsterBase1 monster)
     {
         if (map.ContainsKey(monster)) return;
 
@@ -25,13 +25,13 @@ public class HealthBarManager : MonoBehaviour
         map.Add(monster, ui);
     }
 
-    public void UpdateBar(MonsterBase m, float ratio)
+    public void UpdateBar(MonsterBase1 m, float ratio)
     {
         if (map.TryGetValue(m, out var ui))
             ui.SetRatio(ratio);
     }
 
-    public void Unregister(MonsterBase m)
+    public void Unregister(MonsterBase1 m)
     {
         if (!map.TryGetValue(m, out var ui)) return;
         Destroy(ui.gameObject);

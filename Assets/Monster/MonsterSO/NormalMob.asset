@@ -17,17 +17,25 @@ MonoBehaviour:
   attackPower: 2
   attackCooldown: 1.5
   attackRange: 1.2
-  hearRange: 7
-  sightDistance: 4
+  canMove: 1
+  hearRange: 5
+  sightDistance: 5
   lostDistance: 5
-  wanderRadius: 4
-  detectSpeed: 1
+  wanderRadius: 2
+  detectSpeed: 2
   combatSpeed: 3
   fleeSpeed: 3.5
   stoppingDistance: 2
-  soundObstaclePenalty: 3
+  soundObstaclePenalty: 4
   maxSpawnerDist: 15
   nearSpawnerDist: 2
   isaggressive: 1
+  canHearNoise: 0
+  hearToCombat: 1
+  category: 2
+  attackBehaviours:
+  - {fileID: 11400000, guid: 530803b0fe863ce49be229bcf1dc94d4, type: 2}
+  fleeBehaviours: []
+  specialBehaviour: {fileID: 0}
   animator: {fileID: 0}
   expReward: 10

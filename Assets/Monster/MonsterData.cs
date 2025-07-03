@@ -13,6 +13,7 @@ public class MonsterData : ScriptableObject
     public float attackRange = 1.2f; // 실제 타격 거리
 
     [Header("이동 / 시야")]
+    public bool canMove = true; // 터렛처럼 정지형이면 false
     public float hearRange = 3f;   // 청각 반경(고정)
     public float sightDistance = 6f;   // 시야 거리
     public float lostDistance = 8f;   // 시야 벗어나면 Combat 해제
@@ -35,6 +36,19 @@ public class MonsterData : ScriptableObject
     [Header("지각 능력")]
     public bool canHearNoise = true;   // 청각 보유 여부
     public bool hearToCombat = false;  // 소리만 들어도 바로 전투
+    public enum MonsterCategory { Hound, Turret, Miner, Beetle }
+    [Header("행동 타입")]
+    public MonsterCategory category = MonsterCategory.Hound;
+
+    [Tooltip("이 몬스터가 사용할 공격 패턴들 (순서대로 BT Selector)")]
+    public AttackBehaviourSO[] attackBehaviours;
+
+    [Tooltip("도망(또는 특수) 패턴들")]
+    public FleeBehaviourSO[] fleeBehaviours;
+
+    [Tooltip("특수 행동(채굴·충전·패링 등)")]
+    public SpecialBehaviourSO specialBehaviour;
+
     //[Header("애니메이터")]
     public RuntimeAnimatorController animator;
 
