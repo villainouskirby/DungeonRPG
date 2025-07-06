@@ -1,4 +1,4 @@
-Shader "Test/Test"
+Shader "Tilemap/LitTilemap"
 {
     Properties
     {
