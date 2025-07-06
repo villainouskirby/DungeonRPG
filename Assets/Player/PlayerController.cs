@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     [Header("Movement Settings")]
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
+    private float baseMoveSpeed = 3f;
+    [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
+    public float accel = 10f;
 
     [Header(" Escape Settings")]
     public int dodgeCost = 50;    // 스태미너 소모
@@ -23,7 +26,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     private PlayerStateMachine stateMachine;
     [SerializeField] IPlayerState nowState;
 
-    /* ---------- Escape 내부 상태 ---------- */
+    // Escape 내부 상태
     enum EscapePhase { None, Dive, Down, GetUp }
     EscapePhase escPhase = EscapePhase.None;
     float phaseT = 0f;          // 현재 페이즈 남은 시간
@@ -31,7 +34,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     bool isInvincible = false;
     public bool EscapeActive => escPhase != EscapePhase.None;
 
-    /* ---------- 내부 ---------- */
     private bool stateLocked = false; // 외부(포션 등) 잠금
     private int facingDir = 1;     // 0=Up,1=Down,2=Left,3=Right
     public int FacingDir => facingDir;
@@ -42,8 +44,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         // 애니메이션·스프라이트도 즉시 갱신
         anim.SetInteger("Direction", d);
 
-        if (d == 3) sprite.flipX = true;   // Right
-        else if (d == 2) sprite.flipX = false;   // Left
+        if (d == 2) sprite.flipX = true;   // Right
+        else if (d == 3) sprite.flipX = false;   // Left
     }
     private void Awake()
     {
@@ -62,25 +64,59 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (EscapeActive) UpdateEscape();
         //Debug.Log(stateMachine.GetCurrentState());
     }
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (EscapeActive) return;
-        /* 이동 */
+
+        // 입력 / 속도 계산
         float hx = Input.GetAxis("Horizontal");
         float hy = Input.GetAxis("Vertical");
-
-        if (hx == 0f && hy == 0f) { rb.velocity = Vector2.zero; return; }
-
         Vector2 dir = new(hx, hy);
-        rb.velocity = dir.normalized * speed;
-        anim.SetBool("iswalking", true);
 
-        if (Mathf.Abs(hx) > 0f) facingDir = (hx < 0) ? 2 : 3;
-        else if (Mathf.Abs(hy) > 0f) facingDir = (hy > 0) ? 0 : 1;
+        Vector2 targetVel = dir.normalized * speed;
+        rb.velocity = Vector2.MoveTowards(rb.velocity,
+                                          targetVel,
+                                          accel * Time.fixedDeltaTime);
 
-        anim.SetInteger("Direction", facingDir);
-        if (facingDir == 3) sprite.flipX = true;
-        else if (facingDir == 2) sprite.flipX = false;
+        // 방향 결정
+        if (dir != Vector2.zero)
+        {
+            // 실제 키 입력이 있을 때
+            if (Mathf.Abs(hx) > Mathf.Abs(hy))
+                facingDir = hx < 0 ? 2 : 3;   // 2=Left, 3=Right
+            else
+                facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
+        }
+        else if (rb.velocity.sqrMagnitude > 0.0001f)
+        {
+            // 키는 떼었지만 아직 관성으로 움직이고 있을 때
+            Vector2 v = rb.velocity;
+            if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
+                facingDir = v.x < 0 ? 2 : 3;
+            else
+                facingDir = v.y > 0 ? 0 : 1;
+        }
+
+        sprite.flipX = facingDir == 2;
+
+        // ── 애니메이션 바로 재생 ──
+        bool moving = rb.velocity.sqrMagnitude > 0.001f;
+
+        string clip = moving
+            ? facingDir switch
+            {
+                0 => "Walk_back",
+                1 => "Walk_front",
+                _ => "Walk_side"
+            }
+            : facingDir switch
+            {
+                0 => "Idle_back",
+                1 => "Idle_front",
+                _ => "Idle_side"
+            };
+
+        anim.Play(clip);   // 조건·변수 없이 즉시 전환
     }
     private void UpdateByState() // 상태에 따른 속력
     {
@@ -93,6 +129,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             RunState => 5f,
             _ => speed
         };
+        if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
+        {
+            // 0이면 그대로 1로, 아닐 때는 비율로 조절
+            anim.speed = speed > 0.01f
+                ? Mathf.Clamp(speed / baseMoveSpeed, 0.3f, 2.0f) // 하한·상한
+                : 1f;                                            // Idle은 1배속
+        }
+        else
+        {
+            // 특수 모션(회피, 공격 등)은 원래 속도로
+            anim.speed = 1f;
+        }
     }
 
     #region 회피 기동 로직

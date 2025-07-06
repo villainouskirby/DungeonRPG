@@ -6,7 +6,7 @@ using UnityEngine.AI;
 using UnityEngine.XR;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator))]
-public abstract class MonsterBase : MonoBehaviour
+public abstract class MonsterBase1 : MonoBehaviour
 {
     [SerializeField] protected MonsterData data;
     [SerializeField] protected Transform spawner;

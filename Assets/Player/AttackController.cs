@@ -180,10 +180,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         Vector2 center = origin + dir * (l * .5f);
         float angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(w, l), angleDeg);
-        HashSet<MonsterBase> done = new();
+        HashSet<MonsterBase1> done = new();
         foreach (var h in hits)
         {
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase m) && done.Add(m))
+            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
                 m.TakeDamage(dmg);
             if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
                 Debug.Log($"채집물 공격! {h.gameObject.name}");
@@ -193,7 +193,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     {
         float radius = 2f, arc = 60f;
         Collider2D[] hits = Physics2D.OverlapCircleAll(origin, radius);
-        HashSet<MonsterBase> done = new();
+        HashSet<MonsterBase1> done = new();
         foreach (var h in hits)
         {
             Vector2 to = (Vector2)h.transform.position - origin;
@@ -202,16 +202,16 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 f.Damage(dmg);
             if (!h.CompareTag("Monster")) continue;
             if (Vector2.Angle(dir, to) <= arc * .5f &&
-                h.TryGetComponent(out MonsterBase m) && done.Add(m))
+                h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
                 m.TakeDamage(dmg);
         }
     }
     private void DoHeavyCircle(int dmg, Vector2 origin, float r)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(origin, r);
-        HashSet<MonsterBase> done = new();
+        HashSet<MonsterBase1> done = new();
         foreach (var h in hits)
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase m) && done.Add(m))
+            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
                 m.TakeDamage(dmg);
     }
 

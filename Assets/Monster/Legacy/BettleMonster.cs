@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 플레이어를 보면 ‘도망 + 땅속 숨기’만 수행하는 딱정벌레
 /// </summary>
-public class BeetleMonster : MonsterBase
+public class BeetleMonster : MonsterBase1
 {
     /* ───── 커스텀 애니메이션 이름 ───── */
     protected override string IdleAnim => "BeetleIdle";
