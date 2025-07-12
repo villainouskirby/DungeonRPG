@@ -15,6 +15,7 @@ public class DropItemPool : MonoBehaviour
     [Header("DropItem Prefab")]
     public GameObject DropItemPrefab;
     public int PoolSize = 5;
+    public Sprite ErrorSprite;
 
     private Queue<DropItem> _pool;
 
@@ -34,7 +35,7 @@ public class DropItemPool : MonoBehaviour
 
         if (SpriteAtlas == null)
         {
-            AsyncOperationHandle<SpriteAtlas> handle = Addressables.LoadAssetAsync<SpriteAtlas>("ResourceNodeAtlas");
+            AsyncOperationHandle<SpriteAtlas> handle = Addressables.LoadAssetAsync<SpriteAtlas>("ResourceAtlas");
             handle.WaitForCompletion();
             SpriteAtlas = handle.Result;
         }
@@ -62,13 +63,18 @@ public class DropItemPool : MonoBehaviour
         }
 
         DropItem obj = _pool.Dequeue();
-        obj.Set(itemData, SpriteAtlas.GetSprite(itemData.Info.Item_sprite));
+        //Debug.Log(itemData.Info.Item_sprite);
+        Sprite sprite = SpriteAtlas.GetSprite(itemData.Info.Item_sprite);
+        if (sprite == null)
+            sprite = ErrorSprite;
+        obj.Set(itemData, sprite);
         return obj;
     }
 
     public void Return(DropItem obj)
     {
         obj.ResetItem();
+        obj.gameObject.SetActive(false);
         _pool.Enqueue(obj);
     }
 }

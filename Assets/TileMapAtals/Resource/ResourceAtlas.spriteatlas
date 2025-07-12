@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ResourceNodeAtlas
+  m_Name: ResourceAtlas
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -15,9 +15,9 @@ SpriteAtlas:
       compressionQuality: 50
       maxTextureSize: 2048
       textureCompression: 0
-      filterMode: 0
+      filterMode: 1
       generateMipMaps: 0
-      readable: 1
+      readable: 0
       crunchedCompression: 0
       sRGB: 1
     platformSettings: []
@@ -26,29 +26,32 @@ SpriteAtlas:
       padding: 4
       blockOffset: 1
       allowAlphaSplitting: 0
-      enableRotation: 0
-      enableTightPacking: 0
+      enableRotation: 1
+      enableTightPacking: 1
       enableAlphaDilation: 0
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
-    - {fileID: 102900000, guid: 3e9d1d7ffaebba04d9f437dcef219e8f, type: 3}
+    - {fileID: 102900000, guid: 22137462f9aa43e4fb1620644aa26909, type: 3}
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
-    - 3a22f21826a160f4fb5df4cac2c2dade: 21300000
-    - bc87d4391f4cc1640822b3340b23ea3b: 21300000
-    - 56c85c4f4f4dc5849bbb96085525909a: 21300000
+    - 2873cdaca59889b4291ce4aac5ce19f5: -1612158123
+    - 2873cdaca59889b4291ce4aac5ce19f5: 357527523
+    - 2873cdaca59889b4291ce4aac5ce19f5: 549321090
+    - 2873cdaca59889b4291ce4aac5ce19f5: 1105239557
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 3a22f21826a160f4fb5df4cac2c2dade, type: 3}
-  - {fileID: 21300000, guid: bc87d4391f4cc1640822b3340b23ea3b, type: 3}
-  - {fileID: 21300000, guid: 56c85c4f4f4dc5849bbb96085525909a, type: 3}
+  - {fileID: -1612158123, guid: 2873cdaca59889b4291ce4aac5ce19f5, type: 3}
+  - {fileID: 357527523, guid: 2873cdaca59889b4291ce4aac5ce19f5, type: 3}
+  - {fileID: 549321090, guid: 2873cdaca59889b4291ce4aac5ce19f5, type: 3}
+  - {fileID: 1105239557, guid: 2873cdaca59889b4291ce4aac5ce19f5, type: 3}
   m_PackedSpriteNamesToIndex:
-  - JSM_Node
-  - CPR_Node
-  - Test_Node
+  - GOL
+  - CPR
+  - SIL
+  - ROC
   m_RenderDataMap: {}
-  m_Tag: ResourceNodeAtlas
+  m_Tag: ResourceAtlas
   m_IsVariant: 0

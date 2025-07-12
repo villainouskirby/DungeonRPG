@@ -4,12 +4,14 @@ using UnityEngine;
 public abstract class ItemData
 {
     public int ID => _id;
+    public string SID => _sid;
     public string Name => _name;
     public string Tooltip => _tooltip;
     public int Weight => _weight;
     public Sprite IconSprite => _iconSprite;
     public Item_Info_Item Info => _info;
 
+    [SerializeField] private string _sid;
     [SerializeField] private int _id;
     [SerializeField] private string _name;
     [Multiline]
@@ -23,6 +25,7 @@ public abstract class ItemData
     {
         _info = info;
         //_id = _info.Item_id;
+        _sid = _info.Item_id;
         _name = _info.Item_name;
         //_tooltip = _info.Item_
         _weight = (int)_info.Item_weight;

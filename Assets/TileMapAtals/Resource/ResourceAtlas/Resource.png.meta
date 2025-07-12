@@ -123,7 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Resource_0
+      name: CPR
       rect:
         serializedVersion: 2
         x: 200
@@ -131,7 +131,7 @@ TextureImporter:
         width: 235
         height: 231
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -144,7 +144,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Resource_1
+      name: SIL
       rect:
         serializedVersion: 2
         x: 583
@@ -152,7 +152,7 @@ TextureImporter:
         width: 244
         height: 231
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -165,7 +165,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Resource_2
+      name: ROC
       rect:
         serializedVersion: 2
         x: 199
@@ -173,7 +173,7 @@ TextureImporter:
         width: 236
         height: 234
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -186,7 +186,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Resource_3
+      name: GOL
       rect:
         serializedVersion: 2
         x: 585
@@ -194,7 +194,7 @@ TextureImporter:
         width: 243
         height: 233
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -217,10 +217,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Resource_0: 357527523
-      Resource_1: 549321090
-      Resource_2: 1105239557
-      Resource_3: -1612158123
+      CPR: 357527523
+      GOL: -1612158123
+      ROC: 1105239557
+      SIL: 549321090
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

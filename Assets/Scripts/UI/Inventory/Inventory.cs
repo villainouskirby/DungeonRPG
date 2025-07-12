@@ -277,7 +277,7 @@ public class Inventory : MonoBehaviour
     {
         while (++index < _items.Count)
         {
-            if (_items[index].Data.ID == ciData.ID) return index;
+            if (_items[index].Data.SID == ciData.SID) return index;
         }
         return -1;
     }
