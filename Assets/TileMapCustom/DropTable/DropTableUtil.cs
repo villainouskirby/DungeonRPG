@@ -56,6 +56,7 @@ public static class DropTableUtil
 
             ResourceItemData data = _mappingItem[itemId];
             result.Add((data, amount));
+            break;
         }
 
         return result;
