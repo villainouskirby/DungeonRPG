@@ -46,6 +46,7 @@ public class ResourceNodeBase : MonoBehaviour
         DropAble = new bool[Info.Gathering_count];
         Array.Fill(DropAble, true);
         CurrentHp = Info.Hp;
+        HpBar.SetActive(false);
         DropHpCut = CurrentHp / (float)Info.Gathering_count;
         _sr.sprite = SpriteAtlas.GetSprite(Info.ResourceNode_sprite);
 
