@@ -45,7 +45,7 @@ public static class DropTableUtil
             string min = itemInfo[2];
             string max = itemInfo[3];
 
-            int amount = Random.Range(int.Parse(min), int.Parse(max));
+            int amount = Random.Range(int.Parse(min), int.Parse(max) + 1);
             bool isDrop = Random.Range(0, 100) < int.Parse(percent);
 
             if (!isDrop)
