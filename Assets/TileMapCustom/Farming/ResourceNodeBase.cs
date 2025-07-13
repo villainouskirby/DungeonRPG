@@ -149,12 +149,9 @@ public class ResourceNodeBase : MonoBehaviour
 
         for (int i = 0; i < item.Count; i++)
         {
-            for (int j = 0; j < item[i].amount; j++)
-            {
-                DropItem dropItem = DropItemPool.Instance.Get(item[i].data);
-                dropItem.gameObject.transform.position = transform.position + new Vector3(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 0);
-                dropItem.gameObject.SetActive(true);
-            }
+            DropItem dropItem = DropItemPool.Instance.Get(item[i].data, item[i].amount);
+            dropItem.gameObject.transform.position = transform.position + new Vector3(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 0);
+            dropItem.gameObject.SetActive(true);
         }
     }
 

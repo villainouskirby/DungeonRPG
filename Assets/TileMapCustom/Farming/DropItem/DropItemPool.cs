@@ -55,7 +55,7 @@ public class DropItemPool : MonoBehaviour
         return dropItem;
     }
 
-    public DropItem Get(ItemData itemData)
+    public DropItem Get(ItemData itemData, int amount)
     {
         while (_pool.Count <= 0)
         {
@@ -67,7 +67,7 @@ public class DropItemPool : MonoBehaviour
         Sprite sprite = SpriteAtlas.GetSprite(itemData.Info.Item_sprite);
         if (sprite == null)
             sprite = ErrorSprite;
-        obj.Set(itemData, sprite);
+        obj.Set(itemData, sprite, amount);
         return obj;
     }
 
