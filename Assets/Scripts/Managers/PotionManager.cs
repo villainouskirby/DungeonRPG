@@ -31,10 +31,13 @@ public class PotionManager : MonoBehaviour
 
         if (success)
         {
-            if (pi.ID <= 10)
+            // ID임시수정 주석처리
+            /*
+            if (pi.SID <= 10)
                 CreateBuff(pi.ID, pi.Percentage, pi.Duration, pi.IconSprite);
-            else if (pi.ID <= 20)
+            else if (pi.SID <= 20)
                 PlayerData.instance.HPValueChange(pi.Healamount);
+            */
         }
 
         isDrinking = false;

@@ -3,7 +3,6 @@ using UnityEngine;
 [System.Serializable]
 public abstract class ItemData
 {
-    public int ID => _id;
     public string SID => _sid;
     public string Name => _name;
     public string Tooltip => _tooltip;
@@ -12,7 +11,6 @@ public abstract class ItemData
     public Item_Info_Item Info => _info;
 
     [SerializeField] private string _sid;
-    [SerializeField] private int _id;
     [SerializeField] private string _name;
     [Multiline]
     [SerializeField] private string _tooltip;

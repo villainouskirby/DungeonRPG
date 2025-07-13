@@ -79,9 +79,9 @@ public class SmithUI : SlotInteractHandler
     }
 
     /// <summary> 인벤/창고에 있는 재료 양 </summary>
-    public int GetIngredientAmount(long ID)
+    public int GetIngredientAmount(string SID)
     {
-        return _smith.GetIngredientAmount(ID);
+        return _smith.GetIngredientAmount(SID);
     }
 
     /// <summary> 제작 가능 여부 확인 => 인벤의 여유 공간 확인 </summary>

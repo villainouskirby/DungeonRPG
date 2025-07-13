@@ -147,7 +147,7 @@ public class Shop : MonoBehaviour
     {
         while (++index < _inventorySellItems.Count)
         {
-            if (_inventorySellItems[index].Data.ID == ciData.ID) return index;
+            if (_inventorySellItems[index].Data.SID == ciData.SID) return index;
         }
         return -1;
     }

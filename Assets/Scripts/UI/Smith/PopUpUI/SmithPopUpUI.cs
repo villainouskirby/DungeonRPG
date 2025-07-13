@@ -62,7 +62,9 @@ public class SmithPopUpUI : MonoBehaviour
             else
             {
                 // TODO => DB랑 연결해서 아이템데이터와 현재 가진 수량 같은거 가져와서 띄우도록 하기
-                int ingredientAmount = _smithUI.GetIngredientAmount(_selectedData.IngredientItemIDs[i]);
+                // ID임시수정 - 일단은 주석 처리..
+                int ingredientAmount = 1;
+                //int ingredientAmount = _smithUI.GetIngredientAmount(_selectedData.IngredientItemIDs[i]);
                 _ingredientTexts[i].text = "\n" + ingredientAmount.ToString();
                 _ingredientTexts[i].text += "/" + _selectedData.IngredientAmounts[i].ToString();
                 _ingredientObjects[i].SetActive(true);

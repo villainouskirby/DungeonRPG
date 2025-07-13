@@ -240,7 +240,7 @@ public class Inventory : MonoBehaviour
         while (amount == 0 || index >= _items.Count)
         {
             Item targetItem = _items[index];
-            if (targetItem.Data.ID == itemData.ID)
+            if (targetItem.Data.SID == itemData.SID)
             {
                 if (targetItem is CountableItem ci)
                 {
@@ -349,13 +349,13 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public int GetItemAmountSum(long ID)
+    public int GetItemAmountSum(string SID)
     {
         int amount = 0;
 
         for (int i = 0; i < _items.Count; i++)
         {
-            if (_items[i].Data.ID == ID)
+            if (_items[i].Data.SID == SID)
             {
                 amount += GetItemAmount(i);
             }
