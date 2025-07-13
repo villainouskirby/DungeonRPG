@@ -34,7 +34,7 @@ public class DropItem : MonoBehaviour
                 Text.text = "";
                 break;
             default:
-                Text.text = _amount.ToString();
+                Text.text = $"x{_amount.ToString()}";
                 break;
         }
     }
