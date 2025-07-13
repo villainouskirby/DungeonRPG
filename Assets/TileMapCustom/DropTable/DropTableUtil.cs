@@ -35,6 +35,8 @@ public static class DropTableUtil
         string dropTableInfo = _mappingTable[dropTableName];
 
         string[] itemInfos = dropTableInfo.Trim().Split("~");
+        int dropPercent = Random.Range(1, 101);
+        int sumPercent = 0;
 
         for (int i = 0; i < itemInfos.Length; i++)
         {
@@ -46,8 +48,9 @@ public static class DropTableUtil
             string max = itemInfo[3];
 
             int amount = Random.Range(int.Parse(min), int.Parse(max) + 1);
-            bool isDrop = Random.Range(0, 100) < int.Parse(percent);
-
+            sumPercent += int.Parse(percent);
+            bool isDrop = dropPercent <= sumPercent;
+                
             if (!isDrop)
                 continue;
 
