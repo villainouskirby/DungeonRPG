@@ -9,6 +9,7 @@ public class PlayerFarming : MonoBehaviour
     private static PlayerFarming _instance;
 
     private List<GameObject> _rangedResourceNodeObj = new();
+    private List<DropItem> _rangedDropItem = new();
 
 
     [Header("Outline Color Settings")]
@@ -96,6 +97,24 @@ public class PlayerFarming : MonoBehaviour
         {
             SelectFarm(_rangedResourceNodeObj[_targetIndex]);
         }
+    }
+
+    public void AddDropItem(DropItem item)
+    {
+        _rangedDropItem.Add(item);
+        TargetDropItem = item;
+    }
+
+    public void RemoveDropItem(DropItem item)
+    {
+        _rangedDropItem.Remove(item);
+        if (TargetDropItem == item)
+        {
+            if (_rangedDropItem.Count > 0)
+                TargetDropItem = _rangedDropItem[0];
+            else
+                TargetDropItem = null;
+        }        
     }
 
     private Color GetOutlineColor()
