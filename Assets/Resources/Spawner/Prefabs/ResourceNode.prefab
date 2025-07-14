@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1078190944714126319}
   - component: {fileID: 2728590726691805931}
   - component: {fileID: 3781910471850401190}
+  - component: {fileID: 7876887873308216447}
   m_Layer: 9
   m_Name: ResourceNode
   m_TagString: Farm
@@ -188,6 +189,23 @@ MonoBehaviour:
   HpBarRemainTime: 2
   HpBarCloseTime: 3
   HpBarShowing: 0
+--- !u!114 &7876887873308216447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5020927097896143681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17541193be106a34595d1cb65ab976d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CenterOffset: {x: 0, y: -0.12}
+  RadiusX: 0.72
+  RadiusY: 0.3
+  segments: 60
+  DropAngle: 60
 --- !u!1001 &130473018379577063
 PrefabInstance:
   m_ObjectHideFlags: 0

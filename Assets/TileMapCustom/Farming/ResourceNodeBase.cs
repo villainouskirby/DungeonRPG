@@ -1,4 +1,5 @@
 
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ public class ResourceNodeBase : MonoBehaviour
     private SpriteRenderer _sr;
     private PolygonCollider2D _poly;
     private bool _isCheckVisible;
+    private EllipseVisualizer _ev;
+    private Vector3 _oriPos;
 
     private void Awake()
     {
@@ -71,6 +74,7 @@ public class ResourceNodeBase : MonoBehaviour
         HpBarFunc = HpBar.GetComponent<FarmHpBarFunc>();
         _sr = GetComponent<SpriteRenderer>();
         _poly = GetComponent<PolygonCollider2D>();
+        _ev = GetComponent<EllipseVisualizer>();
     } 
 
     public void ShowHpBar()
@@ -97,12 +101,9 @@ public class ResourceNodeBase : MonoBehaviour
 
     public void Shake(float time, float power)
     {
-
-    }
-
-    private IEnumerator ShakeC(float time, float power)
-    {
-        yield return null;
+        transform.DOKill();
+        transform.position = _oriPos;
+        transform.DOShakePosition(time, power);
     }
 
     public void Damage(float damage)
@@ -112,7 +113,8 @@ public class ResourceNodeBase : MonoBehaviour
             // 파괴 불가능한 채집물 임으로 이펙트를 따로 표시할 것
             return;
         }
-        
+
+        Shake(0.4f, 0.1f);
 
         CurrentHp -= damage;
         if (CurrentHp < 0)
@@ -149,8 +151,8 @@ public class ResourceNodeBase : MonoBehaviour
 
         for (int i = 0; i < item.Count; i++)
         {
-            DropItem dropItem = DropItemPool.Instance.Get(item[i].data, item[i].amount);
-            dropItem.gameObject.transform.position = transform.position + new Vector3(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 0);
+            DropItem dropItem = DropItemPool.Instance.Get(item[i].data);
+            dropItem.Set(item[i].data, item[i].amount, transform.position, EllipseVisualizer.GetRandomPos(_ev));
             dropItem.gameObject.SetActive(true);
         }
     }
@@ -196,6 +198,7 @@ public class ResourceNodeBase : MonoBehaviour
 
     public void FarmReset()
     {
+        transform.DOKill();
         _isCheckVisible = false;
         TilePos = new(0, 0);
         CurrentHp = Info.Hp;
@@ -218,5 +221,6 @@ public class ResourceNodeBase : MonoBehaviour
         // 기본값을 전부 세팅해준다.
         TilePos = new(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
         _isCheckVisible = true;
+        _oriPos = transform.position;
     }
 }
