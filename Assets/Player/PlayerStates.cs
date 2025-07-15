@@ -204,22 +204,50 @@ public class ForageState : IPlayerState
 */
 public class GuardState : IPlayerState
 {
-    private readonly IPlayerChangeState player;
-    public GuardState(IPlayerChangeState player) => this.player = player;
+    readonly PlayerController pc;
+    readonly AttackController ac;
+    readonly PlayerDefense pd;
 
-    public void Enter() => Debug.Log("Guard ON");
-    public void Exit() => Debug.Log("Guard OFF");
+    public GuardState(IPlayerChangeState player)
+    {
+        pc = player as PlayerController;
+        ac = pc?.GetComponent<AttackController>();
+        pd = pc?.GetComponent<PlayerDefense>();
+    }
+
+    public void Enter()
+    {
+        Debug.Log("Guard ON");
+        if (pc) pc.rb.velocity = Vector2.zero;      // 즉시 정지
+    }
 
     public void Update()
     {
-        //가드 해제 
-        if (Input.GetKeyUp(KeyCode.Q))
-            player.ChangeState(new IdleState(player));
+        // 공격키 → 가드 해제 & 공격 전환
+        if (Input.GetMouseButtonDown(0))
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
+
+        // 우클릭을 떼면 가드 종료
+        if (Input.GetMouseButtonUp(1))
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
+
+        // 가드가 불가능해진 경우(스태미너 부족·쿨타임 등)
+        if (pd && !pd.GuardAvailable)
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
     }
 
+    public void Exit() => Debug.Log("Guard OFF");
     public override string ToString() => "Guard";
 }
-
 public class ChargingState : IPlayerState
 {
     private readonly IPlayerChangeState player;

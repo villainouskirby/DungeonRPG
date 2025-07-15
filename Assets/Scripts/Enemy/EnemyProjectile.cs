@@ -40,7 +40,7 @@ public class EnemyProjectile : MonoBehaviour
 
             if (defense != null)
             {
-                finalDamage = defense.CalculateDamage(damage);
+                //finalDamage = defense.CalculateDamage(damage);
             }
 
             // 플레이어의 데미지 처리 함수를 호출 (예: "TakeDamage" 함수)

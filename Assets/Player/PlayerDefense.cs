@@ -1,40 +1,57 @@
 using UnityEngine;
 
+/// • 가드·저스트 가드 계산 + 스태미너 차감 + 쿨타임 관리 담당
 public class PlayerDefense : MonoBehaviour
 {
-    public float justGuardWindow = 0.3f; // 저스트 가드 허용 시간
-    private float lastGuardTime = -1f;     // 마지막 방어 입력 시간
+    [Header("윈도우(↓) · 후딜(↑)")]
+    [SerializeField] float justGuardWindow = 0.20f;  // 버튼 누른 뒤 허용 시간
+    [SerializeField] float normalGuardDelay = 0.50f;  // 가드 성공 후 쿨다운
+    [SerializeField] float justGuardDelay = 0.30f;  // 저스트 가드 후 쿨다운
+
+    [Header("가드 성공시 얻는 데미지 비율")]
+    [SerializeField] float normalGuardRatio = 0.5f;    // 50%만 받음
+    [SerializeField] float justGuardRatio = 0.3f;    // 30%만 받음
+
+    [Header("스태미너 소모")]
+    [SerializeField] int normalGuardCost = 50;
+    [SerializeField] int justGuardCost = 30;
+
+    float lastGuardPress = 0f;   // 마지막으로 우클릭을 누른 시각
+    float guardCooldown = 0f;      // 남은 쿨타임(초)
 
     void Update()
     {
+        if (guardCooldown > 0f)
+            guardCooldown -= Time.deltaTime;
+
+        // 우클릭 'Down' 기록 (가드 판정용)
         if (Input.GetMouseButtonDown(1))
-        {
-            lastGuardTime = Time.time;
-            // 여기서 방어 애니메이션/이펙트 트리거 가능
-        }
+            lastGuardPress = Time.time;
     }
 
-    // 투사체 충돌 시 호출하여 최종 데미지를 계산하는 함수
-    public int CalculateDamage(int incomingDamage)
+    public int ResolveGuard(int incomingDamage)
     {
-        float timeSinceGuard = Time.time - lastGuardTime;
+        // 가드 중? (버튼 누르고 있고, 쿨타임 없음, 스태미너 충분)
+        bool holding = Input.GetMouseButton(1);
+        if (!holding || guardCooldown > 0f) return incomingDamage;
 
-        if (timeSinceGuard <= justGuardWindow)
-        {
-            // 저스트 가드: 아주 정확한 타이밍에 방어하면 데미지를 완전히 막거나 특별한 효과를 줄 수 있음
-            Debug.Log("Just Guard activated!");
-            return 0;
-        }
-        else if (Input.GetMouseButton(1))
-        {
-            // 방어 중인 상태에서, 저스트 가드 시간보다 늦게 입력된 경우 → 70% 데미지 감쇄 (즉, 30%만 받음)
-            Debug.Log("Guarding: Damage reduced by 70%");
-            return Mathf.RoundToInt(incomingDamage * 0.3f);
-        }
-        else
-        {
-            // 방어하지 않은 상태이면 원래 데미지 그대로 적용
+        if (!PlayerData.instance) return incomingDamage;
+
+        // 저스트 여부 
+        bool isJust = Time.time - lastGuardPress <= justGuardWindow;
+
+        // 스태미너 확인·차감 
+        int cost = isJust ? justGuardCost : normalGuardCost;
+        if (!PlayerData.instance.SpendStamina(cost))      // 부족 → 가드 실패
             return incomingDamage;
-        }
+
+        // 감쇄 비율·쿨타임 적용
+        guardCooldown = isJust ? justGuardDelay : normalGuardDelay;
+        float ratio = isJust ? justGuardRatio : normalGuardRatio;
+
+        Debug.Log(isJust ? "JUST GUARD!" : "Guard success");
+        return Mathf.RoundToInt(incomingDamage * ratio);
     }
+
+    public bool GuardAvailable => Input.GetMouseButton(1) && guardCooldown <= 0f;
 }
