@@ -4250,6 +4250,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 520806936726057043, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_DrawMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 926014868220357664, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -4329,6 +4334,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8404700359068864180, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.drawMode
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
