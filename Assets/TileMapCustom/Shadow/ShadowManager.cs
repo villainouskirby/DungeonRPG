@@ -78,7 +78,8 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
-        Pool.Return(ActiveShadow[chunkPos]);
+        if (ActiveShadow.ContainsKey(chunkPos))
+            Pool.Return(ActiveShadow[chunkPos]);
         ActiveShadow.Remove(chunkPos);
         Addressables.Release(_handleDic[chunkPos]);
         _handleDic.Remove(chunkPos);
