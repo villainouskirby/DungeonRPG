@@ -18,19 +18,23 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float[] afterDelay = { 0.3f, 0.5f }; // 1 타, 2 타 후딜
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
-
+    public bool IsInAttack => isAttacking || isAttackCharging;
     [Header("Heavy-Attack")]
+    [SerializeField] private float chargeThreshold = 0.30f;   // 0.3초보다 더 누르면 차징 공격 시작
     [SerializeField] public float maxChargeTime = 1f; // 완충 시간 Tmax
     [SerializeField] private float heavyMultiplier = 1f; // 배율 k
     [SerializeField] private float heavyRadius = 2.5f; // 범위 반경 r
     [SerializeField] private float heavyAfterDelay = 0.7f; // 후딜
 
+    private int ChargeAttackCost = 50;
     private bool isAttacking = false;
     private bool isAttackCharging = false;
     private int comboStep = 0;
     private float nextAttackReady = 0f;
     private float chargeStart;
     private bool heavyOnCooldown = false;
+    float pressTime;
+    bool pressActive;
 
     private Animator anim;
     private SpriteRenderer sprite;
@@ -49,7 +53,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     private void Update()
     {
-        HandleNormalAttackInput();
+        HandleAttackInput();
         HandleHeavyChargeUI();
     }
     private int DirFromMouse()
@@ -71,16 +75,69 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         2 => "Left",
         _ => "Right"
     };
-    // 평타 입력 
-    private void HandleNormalAttackInput()
+    // 공격 애니메이션 클립 값 반환기
+    private static string AttackClipName(int step, int dir)
     {
-        if (isAttacking || isAttackCharging) return;
-        if (!Input.GetMouseButtonDown(0)) return;
+        // dir: 0=Up, 1=Down, 2=Left, 3=Right
+        string suffix = dir switch
+        {
+            0 => "Up",
+            1 => "Down",
+            _ => "Side"
+        };
+        return $"Attack{step}{suffix}";   // 예: Attack1Down, Attack2Side
+    }
+
+
+    // 공격 입력 
+    void HandleAttackInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            pressTime = Time.time;
+            pressActive = true;
+        }
+
+        if (!pressActive) return;
+
+        // 0.3초보다 길게 누르면 차징 시작
+        if (!isAttackCharging &&                // 아직 차징 아님
+            Input.GetMouseButton(0) &&          // 계속 누르고 있고
+            Time.time - pressTime >= chargeThreshold)
+        {
+            // 상태 머신 진입 (속도 1f 유지용)
+            pc.ChangeState(new ChargingState(pc));
+
+            // 내부 차징 플래그·UI·애니메이션
+            if (TryStartCharging())
+                isAttackCharging = true;
+
+            pressActive = false;                // 이벤트 소비
+            return;
+        }
+
+        // 짧게 눌렀다가 떼면 기본 콤보 공격
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (!isAttackCharging)
+                DoQuickComboAttack();           // 콤보 처리
+
+            else
+                ReleaseCharging();              // 차징 발사
+
+            pressActive = false;                // 이벤트 소비
+        }
+    }
+    //콤보 공격
+    void DoQuickComboAttack()
+    {
+        if (isAttacking) return;
+
         float now = Time.time;
         if (now < nextAttackReady) return;
 
-        comboStep = (now - nextAttackReady <= comboInputTime) ?
-                    Mathf.Clamp(comboStep + 1, 1, 2) : 1;
+        bool within = now - nextAttackReady <= comboInputTime;
+        comboStep = within ? (comboStep == 1 ? 2 : 1) : 1;
 
         StartCoroutine(PerformAttack(comboStep));
     }
@@ -89,13 +146,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private IEnumerator PerformAttack(int step)
     {
         isAttacking = true;
-        pc.ChangeState(new NormalAttackState(pc));
+
+        float after = afterDelay[step - 1];
+        pc.ChangeState(new NormalAttackState(pc, after));
 
         int dir = DirFromMouse();                    // ← 마우스 기준 방향 계산
         pc.SetFacingDirection(dir);                  // ← 바라보는 방향 변경 (Flip + Animator)
 
-        string trig = $"Attack{step}" + Suffix(dir); // ← ex) Attack1Right
-        anim.SetTrigger(trig);
+        string clip = AttackClipName(step, dir);
+        anim.Play(clip, 0, 0f);
 
         Vector2 forward = FacingVector(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
@@ -114,6 +173,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
+        if (!PlayerData.instance || PlayerData.instance.currentStamina.Value < ChargeAttackCost )
+        {
+            Debug.Log("스테미너 부족");
+            return false;
+        }
         if (isAttacking || heavyOnCooldown) return false;
 
         isAttackCharging = true;
@@ -145,8 +209,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         DoHeavyCircle(damage, transform.position, heavyRadius);
         heavyOnCooldown = true;
-        pc.ChangeState(new NormalAttackState(pc));
-
+        //pc.ChangeState(new NormalAttackState(pc, after));
+        PlayerData.instance?.SpendStamina(ChargeAttackCost);
         StartCoroutine(HeavyCooldown());
         chargeUI.HideAll();
     }

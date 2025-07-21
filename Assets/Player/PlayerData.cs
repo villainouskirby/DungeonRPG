@@ -53,7 +53,7 @@ public class PlayerData : MonoBehaviour
         }
         if (currentStamina.Value > MaxStamina.Value)
         {
-            currentStamina.Value = MaxHP.Value;
+            currentStamina.Value = currentStamina.Value;
         }
         if (isPotionCharging)
             chargeUI.SetPotionRatio(PotionChargeRatio);

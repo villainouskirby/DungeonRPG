@@ -8,13 +8,14 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public SpriteRenderer sprite;
     public Animator anim;
 
-    [Header("Movement Settings")]
+    [Header("이동 속도 설정 (상태별 변경은 스크립트 내에 있음)")]
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
     private float baseMoveSpeed = 3f;
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
+    public float brake = 30f;
 
-    [Header(" Escape Settings")]
+    [Header("회피 설정값")]
     public int dodgeCost = 50;    // 스태미너 소모
     public float diveTime = 0.30f; // 몸 던짐 구간 길이
     public float proneTime = 0.55f; // 땅에 엎드린 구간
@@ -22,16 +23,46 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float invincibleTime = 0.20f; // 무적 프레임
     public float slideForce = 30f;  // 회피용
     public float getUpBoost = 2.0f;  // 일어나면서 밀어줄 속도(작으면 거의 제자리)
+    [Header("회피 가속/감속 값")]
+    public float diveAccel = 60f;   // Dive 때 가속
+    public float slideDecel = 40f;   // Down(엎드린) → 정지
+    public float getUpAccel = 50f;   // 일어날 때 밀어주는 가속
+    public float getUpDecel = 35f;   // 일어난 뒤 감속
 
+    private AttackController attackController;
     private PlayerStateMachine stateMachine;
     [SerializeField] IPlayerState nowState;
 
-    // Escape 내부 상태
+    #region Escape 내부 상태
     enum EscapePhase { None, Dive, Down, GetUp }
     EscapePhase escPhase = EscapePhase.None;
     float phaseT = 0f;          // 현재 페이즈 남은 시간
     Vector2 escDir = Vector2.zero;
     bool isInvincible = false;
+    Vector2 EscapeTargetVelocity()
+    {
+        return escPhase switch
+        {
+            EscapePhase.Dive => escDir.normalized * slideForce,   // 앞으로 미끄러짐
+            EscapePhase.Down => Vector2.zero,                     // 엎드려서 정지
+            EscapePhase.GetUp => escDir * getUpBoost,              // 일어나는 힘
+            _ => Vector2.zero
+        };
+    }
+
+    float EscapeAccel()
+    {
+        return escPhase switch
+        {
+            EscapePhase.Dive => diveAccel,
+            EscapePhase.Down => slideDecel,
+            // GetUp 단계는 2차: 처음엔 accel, 중간부터 decel
+            EscapePhase.GetUp =>
+                phaseT > getUpTime * 0.5f ? getUpAccel : getUpDecel,
+            _ => 0f
+        };
+    }
+    #endregion
     public bool EscapeActive => escPhase != EscapePhase.None;
 
     private bool stateLocked = false; // 외부(포션 등) 잠금
@@ -52,7 +83,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         rb = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-
+        attackController = GetComponent<AttackController>();
         stateMachine = new PlayerStateMachine();
         stateMachine.ChangeState(new IdleState(this));
     }
@@ -73,10 +104,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         float hy = Input.GetAxis("Vertical");
         Vector2 dir = new(hx, hy);
 
-        Vector2 targetVel = dir.normalized * speed;
-        rb.velocity = Vector2.MoveTowards(rb.velocity,
-                                          targetVel,
-                                          accel * Time.fixedDeltaTime);
+        if (dir != Vector2.zero)
+        {
+            Vector2 targetVel = dir.normalized * speed;
+            rb.velocity = Vector2.MoveTowards(rb.velocity, targetVel,
+                                              accel * Time.fixedDeltaTime);
+        }
+        else
+        {
+            // 더 큰 brake 값으로 빠르게 정지
+            rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero,
+                                              brake * Time.fixedDeltaTime);
+        }
 
         // 방향 결정
         if (dir != Vector2.zero)
@@ -99,8 +138,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         sprite.flipX = facingDir == 2;
 
-        // ── 애니메이션 바로 재생 ──
         bool moving = rb.velocity.sqrMagnitude > 0.001f;
+
+        UpdateAnimation(moving);
+    }
+    void UpdateAnimation(bool moving)
+    {
+        if (attackController && attackController.IsInAttack) { return; }
 
         string clip = moving
             ? facingDir switch
@@ -115,15 +159,14 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 1 => "Idle_front",
                 _ => "Idle_side"
             };
-
-        anim.Play(clip);   // 조건·변수 없이 즉시 전환
+        anim.Play(clip);
     }
     private void UpdateByState() // 상태에 따른 속력
     {
         var cur = stateMachine.GetCurrentState();
         speed = cur switch
         {
-            IdleState or SneakState or NormalAttackState => 0f,
+            IdleState or SneakState or NormalAttackState or GuardState => 0f,
             SneakMoveState or ChargingState => 1f,
             MoveState => 3f,
             RunState => 5f,
@@ -196,6 +239,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                     EndEscape();
                 }
                 break;
+        }
+        if (escPhase != EscapePhase.None)
+        {
+            Vector2 target = EscapeTargetVelocity();
+            float accel = EscapeAccel();
+
+            rb.velocity = Vector2.MoveTowards(rb.velocity,
+                                              target,
+                                              accel * Time.fixedDeltaTime);
         }
     }
 

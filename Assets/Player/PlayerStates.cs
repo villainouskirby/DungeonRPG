@@ -13,12 +13,12 @@ public class IdleState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new ChargingState(player)); return; }
+        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetMouseButtonDown(0))
+        //{ player.ChangeState(new ChargingState(player)); return; }
 
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
@@ -43,19 +43,19 @@ public class MoveState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new ChargingState(player)); return; }
+        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetMouseButtonDown(0))
+        //{ player.ChangeState(new ChargingState(player)); return; }
 
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
        
         if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
-        if (Input.GetKey(KeyCode.X)) player.ChangeState(new RunState(player));
+        if (Input.GetKey(KeyCode.LeftShift)) player.ChangeState(new RunState(player));
     }
 
     public void Exit()
@@ -77,18 +77,18 @@ public class RunState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new ChargingState(player)); return; }
+        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetMouseButtonDown(0))
+        //{ player.ChangeState(new ChargingState(player)); return; }
 
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
       
         if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyUp(KeyCode.X)) player.ChangeState(new MoveState(player));
+        if (Input.GetKeyUp(KeyCode.LeftShift)) player.ChangeState(new MoveState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
     }
 
@@ -147,12 +147,12 @@ public class SneakState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{ player.ChangeState(new GuardState(player)); return; }
         if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new ChargingState(player)); return; }
+        { player.ChangeState(new GuardState(player)); return; }
+        //if (Input.GetMouseButtonDown(0))
+        //{ player.ChangeState(new ChargingState(player)); return; }
 
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
@@ -201,30 +201,60 @@ public class ForageState : IPlayerState
     public void Exit() { }// Debug.Log("Forage 상태 종료");
     public override string ToString() => "Forage";
 }
+*/
 public class GuardState : IPlayerState
 {
-    private readonly IPlayerChangeState player;
-    public GuardState(IPlayerChangeState player) => this.player = player;
+    readonly PlayerController pc;
+    readonly AttackController ac;
+    readonly PlayerDefense pd;
 
-    public void Enter() => Debug.Log("Guard ON");
-    public void Exit() => Debug.Log("Guard OFF");
+    public GuardState(IPlayerChangeState player)
+    {
+        pc = player as PlayerController;
+        ac = pc?.GetComponent<AttackController>();
+        pd = pc?.GetComponent<PlayerDefense>();
+    }
+
+    public void Enter()
+    {
+        Debug.Log("Guard ON");
+        if (pc) pc.rb.velocity = Vector2.zero;      // 즉시 정지
+    }
 
     public void Update()
     {
-         가드 해제 
-        if (Input.GetKeyUp(KeyCode.Q))
-            player.ChangeState(new IdleState(player));
+        // 공격키 → 가드 해제 & 공격 전환
+        if (Input.GetMouseButtonDown(0))
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
+
+        // 우클릭을 떼면 가드 종료
+        if (Input.GetMouseButtonUp(1))
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
+
+        // 가드가 불가능해진 경우(스태미너 부족·쿨타임 등)
+        if (pd && !pd.GuardAvailable)
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
     }
 
+    public void Exit() => Debug.Log("Guard OFF");
     public override string ToString() => "Guard";
 }
-*/
 public class ChargingState : IPlayerState
 {
     private readonly IPlayerChangeState player;
     private readonly PlayerController pc;
     private readonly AttackController ac;
 
+    float startTime;
     private float timer;
     private bool released;
     public ChargingState(IPlayerChangeState p)
@@ -247,36 +277,31 @@ public class ChargingState : IPlayerState
         { player.ChangeState(new IdleState(player)); return; }
         timer = ac.maxChargeTime;
         released = false;
+        startTime = Time.time;
         Debug.Log("Charging…");
     }
 
     public void Update()
     {
         if (ac == null) return;
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             ac.CancelCharging();
             player.ChangeState(new EscapeState(player));
             return;
         }
-        bool upEvent = Input.GetMouseButtonUp(1);
-        bool isHolding = Input.GetMouseButton(1);
         // 우클릭을 떼면 공격 발사
-        if (!released && (upEvent || !isHolding))
-        {
-            ac.ReleaseCharging();
-            released = true;                         // 중복 방지
-            player.ChangeState(new IdleState(player));
-            return;
-        }
-
-        timer -= Time.deltaTime;
-        if (!released && timer <= 0f)
+        if (!released && Input.GetMouseButtonUp(0))
         {
             ac.ReleaseCharging();
             released = true;
             player.ChangeState(new IdleState(player));
+            return;
         }
+
+        float held = Time.time - startTime;
+        if (held > ac.maxChargeTime)
+            held = ac.maxChargeTime;
     }
 
     public void Exit() { }
@@ -285,10 +310,20 @@ public class ChargingState : IPlayerState
 public class NormalAttackState : IPlayerState
 {
     private readonly IPlayerChangeState owner;
-    public NormalAttackState(IPlayerChangeState p) => owner = p;
+    private float remain;        // 후딜이 끝날 때까지 유지
+    public NormalAttackState(IPlayerChangeState p, float afterDelay)
+    {
+        owner = p;
+        remain = afterDelay;
+    }
 
     public void Enter() { }
-    public void Update() { }
+    public void Update()
+    {
+        remain -= Time.deltaTime;
+        if (remain <= 0f)
+            owner.ChangeState(new IdleState(owner));  // 복귀
+    }
     public void Exit() { }
     public override string ToString() => "NormalAttack";
 }
