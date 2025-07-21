@@ -44,7 +44,6 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
     }
 
     public void InitShadow()

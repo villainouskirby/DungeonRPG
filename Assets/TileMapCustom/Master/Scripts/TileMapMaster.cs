@@ -12,6 +12,7 @@ public class TileMapMaster : MonoBehaviour
 #if UNITY_EDITOR
     [Header("Test Settings")]
     public MapEnum MapType = MapEnum.Map1;
+    public string SlotName = "Test1";
 #endif
 
     [Header("Camera Settings")]
@@ -35,7 +36,8 @@ public class TileMapMaster : MonoBehaviour
     public void Start()
     {
         Init();
-        StartTileMap(MapType);
+        SaveData saveData = SaveManager.Instance.LoadSlot(SlotName);
+        LoadTilemap(saveData);
     }
 
 
@@ -56,9 +58,63 @@ public class TileMapMaster : MonoBehaviour
         // Map Settings를 Dic에 맵핑 해준다.
     }
 
+    public void LoadTilemap(SaveData data)
+    {
+        for (int i = 0; i < _base.Count; i++)
+        {
+            _base[i].InitMap(data.mapType);
+        }
+
+        SaveManager.Instance.LoadBase(data);
+        SaveManager.Instance.LoadEtc(data);
+
+        for (int i = 0; i < _base.Count; i++)
+        {
+            _base[i].StartMap(data.mapType);
+        }
+
+        for (int i = 0; i < _option.Count; i++)
+        {
+            ITileMapOption option = _option[i];
+            option.OffOption();
+        }
+
+        if (data.mapType == MapEnum.None)
+            gameObject.SetActive(false);
+
+        for (int i = 0; i < _option.Count; i++)
+        {
+            ITileMapOption option = _option[i];
+            if (DL.Instance.All.Setting.IsOptionActive(option.OptionType))
+            {
+                option.OnOption();
+                _option[i].InitMap(data.mapType);
+            }
+        }
+        SaveManager.Instance.LoadOption(data);
+        for (int i = 0; i < _option.Count; i++)
+        {
+            ITileMapOption option = _option[i];
+            if (DL.Instance.All.Setting.IsOptionActive(option.OptionType))
+            {
+                _option[i].StartMap(data.mapType);
+            }
+        }
+
+        // 벽 생성 시작
+        Player.GetComponent<WallColliderGenerator>().Init();
+        //GuideController.InitializeTileMap();
+    }
+
     public void StartTileMap(MapEnum mapType)
     {
-        for(int i = 0; i < _base.Count; i++)
+        MapType = mapType;
+        for (int i = 0; i < _base.Count; i++)
+        {
+            _base[i].InitMap(mapType);
+        }
+
+        for (int i = 0; i < _base.Count; i++)
         {
             _base[i].StartMap(mapType);
         }
@@ -78,6 +134,7 @@ public class TileMapMaster : MonoBehaviour
             if (DL.Instance.All.Setting.IsOptionActive(option.OptionType))
             {
                 option.OnOption();
+                _option[i].InitMap(mapType);
                 _option[i].StartMap(mapType);
             }
         }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour, ISave
 {
     /// <summary> 남은 가방 용량(무게) </summary>
     public int RestCapacity { get; private set; }
@@ -14,7 +14,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
-    [SerializeField] private ItemListSO<Item> _itemList;
+    [SerializeField] [SerializeReference] private ItemListSO<Item> _itemList;
 
     protected List<Item> _items => _itemList.Items;
 
@@ -24,6 +24,7 @@ public class Inventory : MonoBehaviour
         UpdateWeightText();
         InitInventory();
     }
+
 
     /// <summary> 인벤토리 열기 </summary>
     public void OpenInventory()
@@ -365,4 +366,21 @@ public class Inventory : MonoBehaviour
     }
 
     public bool CheckItemUsable(int index) => _items[index] is IUsableItem;
+
+    public void Load(SaveData saveData)
+    {
+        for (int i = 0; i < saveData.Items.Count; i++)
+        {
+            AddItemForce(saveData.Items[i]);
+        }
+    }
+
+    public void Save(SaveData saveData)
+    {
+        saveData.Items = new();
+        for (int i = 0; i < _items.Count; ++i)
+        {
+            saveData.Items.Add(_items[i].Data);
+        }
+    }
 }

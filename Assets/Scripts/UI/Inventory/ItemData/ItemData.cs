@@ -30,6 +30,11 @@ public abstract class ItemData
         _iconSprite = sprite;
     }
 
+    public ItemData()
+    {
+
+    }
+
     /// <summary> 타입에 맞는 새로운 아이템 생성 </summary>
     public abstract Item Createitem();
 }

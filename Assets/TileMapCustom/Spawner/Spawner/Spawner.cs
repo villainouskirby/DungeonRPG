@@ -2,10 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 [System.Serializable]
-public class Spawner
+public class Spawner : ISave
 {
     public float        MinRange;
     public float        MaxRange;
@@ -87,6 +86,14 @@ public class Spawner
         IsSpawn = false;
         IsIdentify = false;
         SpawnObj = null;
+    }
+
+    public virtual void Load(SaveData saveData)
+    {
+    }
+
+    public virtual void Save(SaveData saveData)
+    {
     }
 
     public Spawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange)

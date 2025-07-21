@@ -31,7 +31,6 @@ public class CameraAreaManager : MonoBehaviour, ITileMapOption
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
     }
 
     public int Prime => (int)TileMapOptionPrimeEnum.CameraAreaManager;

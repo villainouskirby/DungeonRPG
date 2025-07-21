@@ -2510,6 +2510,51 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1353677040}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &993999478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 993999479}
+  - component: {fileID: 993999480}
+  m_Layer: 0
+  m_Name: '@SaveManager'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &993999479
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993999478}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2082541861}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &993999480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993999478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877e2ad4ec54df8448b4cf44b1d07d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GenerateSlotName: Test1
 --- !u!1 &1118150793
 GameObject:
   m_ObjectHideFlags: 0
@@ -3941,7 +3986,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed9c108d230124b4f8c317f92d575ff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MapType: 0
+  MapType: 1
+  SlotName: Test1
   TargetCamera: {fileID: 524322943}
   ViewBoxSize: 20
   Player: {fileID: 1252477883}
@@ -3960,6 +4006,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 993999479}
   - {fileID: 876099778}
   - {fileID: 390485591}
   - {fileID: 8238441592722452651}

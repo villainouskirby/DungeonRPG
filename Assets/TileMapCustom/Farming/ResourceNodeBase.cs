@@ -38,9 +38,32 @@ public class ResourceNodeBase : MonoBehaviour
     private EllipseVisualizer _ev;
     private Vector3 _oriPos;
 
+
+    public Action EndAction;
+
     private void Awake()
     {
         Init();
+    }
+
+    public ResourceNodeSaveData Save()
+    {
+        ResourceNodeSaveData data = new();
+        data.Pos = transform.position;
+        data.CurrentHp = CurrentHp;
+        data.DropAble = DropAble;
+        data.DropHpCut = DropHpCut;
+
+        return data;
+    }
+
+    public void Load(ResourceNodeSaveData data)
+    {
+        transform.position = data.Pos;
+        CurrentHp = data.CurrentHp;
+        DropAble = data.DropAble;
+        DropHpCut = data.DropHpCut;
+        _oriPos = data.Pos;
     }
 
     public void Set(ResourceNode_Info_ResourceNode info)
@@ -212,6 +235,7 @@ public class ResourceNodeBase : MonoBehaviour
 
     private void OnDisable()
     {
+        EndAction?.Invoke();
         FarmReset();
     }
 

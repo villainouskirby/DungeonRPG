@@ -40,7 +40,21 @@ public class MapManager : MonoBehaviour, ITileMapBase
             for (int i = 0; i < _layerBuffer.Length; i++)
                 _layerBuffer[i].Dispose();
         }
+    }
 
+    public void ChangeMapping()
+    {
+        _mappingBuffer.SetData(CM.Instance.GetMappingArray());
+    }
+
+    public void ChangeMapData( int layer)
+    {
+        ChangeMapDataBuffer(_layerBuffer[layer]);
+    }
+
+
+    public void StartMap(MapEnum type)
+    {
         _layerBuffer = new GraphicsBuffer[DL.Instance.All.LayerCount];
         _controller = new TileMapController[DL.Instance.All.LayerCount];
 
@@ -57,22 +71,6 @@ public class MapManager : MonoBehaviour, ITileMapBase
         }
 
         SetMappingDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
-    }
-
-    public void ChangeMapping()
-    {
-        _mappingBuffer.SetData(CM.Instance.GetMappingArray());
-    }
-
-    public void ChangeMapData( int layer)
-    {
-        ChangeMapDataBuffer(_layerBuffer[layer]);
-    }
-
-
-    public void StartMap(MapEnum type)
-    {
-        InitMap(type);
         SetGlobal();
     }
 

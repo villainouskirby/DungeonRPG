@@ -66,7 +66,6 @@ public class PlayerMoveChecker : MonoBehaviour, ITileMapBase
 
     public void StartMap(MapEnum type)
     {
-        InitMap(type);
     }
 
     void FixedUpdate()

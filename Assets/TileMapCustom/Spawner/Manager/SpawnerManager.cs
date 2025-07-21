@@ -5,22 +5,23 @@ using UnityEngine;
 using TM = TileMapMaster;
 using MM = MapManager;
 using DL = DataLoader;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
-public class SpawnerManager : MonoBehaviour, ITileMapOption
+public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
 {
-    public List<Spawner> AllSpawner;
+    public List<MonsterSpawner> AllMonsterSpawner;
+    public List<ResourceNodeSpawner> AllResourceNodeSpawner;
     public HashSet<Spawner> ActiveSpawner;
 
     private bool _isActive;
+    private bool _isLoad;
 
     // Option
     public int Prime { get { return (int)TileMapOptionPrimeEnum.SpawnerManager; } }
 
     public void Init()
     {
-        AllSpawner = new(1000);
+        AllMonsterSpawner = new(1000);
+        AllResourceNodeSpawner = new(1000);
         ActiveSpawner = new(1000);
 
 #if UNITY_EDITOR
@@ -30,20 +31,30 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
 
     public void InitMap(MapEnum mapType)
     {
+        _isLoad = false;
         ResetSpawnwer();
-        AllSpawner.Clear();
+        AllMonsterSpawner.Clear();
+        AllResourceNodeSpawner.Clear();
         ActiveSpawner.Clear();
-        SetSpawner();
     }
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
+        if (!_isLoad)
+            SetSpawner();
+
         CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
 
-        for(int i = 0; i < AllSpawner.Count; i++)
+        if (!_isLoad)
         {
-            AllSpawner[i].ForceSpawn();
+            for (int i = 0; i < AllMonsterSpawner.Count; i++)
+            {
+                AllMonsterSpawner[i].ForceSpawn();
+            }
+            for (int i = 0; i < AllResourceNodeSpawner.Count; i++)
+            {
+                AllResourceNodeSpawner[i].ForceSpawn();
+            }
         }
     }
 
@@ -65,24 +76,30 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
         PlayerMoveChecker.Instance.DeleteMoveAction(CheckSpawner);
         PlayerMoveChecker.Instance.DeleteCheckEndAction(UpdateSpawner);
         ResetSpawnwer();
-        AllSpawner.Clear();
+        AllMonsterSpawner.Clear();
+        AllResourceNodeSpawner.Clear();
         ActiveSpawner.Clear();
         _isActive = false;
     }
 
     private void ResetSpawnwer()
     {
-        for (int i = 0; i < AllSpawner.Count; i++)
+        for (int i = 0; i < AllResourceNodeSpawner.Count; i++)
         {
-            if (AllSpawner[i].SpawnObj != null)
+            if (AllResourceNodeSpawner[i].SpawnObj != null)
             {
-                ResourceNodeBase targetResourceNode = AllSpawner[i].SpawnObj.GetComponent<ResourceNodeBase>();
+                ResourceNodeBase targetResourceNode = AllResourceNodeSpawner[i].ResourceNode;
 
                 SpawnerPool.Instance.ResourceNodePool.Return(targetResourceNode);
             }
         }
 
-        AllSpawner.Clear();
+        for (int i = 0; i < AllMonsterSpawner.Count; i++)
+        {
+        }
+
+        AllMonsterSpawner.Clear();
+        AllResourceNodeSpawner.Clear();
         ActiveSpawner.Clear();
     }
 
@@ -117,13 +134,13 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
                     SpawnerData caseSpawnerData = DL.Instance.All.SpawnerData[path];
                     if (caseSpawnerData.Monster != null)
                     {
-                        AllSpawner.AddRange(caseSpawnerData.Monster);
+                        AllMonsterSpawner.AddRange(caseSpawnerData.Monster);
                         foreach (var spawner in caseSpawnerData.Monster)
                             spawner.Init();
                     }
                     if (caseSpawnerData.ResourceNode != null)
                     {
-                        AllSpawner.AddRange(caseSpawnerData.ResourceNode);
+                        AllResourceNodeSpawner.AddRange(caseSpawnerData.ResourceNode);
                         foreach (var spawner in caseSpawnerData.ResourceNode)
                             spawner.Init();
                     } 
@@ -137,9 +154,28 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
         if (!_isActive)
             return;
 
-        for (int i = 0; i < AllSpawner.Count; i++)
+        for (int i = 0; i < AllMonsterSpawner.Count; i++)
         {
-            Spawner spawner = AllSpawner[i];
+            Spawner spawner = AllMonsterSpawner[i];
+            spawner.CheckVisible();
+            Vector2Int spawnerTilePos = spawner.TilePos;
+            int distance = Mathf.Max(Mathf.Abs(spawnerTilePos.x - playerPos.x), Mathf.Abs(spawnerTilePos.y - playerPos.y));
+
+            if (distance <= spawner.MaxRange && distance > spawner.MinRange)
+            {
+                ActiveSpawner.Add(spawner);
+                spawnerGizmo.Add(spawner);
+            }
+            else
+            {
+                ActiveSpawner.Remove(spawner);
+                spawnerGizmo.Remove(spawner);
+            }
+        }
+
+        for (int i = 0; i < AllResourceNodeSpawner.Count; i++)
+        {
+            Spawner spawner = AllResourceNodeSpawner[i];
             spawner.CheckVisible();
             Vector2Int spawnerTilePos = spawner.TilePos;
             int distance = Mathf.Max(Mathf.Abs(spawnerTilePos.x - playerPos.x), Mathf.Abs(spawnerTilePos.y - playerPos.y));
@@ -187,5 +223,36 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption
             Gizmos.DrawCube(new(tilePos.x * tileSize + tileSize/2, tilePos.y * tileSize + tileSize/2, 0), Vector3.one * 1f);
         }
     }
+
+    public void Load(SaveData saveData)
+    {
+        _isLoad = true;
+        //AllMonsterSpawner = saveData.MonsterSpawner;
+        AllResourceNodeSpawner = saveData.ResourceNodeSpawner;
+
+        for (int i = 0; i < AllMonsterSpawner.Count; i++)
+        {
+            AllMonsterSpawner[i].Load(saveData);
+        }
+
+        for (int i = 0; i < AllResourceNodeSpawner.Count; i++)
+        {
+            AllResourceNodeSpawner[i].Load(saveData);
+        }
+    }
+
+    public void Save(SaveData saveData)
+    {
+        for (int i = 0; i < AllMonsterSpawner.Count; i++)
+        {
+            AllMonsterSpawner[i].Save(saveData);
+        }
+
+        for (int i = 0; i < AllResourceNodeSpawner.Count; i++)
+        {
+            AllResourceNodeSpawner[i].Save(saveData);
+        }
+    }
+
 #endif
 }

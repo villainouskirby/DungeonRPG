@@ -49,7 +49,6 @@ public class DecoManager : MonoBehaviour, ITileMapBase
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
     }
 
     public int Prime { get { return (int)TileMapBasePrimeEnum.DecoManager; } }

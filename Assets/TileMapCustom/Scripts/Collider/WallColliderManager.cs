@@ -51,7 +51,6 @@ public class WallColliderManager : MonoBehaviour, ITileMapOption
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
     }
 
 

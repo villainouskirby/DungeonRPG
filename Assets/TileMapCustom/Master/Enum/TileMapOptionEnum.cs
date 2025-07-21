@@ -19,7 +19,7 @@ public enum TileMapOptionPrimeEnum
 
 public enum TileMapBasePrimeEnum
 {
-    DataLoader =            1,
+    DataLoader =            0,
     PlayerMoveChecker =     DataLoader + 1,
     ChunkManager =          PlayerMoveChecker + 1,
     MapManager =            ChunkManager + 1,

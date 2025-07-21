@@ -5,4 +5,9 @@ public abstract class Item
     public Item(ItemData data) => Data = data;
 
     public abstract Item Clone(); // TODO => 템들 이동방식 구현하면서 수정해야 할듯
+
+    public Item()
+    {
+
+    }
 }

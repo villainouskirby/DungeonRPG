@@ -50,7 +50,6 @@ public class InteractionObjManager : MonoBehaviour, ITileMapOption
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
     }
 
     public void OnOption()

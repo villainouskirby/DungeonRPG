@@ -31,6 +31,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     [Header("Cach Settings")]
     public int MaxGen = 5;
 
+    private byte[] _streamBuffer;
+
     public class ChunkGen
     {
         public int Gen;
@@ -65,10 +67,11 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         SetViewChunkSize(TM.Instance.ViewBoxSize);
         LoadedChunkData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
         ViewBoxBuffer = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
+        _streamBuffer = new byte[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * 4 + 4];
         CachedChunk.Clear();
 
 
-        string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/{mapType.ToString()}/");
+        string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/SaveFile/{TM.Instance.SlotName}/{mapType.ToString()}/");
 
         Stream?.Close();
         Stream = new FileStream(
@@ -83,8 +86,6 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public void StartMap(MapEnum mapType)
     {
-        InitMap(mapType);
-
         // 맵 시작시 전체 청크 로딩
         UpdateAllChunk(LastChunkPos);
     }
@@ -244,15 +245,12 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         int chunkIndex = Pos2ArrayIndex(chunkPos, DL.Instance.All.Width);
         offset += GetChunkStartPos(chunkIndex, DL.Instance.All.ChunkSize) * 4;
 
+        Array.Copy(BitConverter.GetBytes(tileCount), 0, _streamBuffer, 0, 4);
         // Byte로 데이터를 읽어오기에 tileCount * 4로 읽어줘야함. Int32 기준
-        byte[] buffer = new byte[tileCount * 4];
         Stream.Seek(offset, SeekOrigin.Begin);
-        Stream.Read(buffer, 0, tileCount * 4);
-        List<byte> data = new();
-        data.AddRange(BitConverter.GetBytes(tileCount));
-        data.AddRange(buffer);
+        Stream.Read(_streamBuffer, 4, tileCount * 4);
 
-        int[] result = TypeByte2TypeConverter.Convert<int[]>(data.ToArray());
+        int[] result = TypeByte2TypeConverter.Convert<int[]>(_streamBuffer);
 
         return result;
     }
