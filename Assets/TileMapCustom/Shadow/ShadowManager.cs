@@ -79,11 +79,12 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
             return;
 
         if (ActiveShadow.ContainsKey(chunkPos))
+        {
             Pool.Return(ActiveShadow[chunkPos]);
-        ActiveShadow.Remove(chunkPos);
-        Addressables.Release(_handleDic[chunkPos]);
-        _handleDic.Remove(chunkPos);
-
+            ActiveShadow.Remove(chunkPos);
+            Addressables.Release(_handleDic[chunkPos]);
+            _handleDic.Remove(chunkPos);
+        }
     }
 
     public int Prime => (int)TileMapBasePrimeEnum.ShadowManager;
