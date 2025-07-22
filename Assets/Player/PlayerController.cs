@@ -11,6 +11,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     [Header("이동 속도 설정 (상태별 변경은 스크립트 내에 있음)")]
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
     private float baseMoveSpeed = 3f;
+
+    [Header("달리기 스태미너 소모 설정")]
+    [Tooltip("RunState 동안 이 간격(초)마다 스태미나를 차감")]
+    public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
+
+    [Tooltip("한 번에 차감할 스태미나 양")]
+    public float runStaminaCostPerTick = 2f;      // ← 소비량
+
+
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
     public float brake = 30f;
@@ -92,6 +101,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         stateMachine.Update();
         UpdateByState();
+        DrainStaminaWhileRunning();
         if (EscapeActive) UpdateEscape();
         //Debug.Log(stateMachine.GetCurrentState());
     }
@@ -116,26 +126,28 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero,
                                               brake * Time.fixedDeltaTime);
         }
-
-        // 방향 결정
-        if (dir != Vector2.zero)
+        bool attacking = attackController && attackController.IsInAttack;
+        if (!attacking)
         {
-            // 실제 키 입력이 있을 때
-            if (Mathf.Abs(hx) > Mathf.Abs(hy))
-                facingDir = hx < 0 ? 2 : 3;   // 2=Left, 3=Right
-            else
-                facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
+            // 방향 결정
+            if (dir != Vector2.zero)
+            {
+                // 실제 키 입력이 있을 때
+                if (Mathf.Abs(hx) > Mathf.Abs(hy))
+                    facingDir = hx < 0 ? 2 : 3;   // 2=Left, 3=Right
+                else
+                    facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
+            }
+            else if (rb.velocity.sqrMagnitude > 0.0001f)
+            {
+                // 키는 떼었지만 아직 관성으로 움직이고 있을 때
+                Vector2 v = rb.velocity;
+                if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
+                    facingDir = v.x < 0 ? 2 : 3;
+                else
+                    facingDir = v.y > 0 ? 0 : 1;
+            }
         }
-        else if (rb.velocity.sqrMagnitude > 0.0001f)
-        {
-            // 키는 떼었지만 아직 관성으로 움직이고 있을 때
-            Vector2 v = rb.velocity;
-            if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
-                facingDir = v.x < 0 ? 2 : 3;
-            else
-                facingDir = v.y > 0 ? 0 : 1;
-        }
-
         sprite.flipX = facingDir == 2;
 
         bool moving = rb.velocity.sqrMagnitude > 0.001f;
@@ -161,6 +173,35 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             };
         anim.Play(clip);
     }
+    private float _runStaminaTimer = 0f;
+    private void DrainStaminaWhileRunning()
+    {
+        // 달리기 상태가 아닌 경우 타이머 리셋 후 종료
+        if (stateMachine.GetCurrentState() is not RunState)
+        {
+            _runStaminaTimer = 0f;
+            return;
+        }
+
+        if (!PlayerData.instance) return;
+
+        _runStaminaTimer += Time.deltaTime;
+
+        // 설정한 간격을 넘으면 소비
+        if (_runStaminaTimer >= runStaminaTickInterval)
+        {
+            bool ok = PlayerData.instance.SpendStamina(runStaminaCostPerTick);
+
+            _runStaminaTimer = 0f;   // 타이머 리셋
+
+            if (!ok)
+            {
+                // 스태미나가 부족하면 달리기 해제
+                stateMachine.ChangeState(new MoveState(this));
+            }
+        }
+    }
+
     private void UpdateByState() // 상태에 따른 속력
     {
         var cur = stateMachine.GetCurrentState();
