@@ -9,6 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fddde51abb8aa24d9af1b0609320785, type: 3}
-  m_Name: Hound Bite Behaviour
+  m_Script: {fileID: 11500000, guid: 4b52ec1f93e2847469c5661314626046, type: 3}
+  m_Name: New Hound Orbit Behaviour SO
   m_EditorClassIdentifier: 
+  angleRange: 30
+  orbitRadius: 2.5
+  orbitTime: 2
+  stepInterval: 0.4

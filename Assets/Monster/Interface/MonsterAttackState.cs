@@ -9,60 +9,86 @@ public sealed class CombatSuperState : IMonsterState
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
 
-    int current;                 // attackBehaviours 인덱스
-    Coroutine running;           // 현재 돌고 있는 코루틴
+    Coroutine running;
+    IMonsterBehaviour currentBeh;   // ← 인터럽트용
+
+    int idx;                          // 순환 인덱스
+    float lostTimer;
 
     public CombatSuperState(MonsterContext c, MonsterStateMachine r)
     { ctx = c; root = r; }
 
-    /* ───────── 생명주기 ───────── */
-
     public void Enter()
     {
-        current = 0;
-        NextPattern();
+        Debug.Log($"{ctx.data.monsterName} ▶ Combat 진입");
+        lostTimer = 0f;
+        PickAndRun();
     }
-
+    public void Exit() => Interrupt();
     public void Tick()
     {
-        // 전역 이탈 조건 - 멀어지면 종료
-        if (!ctx.CanSeePlayer(ctx.data.lostDistance))
+        float dist = Vector2.Distance(ctx.transform.position, ctx.player.position);
+        bool see = ctx.CanSeePlayer(ctx.data.lostDistance);
+
+        if (!see || dist > ctx.data.lostDistance)
+            lostTimer += Time.deltaTime;
+        else
+            lostTimer = 0f;
+
+        if (lostTimer >= 1f)            // 1초 이상 놓치면 Return
         {
-            StopCurrent();
+            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 dist:{dist:F1} see:{see}");
+            Interrupt();
             root.ChangeState(new MonsterReturnState(ctx, root));
-            return;
         }
     }
 
-    public void Exit() => StopCurrent();
+    // 내부
 
-    // 내부 메서드 
-
-    void NextPattern()
+    void PickAndRun()
     {
-        if (ctx.data.attackBehaviours == null || ctx.data.attackBehaviours.Length == 0)
-        { root.ChangeState(new MonsterReturnState(ctx, root)); return; }
+        Interrupt();
 
-        var beh = ctx.data.attackBehaviours[current];
-        current = (current + 1) % ctx.data.attackBehaviours.Length;
+        var list = ctx.data.attackBehaviours;
+        if (list == null || list.Length == 0)
+        { ctx.sm.ChangeState(new MonsterReturnState(ctx, ctx.sm)); return; }
 
-        running = ctx.mono.StartCoroutine(RunPattern(beh));
+        /* attackBehaviours 배열을 한 바퀴 돌며 CanRun==true 찾기 */
+        for (int i = 0; i < list.Length; ++i)
+        {
+            idx = (idx + 1) % list.Length;
+            var beh = list[idx];
+            if (beh != null && beh.CanRun(ctx))
+            {
+                Run(beh);
+                return;
+            }
+        }
+
+        /* 실행할 게 없다면 귀환 */
+        root.ChangeState(new MonsterReturnState(ctx, root));
     }
 
-    IEnumerator RunPattern(IMonsterBehaviour beh)
+    void Run(IMonsterBehaviour beh)
     {
-        yield return beh.Execute(ctx);
+        currentBeh = beh;
+        running = ctx.mono.StartCoroutine(Wrap());
 
-        // 패턴 종료 후 바로 다음
-        NextPattern();
+        IEnumerator Wrap()
+        {
+            yield return beh.Execute(ctx);
+            PickAndRun();            // 종료 후 다음 패턴 선정
+        }
     }
 
-    void StopCurrent()
+    void Interrupt()
     {
         if (running != null)
         {
             ctx.mono.StopCoroutine(running);
+            currentBeh?.OnInterrupt(ctx);
             running = null;
+            currentBeh = null;
         }
     }
 }

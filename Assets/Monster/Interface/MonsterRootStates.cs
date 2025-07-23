@@ -140,9 +140,10 @@ public sealed class MonsterDetectState : IMonsterState
         // 시야로 보이면 Combat/Flee 즉시 전환
         if (ctx.CanSeePlayer(ctx.data.sightDistance))
         {
+            Debug.Log($"{ctx.data.monsterName} ▶ Combat 진입 조건 충족 (dist {Vector2.Distance(ctx.transform.position, ctx.player.position):F1})");
             machine.ChangeState(ctx.data.isaggressive
                                ? new CombatSuperState(ctx, machine)
-                               : new MonsterFleeState(ctx, machine));  // Flee 상태 구현 시 교체
+                               : new MonsterFleeState(ctx, machine));
             return;
         }
 
