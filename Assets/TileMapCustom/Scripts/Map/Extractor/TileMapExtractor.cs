@@ -8,7 +8,7 @@ using System.Linq;
 using System;
 using UnityEngine.UIElements;
 
-public class TileMapExtractor : MonoBehaviour, IExtractor
+public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 {
     public List<Tilemap> Tilemap;
 
@@ -21,9 +21,10 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         _sprites = new();
 
         Vector2Int size = new();
+        Vector2Int startPos = new();
 
         List<int> emptyList = new();
-        for(int i = 0; i < Tilemap.Count; i++)
+        for (int i = 0; i < Tilemap.Count; i++)
         {
             Tilemap[i].CompressBounds();
             BoundsInt bounds = Tilemap[i].cellBounds;
@@ -38,7 +39,11 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
             size.x = Mathf.Max(size.x, rightTop.x);
             size.y = Mathf.Max(size.y, rightTop.y);
+            startPos.x = Mathf.Min(startPos.x, leftBottom.x);
+            startPos.y = Mathf.Min(startPos.y, leftBottom.y);
         }
+        EM.Instance.StartPos = startPos;
+        size = EM.Instance.CorrectPos(size);
 
         for (int i = emptyList.Count - 1; i >= 0; i--)
         {
@@ -59,6 +64,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
 
         Vector2 spawnPos = GameObject.FindWithTag("SpawnPoint").transform.position;
         mapData.All.PlayerSpawnTilePos = new(Mathf.FloorToInt(spawnPos.x), Mathf.FloorToInt(spawnPos.y));
+        mapData.All.PlayerSpawnTilePos = EM.Instance.CorrectPos(mapData.All.PlayerSpawnTilePos);
 
         mapData.LayerData = new TileMapLayerData[Tilemap.Count];
         mapData.All.TileMapLayerInfo = new TileMapLayerInfo[Tilemap.Count];
@@ -108,8 +114,8 @@ public class TileMapExtractor : MonoBehaviour, IExtractor
         {
             for (int x = 0; x < bounds.size.x; x++)
             {
-                int correctX = x + startPos.x;
-                int correctY = y + startPos.y;
+                int correctX = x + startPos.x - EM.Instance.StartPos.x;
+                int correctY = y + startPos.y - EM.Instance.StartPos.y;
 
                 Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
                 Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);

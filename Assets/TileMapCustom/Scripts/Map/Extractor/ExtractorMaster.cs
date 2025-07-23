@@ -29,6 +29,8 @@ public class ExtractorMaster : MonoBehaviour
 
     [HideInInspector]
     public int[] ShadowSpriteIndex;
+    [HideInInspector]
+    public Vector2Int StartPos;
 
     private void Awake()
     {
@@ -41,13 +43,28 @@ public class ExtractorMaster : MonoBehaviour
         Extract();
     }
 
+    public Vector2Int CorrectPos(Vector2Int pos)
+    {
+        return pos - StartPos;
+    }
+
+    public Vector2 CorrectPos(Vector2 pos)
+    {
+        return new(pos.x - StartPos.x, pos.y - StartPos.y);
+    }
+
     public void Extract()
     {
+        IExtractorFirst[] extractorFirst = gameObject.GetComponentsInChildren<IExtractorFirst>();
         IExtractor[] extractor = gameObject.GetComponentsInChildren<IExtractor>();
         IExtractorLate[] extractorLate = gameObject.GetComponentsInChildren<IExtractorLate>();
         TileMapData mapData = new();
         mapData.All = new();
 
+        for (int i = 0; i < extractorFirst.Length; i++)
+        {
+            extractorFirst[i].Extract(MapType, mapData);
+        }
         for (int i = 0; i < extractor.Length; i++)
         {
             extractor[i].Extract(MapType, mapData);

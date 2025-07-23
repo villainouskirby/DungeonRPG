@@ -53,10 +53,15 @@ public class StartSceneFunc : MonoBehaviour
         }
         else
         {
-            SaveManager.NewSlot(SaveSlotIndex.Auto1, "Auto1");
-            SaveManager.SaveSlotIndex = SaveSlotIndex.Auto1;
-            StartGame();
+            StartNewGame();
         }
+    }
+
+    public void StartNewGame()
+    {
+        SaveManager.NewSlot(SaveSlotIndex.Auto1, "Auto1");
+        SaveManager.SaveSlotIndex = SaveSlotIndex.Auto1;
+        SceneManager.LoadScene("testDohyun");
     }
 
     public void StartGame()

@@ -22,6 +22,7 @@ public class CameraAreaExtractor : MonoBehaviour, IExtractor
             GameObject fixPosObj = child.GetChild(0).gameObject;
 
             data.Pos = child.position;
+            data.Pos = ExtractorMaster.Instance.CorrectPos(data.Pos);
             data.CustomZ = child.position.z;
             data.Size = collider.size;
             data.FixPos = fixPosObj.transform.position;

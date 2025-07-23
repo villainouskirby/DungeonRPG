@@ -11,3 +11,8 @@ public interface IExtractorLate
 {
     public void Extract(MapEnum mapType, TileMapData mapData);
 }
+
+public interface IExtractorFirst
+{
+    public void Extract(MapEnum mapType, TileMapData mapData);
+}

@@ -101,6 +101,7 @@ public class Spawner : ISave
         int tileX = Mathf.FloorToInt((spawnerTile.transform.position.x) / 1f);
         int tileY = Mathf.FloorToInt((spawnerTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
+        TilePos = ExtractorMaster.Instance.CorrectPos(TilePos);
         Z = spawnerTile.transform.position.z;
         CoolTime = spawnerTile.CoolTime;
         Type = spawnerTile.Type;

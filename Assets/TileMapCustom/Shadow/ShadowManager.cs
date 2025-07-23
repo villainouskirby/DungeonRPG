@@ -39,11 +39,11 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         CM.Instance.ChunkUnloadAction += UnLoadShadow;
 
         _currentMapType = mapType;
-        InitShadow();
     }
 
     public void StartMap(MapEnum mapType)
     {
+        InitShadow();
     }
 
     public void InitShadow()

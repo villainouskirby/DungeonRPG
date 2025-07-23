@@ -13,6 +13,8 @@ public class TileMapMaster : MonoBehaviour
     [Header("Test Settings")]
     public MapEnum MapType = MapEnum.Map1;
     public SaveSlotIndex SaveSlotIndex = SaveSlotIndex.None;
+    public bool LoadMode = false;
+
 #endif
 
     [Header("Camera Settings")]
@@ -36,8 +38,16 @@ public class TileMapMaster : MonoBehaviour
     public void Start()
     {
         Init();
-        SaveData saveData = SaveManager.LoadSlot(SaveSlotIndex);
-        LoadTilemap(saveData);
+        if (LoadMode)
+        {
+            SaveData saveData = SaveManager.LoadSlot(SaveSlotIndex);
+            LoadTilemap(saveData);
+        }
+        else
+        {
+            SaveManager.NewSlot(SaveSlotIndex, "Test");
+            StartTileMap(MapType);
+        }
     }
 
 

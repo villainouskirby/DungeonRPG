@@ -100,12 +100,14 @@ public static class SaveManager
 
     public static void NewSlot(SaveSlotIndex saveSlotIndex, string slotName)
     {
-        for (int i = 0; i < (int)MapEnum.Map2 + 1; i++)
+        for (int i = 0; i < (int)MapEnum.End; i++)
         {
             TileMapData oriData;
             SaveData saveData = new();
             Debug.Log($"{((MapEnum)i).ToString()}_MapData");
             JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", ExtractorMaster.DataFileDirectory);
+            if (oriData == null)
+                continue;
             JJSave.LSave(oriData.All, $"{((MapEnum)i).ToString()}_All", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/");
             JJSave.LSave(saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
 

@@ -90,6 +90,8 @@ public static class JJSave
             typeByte = Type2TypeByteConverter.Convert(target);
 
         string path = GetSavePath(saveDataName, $"Resources/{fileRoot}");
+        if (File.Exists(path))
+            File.Delete(path);
         using var fileStream = new FileStream(path, FileMode.Create);
         try
         {
@@ -161,7 +163,8 @@ public static class JJSave
             typeByte = Type2TypeByteConverter.Convert(target);
 
         string path = GetSavePath(saveDataName, $"{DataFilePath}{fileRoot}");
-
+        if (File.Exists(path))
+            File.Delete(path);
         try
         {
             using var fileStream = new FileStream(path, FileMode.Create);

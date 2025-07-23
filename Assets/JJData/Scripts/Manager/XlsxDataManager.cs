@@ -21,6 +21,8 @@ public static class XlsxDataManager
     [MenuItem("JJData/Xlsx Data/Parse All Files #J")]
     public static void RequestProcessAllFiles()
     {
+        if (Application.isPlaying) return;
+
         if (!Directory.Exists(XlsxFilePath))
         {
             Debug.LogError($"폴더를 찾을 수 없습니다: {XlsxFilePath}");
@@ -163,6 +165,8 @@ public static class XlsxDataManager
     [MenuItem("JJData/Xlsx Data/Refresh Classes #R")]
     public static void RefreshFile()
     {
+        if (Application.isPlaying) return;
+
         Debug.Log("파일 Refresh : 시작");
 
         string[] xlsxFileNames = Directory.GetFiles(XlsxFilePath, "*.xlsx", SearchOption.AllDirectories)
@@ -242,6 +246,8 @@ public static class XlsxDataManager
     [MenuItem("JJData/Xlsx Data/Delete All Classes #A")]
     public static async void DeleteAllData()
     {
+        if (Application.isPlaying) return;
+
         Debug.Log("파일 초기화 : 시작");
 
         await RetryDeleteDirectoryAsync(DataClassFilePath, "DataClassFile");

@@ -46,7 +46,7 @@ public class DecoExtractor : MonoBehaviour, IExtractor
 
             DecoObjData objData = Object2DecoObjData(childs[i].gameObject);
 
-            Vector2Int chunkIndex = GetObjChunkIndex(childs[i].position);
+            Vector2Int chunkIndex = GetObjChunkIndex(objData.Position);
 
             if (!mapData.All.decoObjData.ContainsKey(chunkIndex))
                 mapData.All.decoObjData[chunkIndex] = new();
@@ -62,6 +62,7 @@ public class DecoExtractor : MonoBehaviour, IExtractor
 
         result.Name = obj.name;
         result.Position = obj.transform.position;
+        result.Position = ExtractorMaster.Instance.CorrectPos(result.Position);
         result.Rotation = obj.transform.rotation;
         result.Scale = obj.transform.localScale;
         result.Color = sr.color;
