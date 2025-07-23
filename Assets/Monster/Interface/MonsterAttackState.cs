@@ -41,6 +41,13 @@ public sealed class CombatSuperState : IMonsterState
             Interrupt();
             root.ChangeState(new MonsterReturnState(ctx, root));
         }
+        if(ctx.spawner &&Vector2.Distance(ctx.transform.position, ctx.spawner.position) > ctx.data.maxSpawnerDist)
+        {
+            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 스포너와 멀어졌음");
+            Interrupt();
+            ctx.IsFastReturn = true;
+            root.ChangeState(new MonsterReturnState(ctx, root));
+        }
     }
 
     // 내부
