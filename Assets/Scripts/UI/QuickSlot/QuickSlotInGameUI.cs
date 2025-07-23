@@ -8,9 +8,7 @@ public class QuickSlotInGameUI : MonoBehaviour
     [SerializeField] private QuickSlotUI _quickSlotUI;
     [SerializeField] private Image _slotImage;
 
-    [SerializeField] private ItemsSO _quickSlotList;
-
-    private List<Item> _items => _quickSlotList.Items;
+    private List<Item> _items = new();
     private List<int> _itemIndexList = new List<int>();
     private int _slotCount => _itemIndexList.Count;
 

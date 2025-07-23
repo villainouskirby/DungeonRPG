@@ -14,9 +14,7 @@ public class Inventory : MonoBehaviour, ISave
     [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
-    [SerializeField] [SerializeReference] private ItemListSO<Item> _itemList;
-
-    protected List<Item> _items => _itemList.Items;
+    protected List<Item> _items = new();
 
     private void Awake()
     {
@@ -369,15 +367,16 @@ public class Inventory : MonoBehaviour, ISave
 
     public void Load(SaveData saveData)
     {
+        _items = new();
         for (int i = 0; i < saveData.Items.Count; i++)
         {
-            AddItemForce(saveData.Items[i]);
+            _items.Add(saveData.Items[i].Createitem());
         }
     }
 
     public void Save(SaveData saveData)
     {
-        saveData.Items = new();
+        saveData.Items ??= new();
         for (int i = 0; i < _items.Count; ++i)
         {
             saveData.Items.Add(_items[i].Data);

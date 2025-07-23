@@ -4,36 +4,18 @@ using System.Linq;
 using UnityEngine;
 using TM = TileMapMaster;
 
-public class SaveManager : MonoBehaviour
+public static class SaveManager
 {
-    public static SaveManager Instance { get {  return _instance; } }
-    private static SaveManager _instance;
+    public static SaveFileData SaveFileData { get { if (_saveFileData == null) LoadSaveFileData(); return _saveFileData; } }
+    public static SaveFileData _saveFileData;
+    public static SaveSlotIndex SaveSlotIndex = global::SaveSlotIndex.None;
+    public static string SlotName = "";
 
-    public void Awake()
-    {
-        _instance = this;
-    }
+    public static void SaveSlot() => SaveSlot(SaveSlotIndex, SlotName);
+    public static void Load() => Load(LoadSlot(SaveSlotIndex));
+    public static void NewSlot() => NewSlot(SaveSlotIndex, SlotName);
 
-    public string GenerateSlotName;
-    [ContextMenu("Generate Slot")]
-    public void GenerateSlot()
-    {
-        NewSlot(GenerateSlotName);
-    }
-
-    [ContextMenu("Save Slot")]
-    public void SaveSlot()
-    {
-        SaveSlot(GenerateSlotName);
-    }
-
-    [ContextMenu("Load Slot")]
-    public void LoadSlot()
-    {
-        TileMapMaster.Instance.LoadTilemap(LoadSlot(GenerateSlotName));
-    }
-
-    public void SaveSlot(string slotName)
+    public static void SaveSlot(SaveSlotIndex saveSlotIndex, string slotName)
     {
         SaveData saveData = new();
         saveData.mapType = TileMapMaster.Instance.MapType;
@@ -47,17 +29,17 @@ public class SaveManager : MonoBehaviour
         for (int i = 0; i < saves.Length; i++)
             saves[i].Save(saveData);
 
-        JJSave.LSave(saveData, $"{slotName}_SaveData", $"SaveFile/{slotName}/");
+        JJSave.LSave(saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
     }
 
-    public SaveData LoadSlot(string slotName)
+    public static SaveData LoadSlot(SaveSlotIndex saveSlotIndex)
     {
         SaveData saveData;
-        JJSave.LLoad(out saveData, $"{slotName}_SaveData", $"SaveFile/{slotName}/");
+        JJSave.LLoad(out saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
         return saveData;
     }
 
-    public void Load(SaveData saveData)
+    public static void Load(SaveData saveData)
     {
         TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
         TileMapMaster.Instance.MapType = saveData.mapType;
@@ -71,7 +53,7 @@ public class SaveManager : MonoBehaviour
             saves[i].Load(saveData);
     }
 
-    public void LoadBase(SaveData saveData)
+    public static void LoadBase(SaveData saveData)
     {
         TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
         TileMapMaster.Instance.MapType = saveData.mapType;
@@ -86,7 +68,7 @@ public class SaveManager : MonoBehaviour
             saves[i].Load(saveData);
     }
 
-    public void LoadOption(SaveData saveData)
+    public static void LoadOption(SaveData saveData)
     {
         TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
         TileMapMaster.Instance.MapType = saveData.mapType;
@@ -101,7 +83,7 @@ public class SaveManager : MonoBehaviour
                 saves[i].Load(saveData);
     }
 
-    public void LoadEtc(SaveData saveData)
+    public static void LoadEtc(SaveData saveData)
     {
         TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
         TileMapMaster.Instance.MapType = saveData.mapType;
@@ -116,19 +98,16 @@ public class SaveManager : MonoBehaviour
                 saves[i].Load(saveData);
     }
 
-    public void NewSlot(string slotName)
+    public static void NewSlot(SaveSlotIndex saveSlotIndex, string slotName)
     {
         for (int i = 0; i < (int)MapEnum.Map2 + 1; i++)
         {
             TileMapData oriData;
             SaveData saveData = new();
-            saveData.PlayerPos = Vector2.zero;
-            saveData.Items = new();
-            saveData.ResourceNodeSpawner = new();
             Debug.Log($"{((MapEnum)i).ToString()}_MapData");
             JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", ExtractorMaster.DataFileDirectory);
-            JJSave.LSave(oriData.All, $"{((MapEnum)i).ToString()}_All", $"SaveFile/{slotName}/{((MapEnum)i).ToString()}/");
-            JJSave.LSave(saveData, $"{slotName}_SaveData", $"SaveFile/{slotName}/");
+            JJSave.LSave(oriData.All, $"{((MapEnum)i).ToString()}_All", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/");
+            JJSave.LSave(saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
 
             List<int> mapData = new();
             for (int j = 0; j < oriData.LayerData.Length; j++)
@@ -136,7 +115,23 @@ public class SaveManager : MonoBehaviour
                 mapData.AddRange(oriData.LayerData[j].Tile);
             }
 
-            JJSave.LSave(mapData.ToArray(), $"{((MapEnum)i).ToString()}_Stream", $"SaveFile/{slotName}/{((MapEnum)i).ToString()}/", false);
+            JJSave.LSave(mapData.ToArray(), $"{((MapEnum)i).ToString()}_Stream", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
         }
+
+        LoadSaveFileData();
+        SaveFileData.ManualSaveSlot[(int)saveSlotIndex] = MakeSlotData(slotName);
+        JJSave.LSave(SaveFileData, "SaveSlotData", "SaveFile/");
+    }
+
+    public static void LoadSaveFileData()
+    {
+        JJSave.LLoad(out _saveFileData, "SaveSlotData", "SaveFile/");
+        _saveFileData ??= new();
+    }
+
+    public static SaveSlotData MakeSlotData(string slotName)
+    {
+        SaveSlotData slotData = new(slotName, Vector3.zero, true);
+        return slotData;
     }
 }

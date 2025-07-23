@@ -6,12 +6,9 @@ public class Shop : MonoBehaviour
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ShopUI _shopUI;
 
-    [SerializeField] private ItemListSO<ShopItem> _shopItemList;
-    [SerializeField] private ItemListSO<Item> _inventoryItemList;
-
-    private List<ShopItem> _shopItems => _shopItemList.Items;
-    private List<ShopItem> _inventorySellItems = new List<ShopItem>();
-    private List<Item> _inventoryItems => _inventoryItemList.Items;
+    private List<ShopItem> _shopItems = new();
+    private List<ShopItem> _inventorySellItems = new();
+    private List<Item> _inventoryItems = new();
 
     private void Awake()
     {

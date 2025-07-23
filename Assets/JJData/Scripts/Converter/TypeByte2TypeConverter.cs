@@ -8,11 +8,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
-using UnityEngine.XR;
-using Unity.Collections.LowLevel.Unsafe;
+using System.Runtime.Serialization;
 
 public partial class TypeByte2TypeConverter
 {
+    private static bool _serializeReference = false;
+
     public static string ConvertTypeByte2string(ReadOnlySpan<byte> bytes)
     {
         return Encoding.UTF8.GetString(bytes);
@@ -148,7 +149,6 @@ public partial class TypeByte2TypeConverter
         int mipmapCount = ConvertTypeByte2Primitive<int>(data, ref offset);
         int rawDataLength = ConvertTypeByte2Primitive<int>(data, ref offset);
 
-        // Buffer.BlockCopy를 사용하여 빠르게 복사
         byte[] rawData = new byte[rawDataLength];
         Buffer.BlockCopy(data, offset, rawData, 0, rawDataLength);
         offset += rawDataLength;
@@ -234,7 +234,6 @@ public partial class TypeByte2TypeConverter
         return result;
     }
 
-    // 새로 추가할 BuildDelegate 헬퍼
     private static ConvertDelegate BuildDelegate(MethodInfo mi)
     {
         var dataParam = Expression.Parameter(typeof(byte[]), "data");
@@ -246,7 +245,6 @@ public partial class TypeByte2TypeConverter
         return Expression.Lambda<ConvertDelegate>(body, dataParam, offsetParam).Compile();
     }
 
-    // GetConvertDelegate로 이름 변경
     private static ConvertDelegate GetConvertDelegate(Type elementType)
     {
         if (_convertDelegateCache.TryGetValue(elementType, out var del))
@@ -268,13 +266,28 @@ public partial class TypeByte2TypeConverter
     {
         int length = ConvertTypeByte2Primitive<int>(data, ref offset);
         Array array = Array.CreateInstance(elementType, length);
-        var convertMethod = GetConvertDelegate(elementType);
 
-
-        for (int i = 0; i < length; i++)
+        if (_serializeReference)
         {
-            object item = convertMethod(data, ref offset);
-            array.SetValue(item, i);
+            string typeName;
+            Type realType;
+            for (int i = 0; i < length; i++)
+            {
+                typeName = ConvertTypeByte2LenString(data, ref offset);
+                realType = Type.GetType(typeName);
+                var convertMethod = GetConvertDelegate(realType);
+                object item = convertMethod(data, ref offset);
+                array.SetValue(item, i);
+            }
+        }
+        else
+        {
+            var convertMethod = GetConvertDelegate(elementType);
+            for (int i = 0; i < length; i++)
+            {
+                object item = convertMethod(data, ref offset);
+                array.SetValue(item, i);
+            }
         }
         return array;
     }
@@ -285,12 +298,28 @@ public partial class TypeByte2TypeConverter
 
         Type listType = typeof(List<>).MakeGenericType(elementType);
         IList list = (IList)Activator.CreateInstance(listType, count);
-        var convertMethod = GetConvertDelegate(elementType);
 
-        for (int i = 0; i < count; i++)
+        if (_serializeReference)
         {
-            object item = convertMethod.Invoke(data, ref offset);
-            list.Add(item);
+            string typeName;
+            Type realType;
+            for (int i = 0; i < count; i++)
+            {
+                typeName = ConvertTypeByte2LenString(data, ref offset);
+                realType = Type.GetType(typeName);
+                var convertMethod = GetConvertDelegate(realType);
+                object item = convertMethod.Invoke(data, ref offset);
+                list.Add(item);
+            }
+        }
+        else
+        {
+            var convertMethod = GetConvertDelegate(elementType);
+            for (int i = 0; i < count; i++)
+            {
+                object item = convertMethod.Invoke(data, ref offset);
+                list.Add(item);
+            }
         }
         return list;
     }
@@ -334,10 +363,32 @@ public partial class TypeByte2TypeConverter
     {
         if (!_fieldCache.TryGetValue(type, out var fields))
         {
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            fields = type.GetFields(flags)
-                .Where(f => f.IsPublic || f.GetCustomAttribute<SerializeField>() != null)
-                .ToArray();
+            const BindingFlags flags = BindingFlags.Instance
+                                     | BindingFlags.Public
+                                     | BindingFlags.NonPublic
+                                     | BindingFlags.DeclaredOnly;
+
+            var list = new List<FieldInfo>();
+
+            // 상속 계층을 순회하며, 각 타입에 직접 선언된 필드를 모은다
+            for (var t = type; t != null; t = t.BaseType)
+            {
+                foreach (var f in t.GetFields(flags))
+                {
+                    // 1) [NonSerialized] 필드는 무조건 제외
+                    if (f.IsNotSerialized)
+                        continue;
+
+                    // 2) public 이거나, [SerializeField] 가 붙어 있어야 포함
+                    if (f.IsPublic
+                        || f.GetCustomAttribute<SerializeField>(inherit: false) != null)
+                    {
+                        list.Add(f);
+                    }
+                }
+            }
+
+            fields = list.ToArray();
             _fieldCache[type] = fields;
         }
         return fields;
@@ -360,18 +411,25 @@ public partial class TypeByte2TypeConverter
 
             if (isSerializeReference)
             {
+                _serializeReference = true;
                 string typeName = ConvertTypeByte2LenString(data, ref offset);
                 Type realType = Type.GetType(typeName);
                 var convertMethod = GetConvertDelegate(realType);
                 object fieldValue = convertMethod(data, ref offset);
                 SetFieldValue(instance, field, fieldValue);
+                _serializeReference = false;
             }
             else
             {
+                bool flag = false;
+                if (_serializeReference)
+                    flag = true;
+                _serializeReference = false;
                 Type fieldType = field.FieldType;
                 var convertMethod = GetConvertDelegate(fieldType);
                 object fieldValue = convertMethod.Invoke(data, ref offset);
                 SetFieldValue(instance, field, fieldValue);
+                _serializeReference = flag;
             }
         }
         return instance;

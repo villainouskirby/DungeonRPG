@@ -71,7 +71,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         CachedChunk.Clear();
 
 
-        string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/SaveFile/{TM.Instance.SlotName}/{mapType.ToString()}/");
+        string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
 
         Stream?.Close();
         Stream = new FileStream(

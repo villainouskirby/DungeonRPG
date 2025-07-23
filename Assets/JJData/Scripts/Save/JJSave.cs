@@ -122,6 +122,11 @@ public static class JJSave
         try
         {
             TextAsset textAsset = Resources.Load<TextAsset>(path);
+            if (textAsset == null)
+            {
+                Debug.LogWarning($"JJSave : save file Not Find: {path}");
+                return result;
+            }
             byte[] data = textAsset.bytes;
             if (data == null || data.Length == 0)
             {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 
 public class InventoryTest : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private ItemData[] allEquipment;
 
-    [SerializeField] private ShopItemsSO shopItems;
+    [SerializeField] private List<ShopItem> shopItems;
 
     [SerializeField] private SmithDataSO smithData;
 
@@ -48,7 +49,7 @@ public class InventoryTest : MonoBehaviour
 
     public void AddShopItem()
     {
-        shopItems.Items.Add(new ShopItem(testItemData, 10));
+        shopItems.Add(new ShopItem(testItemData, 10));
     }
 
     public void AddQuest()

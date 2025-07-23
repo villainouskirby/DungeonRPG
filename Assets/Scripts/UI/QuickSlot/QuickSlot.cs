@@ -5,9 +5,7 @@ public class QuickSlot : MonoBehaviour
 {
     [SerializeField] private QuickSlotUI _quickSlotUI;
 
-    [SerializeField] private ItemsSO _quickSlotList;
-
-    private List<Item> _quickSlot => _quickSlotList.Items;
+    private List<Item> _quickSlot = new();
 
     private void Awake()
     {
@@ -16,7 +14,7 @@ public class QuickSlot : MonoBehaviour
 
     public void InitQuickSlot()
     {
-        if (_quickSlot.Count == 0) _quickSlotList.Items = new List<Item>(new Item[5]);
+        if (_quickSlot.Count == 0) _quickSlot = new List<Item>(new Item[5]);
         _quickSlotUI.InitQuickSlotUI();
     }
 

@@ -17,7 +17,7 @@ public class DataLoader : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
-        JJSave.LLoad(out All, $"{mapType.ToString()}_All", $"SaveFile/{TileMapMaster.Instance.SlotName}/{mapType.ToString()}/");
+        JJSave.LLoad(out All, $"{mapType.ToString()}_All", $"SaveFile/{TileMapMaster.Instance.SaveSlotIndex}/{mapType.ToString()}/");
     }
 
     public void StartMap(MapEnum mapType)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [System.Serializable]
@@ -15,8 +16,9 @@ public abstract class ItemData
     [Multiline]
     [SerializeField] private string _tooltip;
     [SerializeField] private int _weight;
-    [SerializeField] private Sprite _iconSprite;
+    [NonSerialized] private Sprite _iconSprite;
 
+    [SerializeField]
     private Item_Info_Item _info;
 
     public ItemData(Item_Info_Item info, Sprite sprite)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -11,25 +12,26 @@ public class ResourceNodeSpawner : Spawner
     public string[]        ResourceNodes;
     public string          Select;
 
-    public ResourceNodeBase ResourceNode => _resourceNode;
-    private ResourceNodeBase _resourceNode;
+    [NonSerialized]
+    public ResourceNodeBase ResourceNode;
     [SerializeField]
     private ResourceNodeSaveData _resourceNodeSaveData;
 
     public ResourceNodeSpawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange) : base(spawnerTile, genericMinRange, genericMaxRange)
     {
+        _resourceNodeSaveData = null;
     }
 
     public ResourceNodeSpawner()
     {
-        
+        _resourceNodeSaveData = null;
     }
 
     public override void Spawn()
     {
         base.Spawn();
-        _resourceNode = SpawnObj.GetComponent<ResourceNodeBase>();
-        _resourceNode.EndAction += SpawnerReset;
+        ResourceNode = SpawnObj.GetComponent<ResourceNodeBase>();
+        ResourceNode.EndAction += SpawnerReset;
         // SpawnManager에서 Enum을 통해 오브젝트를 풀링후 스폰한다.
         Debug.Log($"Mineral {Select}이(가) 스폰됨!");
     }
@@ -61,14 +63,14 @@ public class ResourceNodeSpawner : Spawner
         if (IsSpawn)
         {
             Spawn();
-            _resourceNode.Load(_resourceNodeSaveData);
+            ResourceNode.Load(_resourceNodeSaveData);
         }
     }
 
     public override void Save(SaveData saveData)
     {
         if (IsSpawn)
-            _resourceNodeSaveData = _resourceNode.Save();
+            _resourceNodeSaveData = ResourceNode.Save();
         saveData.ResourceNodeSpawner.Add(this);
     }
 }

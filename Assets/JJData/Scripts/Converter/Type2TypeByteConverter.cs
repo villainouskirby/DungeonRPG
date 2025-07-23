@@ -17,6 +17,8 @@ public static class Type2TypeByteConverter
     // 직렬화 대상 필드 캐시
     private static readonly Dictionary<Type, FieldInfo[]> _fieldCache = new Dictionary<Type, FieldInfo[]>();
 
+    private static bool _serializeReference = false;
+
     public static byte[] Convert<T>(T value)
     {
         if (value == null)
@@ -88,10 +90,28 @@ public static class Type2TypeByteConverter
     {
         if (!_fieldCache.TryGetValue(type, out var fields))
         {
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            fields = type.GetFields(flags)
-                .Where(f => f.IsPublic || f.GetCustomAttribute<SerializeField>() != null)
-                .ToArray();
+            const BindingFlags flags = BindingFlags.Instance
+                                     | BindingFlags.Public
+                                     | BindingFlags.NonPublic
+                                     | BindingFlags.DeclaredOnly;
+
+            var list = new List<FieldInfo>();
+
+            for (var t = type; t != null; t = t.BaseType)
+            {
+                foreach (var f in t.GetFields(flags))
+                {
+                    if (f.IsNotSerialized)
+                        continue;
+                    if (f.IsPublic
+                        || f.GetCustomAttribute<SerializeField>(inherit: false) != null)
+                    {
+                        list.Add(f);
+                    }
+                }
+            }
+
+            fields = list.ToArray();
             _fieldCache[type] = fields;
         }
         return fields;
@@ -232,11 +252,27 @@ public static class Type2TypeByteConverter
         if (length == 0)
             return result.ToArray();
 
-        Type elementType = array.GetType().GetElementType();
-        var converter = GetConvertDelegate(elementType);
-        foreach (var item in array)
+        if (_serializeReference)
         {
-            result.AddRange(converter(item));
+            string typeName;
+            Type realType;
+            foreach (var item in array)
+            {
+                typeName = item.GetType().AssemblyQualifiedName;
+                realType = Type.GetType(typeName);
+                result.AddRange(Convertstring2Byte(typeName));
+                var converter = GetConvertDelegate(realType);
+                result.AddRange(converter(item));
+            }
+        }
+        else
+        {
+            Type elementType = array.GetType().GetElementType();
+            var converter = GetConvertDelegate(elementType);
+            foreach (var item in array)
+            {
+                result.AddRange(converter(item));
+            }
         }
         return result.ToArray();
     }
@@ -250,10 +286,26 @@ public static class Type2TypeByteConverter
         if (count == 0)
             return result.ToArray();
 
-        var converter = GetConvertDelegate(elementType);
-        foreach (var item in list)
+        if (_serializeReference)
         {
-            result.AddRange(converter(item));
+            string typeName;
+            Type realType;
+            foreach (var item in list)
+            {
+                typeName = item.GetType().AssemblyQualifiedName;
+                realType = Type.GetType(typeName);
+                result.AddRange(Convertstring2Byte(typeName));
+                var converter = GetConvertDelegate(realType);
+                result.AddRange(converter(item));
+            }
+        }
+        else
+        {
+            var converter = GetConvertDelegate(elementType);
+            foreach (var item in list)
+            {
+                result.AddRange(converter(item));
+            }
         }
         return result.ToArray();
     }
@@ -305,7 +357,6 @@ public static class Type2TypeByteConverter
             object fieldValue = field.GetValue(obj);
             if (fieldValue == null)
             {
-                // null이면 false 플래그를 기록
                 result.AddRange(ConvertPrimitive2Byte(false));
                 continue;
             }
@@ -313,18 +364,26 @@ public static class Type2TypeByteConverter
 
             if (field.GetCustomAttribute<SerializeReference>() != null)
             {
+                _serializeReference = true;
                 Type fieldType = fieldValue.GetType();
                 string typeName = fieldType.AssemblyQualifiedName;
                 result.AddRange(Convertstring2Byte(typeName));
+                Type realType = Type.GetType(typeName);
 
-                var converter = GetConvertDelegate(fieldType);
+                var converter = GetConvertDelegate(realType);
                 result.AddRange(converter(fieldValue));
+                _serializeReference = false;
             }
             else
             {
+                bool flag = false;
+                if (_serializeReference)
+                    flag = true;
+                _serializeReference = false;
                 Type fieldType = field.FieldType;
                 var converter = GetConvertDelegate(fieldType);
                 result.AddRange(converter(fieldValue));
+                _serializeReference = flag;
             }
         }
         return result.ToArray();

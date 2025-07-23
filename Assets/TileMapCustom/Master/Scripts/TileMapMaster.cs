@@ -12,7 +12,7 @@ public class TileMapMaster : MonoBehaviour
 #if UNITY_EDITOR
     [Header("Test Settings")]
     public MapEnum MapType = MapEnum.Map1;
-    public string SlotName = "Test1";
+    public SaveSlotIndex SaveSlotIndex = SaveSlotIndex.None;
 #endif
 
     [Header("Camera Settings")]
@@ -36,7 +36,7 @@ public class TileMapMaster : MonoBehaviour
     public void Start()
     {
         Init();
-        SaveData saveData = SaveManager.Instance.LoadSlot(SlotName);
+        SaveData saveData = SaveManager.LoadSlot(SaveSlotIndex);
         LoadTilemap(saveData);
     }
 
@@ -65,8 +65,8 @@ public class TileMapMaster : MonoBehaviour
             _base[i].InitMap(data.mapType);
         }
 
-        SaveManager.Instance.LoadBase(data);
-        SaveManager.Instance.LoadEtc(data);
+        SaveManager.LoadBase(data);
+        SaveManager.LoadEtc(data);
 
         for (int i = 0; i < _base.Count; i++)
         {
@@ -91,7 +91,7 @@ public class TileMapMaster : MonoBehaviour
                 _option[i].InitMap(data.mapType);
             }
         }
-        SaveManager.Instance.LoadOption(data);
+        SaveManager.LoadOption(data);
         for (int i = 0; i < _option.Count; i++)
         {
             ITileMapOption option = _option[i];
