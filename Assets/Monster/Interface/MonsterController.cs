@@ -20,6 +20,7 @@ public class MonsterController : MonoBehaviour
     public SpriteRenderer Sprite { get; private set; }
     public Transform Spawner => spawner;
     public Transform Player { get; private set; }
+    public MonsterStateMachine StateMachine => root;
 
     MonsterStateMachine root = new();
     MonsterContext ctx;

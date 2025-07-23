@@ -12,7 +12,7 @@ public sealed class MonsterContext
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;
-
+    public readonly MonsterStateMachine sm;
     public float Hp;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
@@ -21,6 +21,7 @@ public sealed class MonsterContext
     public MonsterContext(MonsterController owner)
     {
         mono = owner;
+        sm = owner.StateMachine;
         data = owner.Data;
         transform = owner.transform;
         agent = owner.Agent;
@@ -40,10 +41,12 @@ public sealed class MonsterContext
         Vector2 start = transform.position;
         Vector2 dir = (player.position - transform.position).normalized;
         float dist = Vector2.Distance(start, player.position);
-
         if (dist > maxDist) return false;
-        RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, ~0);
-        return hit.collider && hit.collider.CompareTag("Player");
+
+        RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, obstacleMask);
+        if (hit) return false;
+
+        return true;
     }
 
     // 벽 개수 세기 (감쇠용)

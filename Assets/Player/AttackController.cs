@@ -12,15 +12,18 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private PlayerController pc;           // 이동·방향 담당
     [SerializeField] private ChargeUIController chargeUI;   // 공격 차징 UI
 
-    [Header("Normal-Attack")]
+    [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [SerializeField] private float[] afterDelay = { 0.3f, 0.5f }; // 1 타, 2 타 후딜
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
+
+    private int comboLockedDir = -1; // 1타 때 방향 ‑> 2타까지 유지
     public bool IsInAttack => isAttacking || isAttackCharging;
-    [Header("Heavy-Attack")]
+    [Header("약공격 -> 강공격 전환 시간")]
     [SerializeField] private float chargeThreshold = 0.30f;   // 0.3초보다 더 누르면 차징 공격 시작
+    [Header("강공격 설정")]
     [SerializeField] public float maxChargeTime = 1f; // 완충 시간 Tmax
     [SerializeField] private float heavyMultiplier = 1f; // 배율 k
     [SerializeField] private float heavyRadius = 2.5f; // 범위 반경 r
@@ -139,6 +142,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         bool within = now - nextAttackReady <= comboInputTime;
         comboStep = within ? (comboStep == 1 ? 2 : 1) : 1;
 
+        if (comboStep == 1)
+            comboLockedDir = DirFromMouse();
+
         StartCoroutine(PerformAttack(comboStep));
     }
 
@@ -150,8 +156,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float after = afterDelay[step - 1];
         pc.ChangeState(new NormalAttackState(pc, after));
 
-        int dir = DirFromMouse();                    // ← 마우스 기준 방향 계산
-        pc.SetFacingDirection(dir);                  // ← 바라보는 방향 변경 (Flip + Animator)
+        int dir = (step == 1)                // ★ 1타→comboLockedDir, 2타도 그대로
+                  ? comboLockedDir
+                  : comboLockedDir;
+        pc.SetFacingDirection(dir);               // ← 바라보는 방향 변경 (Flip + Animator)
 
         string clip = AttackClipName(step, dir);
         anim.Play(clip, 0, 0f);

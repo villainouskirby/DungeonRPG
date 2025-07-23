@@ -20,7 +20,7 @@ public class ChargeUIController : MonoBehaviour
     public void SetAttackRatio(float r) => attackSlider.value = r;
     public void SetPotionRatio(float r) => potionSlider.value = r;
 
-    void LateUpdate()            // 플레이어 따라다니기 + 카메라 정면 유지
+    void FixedUpdate()            // 플레이어 따라다니기 + 카메라 정면 유지
     {
         if (!chargeCanvas) return;
         chargeCanvas.transform.position = transform.position + offset;
