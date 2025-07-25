@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     private bool stateLocked = false; // 외부(포션 등) 잠금
     private int facingDir = 1;     // 0=Up,1=Down,2=Left,3=Right
+    Vector2 prevDir = Vector2.zero;
     public int FacingDir => facingDir;
     public void SetFacingDirection(int d)
     {
@@ -103,7 +104,17 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         UpdateByState();
         DrainStaminaWhileRunning();
         if (EscapeActive) UpdateEscape();
-        //Debug.Log(stateMachine.GetCurrentState());
+
+        //강제정지
+        float hx = Input.GetAxisRaw("Horizontal");
+        float hy = Input.GetAxisRaw("Vertical");
+        Vector2 dir = new(hx, hy);
+
+        if (prevDir != Vector2.zero && dir == Vector2.zero)
+        {
+            rb.velocity = Vector2.zero;
+        }
+        prevDir = dir;
     }
     void FixedUpdate()
     {
@@ -122,12 +133,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         }
         else
         {
-            // 더 큰 brake 값으로 빠르게 정지
-            rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero,
-                                              brake * Time.fixedDeltaTime);
+            rb.velocity = Vector2.zero;
         }
         bool attacking = attackController && attackController.IsInAttack;
-        if (!attacking)
+        bool guarding = stateMachine.GetCurrentState() is GuardState;
+        if (!attacking && !guarding)
         {
             // 방향 결정
             if (dir != Vector2.zero)
@@ -201,6 +211,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             }
         }
     }
+
 
     private void UpdateByState() // 상태에 따른 속력
     {
@@ -342,6 +353,16 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             ChangeState(new IdleState(this));
         stateLocked = true;
         rb.velocity = Vector2.zero;
+    }
+    // 방향키 이동 강제 정지용 메소드
+    float inputDeadZone = 0.001f;
+    public Vector2 ReadMoveRaw()
+    {
+        float hx = Input.GetAxisRaw("Horizontal");
+        float hy = Input.GetAxisRaw("Vertical");
+        if (Mathf.Abs(hx) < inputDeadZone) hx = 0f;
+        if (Mathf.Abs(hy) < inputDeadZone) hy = 0f;
+        return new Vector2(hx, hy);
     }
     public void UnlockState() => stateLocked = false;
     #endregion

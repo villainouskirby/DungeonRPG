@@ -13,19 +13,17 @@ public class IdleState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new GuardState(player)); return; }
-        //if (Input.GetMouseButtonDown(0))
-        //{ player.ChangeState(new ChargingState(player)); return; }
+        if (Input.GetKeyDown(KeyCode.Space)) { player.ChangeState(new EscapeState(player)); return; }
+        if (Input.GetMouseButtonDown(1)) { player.ChangeState(new GuardState(player)); return; }
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        if (moveX != 0 || moveY != 0) player.ChangeState(new MoveState(player));
+        Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
+                     ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        else if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakState(player));
-        
+        if (mv.x != 0 || mv.y != 0)
+            player.ChangeState(new MoveState(player));
+        else if (Input.GetKeyDown(KeyCode.LeftControl))
+            player.ChangeState(new SneakState(player));
+
     }
 
     public void Exit() { } //Debug.Log("Idle 상태 종료");
@@ -50,10 +48,10 @@ public class MoveState : IPlayerState
         //if (Input.GetMouseButtonDown(0))
         //{ player.ChangeState(new ChargingState(player)); return; }
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
+        Vector2 mv = (player as PlayerController)?.ReadMoveRaw() 
+                 ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
        
-        if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
+        if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
         if (Input.GetKey(KeyCode.LeftShift)) player.ChangeState(new RunState(player));
     }
@@ -84,10 +82,10 @@ public class RunState : IPlayerState
         //if (Input.GetMouseButtonDown(0))
         //{ player.ChangeState(new ChargingState(player)); return; }
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-      
-        if (moveX == 0 && moveY == 0) player.ChangeState(new IdleState(player));
+        Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
+                 ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+        if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyUp(KeyCode.LeftShift)) player.ChangeState(new MoveState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
     }
@@ -111,10 +109,10 @@ public class SneakMoveState : IPlayerState
 
     public void Update()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        
-        if (moveX == 0 && moveY == 0)
+        Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
+                 ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+        if (mv.x == 0 && mv.y == 0)
         {
             if (Input.GetKey(KeyCode.LeftControl))
                 player.ChangeState(new SneakState(player));
@@ -154,12 +152,11 @@ public class SneakState : IPlayerState
         //if (Input.GetMouseButtonDown(0))
         //{ player.ChangeState(new ChargingState(player)); return; }
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        
-        if (moveX == 0 && moveY == 0) {
-            if (Input.GetKeyUp(KeyCode.LeftControl)) { player.ChangeState(new IdleState(player)); }
-        }
+        Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
+                 ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
+
+        if (mv.x == 0 && mv.y == 0)  { if (Input.GetKeyUp(KeyCode.LeftControl)) { player.ChangeState(new IdleState(player)); } }
         else { player.ChangeState(new SneakMoveState(player)); }
         
     }
