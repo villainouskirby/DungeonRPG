@@ -10,4 +10,12 @@ public class Storage : Inventory
         _storeTarget.AddItem(_items[index].Data, amount);
         RemoveItem(index, amount);
     }
+
+    public override void Load(SaveData saveData)
+    {
+    }
+
+    public override void Save(SaveData saveData)
+    {
+    }
 }

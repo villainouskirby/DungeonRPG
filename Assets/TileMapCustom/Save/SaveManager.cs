@@ -12,11 +12,14 @@ public static class SaveManager
     public static string SlotName = "";
 
     public static void SaveSlot() => SaveSlot(SaveSlotIndex, SlotName);
-    public static void Load() => Load(LoadSlot(SaveSlotIndex));
+    public static SaveData LoadSlot() => LoadSlot(SaveSlotIndex);
     public static void NewSlot() => NewSlot(SaveSlotIndex, SlotName);
 
     public static void SaveSlot(SaveSlotIndex saveSlotIndex, string slotName)
     {
+        if (!SaveFileData.ManualSaveSlot[(int)saveSlotIndex].Exist)
+            NewSlot(saveSlotIndex, slotName);
+
         SaveData saveData = new();
         saveData.mapType = TileMapMaster.Instance.MapType;
         saveData.PlayerPos = TileMapMaster.Instance.Player.transform.position;
@@ -30,6 +33,10 @@ public static class SaveManager
             saves[i].Save(saveData);
 
         JJSave.LSave(saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
+
+        LoadSaveFileData();
+        SaveFileData.ManualSaveSlot[(int)saveSlotIndex] = MakeSlotData(saveSlotIndex, slotName);
+        JJSave.LSave(SaveFileData, "SaveSlotData", "SaveFile/");
     }
 
     public static SaveData LoadSlot(SaveSlotIndex saveSlotIndex)
@@ -55,9 +62,6 @@ public static class SaveManager
 
     public static void LoadBase(SaveData saveData)
     {
-        TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
-        TileMapMaster.Instance.MapType = saveData.mapType;
-
         ISave[] saves = GameObject
             .FindObjectsOfType<MonoBehaviour>(true)
             .OfType<ISave>()
@@ -70,9 +74,6 @@ public static class SaveManager
 
     public static void LoadOption(SaveData saveData)
     {
-        TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
-        TileMapMaster.Instance.MapType = saveData.mapType;
-
         ISave[] saves = GameObject
             .FindObjectsOfType<MonoBehaviour>(true)
             .OfType<ISave>()
@@ -85,9 +86,6 @@ public static class SaveManager
 
     public static void LoadEtc(SaveData saveData)
     {
-        TileMapMaster.Instance.Player.transform.position = saveData.PlayerPos;
-        TileMapMaster.Instance.MapType = saveData.mapType;
-
         ISave[] saves = GameObject
             .FindObjectsOfType<MonoBehaviour>(true)
             .OfType<ISave>()
@@ -103,12 +101,13 @@ public static class SaveManager
         for (int i = 0; i < (int)MapEnum.End; i++)
         {
             TileMapData oriData;
-            SaveData saveData = new();
             Debug.Log($"{((MapEnum)i).ToString()}_MapData");
             JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", ExtractorMaster.DataFileDirectory);
             if (oriData == null)
                 continue;
             JJSave.LSave(oriData.All, $"{((MapEnum)i).ToString()}_All", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/");
+
+            SaveData saveData = new();
             JJSave.LSave(saveData, $"SaveData", $"SaveFile/{saveSlotIndex}/");
 
             List<int> mapData = new();
@@ -121,9 +120,10 @@ public static class SaveManager
         }
 
         LoadSaveFileData();
-        SaveFileData.ManualSaveSlot[(int)saveSlotIndex] = MakeSlotData(slotName);
+        SaveFileData.ManualSaveSlot[(int)saveSlotIndex] = MakeSlotData(saveSlotIndex, slotName);
         JJSave.LSave(SaveFileData, "SaveSlotData", "SaveFile/");
     }
+
 
     public static void LoadSaveFileData()
     {
@@ -131,9 +131,9 @@ public static class SaveManager
         _saveFileData ??= new();
     }
 
-    public static SaveSlotData MakeSlotData(string slotName)
+    public static SaveSlotData MakeSlotData(SaveSlotIndex index, string slotName)
     {
-        SaveSlotData slotData = new(slotName, Vector3.zero, true);
+        SaveSlotData slotData = new(index, slotName, Vector3.zero, true);
         return slotData;
     }
 }

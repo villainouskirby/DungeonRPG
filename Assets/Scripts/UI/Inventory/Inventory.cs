@@ -365,21 +365,13 @@ public class Inventory : MonoBehaviour, ISave
 
     public bool CheckItemUsable(int index) => _items[index] is IUsableItem;
 
-    public void Load(SaveData saveData)
+    public virtual void Load(SaveData saveData)
     {
-        _items = new();
-        for (int i = 0; i < saveData.Items.Count; i++)
-        {
-            _items.Add(saveData.Items[i].Createitem());
-        }
+        _items = saveData.Items;
     }
 
-    public void Save(SaveData saveData)
+    public virtual void Save(SaveData saveData)
     {
-        saveData.Items ??= new();
-        for (int i = 0; i < _items.Count; ++i)
-        {
-            saveData.Items.Add(_items[i].Data);
-        }
+        saveData.Items = _items;
     }
 }

@@ -61,14 +61,15 @@ public class StartSceneFunc : MonoBehaviour
     {
         SaveManager.NewSlot(SaveSlotIndex.Auto1, "Auto1");
         SaveManager.SaveSlotIndex = SaveSlotIndex.Auto1;
-        SceneManager.LoadScene("testDohyun");
+        StartGame();
     }
 
     public void StartGame()
     {
+        TileMapMaster.IsLoad = false;
         SceneManager.LoadScene("testDohyun");
     }
-
+    
     public void OpenOption()
     {
         OptionUI.SetActive(true);

@@ -381,7 +381,7 @@ public partial class TypeByte2TypeConverter
 
                     // 2) public 이거나, [SerializeField] 가 붙어 있어야 포함
                     if (f.IsPublic
-                        || f.GetCustomAttribute<SerializeField>(inherit: false) != null)
+                        || f.GetCustomAttribute<SerializeField>(inherit: true) != null)
                     {
                         list.Add(f);
                     }

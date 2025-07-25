@@ -96,6 +96,8 @@ public class Spawner : ISave
     {
     }
 
+    public bool IsSave => true;
+
     public Spawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange)
     {
         int tileX = Mathf.FloorToInt((spawnerTile.transform.position.x) / 1f);

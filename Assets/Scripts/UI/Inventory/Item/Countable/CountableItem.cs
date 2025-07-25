@@ -3,10 +3,10 @@ using System;
 /// <summary> 셀 수 있는 아이템 </summary>
 public abstract class CountableItem : Item
 {
-    public CountableItemData CountableData { get; private set; }
+    public CountableItemData CountableData { get { return (CountableItemData)_data; } private set { _data = value; } }
 
     /// <summary> 현재 아이템 개수 </summary>
-    public int Amount { get; protected set; }
+    public int Amount;
     /// <summary> 하나의 슬롯당 최대 개수(기본값 : 99) </summary>
     public int MaxAmount => CountableData.MaxAmount;
     /// <summary> 수량이 가득 찼는지 여부 </summary>
@@ -18,6 +18,11 @@ public abstract class CountableItem : Item
     {
         CountableData = data;
         SetAmount(amount);
+    }
+
+    public CountableItem()
+    {
+
     }
 
     /// <summary> 개수 지정(범위 제한)</summary>

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using DL = DataLoader;
 
 public class TileMapMaster : MonoBehaviour
@@ -9,13 +10,16 @@ public class TileMapMaster : MonoBehaviour
     public static TileMapMaster Instance { get { return _instance; } }
     private static TileMapMaster _instance;
 
-#if UNITY_EDITOR
-    [Header("Test Settings")]
+    public static bool IsLoad = false;
     public MapEnum MapType = MapEnum.Map1;
     public SaveSlotIndex SaveSlotIndex = SaveSlotIndex.None;
-    public bool LoadMode = false;
 
-#endif
+    [Header("For Test")]
+    public MapEnum TestMapType = MapEnum.Map1;
+    public SaveSlotIndex TestSaveSlotIndex = SaveSlotIndex.None;
+
+    [Header("Default Settings")]
+    public MapEnum DefaultStartMapType = MapEnum.Map1;
 
     [Header("Camera Settings")]
     public Camera TargetCamera;
@@ -35,17 +39,43 @@ public class TileMapMaster : MonoBehaviour
     private List<ITileMapBase> _base;
     private List<ITileMapOption> _option;
 
+#if UNITY_EDITOR
+    public static string StartSceneName;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void RecordStartupScene()
+    {
+        StartSceneName = SceneManager.GetActiveScene().name;
+    }
+#endif
+
     public void Start()
     {
         Init();
-        if (LoadMode)
+
+#if UNITY_EDITOR
+        if (StartSceneName == "testDohyun")
         {
-            SaveData saveData = SaveManager.LoadSlot(SaveSlotIndex);
-            LoadTilemap(saveData);
+            SaveManager.SaveSlotIndex = TestSaveSlotIndex;
+            MapType = TestMapType;
+
+            if (!SaveManager.SaveFileData.ManualSaveSlot[(int)TestSaveSlotIndex].Exist)
+            {
+                Debug.LogError("TileMapMaster - (Test) 해당 슬롯엔 데이터가 없습니다.");
+                return;
+            }
+        }
+#endif
+
+        if (IsLoad)
+        {
+            SaveSlotIndex = SaveManager.SaveSlotIndex;
+            LoadTilemap(SaveManager.LoadSlot());
         }
         else
         {
-            SaveManager.NewSlot(SaveSlotIndex, "Test");
+            SaveSlotIndex = SaveSlotIndex.Auto1;
+            MapType = DefaultStartMapType;
             StartTileMap(MapType);
         }
     }
@@ -70,10 +100,15 @@ public class TileMapMaster : MonoBehaviour
 
     public void LoadTilemap(SaveData data)
     {
+        Player.transform.position = data.PlayerPos;
+        MapType = data.mapType;
+
         for (int i = 0; i < _base.Count; i++)
         {
             _base[i].InitMap(data.mapType);
         }
+
+        Player.transform.position = data.PlayerPos;
 
         SaveManager.LoadBase(data);
         SaveManager.LoadEtc(data);

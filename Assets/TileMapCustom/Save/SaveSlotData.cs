@@ -12,12 +12,13 @@ public class SaveFileData
         ManualSaveSlot = new SaveSlotData[8];
 
         for (int i = 0; i < (int)SaveSlotIndex.End; i++)
-            ManualSaveSlot[i] = new();
+            ManualSaveSlot[i] = new((SaveSlotIndex)i);
     }
 }
 
 public class SaveSlotData
 {
+    public SaveSlotIndex Index;
     public string SlotName;
     public string Date;
     public string QuestType;
@@ -28,12 +29,21 @@ public class SaveSlotData
 
     public SaveSlotData()
     {
+        Index = SaveSlotIndex.None;
         SlotName = "";
         Exist = false;
     }
 
-    public SaveSlotData(string slotName, Vector3 location, bool exist)
+    public SaveSlotData(SaveSlotIndex index)
     {
+        Index = index;
+        SlotName = "";
+        Exist = false;
+    }
+
+    public SaveSlotData(SaveSlotIndex index, string slotName, Vector3 location, bool exist)
+    {
+        Index = index;
         SlotName = slotName;
         Date = DateTime.Now.ToString("yy/MM/dd - hh:mm:ss");
         QuestType = "임시";

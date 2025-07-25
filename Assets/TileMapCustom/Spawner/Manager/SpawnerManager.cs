@@ -254,5 +254,6 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
         }
     }
 
+    public bool IsSave => true;
 #endif
 }

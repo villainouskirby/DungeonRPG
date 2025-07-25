@@ -104,7 +104,7 @@ public static class Type2TypeByteConverter
                     if (f.IsNotSerialized)
                         continue;
                     if (f.IsPublic
-                        || f.GetCustomAttribute<SerializeField>(inherit: false) != null)
+                        || f.GetCustomAttribute<SerializeField>(inherit: true) != null)
                     {
                         list.Add(f);
                     }

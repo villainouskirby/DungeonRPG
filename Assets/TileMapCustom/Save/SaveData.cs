@@ -8,7 +8,7 @@ public class SaveData
     public MapEnum mapType; // 현재 맵
     public Vector3 PlayerPos; // 현재 플레이어 위치
     [SerializeReference]
-    public List<ItemData> Items; // 현재 플레이어 아이템
+    public List<Item> Items; // 현재 플레이어 아이템
     public List<ResourceNodeSpawner> ResourceNodeSpawner;
 
     public SaveData()

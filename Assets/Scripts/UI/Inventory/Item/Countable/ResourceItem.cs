@@ -1,15 +1,21 @@
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class ResourceItem : CountableItem
 {
-    public ResourceItemData ResourceData { get; private set; }
+    public ResourceItemData ResourceItemData { get { return (ResourceItemData)_data; } private set { _data = value; } }
+
     public ResourceItem(ResourceItemData data, int amount = 1) : base(data, amount)
     {
-        ResourceData = data;
+        ResourceItemData = data;
+    }
+
+    public ResourceItem()
+    {
     }
 
     public override Item Clone(int amount)
     {
-        return new ResourceItem(ResourceData, amount);
+        return new ResourceItem(ResourceItemData, amount);
     }
 }
