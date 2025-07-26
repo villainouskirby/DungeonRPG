@@ -24,6 +24,13 @@ public sealed class MonsterIdleState : IMonsterState
 
     public void Tick()
     {
+        // 아이템 감지
+        if (ctx.CanSeeObject(ctx.data.sightDistance))
+        {
+            machine.ChangeState(new MonsterSpecialState(ctx, machine));
+            return;
+        }
+
         // 플레이어 감지
         if (ctx.CanSeePlayer(ctx.data.sightDistance) || ctx.CanHearPlayer(ctx.data.hearRange))
         {
@@ -114,40 +121,41 @@ public sealed class MonsterDetectState : IMonsterState
     }
     public void Tick()
     {
-        // 스포너 한계 검사
-        if (ctx.transform && ctx.spawner &&
-            Vector2.Distance(ctx.transform.position, ctx.spawner.position) >= ctx.data.maxSpawnerDist)
+        /* ─── 아이템 우선 ─── */
+        if (ctx.CanSeeObject(ctx.data.sightDistance))
         {
-            ctx.IsFastReturn = true;
-            machine.ChangeState(new MonsterReturnState(ctx, machine));
+            machine.ChangeState(new MonsterSpecialState(ctx, machine));
             return;
         }
 
-        // 0.5초 주기로 소리 재탐색
+        /* ─── 플레이어 청각 재탐색 (적대일 때만) ─── */
         hearTimer += Time.deltaTime;
-        if (hearTimer >= hearInterval)
+        if (ctx.data.isaggressive && hearTimer >= hearInterval)
         {
             hearTimer -= hearInterval;
-
             if (ctx.CanHearPlayer(ctx.data.hearRange))
             {
-                targetPos = ctx.player.position;   // 새 소리 위치
+                targetPos = ctx.player.position;
                 ctx.agent.SetDestination(targetPos);
-                chaseTimer = chaseTimeout;          // 5초 리셋
+                chaseTimer = chaseTimeout;
             }
         }
 
-        // 시야로 보이면 Combat/Flee 즉시 전환
+        /* ─── 플레이어 시야 감지 ─── */
         if (ctx.CanSeePlayer(ctx.data.sightDistance))
         {
-            Debug.Log($"{ctx.data.monsterName} ▶ Combat 진입 조건 충족 (dist {Vector2.Distance(ctx.transform.position, ctx.player.position):F1})");
-            machine.ChangeState(ctx.data.isaggressive
-                               ? new CombatSuperState(ctx, machine)
-                               : new MonsterFleeState(ctx, machine));
+            if (ctx.data.isaggressive)
+            {
+                machine.ChangeState(new CombatSuperState(ctx, machine));
+            }
+            else
+            {
+                machine.ChangeState(new MonsterFleeState(ctx, machine));
+            }
             return;
         }
 
-        // 추적 타임아웃
+        /* ─── 스포너·타임아웃 처리 ─── */
         chaseTimer -= Time.deltaTime;
         if (chaseTimer <= 0f)
         {

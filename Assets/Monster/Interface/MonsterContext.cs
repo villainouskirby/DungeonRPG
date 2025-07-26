@@ -13,6 +13,8 @@ public sealed class MonsterContext
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;
     public readonly MonsterStateMachine sm;
+    public readonly string[] interestTags;
+    public bool isaggressive;
     public float Hp;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
@@ -30,6 +32,8 @@ public sealed class MonsterContext
         spawner = owner.Spawner;
         player = owner.Player;
         Hp = data.maxHp;
+        isaggressive = data.isaggressive;
+        interestTags = data.interestTags;
         obstacleMask = owner.ObstacleMask;
     }
 
@@ -71,6 +75,32 @@ public sealed class MonsterContext
 
         float hearable = reduced + (PlayerSoundRange.Instance ? PlayerSoundRange.Instance.NoiseRadius : 0f);
         return dist <= hearable;
+    }
+
+    public Vector2 lastItemDir; // 아이템으로 이동했던 방향
+    public Transform CanSeeObject(float maxDist)
+    {
+        if (interestTags == null || interestTags.Length == 0) return null;
+
+        Vector2 start = transform.position;
+
+        foreach (string tag in interestTags)
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag(tag))
+            {
+                if (obj == null) continue;                  // ← Destroy 예약된 객체는 null 로 평가된다!
+
+                Vector2 pos = obj.transform.position;
+                float dist = Vector2.Distance(start, pos);
+                if (dist > maxDist) continue;
+
+                Vector2 dir = (pos - start).normalized;
+                if (Physics2D.Raycast(start, dir, dist, obstacleMask)) continue;
+
+                return obj.transform;                       // 시야 확보
+            }
+        }
+        return null;
     }
     #endregion
 }

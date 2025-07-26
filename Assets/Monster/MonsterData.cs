@@ -47,8 +47,11 @@ public class MonsterData : ScriptableObject
     public FleeBehaviourSO[] fleeBehaviours;
 
     [Tooltip("특수 행동(채굴·충전·패링 등)")]
-    public SpecialBehaviourSO specialBehaviour;
+    public SpecialBehaviourSO[] specialBehaviours;
 
+    [Header("관심 오브젝트")]
+    [Tooltip("몬스터가 감지·추적할 태그들")]
+    public string[] interestTags;
     //[Header("애니메이터")]
     public RuntimeAnimatorController animator;
 

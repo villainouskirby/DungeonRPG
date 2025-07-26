@@ -944,6 +944,7 @@ GameObject:
   - component: {fileID: 413962922}
   - component: {fileID: 413962921}
   - component: {fileID: 413962920}
+  - component: {fileID: 413962923}
   m_Layer: 9
   m_Name: ResourceNode(Clone)
   m_TagString: Farm
@@ -1120,6 +1121,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &413962923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 413962918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17541193be106a34595d1cb65ab976d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CenterOffset: {x: 0, y: 0}
+  RadiusX: 2
+  RadiusY: 1
+  segments: 60
+  DropAngle: 90
 --- !u!1 &416059466
 GameObject:
   m_ObjectHideFlags: 0
@@ -1690,7 +1708,7 @@ Sprite:
         format: 10
         dimension: 4
       m_DataSize: 208
-      _typelessdata: c3f5b8bfd7a3903f00000000c3f5b83fd7a3903f00000000c3f5b8bfd7a390bf00000000c3f5b83fd7a390bf00000000000000000000803f0000803f000000000000000000000000000000000000000000000000000000000000803f0000803f0000803f0000000000000000000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000803f000000000000803f00000000000000000000000000000000000000000000000000000000
+      _typelessdata: c3f5b8bfd7a3903f00000000c3f5b83fd7a3903f00000000c3f5b8bfd7a390bf00000000c3f5b83fd7a390bf00000000000000008b6c673f0000803f000000000000000000000000000000000000000000000000000000000000883f8b6c673f0000803f0000000000000000000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000883f000000000000803f00000000000000000000000000000000000000000000000000000000
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
@@ -1781,18 +1799,18 @@ Sprite:
         format: 10
         dimension: 4
       m_DataSize: 208
-      _typelessdata: c3f5b8bfd7a3903f00000000c3f5b83fd7a3903f00000000c3f5b8bfd7a390bf00000000c3f5b83fd7a390bf00000000000000000000803f0000803f000000000000000000000000000000000000000000000000000000000000803f0000803f0000803f0000000000000000000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000803f000000000000803f00000000000000000000000000000000000000000000000000000000
+      _typelessdata: c3f5b8bfd7a3903f00000000c3f5b83fd7a3903f00000000c3f5b8bfd7a390bf00000000c3f5b83fd7a390bf00000000000000008b6c673f0000803f000000000000000000000000000000000000000000000000000000000000883f8b6c673f0000803f0000000000000000000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000883f000000000000803f00000000000000000000000000000000000000000000000000000000
     m_Bindpose: []
     textureRect:
       serializedVersion: 2
       x: 0
       y: 254
-      width: 289
-      height: 226
+      width: 272
+      height: 250
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: 0, y: 254}
     settingsRaw: 3
-    uvTransform: {x: 100, y: 144.5, z: 100, w: 367}
+    uvTransform: {x: 100, y: 136, z: 100, w: 379}
     downscaleMultiplier: 1
   m_PhysicsShape:
   - - {x: 1.115, y: -0.29999998}
@@ -2557,7 +2575,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 2088815031}
   amount: 1
-  shopItems: {fileID: 0}
+  shopItems: []
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
   quest: {fileID: 0}
@@ -10306,6 +10324,7 @@ GameObject:
   - component: {fileID: 1182682099}
   - component: {fileID: 1182682098}
   - component: {fileID: 1182682097}
+  - component: {fileID: 1182682100}
   m_Layer: 9
   m_Name: ResourceNode(Clone)
   m_TagString: Farm
@@ -10482,6 +10501,23 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1182682100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1182682095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17541193be106a34595d1cb65ab976d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CenterOffset: {x: 0, y: 0}
+  RadiusX: 2
+  RadiusY: 1
+  segments: 60
+  DropAngle: 90
 --- !u!1 &1236504303 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6623701870858405499, guid: ccdbe8f60e63dde45aecbcdd76056e32,
@@ -10522,12 +10558,6 @@ MonoBehaviour:
   FarmGageBarObj: {fileID: 6754062585048974638, guid: 2f2ddb442c920cd4d93a50793f90ebab,
     type: 3}
   FarmGageBar: {fileID: 0}
---- !u!4 &1236504317 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
-    type: 3}
-  m_PrefabInstance: {fileID: 1289751267}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1289751267
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11009,7 +11039,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 0}
   amount: 1
-  shopItems: {fileID: 0}
+  shopItems: []
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
   quest: {fileID: 0}
@@ -11377,8 +11407,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f8d4ea8b56312d49a4edbb540729e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1236504317}
-  followSpeed: 5
+  CameraAreaData: []
+  OriZ: -10
+  FollowSpeed: 5
 --- !u!81 &1631064811
 AudioListener:
   m_ObjectHideFlags: 0
@@ -11660,6 +11691,7 @@ MonoBehaviour:
   DropItemPrefab: {fileID: 4807686817414880818, guid: f3142dba18178cc4a92c369510b627d1,
     type: 3}
   PoolSize: 5
+  ErrorSprite: {fileID: 0}
 --- !u!1 &1749771229
 GameObject:
   m_ObjectHideFlags: 0
@@ -12365,7 +12397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 2088815031}
   amount: 1
-  shopItems: {fileID: 11400000, guid: a8a22f90c1a81b446b5c335cdd6221ee, type: 2}
+  shopItems: []
   smithData: {fileID: 11400000, guid: 41c7e66d8567ca24b93f1f3c9fb091c8, type: 2}
   quickSlot: {fileID: 0}
   quest: {fileID: 595817438}
