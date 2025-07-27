@@ -94,6 +94,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
         // 그림자 타일 세팅
         // 일단 여기서 진행
+        EM.Instance.WallSpriteIndex = ConvertSprite2Int(EM.Instance.WallType.Sprites);
         EM.Instance.ShadowSpriteIndex = ConvertSprite2Int(EM.Instance.ShadowType.Sprites);
     }
 

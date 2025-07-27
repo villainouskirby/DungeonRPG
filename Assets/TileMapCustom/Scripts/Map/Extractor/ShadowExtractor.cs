@@ -1,18 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-using UnityEditor.AddressableAssets.Settings;
-using UnityEditor.AddressableAssets;
-using UnityEditor;
-using UnityEngine;
-using EM = ExtractorMaster;
-using UnityEngine.U2D;
-using System.Linq;
-using System;
-using UnityEngine.Rendering;
-using System.Reflection;
-using UnityEngine.Rendering.Universal;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.U2D;
+using EM = ExtractorMaster;
 
 public class ShadowExtractor : MonoBehaviour, IExtractorLate
 {
@@ -25,7 +26,7 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
     {
         _composite = GetComponent<CompositeCollider2D>();
 
-        DataPath = $"{Application.dataPath}/ChunkShadowMesh/";
+        DataPath = $"{Application.dataPath}/MapMeshData/ChunkShadowMesh/";
         string folder = $"{DataPath}{mapType.ToString()}/";
         if (Directory.Exists(folder))
             Directory.Delete(folder, true);
@@ -90,8 +91,7 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
                 GenerateFromGrid(chunkData);
                 yield return StartCoroutine(MakeChunkShadow(mapType, w, h));
                 DeleteAllChild(transform);
-
-                string assetPath = $"Assets/ChunkShadowMesh/{mapType.ToString()}/ChunkShadowMesh_{w}_{h}.asset";
+                string assetPath = $"Assets/MapMeshData/ChunkShadowMesh/{mapType.ToString()}/ChunkShadowMesh_{w}_{h}.asset";
                 RegisterAddressable(group, $"{mapType.ToString()}_ChunkShadowMesh_{w}_{h}", assetPath);
             }
         }
@@ -105,7 +105,7 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
         _composite.GenerateGeometry();
         Mesh chunkShadowMesh = ApplyCompositeShadow();
 
-        AssetDatabase.CreateAsset(chunkShadowMesh, $"Assets/ChunkShadowMesh/{mapType.ToString()}/chunkShadowMesh_{w}_{h}.asset");
+        AssetDatabase.CreateAsset(chunkShadowMesh, $"Assets/MapMeshData/ChunkShadowMesh/{mapType.ToString()}/chunkShadowMesh_{w}_{h}.asset");
     }
 
     private void DeleteAllChild(Transform parent)

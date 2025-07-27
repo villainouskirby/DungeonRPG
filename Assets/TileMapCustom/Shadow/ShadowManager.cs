@@ -22,7 +22,6 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
     {
         _handleDic = new();
         ActiveShadow = new();
-        _handleDic = new();
 
         Pool.Init(CM.Instance.ViewChunkSize);
     }

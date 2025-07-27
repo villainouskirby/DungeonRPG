@@ -28,6 +28,8 @@ public class ExtractorMaster : MonoBehaviour
     public List<MapSpriteList> ShadowSettings;
 
     [HideInInspector]
+    public int[] WallSpriteIndex;
+    [HideInInspector]
     public int[] ShadowSpriteIndex;
     [HideInInspector]
     public Vector2Int StartPos;

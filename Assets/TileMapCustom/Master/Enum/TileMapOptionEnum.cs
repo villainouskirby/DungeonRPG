@@ -10,11 +10,10 @@ public enum TileMapOptionEnum
 
 public enum TileMapOptionPrimeEnum
 {
-    WallColliderManager = 3,
-    InteractionObjManager = 4,
+    InteractionObjManager = 3,
     SpawnerManager = 2,
     MapVisitedChecker = 1,
-    CameraAreaManager = 5,
+    CameraAreaManager = 4,
 }
 
 public enum TileMapBasePrimeEnum
@@ -24,5 +23,7 @@ public enum TileMapBasePrimeEnum
     ChunkManager =          PlayerMoveChecker + 1,
     MapManager =            ChunkManager + 1,
     DecoManager =           MapManager + 1,
-    ShadowManager = DecoManager + 1,
+    WallManager =           DecoManager + 1,
+    NavMeshManager =        WallManager + 1,
+    ShadowManager =         NavMeshManager + 1,
 }

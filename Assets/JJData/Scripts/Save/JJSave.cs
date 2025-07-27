@@ -153,6 +153,41 @@ public static class JJSave
     }
     #endregion
 
+    #region Save&Load - Assets
+    public static void ASave<T>(T target, string saveDataName, string fileRoot, bool compress = true)
+    {
+#if !UNITY_EDITOR
+        // Assets에 저장하는건 Editor 상으로 제한. Adressables 전용임.
+        // 따라서 Load는 존재안함.
+        return;
+#endif
+
+        ReadOnlySpan<byte> typeByte;
+        if (compress)
+            typeByte = Compress(Type2TypeByteConverter.Convert(target));
+        else
+            typeByte = Type2TypeByteConverter.Convert(target);
+
+        string path = GetSavePath(saveDataName, fileRoot);
+        if (File.Exists(path))
+            File.Delete(path);
+        using var fileStream = new FileStream(path, FileMode.Create);
+        try
+        {
+            fileStream.Write(typeByte);
+            Debug.Log($"JJSave : Data saved to {path}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"JJSave : Failed to save data - {e}");
+        }
+        finally
+        {
+            fileStream.Close();
+        }
+    }
+    #endregion
+
     #region Save&Load - Save
     public static void LSave<T>(T target, string saveDataName, string fileRoot = "", bool compress = true)
     {

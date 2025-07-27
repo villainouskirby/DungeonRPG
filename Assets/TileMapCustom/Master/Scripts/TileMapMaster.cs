@@ -147,7 +147,7 @@ public class TileMapMaster : MonoBehaviour
         }
 
         // 벽 생성 시작
-        Player.GetComponent<WallColliderGenerator>().Init();
+        //Player.GetComponent<WallColliderGenerator>().Init();
         //GuideController.InitializeTileMap();
     }
 
@@ -185,7 +185,7 @@ public class TileMapMaster : MonoBehaviour
         }
 
         // 벽 생성 시작
-        Player.GetComponent<WallColliderGenerator>().Init();
+        //Player.GetComponent<WallColliderGenerator>().Init();
         //GuideController.InitializeTileMap();
     }
 

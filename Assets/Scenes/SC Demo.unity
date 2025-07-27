@@ -19255,12 +19255,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 1513623986}
   amount: 1
-  shopItems: {fileID: 0}
+  shopItems:
+  - _data:
+      rid: -2
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1001 &976019401
 PrefabInstance:
   m_ObjectHideFlags: 0
