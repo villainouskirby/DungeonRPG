@@ -6,34 +6,56 @@ public sealed class MonsterSpecialState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
+
+    int curIdx = -1;              // specialBehaviours 순환 인덱스
     Coroutine running;
+    IMonsterBehaviour curBeh;
 
     public MonsterSpecialState(MonsterContext c, MonsterStateMachine r) { ctx = c; root = r; }
 
-    public void Enter()
+    public void Enter() => PickAndRun();
+    public void Exit() => Interrupt();
+    public void Tick()
     {
-        if (ctx.data.specialBehaviour == null)
+    }
+    void PickAndRun()
+    {
+        Interrupt();
+
+        var list = ctx.data.specialBehaviours;
+        if (list == null || list.Length == 0)
+        { root.ChangeState(new MonsterIdleState(ctx, root)); return; }
+
+        for (int i = 0; i < list.Length; ++i)
         {
-            root.ChangeState(new MonsterIdleState(ctx, root));
-            return;
+            curIdx = (curIdx + 1) % list.Length;
+            var beh = list[curIdx];
+            if (beh != null && beh.CanRun(ctx))
+            {
+                curBeh = beh;
+                running = ctx.mono.StartCoroutine(Wrap());
+                return;
+            }
         }
-        running = ctx.mono.StartCoroutine(RunSpecial());
+
+        // 실행할 게 없다면 Idle
+        root.ChangeState(new MonsterIdleState(ctx, root));
     }
 
-    IEnumerator RunSpecial()
+    IEnumerator Wrap()
     {
-        yield return ctx.data.specialBehaviour.Execute(ctx);
-        root.ChangeState(new MonsterIdleState(ctx, root));   // 특수행동 끝나면 Idle 복귀
+        yield return curBeh.Execute(ctx);
+        PickAndRun();                    // 다음 특수 행동
     }
 
-    public void Tick() { /* 일반적으로 아무 것도 하지 않음 */ }
-
-    public void Exit()
+    void Interrupt()
     {
         if (running != null)
         {
-            ctx.data.specialBehaviour.OnInterrupt(ctx);
             ctx.mono.StopCoroutine(running);
+            curBeh?.OnInterrupt(ctx);
+            running = null;
+            curBeh = null;
         }
     }
 }
