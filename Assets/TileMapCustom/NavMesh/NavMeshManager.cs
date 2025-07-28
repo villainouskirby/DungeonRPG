@@ -14,14 +14,17 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 {
     public Dictionary<Vector2Int, NavMeshDataInstance> ActiveNav;
     private Dictionary<Vector2Int, AsyncOperationHandle> _handleDic;
-    public Dictionary<Vector2Int, NavMeshData> ForHelper;
     private MapEnum _currentMapType;
+    private AsyncOperationHandle _linkHandle;
+    private Dictionary<Vector2Int, List<NavMeshLinkInstance>> _chunkLinkInstance;
+    private Dictionary<Vector2Int, List<Vector2Int>> _chunkLink;
 
     public void Init()
     {
         _handleDic = new();
         ActiveNav = new();
-        ForHelper = new();
+        _chunkLinkInstance = new();
+        _chunkLink = new();
     }
 
     public void InitMap(MapEnum mapType)
@@ -36,6 +39,15 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         CM.Instance.ChunkUnloadAction += UnLoadNav;
 
         _currentMapType = mapType;
+
+        if (_linkHandle.IsValid())
+            Addressables.Release(_linkHandle);
+        _linkHandle = Addressables.LoadAssetAsync<TextAsset>($"{mapType.ToString()}_NavChunkLinkData");
+        _linkHandle.Completed += op =>
+        {
+            if (op.Status == AsyncOperationStatus.Succeeded)
+                _chunkLink = TypeByte2TypeConverter.Convert<Dictionary<Vector2Int, List<Vector2Int>>>(((TextAsset)op.Result).bytes);
+        };
     }
 
     public void StartMap(MapEnum mapType)
@@ -68,10 +80,9 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
     private void SetNav(NavMeshData data, Vector2Int chunkPos)
     {
         Vector3 pos = new Vector3(chunkPos.x * 16 + 8, chunkPos.y * 16 + 8, 0f);
-        var inst = NavMesh.AddNavMeshData(data, pos, Quaternion.identity);
+        var inst = NavMesh.AddNavMeshData(data);
         ActiveNav[chunkPos] = inst;
-        Debug.Log(data.name);
-        ForHelper[chunkPos] = data;
+        AddLink(chunkPos);
     }
 
     private void UnLoadNav(Vector2Int navPos)
@@ -86,6 +97,40 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
             Addressables.Release(_handleDic[navPos]);
             _handleDic.Remove(navPos);
         }
+
+        if (_chunkLinkInstance.ContainsKey(navPos))
+        {
+            List<NavMeshLinkInstance> linkData = _chunkLinkInstance[navPos];
+            for (int i = 0; i < linkData.Count; i++)
+                NavMesh.RemoveLink(linkData[i]);
+        }
+    }
+
+    private void AddLink(Vector2Int chunkPos)
+    {
+        if (!_chunkLink.ContainsKey(chunkPos))
+            return;
+        List<Vector2Int> pos = _chunkLink[chunkPos];
+        List<NavMeshLinkInstance> links = new();
+
+        for (int i = 0; i < pos.Count; i++)
+        {
+            NavMeshBuildSettings buildSettings = NavMesh.GetSettingsByID(0);
+            Vector3 worldPos = new(pos[i].x - 0.5f + chunkPos.x * 16 + 8, pos[i].y + 0.5f + chunkPos.y * 16 + 8);
+            Debug.Log(pos[i]);
+            var linkData = new NavMeshLinkData
+            {
+                startPosition = worldPos,
+                endPosition = worldPos,
+                width = 0.2f,
+                bidirectional = true,
+                area = 0,
+                agentTypeID = buildSettings.agentTypeID,
+            };
+
+            links.Add(NavMesh.AddLink(linkData));
+        }
+        _chunkLinkInstance[chunkPos] = links;
     }
 
     public int Prime => (int)TileMapBasePrimeEnum.NavMeshManager;

@@ -4,20 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.U2D;
 using EM = ExtractorMaster;
-using NavMeshSurface = NavMeshPlus.Components.NavMeshSurface;
 
-public class NavMeshxtractor : MonoBehaviour, IExtractorLate
+public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 {
     public string DataPath;
     public GameObject WallRoot;
@@ -25,11 +21,15 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
 
     private CompositeCollider2D _groundComposite;
     private CompositeCollider2D _wallComposite;
+    private Dictionary<(Vector2Int c1, Vector2Int c2), bool> _chunkConnect;
+    private Dictionary<Vector2Int, List<Vector2Int>> ChunkLinkData;
 
     public void Extract(MapEnum mapType, TileMapData mapData)
     {
         _groundComposite = GroundRoot.GetComponent<CompositeCollider2D>();
         _wallComposite = WallRoot.GetComponent<CompositeCollider2D>();
+        _chunkConnect = new();
+        ChunkLinkData = new();
 
         DataPath = $"{Application.dataPath}/MapMeshData/ChunkNavMesh/";
         string folder = $"{DataPath}{mapType.ToString()}/";
@@ -45,11 +45,13 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         None = 0,
         Wall = 1,
         Ground = 2,
+        Empty = 3,
     }
 
     private IEnumerator ExtractTilemap2ChunkNavMesh(MapEnum mapType, TileMapData mapData)
     {
-        TileType[,] chunkData = new TileType[16, 16];
+        TileType[,] chunkData = new TileType[18, 18];
+        List<Vector2Int> chunkLinkData = new();
         string groupName = $"{mapType.ToString()}_ChunkNavMesh";
 
         var settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -70,6 +72,11 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         {
             for (int h = 0; h < mapData.All.Height; h++)
             {
+                for (int i = 0; i < 18; i++)
+                    for (int j = 0; j < 18; j++)
+                        chunkData[i, j] = TileType.None;
+                chunkLinkData.Clear();
+
                 int chunkStartIndex = w + h * mapData.All.Width;
                 int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
 
@@ -93,21 +100,272 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
                         }
 
                         if (isWall)
-                            chunkData[x, y] = TileType.Wall;
+                            chunkData[x + 1, y + 1] = TileType.Wall;
                         else if (isEmpty)
-                            chunkData[x, y] = TileType.None;
+                            chunkData[x + 1, y + 1] = TileType.Empty;
                         else
-                            chunkData[x, y] = TileType.Ground;
+                            chunkData[x + 1, y + 1] = TileType.Ground;
                     }
                 }
 
-                GenerateFromGrid(chunkData);
+                if (w != 0) // 좌측
+                {
+                    Vector2Int c1 = new(w, h);
+                    Vector2Int c2 = new(w - 1, h);
+                    if (!_chunkConnect.ContainsKey((c2, c1)) || !_chunkConnect[(c2, c1)])
+                    {
+                        _chunkConnect[(c2, c1)] = true;
+
+                        chunkStartIndex = (w - 1) + h * mapData.All.Width;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int x = 15;
+                        bool isWall;
+
+                        for (int y = 0; y <= EM.ChunkSize; y++)
+                        {
+                            if (chunkData[1, y + 1] == TileType.Ground)
+                            {
+                                isWall = false;
+                                int index = x + y * EM.ChunkSize + localStartIndex;
+
+                                for (int i = 0; i < mapData.All.LayerCount; i++)
+                                {
+                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    {
+                                        isWall = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!isWall)
+                                {
+                                    chunkData[0, y + 1] = TileType.Ground;
+                                    chunkLinkData.Add(new(-9, y - 8));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (h != 0) // 하단
+                {
+                    Vector2Int c1 = new(w, h);
+                    Vector2Int c2 = new(w, h - 1);
+                    if (!_chunkConnect.ContainsKey((c2, c1)) || !_chunkConnect[(c2, c1)])
+                    {
+                        _chunkConnect[(c2, c1)] = true;
+
+                        chunkStartIndex = w + (h - 1) * mapData.All.Width;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int y = 15;
+                        bool isWall;
+
+                        for (int x = 0; x <= EM.ChunkSize; x++)
+                        {
+                            if (chunkData[x + 1, 1] == TileType.Ground)
+                            {
+                                isWall = false;
+                                int index = x + y * EM.ChunkSize + localStartIndex;
+
+                                for (int i = 0; i < mapData.All.LayerCount; i++)
+                                {
+                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    {
+                                        isWall = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!isWall)
+                                {
+                                    chunkData[x + 1, 0] = TileType.Ground;
+                                    chunkLinkData.Add(new(x - 8, -9));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (w != mapData.All.Width - 1) // 우측
+                {
+                    Vector2Int c1 = new(w, h);
+                    Vector2Int c2 = new(w + 1, h);
+                    if (!_chunkConnect.ContainsKey((c1, c2)) || !_chunkConnect[(c1, c2)])
+                    {
+                        _chunkConnect[(c1, c2)] = true;
+
+                        chunkStartIndex = (w + 1) + h * mapData.All.Width;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int x = 0;
+                        bool isWall;
+
+                        for (int y = 0; y <= EM.ChunkSize; y++)
+                        {
+                            if (chunkData[16, y + 1] == TileType.Ground)
+                            {
+                                isWall = false;
+                                int index = x + y * EM.ChunkSize + localStartIndex;
+
+                                for (int i = 0; i < mapData.All.LayerCount; i++)
+                                {
+                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    {
+                                        isWall = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!isWall)
+                                {
+                                    chunkData[17, y + 1] = TileType.Ground;
+                                    chunkLinkData.Add(new(9, y - 8));
+                                }
+                            }
+                        }
+                    }
+                }
+                if (h != mapData.All.Height - 1) // 상단
+                {
+                    Vector2Int c1 = new(w, h);
+                    Vector2Int c2 = new(w, h + 1);
+                    if (!_chunkConnect.ContainsKey((c1, c2)) || !_chunkConnect[(c1, c2)])
+                    {
+                        _chunkConnect[(c1, c2)] = true;
+
+                        chunkStartIndex = w + (h + 1) * mapData.All.Width;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int y = 0;
+                        bool isWall;
+
+                        for (int x = 0; x <= EM.ChunkSize; x++)
+                        {
+                            if (chunkData[x + 1, 16] == TileType.Ground)
+                            {
+                                isWall = false;
+                                int index = x + y * EM.ChunkSize + localStartIndex;
+
+                                for (int i = 0; i < mapData.All.LayerCount; i++)
+                                {
+                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    {
+                                        isWall = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!isWall)
+                                {
+                                    chunkData[x + 1, 17] = TileType.Ground;
+                                    chunkLinkData.Add(new(x - 8, 9));
+                                }
+                            }
+                        }
+                    }
+                }
+                // 좌측 하단
+                if (chunkData[0, 1] == TileType.Ground && chunkData[1, 0] == TileType.Ground)
+                {
+                    chunkStartIndex = (w - 1) + (h - 1) * mapData.All.Width;
+                    localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                    bool isWall = false;
+                    int index = 15 + 15 * EM.ChunkSize + localStartIndex;
+
+                    for (int i = 0; i < mapData.All.LayerCount; i++)
+                    {
+                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        {
+                            isWall = true;
+                            break;
+                        }
+                    }
+
+                    if (!isWall)
+                    {
+                        chunkData[0, 0] = TileType.Ground;
+                        chunkLinkData.Add(new(-9, -9));
+                    }
+                }
+                // 좌측 상단
+                if (chunkData[0, 16] == TileType.Ground && chunkData[1, 17] == TileType.Ground)
+                {
+                    chunkStartIndex = (w - 1) + (h + 1) * mapData.All.Width;
+                    localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                    bool isWall = false;
+                    int index = 15 + 0 * EM.ChunkSize + localStartIndex;
+
+                    for (int i = 0; i < mapData.All.LayerCount; i++)
+                    {
+                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        {
+                            isWall = true;
+                            break;
+                        }
+                    }
+
+                    if (!isWall)
+                    {
+                        chunkData[0, 17] = TileType.Ground;
+                        chunkLinkData.Add(new(-9, 9));
+                    }
+                }
+                // 우측 하단
+                if (chunkData[17, 1] == TileType.Ground && chunkData[16, 0] == TileType.Ground)
+                {
+                    chunkStartIndex = (w + 1) + (h - 1) * mapData.All.Width;
+                    localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                    bool isWall = false;
+                    int index = 0 + 15 * EM.ChunkSize + localStartIndex;
+
+                    for (int i = 0; i < mapData.All.LayerCount; i++)
+                    {
+                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        {
+                            isWall = true;
+                            break;
+                        }
+                    }
+
+                    if (!isWall)
+                    {
+                        chunkData[17, 0] = TileType.Ground;
+                        chunkLinkData.Add(new(9, -9));
+                    }
+                }
+                // 우측 상단
+                if (chunkData[17, 16] == TileType.Ground && chunkData[16, 17] == TileType.Ground)
+                {
+                    chunkStartIndex = (w + 1) + (h + 1) * mapData.All.Width;
+                    localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                    bool isWall = false;
+                    int index = 0 + 0 * EM.ChunkSize + localStartIndex;
+
+                    for (int i = 0; i < mapData.All.LayerCount; i++)
+                    {
+                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        {
+                            isWall = true;
+                            break;
+                        }
+                    }
+
+                    if (!isWall)
+                    {
+                        chunkData[17, 17] = TileType.Ground;
+                        chunkLinkData.Add(new(9, 9));
+                    }
+                }
+
+                ChunkLinkData[new(w, h)] = chunkLinkData.ToList();
+
+                GenerateFromGrid(chunkData, w , h);
                 yield return StartCoroutine(MakeChunkNav(mapType, w, h));
                 DeleteAllChild(transform);
             }
         }
 
+        JJSave.ASave(ChunkLinkData, $"NavChunkLinkData", $"MapMeshData/ChunkNavMesh/{mapType.ToString()}/", false);
+
         yield return null;
+
+        RegisterAddressable(group, $"{mapType}_NavChunkLinkData", $"Assets/MapMeshData/ChunkNavMesh/{mapType.ToString()}/NavChunkLinkData.bytes");
 
         for (int w = 0; w < mapData.All.Width; w++)
         {
@@ -121,36 +379,48 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         AssetDatabase.SaveAssets();
     }
 
-    public Mesh CreateMeshFromComposite(CompositeCollider2D composite)
+    public Mesh CreateMesh(CompositeCollider2D composite)
     {
-        Mesh mesh = new();
-        List<Vector3> vertices = new();
-        List<int> triangles = new();
+        if (composite == null)
+        {
+            Debug.LogError("CompositeCollider2D is null!");
+            return new Mesh();
+        }
 
-        int pathCount = composite.pathCount;
+        Mesh mesh = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
         int vertexOffset = 0;
 
+        int pathCount = composite.pathCount;
         for (int p = 0; p < pathCount; p++)
         {
             int pointCount = composite.GetPathPointCount(p);
-            Vector2[] path2D = new Vector2[pointCount];
-            composite.GetPath(p, path2D);
+            if (pointCount < 3) continue;
 
-            int[] idx = Triangulate(path2D);
+            Vector2[] pts = new Vector2[pointCount];
+            composite.GetPath(p, pts);
 
-            for (int i = 0; i < path2D.Length; i++)
-            {
-                vertices.Add(new Vector3(path2D[i].x, path2D[i].y, 0f));
-            }
+            if (SignedArea(pts) < 0f)
+                Array.Reverse(pts);
+
+            pts = RemoveDuplicates(pts);
+            if (pts.Length < 3) continue;
+
+            int[] idx = Triangulate(pts);
+            if (idx.Length < 3) continue;
+
+            for (int i = 0; i < pts.Length; i++)
+                vertices.Add(new Vector3(pts[i].x, pts[i].y, 0f));
 
             for (int i = 0; i < idx.Length; i += 3)
             {
-                triangles.Add(idx[i + 0] + vertexOffset);
-                triangles.Add(idx[i + 1] + vertexOffset);
-                triangles.Add(idx[i + 2] + vertexOffset);
+                triangles.Add(vertexOffset + idx[i + 0]);
+                triangles.Add(vertexOffset + idx[i + 1]);
+                triangles.Add(vertexOffset + idx[i + 2]);
             }
 
-            vertexOffset += path2D.Length;
+            vertexOffset += pts.Length;
         }
 
         mesh.SetVertices(vertices);
@@ -159,76 +429,94 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         mesh.RecalculateBounds();
         return mesh;
 
+
+        // ──────────── 지역 함수들 ────────────
+
+        float SignedArea(Vector2[] poly)
+        {
+            float area = 0f;
+            for (int i = 0, j = poly.Length - 1; i < poly.Length; j = i++)
+            {
+                area += (poly[j].x * poly[i].y) - (poly[i].x * poly[j].y);
+            }
+            return area * 0.5f;
+        }
+
+        Vector2[] RemoveDuplicates(Vector2[] input)
+        {
+            List<Vector2> list = new List<Vector2>();
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (i == 0 || Vector2.Distance(list[list.Count - 1], input[i]) > Mathf.Epsilon)
+                    list.Add(input[i]);
+            }
+            if (list.Count > 1 && Vector2.Distance(list[0], list[list.Count - 1]) < Mathf.Epsilon)
+                list.RemoveAt(list.Count - 1);
+            return list.ToArray();
+        }
+
         int[] Triangulate(Vector2[] pts)
         {
-            List<int> result = new();
-            List<int> V = new();
+            List<int> result = new List<int>();
+            List<int> V = new List<int>();
             for (int i = 0; i < pts.Length; i++)
-            {
                 V.Add(i);
-            }
 
-            while (V.Count >= 3)
+            int safety = pts.Length * pts.Length;
+            while (V.Count >= 3 && safety-- > 0)
             {
-                for (int i = 0; i < V.Count; i++)
+                bool earFound = false;
+                for (int vi = 0; vi < V.Count; vi++)
                 {
-                    int i0 = V[(i + V.Count - 1) % V.Count];
-                    int i1 = V[i];
-                    int i2 = V[(i + 1) % V.Count];
+                    int i0 = V[(vi + V.Count - 1) % V.Count];
+                    int i1 = V[vi];
+                    int i2 = V[(vi + 1) % V.Count];
 
-                    Vector2 a = pts[i0];
-                    Vector2 b = pts[i1];
-                    Vector2 c = pts[i2];
-
-                    if (IsConvex(a, b, c) && NoPointInTri(a, b, c))
+                    Vector2 a = pts[i0], b = pts[i1], c = pts[i2];
+                    if (IsConvex(a, b, c) && NoPointInTri(a, b, c, pts, V))
                     {
-                        result.Add(i0);
-                        result.Add(i1);
                         result.Add(i2);
-                        V.RemoveAt(i);
+                        result.Add(i1);
+                        result.Add(i0);
+                        V.RemoveAt(vi);
+                        earFound = true;
                         break;
                     }
                 }
+                if (!earFound) break;
             }
 
             return result.ToArray();
+        }
 
-            bool IsConvex(Vector2 a, Vector2 b, Vector2 c)
+        bool IsConvex(Vector2 a, Vector2 b, Vector2 c)
+            => ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) > 0f;
+
+        bool NoPointInTri(Vector2 a, Vector2 b, Vector2 c, Vector2[] pts2, List<int> verts)
+        {
+            for (int j = 0; j < verts.Count; j++)
             {
-                return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) > 0f;
+                Vector2 p = pts2[verts[j]];
+                if (!p.Equals(a) && !p.Equals(b) && !p.Equals(c) && PointInTriangle(p, a, b, c))
+                    return false;
             }
+            return true;
+        }
 
-            bool NoPointInTri(Vector2 a, Vector2 b, Vector2 c)
-            {
-                for (int j = 0; j < V.Count; j++)
-                {
-                    Vector2 p = pts[V[j]];
-                    if (p != a && p != b && p != c && PointInTriangle(p, a, b, c))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            bool PointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
-            {
-                Vector2 v0 = c - a;
-                Vector2 v1 = b - a;
-                Vector2 v2 = p - a;
-
-                float dot00 = Vector2.Dot(v0, v0);
-                float dot01 = Vector2.Dot(v0, v1);
-                float dot02 = Vector2.Dot(v0, v2);
-                float dot11 = Vector2.Dot(v1, v1);
-                float dot12 = Vector2.Dot(v1, v2);
-
-                float invDenom = 1f / (dot00 * dot11 - dot01 * dot01);
-                float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-                float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
-                return (u >= 0f) && (v >= 0f) && (u + v < 1f);
-            }
+        bool PointInTriangle(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+        {
+            Vector2 v0 = c - a;
+            Vector2 v1 = b - a;
+            Vector2 v2 = p - a;
+            float dot00 = Vector2.Dot(v0, v0);
+            float dot01 = Vector2.Dot(v0, v1);
+            float dot02 = Vector2.Dot(v0, v2);
+            float dot11 = Vector2.Dot(v1, v1);
+            float dot12 = Vector2.Dot(v1, v2);
+            float invDenom = 1f / (dot00 * dot11 - dot01 * dot01);
+            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+            return (u >= 0f) && (v >= 0f) && (u + v < 1f);
         }
     }
 
@@ -237,8 +525,8 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         yield return null;
         _groundComposite.GenerateGeometry();
         _wallComposite.GenerateGeometry();
-        Mesh groundMesh = CreateMeshFromComposite(_groundComposite);
-        Mesh wallMesh = CreateMeshFromComposite(_wallComposite);
+        Mesh groundMesh = CreateMesh(_groundComposite);
+        Mesh wallMesh = CreateMesh(_wallComposite);
 
         List<NavMeshBuildSource> sources = new();
 
@@ -248,7 +536,7 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         srcGround.area = 0;
         srcGround.transform = Matrix4x4.TRS(
         new Vector3(w * 16f, h * 16f, 0f),
-        Quaternion.identity,
+        Quaternion.Euler(0, 0f, 0f),
         Vector3.one);
 
         sources.Add(srcGround);
@@ -257,34 +545,30 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
         srcWall.shape = NavMeshBuildSourceShape.Mesh;
         srcWall.sourceObject = wallMesh;
         srcWall.area = 1;
-        srcGround.transform = Matrix4x4.TRS(
+        srcWall.transform = Matrix4x4.TRS(
         new Vector3(w * 16f, h * 16f, 0f),
-        Quaternion.identity,
+        Quaternion.Euler(0, 0f, 0f),
         Vector3.one);
         sources.Add(srcWall);
 
         NavMeshBuildSettings buildSettings = NavMesh.GetSettingsByID(0);
+        buildSettings.agentRadius = 0f;
 
-        Bounds bounds = new(
-            new(w * 16f + 8f, h * 16f + 8f, 0f),
-            new(16f, 16f, 2f)
+        var bounds = new Bounds(
+          new Vector3(8f + w * 16f, 0, 8f + h * 16f),
+          new Vector3(18f, 1f, 18f)
         );
-        Vector3 positionOffset = new(w * 16, h * 16, 0);
-        Quaternion rotationOffset = Quaternion.identity;
+
+        Vector3 positionOffset = new(0, 0, 0);
+        Quaternion rotationOffset = Quaternion.Euler(new(-90, 0, 0));
 
         NavMeshData navData = NavMeshBuilder.BuildNavMeshData(
             buildSettings,
             sources,
             bounds,
-            Vector3.zero,
+            positionOffset,
             rotationOffset
         );
-
-        GameObject visualObj = new("VisualObj");
-        var surface = visualObj.AddComponent<NavMeshSurface>();
-        surface.navMeshData = navData;
-        surface.AddData();
-        visualObj.transform.position = positionOffset;
 
         NavMesh.AddNavMeshData(navData);
 
@@ -300,18 +584,30 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
             Destroy(childs[i].gameObject);
     }
 
-    private void GenerateFromGrid(TileType[,] grid)
+    private void GenerateFromGrid(TileType[,] grid, int w, int h)
     {
-        for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 16; y++)
+        for (int x = -1; x <= 16; x++)
+        {
+            for (int y = -1; y <= 16; y++)
             {
                 GameObject go;
                 BoxCollider2D bc;
 
-                switch (grid[x, y])
+                int correctX = x + 1;
+                int correctY = y + 1;
+
+                switch (grid[correctX, correctY])
                 {
                     case TileType.None:
-                        continue;
+                        break;
+                    case TileType.Empty:
+                        go = new GameObject($"WallTile");
+                        go.transform.SetParent(WallRoot.transform, false);
+                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        bc = go.AddComponent<BoxCollider2D>();
+                        bc.size = Vector2.one;
+                        bc.usedByComposite = true;
+                        break;
                     case TileType.Wall:
                         go = new GameObject($"WallTile");
                         go.transform.SetParent(WallRoot.transform, false);
@@ -319,7 +615,6 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
                         bc = go.AddComponent<BoxCollider2D>();
                         bc.size = Vector2.one;
                         bc.usedByComposite = true;
-                        Debug.Log("벽생성");
                         break;
                     case TileType.Ground:
                         go = new GameObject($"GroundTile");
@@ -331,43 +626,7 @@ public class NavMeshxtractor : MonoBehaviour, IExtractorLate
                         break;
                 }
             }
-
-        for (int x = 0; x < 16; x++)
-            for (int y = 0; y < 16; y++)
-            {
-                GameObject testRoot = new($"Test{x}{y}");
-                GameObject wallTest = new("wall");
-                wallTest.AddComponent<CompositeCollider2D>();
-                wallTest.AddComponent<Rigidbody2D>();
-                GameObject groundTest = new("ground");
-                groundTest.AddComponent<CompositeCollider2D>();
-                groundTest.AddComponent<Rigidbody2D>();
-                GameObject go;
-                BoxCollider2D bc;
-
-                switch (grid[x, y])
-                {
-                    case TileType.None:
-                        continue;
-                    case TileType.Wall:
-                        go = new GameObject($"WallTile");
-                        go.transform.SetParent(wallTest.transform, false);
-                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
-                        bc = go.AddComponent<BoxCollider2D>();
-                        bc.size = Vector2.one;
-                        bc.usedByComposite = true;
-                        Debug.Log("벽생성");
-                        break;
-                    case TileType.Ground:
-                        go = new GameObject($"GroundTile");
-                        go.transform.SetParent(groundTest.transform, false);
-                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
-                        bc = go.AddComponent<BoxCollider2D>();
-                        bc.size = Vector2.one;
-                        bc.usedByComposite = true;
-                        break;
-                }
-            }
+        }
     }
 
     private void RegisterAddressable(AddressableAssetGroup group, string keyName, string assetPath)
