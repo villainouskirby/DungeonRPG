@@ -6,14 +6,23 @@ public class Shop : MonoBehaviour
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ShopUI _shopUI;
 
-    private List<ShopItem> _shopItems = new();
-    private List<ShopItem> _inventorySellItems = new();
-    private List<Item> _inventoryItems = new();
+    private List<Item> _shopItems = new(); // db에서 판매목록 리스트 가져와야함
 
     private void Awake()
     {
+        // db에서 상점데이터 가져오기
         InitShop();
+    }
+
+    private void OnEnable()
+    {
         InitInvenToShop();
+        _inventory.OnInventoryChanged += UpdateSlot;
+    }
+
+    private void OnDisable()
+    {
+        _inventory.OnInventoryChanged -= UpdateSlot;
     }
 
     /// <summary> 상점 열기 </summary>
@@ -22,9 +31,14 @@ public class Shop : MonoBehaviour
     /// <summary> 상점 닫기 </summary>
     public void CloseShop() => gameObject.SetActive(false);
 
+    public void AddShopItem(Item item)
+    {
+        _shopItems.Add(item);
+    }
+
     /// <summary>
     /// 상점 품목 초기화
-    /// <para/> 한번만 초기화 해주면 됨 => 건들필요 X
+    /// <para/> 변동사항 있을 시 _shotItems 변경이 완료 된 후 호출
     /// </summary>
     public void InitShop()
     {
@@ -36,146 +50,86 @@ public class Shop : MonoBehaviour
 
     /// <summary>
     /// 상점에 나타나는 인벤토리 초기화
-    /// <para/> 외부에서 인벤에 변화가 있을 때 마다 호출해 줘야함
     /// </summary>
     public void InitInvenToShop()
     {
-        _inventorySellItems.Clear();
-        
-        foreach (Item item in _inventoryItems)
+        for (int i = 0; i < _inventory.InventoryItems.Count; i++)
         {
+            Item item = _inventory.InventoryItems[i];
+
             if (item is CountableItem ci)
             {
-                AddItem(item.Data, ci.Amount);
+                UpdateSlot(i, ci.Amount);
             }
             else
             {
-                AddItem(item.Data, 1);
+                UpdateSlot(i, 1);
             }
         }
     }
 
-    public void AddItem(ItemData itemData, int amount)
+    /// <summary> 슬롯 아이템 수 업데이트 </summary>
+    /// <param name="amount"> 현재 아이템 수 </param>
+    public void UpdateSlot(int index, int amount)
     {
-        int index;
-        int price = 10; // DB에서 아이템 가격 불러오기
-
-        // 수량이 있는 아이템
-        if (itemData is CountableItemData ciData)
+        if (amount <= 0)
         {
-            // 이미 아이템이 존재하는지, 용량의 여유가 있는지 체크
-            bool findNextCountable = true;
-            index = -1;
-
-            while (amount > 0)
-            {
-                if (findNextCountable)
-                {
-                    index = FindCountableItemSlotIndex(ciData, index);
-
-                    if (index == -1)
-                    {
-                        findNextCountable = false;
-                    }
-                    else
-                    {
-                        CountableItem ci = _inventoryItems[index] as CountableItem;
-                        amount = _inventorySellItems[index].AddAmountAndGetExcess(amount);
-
-                        UpdateSlot(index);
-                    }
-                }
-                else
-                {
-                    // 새 아이템 생성
-                    ShopItem si = new ShopItem(ciData, price, amount);
-
-                    // 슬롯에 추가
-                    index = _inventorySellItems.Count;
-                    _inventorySellItems.Add(si);
-
-                    // 남은 개수 계산
-                    amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
-
-                    UpdateSlot(index);
-                }
-            }
-        }
-        // 수량이 없는 아이템
-        else
-        {
-            for (; amount > 0; amount--)
-            {
-                // 아이템 생성 및 슬롯에 추가
-                index = _inventorySellItems.Count;
-                _inventorySellItems.Add(new ShopItem(itemData, price, 1));
-
-                UpdateSlot(index);
-            }
-        }
-    }
-
-    public void UpdateSlot(int index)
-    {
-        ShopItem si = _inventorySellItems[index];
-
-        _shopUI.SetInventoryItemSlot(index, si);
-
-        if (si.Amount == 0)
-        {
-            _inventorySellItems.RemoveAt(index);
             _shopUI.RemoveSlot(index);
+            return;
+        }
+
+        Item item = _inventory.InventoryItems[index];
+
+        _shopUI.SetInventoryItemSlot(index, item);
+
+        if (item is CountableItem)
+        {
+            _shopUI.SetItemAmountText(index, amount);
         }
         else
         {
-            if (si.Data is CountableItemData)
-            {
-                _shopUI.SetItemAmountText(index, si.Amount);
-            }
-            else
-            {
-                _shopUI.SetItemAmountText(index);
-            }
+            _shopUI.SetItemAmountText(index);
         }
-
-    }
-
-    private int FindCountableItemSlotIndex(CountableItemData ciData, int index)
-    {
-        while (++index < _inventorySellItems.Count)
-        {
-            if (_inventorySellItems[index].Data.SID == ciData.SID) return index;
-        }
-        return -1;
     }
 
     public void Trade(int index, int amount) 
     {
-        ShopItem item = GetItemData(index);
-        if (_shopUI.Type == ShopType.buy)
+        Item item = GetItemData(index);
+        int price;
+
+        switch (_shopUI.Type)
         {
-            _inventory.AddItem(item.Data, amount);
-            AddItem(item.Data, amount);
-        }
-        else
-        {
-            _inventory.RemoveItem(index, amount);
-            item.SetAmount(item.Amount - amount);
-            UpdateSlot(index);
+            case ShopType.purchase:
+                _inventory.AddItem(item.Data, amount);
+                price = item.Data.Info.Purchase_price;
+                break;
+
+            case ShopType.sell:
+                _inventory.RemoveItem(index, amount);
+                price = item.Data.Info.Sell_price;
+                break;
+
+            default:
+                Debug.Log("상점 타입 오류");
+                return;
         }
 
-        _inventory.UpdateGoldAmount(item.Price * amount * (int)_shopUI.Type);
+       _inventory.UpdateGoldAmount(price * amount * (int)_shopUI.Type);
     }
 
-    public ShopItem GetItemData(int index)
+    public Item GetItemData(int index)
     {
-        if (_shopUI.Type == ShopType.buy)
+        switch (_shopUI.Type)
         {
-            return (_shopItems.Count > index && index >= 0) ? _shopItems[index] : null;
-        }
-        else
-        {
-            return (_inventorySellItems.Count > index && index >= 0) ? _inventorySellItems[index] : null;
+            case ShopType.purchase:
+                return (_shopItems.Count > index && index >= 0) ? _shopItems[index] : null;
+
+            case ShopType.sell:
+                return (_inventory.InventoryItems.Count > index && index >= 0) ? _inventory.InventoryItems[index] : null;
+
+            default:
+                Debug.Log("상점 타입 오류");
+                return null;
         }
     }
 

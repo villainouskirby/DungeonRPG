@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class SlotUI : MonoBehaviour
 {
     [Tooltip("아이템 이미지")]
-    [SerializeField] private Image _image;
+    [SerializeField] protected Image _image;
 
     private void Awake()
     {

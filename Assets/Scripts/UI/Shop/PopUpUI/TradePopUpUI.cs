@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TradePopUpUI : AmountSelectPopUpUI
@@ -26,18 +27,38 @@ public class TradePopUpUI : AmountSelectPopUpUI
 
     public override void SetItemData(int index)
     {
-        ShopItem shopItem = _shopUI.GetItemData(index);
-        ItemData itemData = shopItem.Data;
-        _price = shopItem.Price;
-        if (_shopUI.Type == ShopType.buy)
+        Item item = _shopUI.GetItemData(index);
+
+        switch (_shopUI.Type)
         {
-            _popUpName.text = "Buy";
-            SetItemData(index, itemData.IconSprite, itemData.Name, _shopUI.GetCurrentGold() / _price);
-        }
-        else
-        {
-            _popUpName.text = "Sell";
-            SetItemData(index, itemData.IconSprite, itemData.Name, shopItem.Amount);
+            case ShopType.purchase:
+                _popUpName.text = "Buy";
+                _price = item.Data.Info.Purchase_price;
+                int maxAmount = (_price <= 0) ? 99 : _shopUI.GetCurrentGold() / _price;
+
+                SetItemData(index, item.Data.IconSprite, item.Data.Name, maxAmount);
+                break;
+
+            case ShopType.sell:
+                _popUpName.text = "Sell";
+                _price = item.Data.Info.Sell_price;
+                int amount;
+
+                if (item is CountableItem ci)
+                {
+                    amount = ci.Amount;
+                }
+                else
+                {
+                    amount = 1;
+                }
+
+                SetItemData(index, item.Data.IconSprite, item.Data.Name, amount);
+                break;
+
+            default:
+                Debug.Log("상점 타입 에러");
+                return;
         }
 
         UpdateGoldText("1");

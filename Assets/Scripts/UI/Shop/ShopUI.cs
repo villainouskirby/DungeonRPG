@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public enum ShopType
 {
-    buy = -1,
+    purchase = -1,
     sell = 1
 }
 
@@ -28,26 +28,37 @@ public class ShopUI : SlotInteractHandler
     /// <summary> 선택된 슬롯 인덱스 </summary>
     private List<int> _selectedIndex = new List<int>();
 
-    private ShopType _type = ShopType.buy;
+    private ShopType _type = ShopType.purchase;
     public ShopType Type => _type;
 
-    public void CreateSlot(int index, List<ItemSlotUI> slots, ShopItem shopItem, ShopType tradeType)
+    public void CreateSlot(int index, List<ItemSlotUI> slots, Item shopItem, ShopType tradeType)
     {
         ItemSlotUI slotUI;
         GameObject newSlot;
-        if (tradeType == ShopType.buy)
+        int price;
+
+        switch (tradeType)
         {
-            newSlot = Instantiate(_itemSlotPrefab, _shopContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+            case ShopType.purchase:
+                newSlot = Instantiate(_itemSlotPrefab, _shopContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+                price = shopItem.Data.Info.Purchase_price;
+                break;
+
+            case ShopType.sell:
+                newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+                price = shopItem.Data.Info.Sell_price;
+                break;
+
+            default:
+                Debug.Log("상점 타입 에러");
+                return;
         }
-        else
-        {
-            newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
-        }
+
         if ((slotUI = newSlot.GetComponent<ItemSlotUI>()) == null) slotUI = newSlot.AddComponent<ItemSlotUI>();
         slots.Add(slotUI);
 
         // 기본정보 설정 => 상점이라 무게대신 가격으로 설정
-        slots[index].SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, shopItem.Price);
+        slots[index].SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, price);
     }
 
     public void RemoveSlot(int index)
@@ -56,13 +67,19 @@ public class ShopUI : SlotInteractHandler
         _inventorySlots.RemoveAt(index);
     }
 
-    public void SetShopItemSlot(int index, ShopItem shopItem)
+    public void SetShopItemSlot(int index, Item shopItem)
     {
         if (_shopSlots.Count == index)
         {
-            CreateSlot(index, _shopSlots, shopItem, ShopType.buy);
+            CreateSlot(index, _shopSlots, shopItem, ShopType.purchase);
         }
-        _shopSlots[index].SetItemAmount(shopItem.Amount);
+        else if (_inventorySlots.Count < index)
+        {
+            Debug.Log("index 오류");
+            return;
+        }
+
+        _shopSlots[index].SetItemAmount(99); // db에서 값 가져와야함
     }
 
     public void SetItemAmountText(int index, int amount = 1)
@@ -70,11 +87,16 @@ public class ShopUI : SlotInteractHandler
         _inventorySlots[index].SetItemAmount(amount);
     }
 
-    public void SetInventoryItemSlot(int index, ShopItem shopItem)
+    public void SetInventoryItemSlot(int index, Item shopItem)
     {
         if (_inventorySlots.Count == index)
         {
             CreateSlot(index, _inventorySlots, shopItem, ShopType.sell);
+        }
+        else if (_inventorySlots.Count < index)
+        {
+            Debug.Log("index 오류");
+            return;
         }
     }
 
@@ -83,7 +105,7 @@ public class ShopUI : SlotInteractHandler
         _shop.Trade(index, amount);
     }
 
-    public ShopItem GetItemData(int index)
+    public Item GetItemData(int index)
     {
         return _shop.GetItemData(index);
     }
@@ -92,7 +114,7 @@ public class ShopUI : SlotInteractHandler
 
     private int GetItemSlotIndex(ItemSlotUI slot)
     {
-        if (Type == ShopType.buy)
+        if (Type == ShopType.purchase)
         {
             return _shopSlots.IndexOf(slot);
         }
@@ -106,7 +128,7 @@ public class ShopUI : SlotInteractHandler
     {
         _shopScrollView.SetActive(true);
         _inventoryScrollView.SetActive(false);
-        _type = ShopType.buy;
+        _type = ShopType.purchase;
         ClearSelected();
     }
 
@@ -122,8 +144,18 @@ public class ShopUI : SlotInteractHandler
         int sum = 0;
         foreach (int i in _selectedIndex)
         {
-            ShopItem si = GetItemData(i);
-            sum += si.Amount * si.Price;
+            Item item = GetItemData(i);
+            int price = item.Data.Info.Sell_price;
+
+            if (item is CountableItem ci)
+            {
+                sum += ci.Amount * price;
+            }
+            else
+            {
+                sum += price;
+            }
+
         }
         _sellSelectedPopUpUI.SetInfo(sum);
     }
@@ -131,10 +163,20 @@ public class ShopUI : SlotInteractHandler
     public void SellSelectedSlot()
     {
         _selectedIndex.Sort((a, b) => b.CompareTo(a));
+
         foreach (int i in _selectedIndex)
         {
-            _shop.Trade(i, GetItemData(i).Amount);
+            Item item = GetItemData(i);
+            int amount = 1;
+
+            if (item is CountableItem ci)
+            {
+                amount = ci.Amount;
+            }
+
+            _shop.Trade(i, amount);
         }
+
         _selectedIndex.Clear();
     }
 
