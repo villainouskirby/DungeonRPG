@@ -121,7 +121,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                         int x = 15;
                         bool isWall;
 
-                        for (int y = 0; y <= EM.ChunkSize; y++)
+                        for (int y = 0; y < EM.ChunkSize; y++)
                         {
                             if (chunkData[1, y + 1] == TileType.Ground)
                             {
@@ -140,7 +140,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                                 if (!isWall)
                                 {
                                     chunkData[0, y + 1] = TileType.Ground;
-                                    chunkLinkData.Add(new(-9, y - 8));
+                                    chunkLinkData.Add(new(-1, y));
                                 }
                             }
                         }
@@ -159,7 +159,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                         int y = 15;
                         bool isWall;
 
-                        for (int x = 0; x <= EM.ChunkSize; x++)
+                        for (int x = 0; x < EM.ChunkSize; x++)
                         {
                             if (chunkData[x + 1, 1] == TileType.Ground)
                             {
@@ -178,7 +178,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                                 if (!isWall)
                                 {
                                     chunkData[x + 1, 0] = TileType.Ground;
-                                    chunkLinkData.Add(new(x - 8, -9));
+                                    chunkLinkData.Add(new(x, -1));
                                 }
                             }
                         }
@@ -197,7 +197,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                         int x = 0;
                         bool isWall;
 
-                        for (int y = 0; y <= EM.ChunkSize; y++)
+                        for (int y = 0; y < EM.ChunkSize; y++)
                         {
                             if (chunkData[16, y + 1] == TileType.Ground)
                             {
@@ -216,7 +216,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                                 if (!isWall)
                                 {
                                     chunkData[17, y + 1] = TileType.Ground;
-                                    chunkLinkData.Add(new(9, y - 8));
+                                    chunkLinkData.Add(new(16, y));
                                 }
                             }
                         }
@@ -235,7 +235,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                         int y = 0;
                         bool isWall;
 
-                        for (int x = 0; x <= EM.ChunkSize; x++)
+                        for (int x = 0; x < EM.ChunkSize; x++)
                         {
                             if (chunkData[x + 1, 16] == TileType.Ground)
                             {
@@ -254,7 +254,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                                 if (!isWall)
                                 {
                                     chunkData[x + 1, 17] = TileType.Ground;
-                                    chunkLinkData.Add(new(x - 8, 9));
+                                    chunkLinkData.Add(new(x, 16));
                                 }
                             }
                         }
@@ -280,7 +280,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                     if (!isWall)
                     {
                         chunkData[0, 0] = TileType.Ground;
-                        chunkLinkData.Add(new(-9, -9));
+                        chunkLinkData.Add(new(-1, -1));
                     }
                 }
                 // 좌측 상단
@@ -303,7 +303,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                     if (!isWall)
                     {
                         chunkData[0, 17] = TileType.Ground;
-                        chunkLinkData.Add(new(-9, 9));
+                        chunkLinkData.Add(new(-1, 16));
                     }
                 }
                 // 우측 하단
@@ -326,7 +326,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                     if (!isWall)
                     {
                         chunkData[17, 0] = TileType.Ground;
-                        chunkLinkData.Add(new(9, -9));
+                        chunkLinkData.Add(new(16, -1));
                     }
                 }
                 // 우측 상단
@@ -349,7 +349,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                     if (!isWall)
                     {
                         chunkData[17, 17] = TileType.Ground;
-                        chunkLinkData.Add(new(9, 9));
+                        chunkLinkData.Add(new(16, 16));
                     }
                 }
 

@@ -80,8 +80,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
     private void SetNav(NavMeshData data, Vector2Int chunkPos)
     {
         Vector3 pos = new Vector3(chunkPos.x * 16 + 8, chunkPos.y * 16 + 8, 0f);
-        var inst = NavMesh.AddNavMeshData(data);
-        ActiveNav[chunkPos] = inst;
+        ActiveNav[chunkPos] = NavMesh.AddNavMeshData(data);
         AddLink(chunkPos);
     }
 
@@ -92,7 +91,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
         if (ActiveNav.ContainsKey(navPos))
         {
-            ActiveNav[navPos].Remove();
+            NavMesh.RemoveNavMeshData(ActiveNav[navPos]);
             ActiveNav.Remove(navPos);
             Addressables.Release(_handleDic[navPos]);
             _handleDic.Remove(navPos);
@@ -116,7 +115,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         for (int i = 0; i < pos.Count; i++)
         {
             NavMeshBuildSettings buildSettings = NavMesh.GetSettingsByID(0);
-            Vector3 worldPos = new(pos[i].x - 0.5f + chunkPos.x * 16 + 8, pos[i].y + 0.5f + chunkPos.y * 16 + 8);
+            Vector3 worldPos = new(pos[i].x + 0.5f + chunkPos.x * 16, pos[i].y + 0.5f + chunkPos.y * 16 );
             Debug.Log(pos[i]);
             var linkData = new NavMeshLinkData
             {
