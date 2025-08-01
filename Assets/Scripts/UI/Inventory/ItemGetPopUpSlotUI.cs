@@ -17,7 +17,6 @@ public class ItemGetPopUpSlotUI : SlotUI
     [SerializeField] private TextMeshProUGUI _amountText;
 
     private RectTransform _rect;
-    private Image _image;
 
     private bool _isOpen = false;
 
@@ -75,7 +74,7 @@ public class ItemGetPopUpSlotUI : SlotUI
     private async UniTask WaitBeforeClose(CancellationToken token)
     {
         float startTime = Time.time;
-
+        
         while (Time.time - startTime < 10)
         {
             if (!_isOpen) return;

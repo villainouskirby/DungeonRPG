@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour, ISave
 {
+    public event Action<int, int> OnInventoryChanged;
+
     /// <summary> 남은 가방 용량(무게) </summary>
     public int RestCapacity { get; private set; }
 
@@ -14,6 +17,7 @@ public class Inventory : MonoBehaviour, ISave
     [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
+    public List<Item> InventoryItems => _items;
     protected List<Item> _items = new();
 
     private void Awake()
@@ -116,6 +120,7 @@ public class Inventory : MonoBehaviour, ISave
                         amount = ci.AddAmountAndGetExcess(amount);
 
                         UpdateSlot(index);
+                        OnInventoryChanged?.Invoke(index, ci.Amount);
                     }
                 }
                 else
@@ -132,6 +137,7 @@ public class Inventory : MonoBehaviour, ISave
                     amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
 
                     UpdateSlot(index);
+                    OnInventoryChanged?.Invoke(index, ci.Amount);
                 }
             }
         }
@@ -145,6 +151,7 @@ public class Inventory : MonoBehaviour, ISave
                 _items.Add(itemData.Createitem());
 
                 UpdateSlot(index);
+                OnInventoryChanged?.Invoke(index, 1);
             }
         }
 
@@ -208,19 +215,27 @@ public class Inventory : MonoBehaviour, ISave
     }
 
     /// <summary> index 위치의 Item을 특정 개수만큼 버리기 </summary>
-    public void RemoveItem(int index, int amount)
+    /// <returns> 남은 제거해야할 양 </returns>
+    public int RemoveItem(int index, int amount)
     {
         Item item = _items[index];
         if (item is CountableItem ci)
         {
+            int restAmount = Math.Max(amount - ci.Amount, 0);
+
             ci.SetAmount(ci.Amount - amount);
 
-            CalculateRestWeight(GetItemData(index).Weight, amount);
+            CalculateRestWeight(GetItemData(index).Weight, amount - restAmount);
             UpdateSlot(index);
+            OnInventoryChanged?.Invoke(index, ci.Amount);
+
+            return restAmount;
         }
         else
         {
             _inventoryUI.RemoveItem(index);
+
+            return amount - 1;
         }
     }
 
@@ -230,43 +245,23 @@ public class Inventory : MonoBehaviour, ISave
         CalculateRestWeight(GetItemData(index).Weight, GetItemAmount(index));
         _items.RemoveAt(index);
         UpdateWeightText();
+        OnInventoryChanged?.Invoke(index, 0);
     }
 
-    public int RemoveItem(ItemData itemData, int amount)
+    /// <summary> 인벤에 있는 해당 아이템 제거 </summary>
+    public int RemoveItem(ItemData itemData, int amount) // 대장장이나 그런곳에서 아이템 빠질때 사용할듯
     {
-        int index = 0;
+        int index = _items.Count - 1;
 
-        while (amount == 0 || index >= _items.Count)
+        while (amount == 0 || index >= 0)
         {
             Item targetItem = _items[index];
             if (targetItem.Data.SID == itemData.SID)
             {
-                if (targetItem is CountableItem ci)
-                {
-                    int amountDiff = amount - ci.Amount;
-
-                    if (amountDiff < 0) // 해당 슬롯에 있는 양이 더 많음
-                    {
-                        RemoveItem(index, -amount);
-                        amount = 0;
-                    }
-                    else
-                    {
-                        if (amountDiff > 0)
-                        {
-                            amount = amountDiff;
-                        }
-                        else // amount == 0 => 슬롯에 있는 양과 소모되는 양이 같음
-                        {
-                            amount = 0;
-                        }
-
-                        _inventoryUI.RemoveItem(index);
-                    }
-                }
+                amount = RemoveItem(index, amount);
             }
 
-            index++;
+            index--;
         }
 
         return amount;

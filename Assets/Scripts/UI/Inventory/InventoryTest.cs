@@ -10,7 +10,7 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private ItemData[] allEquipment;
 
-    [SerializeField] private List<ShopItem> shopItems;
+    [SerializeField] private Shop shop;
 
     [SerializeField] private SmithDataSO smithData;
 
@@ -49,7 +49,12 @@ public class InventoryTest : MonoBehaviour
 
     public void AddShopItem()
     {
-        shopItems.Add(new ShopItem(testItemData, 10));
+        shop.AddShopItem(new TestItemData(Item_Info.Item[0], null).Createitem());
+    }
+
+    public void InitShop()
+    {
+        shop.InitShop();
     }
 
     public void AddQuest()
@@ -67,7 +72,6 @@ public class InventoryTest : MonoBehaviour
         info.QuestDescription = "quest description";
         info.Rewards = new Item[3] { testItemData.Createitem(), testItemData.Createitem(), testItemData.Createitem() };
         quest.AddQuest(info);
-        
     }
 
     public void AddSmithData()
