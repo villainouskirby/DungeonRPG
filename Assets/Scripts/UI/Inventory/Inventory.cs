@@ -42,7 +42,7 @@ public class Inventory : MonoBehaviour, ISave
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
     /// <summary> 인벤 초기화 </summary>
-    public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함
+    public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함 // TODO => 창고도 OnInventoryChanged로 로직 바꿔야 할듯
     {
         _inventoryUI.InitInventoryUI();
         List<Item> tempItems = new List<Item>(_items);
@@ -200,7 +200,11 @@ public class Inventory : MonoBehaviour, ISave
                 }
             }
         }
+    }
 
+    /// <summary> 인벤토리 내부 정렬 </summary>
+    public void SortInventory()
+    {
 
     }
 
