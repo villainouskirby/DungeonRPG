@@ -20,12 +20,24 @@ public static class OptionManager
 
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            GameObject obj = handle.Result;
-            GameObject.Instantiate(obj);
+            GameObject objPrefab = handle.Result;
+            GameObject obj = GameObject.Instantiate(objPrefab);
             GameObject.DontDestroyOnLoad(obj);
 
             Option = obj.GetComponent<Option>();
+
+            obj.SetActive(false);
         }
+    }
+
+    public static void Open()
+    {
+        Option.gameObject.SetActive(true);
+    }
+
+    public static void Close()
+    {
+        Option.gameObject.SetActive(false);
     }
 }
 

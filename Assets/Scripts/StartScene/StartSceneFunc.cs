@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class StartSceneFunc : MonoBehaviour
 {
-    public GameObject OptionUI;
     public GameObject ContinueCheckUI;
     public SaveFileManager SaveFileManager;
     public Button ContinueBtn;
@@ -72,12 +71,7 @@ public class StartSceneFunc : MonoBehaviour
     
     public void OpenOption()
     {
-        OptionUI.SetActive(true);
-    }
-
-    public void CloseOption()
-    {
-        OptionUI.SetActive(false);
+        OptionManager.Open();
     }
 
     public void GameExit()

@@ -24,6 +24,12 @@ public class Option : MonoBehaviour
         Init();
     }
 
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            OptionManager.Close();
+    }
+
     public void Init()
     {
         _optionData = new();
