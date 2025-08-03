@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class DecoPool : MonoBehaviour
 {
@@ -63,6 +64,8 @@ public class DecoPool : MonoBehaviour
                 break;
         }
 
+        decoCom.Light = obj.GetComponent<Light2D>();
+
         pool.Enqueue(decoCom);
 
         return obj;
@@ -111,6 +114,39 @@ public class DecoPool : MonoBehaviour
                 break;
         }
 
+        if (decoObjData.LightData != null)
+        {
+            obj.Light.lightType = decoObjData.LightData.Type;
+            obj.Light.color = decoObjData.LightData.Color;
+            obj.Light.intensity = decoObjData.LightData.Intensity;
+            obj.Light.falloffIntensity = decoObjData.LightData.FalloffIntensity;
+
+            obj.Light.pointLightInnerRadius = decoObjData.LightData.InnerRadius;
+            obj.Light.pointLightOuterRadius = decoObjData.LightData.OuterRadius;
+            obj.Light.pointLightInnerAngle = decoObjData.LightData.InnerAngle;
+            obj.Light.pointLightOuterAngle = decoObjData.LightData.OuterAngle;
+
+            obj.Light.lightOrder = decoObjData.LightData.LightOrder;
+            obj.Light.shadowsEnabled = decoObjData.LightData.ShadowsEnabled;
+            obj.Light.shadowIntensity = decoObjData.LightData.ShadowIntensity;
+            obj.Light.shadowVolumeIntensity = decoObjData.LightData.ShadowVolumeIntensity;
+
+            if (decoObjData.LightData.Type == Light2D.LightType.Freeform
+                && decoObjData.LightData.ShapePath != null)
+            {
+                obj.Light.SetShapePath(decoObjData.LightData.ShapePath);
+            }
+
+            if (decoObjData.LightData.Type == Light2D.LightType.Parametric)
+            {
+                obj.Light.lightType = Light2D.LightType.Freeform;
+                if (decoObjData.LightData.ShapePath != null)
+                    obj.Light.SetShapePath(decoObjData.LightData.ShapePath);
+            }
+
+            obj.Light.enabled = true;
+        }
+
         obj.Sr.gameObject.SetActive(true);
 
         return obj;
@@ -120,6 +156,7 @@ public class DecoPool : MonoBehaviour
     {
         obj.Sr.gameObject.SetActive(false);
         obj.Sr.transform.SetParent(transform);
+        obj.Light.enabled = false;
         _poolDic[obj.Data.ColliderData.Type].Enqueue(obj);
         obj.Data = null;
     }
@@ -132,4 +169,5 @@ public class DecoCom
     public BoxCollider2D Box;
     public CircleCollider2D Circle;
     public PolygonCollider2D Poly;
+    public Light2D Light;
 }

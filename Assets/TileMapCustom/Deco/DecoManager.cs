@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.U2D;
-using DL = DataLoader;
 using CM = ChunkManager;
+using DL = DataLoader;
 
 public class DecoManager : MonoBehaviour, ITileMapBase
 {
@@ -43,12 +44,11 @@ public class DecoManager : MonoBehaviour, ITileMapBase
         }
 
         ActiveDecoObj = new();
-
-        InitDeco();
     }
 
     public void StartMap(MapEnum mapType)
     {
+        InitDeco();
     }
 
     public int Prime { get { return (int)TileMapBasePrimeEnum.DecoManager; } }
@@ -77,6 +77,20 @@ public class DecoManager : MonoBehaviour, ITileMapBase
         foreach(var key in CM.Instance.LoadedChunkIndex.Keys)
         {
             LoadDecoInChunk(key);
+        }
+        StartCoroutine(RefreshLight());
+    }
+
+    private IEnumerator RefreshLight()
+    {
+        yield return null;
+        foreach (var decos in ActiveDecoObj.Values)
+        {
+            for (int i = 0; i < decos.Count; i++)
+            {
+                decos[i].Light.gameObject.SetActive(false);
+                decos[i].Light.gameObject.SetActive(true);
+            }
         }
     }
 

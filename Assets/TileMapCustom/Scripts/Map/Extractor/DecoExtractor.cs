@@ -1,16 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEditor.U2D;
-using UnityEngine.U2D;
-using UnityEditor;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Net;
+using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
-using System.Net;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+using UnityEditor.U2D;
+using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
 
 public class DecoExtractor : MonoBehaviour, IExtractor
 {
@@ -55,6 +56,39 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         }
     }
 
+    public LightData GetLightData(GameObject obj)
+    {
+        Light2D l = obj.GetComponent<Light2D>();
+        if (l == null)
+            return null;
+
+        var data = new LightData
+        {
+            Type = l.lightType,
+            Color = l.color,
+            Intensity = l.intensity,
+            FalloffIntensity = l.falloffIntensity,
+
+            InnerRadius = l.pointLightInnerRadius,
+            OuterRadius = l.pointLightOuterRadius,
+            InnerAngle = l.pointLightInnerAngle,
+            OuterAngle = l.pointLightOuterAngle,
+
+            ShapePath = l.lightType == Light2D.LightType.Freeform ? l.shapePath : null,
+
+            ParametricSides = l.lightType == Light2D.LightType.Parametric ? l.shapeLightParametricSides : 0,
+            ParametricAngleOffset = l.lightType == Light2D.LightType.Parametric ? l.shapeLightParametricAngleOffset : 0,
+            ParametricRadius = l.lightType == Light2D.LightType.Parametric ? l.shapeLightParametricRadius : 0,
+
+            LightOrder = l.lightOrder,
+            ShadowsEnabled = l.shadowsEnabled,
+            ShadowIntensity = l.shadowIntensity,
+            ShadowVolumeIntensity = l.shadowVolumeIntensity
+        };
+
+        return data;
+    }
+
     public DecoObjData Object2DecoObjData(GameObject obj)
     {
         DecoObjData result = new();
@@ -71,6 +105,7 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         result.LayerName = sr.sortingLayerName;
         result.LayerIndex = sr.sortingOrder;
         result.ColliderData = GetColliderData(obj);
+        result.LightData = GetLightData(obj);
         
         return result;
     }
@@ -191,6 +226,7 @@ public class DecoObjData
     public string LayerName;
     public int LayerIndex;
     public ColliderData ColliderData;
+    public LightData LightData;
 
     public DecoObjData()
     {
@@ -212,6 +248,34 @@ public class ColliderData
     {
 
     }
+}
+
+public class LightData
+{
+    public Light2D.LightType Type;
+    public Color Color;
+    public float Intensity;
+    public float FalloffIntensity;
+
+    // Point / Spot
+    public float InnerRadius;
+    public float OuterRadius;
+    public float InnerAngle;
+    public float OuterAngle;
+
+    // Freeform
+    public Vector3[] ShapePath;
+
+    // Parametric
+    public int ParametricSides;
+    public float ParametricAngleOffset;
+    public float ParametricRadius;
+
+    // 공통 옵션
+    public int LightOrder;
+    public bool ShadowsEnabled;
+    public float ShadowIntensity;
+    public float ShadowVolumeIntensity;
 }
 
 public enum ColliderType { None, Box, Circle, Poly }

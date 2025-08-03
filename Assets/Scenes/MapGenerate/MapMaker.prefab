@@ -2318,7 +2318,6 @@ GameObject:
   m_Component:
   - component: {fileID: 914389195875528592}
   - component: {fileID: 1297877210086201422}
-  - component: {fileID: 4466153969343802975}
   m_Layer: 0
   m_Name: Deco
   m_TagString: Untagged
@@ -2354,18 +2353,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DataPath: 
---- !u!156049354 &4466153969343802975
-Grid:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8073987563416920252}
-  m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 1}
-  m_CellGap: {x: 0, y: 0, z: 0}
-  m_CellLayout: 0
-  m_CellSwizzle: 0
 --- !u!1 &8079139430761592459
 GameObject:
   m_ObjectHideFlags: 0
