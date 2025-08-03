@@ -8,7 +8,7 @@ public enum ShopType
     sell = 1
 }
 
-
+// TODO => Init할때 남은 슬롯 제거기능
 public class ShopUI : SlotInteractHandler
 {
     [SerializeField] private Shop _shop;
@@ -31,22 +31,19 @@ public class ShopUI : SlotInteractHandler
     private ShopType _type = ShopType.purchase;
     public ShopType Type => _type;
 
-    public void CreateSlot(int index, List<ItemSlotUI> slots, Item shopItem, ShopType tradeType)
+    public void CreateSlot(List<ItemSlotUI> slots, ShopType tradeType)
     {
         ItemSlotUI slotUI;
         GameObject newSlot;
-        int price;
 
         switch (tradeType)
         {
             case ShopType.purchase:
                 newSlot = Instantiate(_itemSlotPrefab, _shopContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
-                price = shopItem.Data.Info.Purchase_price;
                 break;
 
             case ShopType.sell:
                 newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
-                price = shopItem.Data.Info.Sell_price;
                 break;
 
             default:
@@ -56,9 +53,55 @@ public class ShopUI : SlotInteractHandler
 
         if ((slotUI = newSlot.GetComponent<ItemSlotUI>()) == null) slotUI = newSlot.AddComponent<ItemSlotUI>();
         slots.Add(slotUI);
+    }
+
+    private void InitSlotInfo(ItemSlotUI slot, Item shopItem, ShopType tradeType)
+    {
+        int price;
+
+        switch (tradeType)
+        {
+            case ShopType.purchase:
+                price = shopItem.Data.Info.Purchase_price;
+                break;
+
+            case ShopType.sell:
+                price = shopItem.Data.Info.Sell_price;
+                break;
+
+            default:
+                Debug.Log("상점 타입 에러");
+                return;
+        }
 
         // 기본정보 설정 => 상점이라 무게대신 가격으로 설정
-        slots[index].SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, price);
+        slot.SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, price);
+    }
+
+    public void RemoveGarbageSlots(int slotCount, ShopType shopType)
+    {
+        List<ItemSlotUI> slots;
+
+        switch (shopType)
+        {
+            case ShopType.purchase:
+                slots = _shopSlots;
+                break;
+
+            case ShopType.sell:
+                slots = _inventorySlots;
+                break;
+
+            default:
+                Debug.Log("상점 타입 에러");
+                return;
+        }
+
+        for (int i = slotCount; i < slots.Count; i++)
+        {
+            Destroy(slots[i].gameObject);
+            slots.RemoveAt(i);
+        }
     }
 
     public void RemoveSlot(int index)
@@ -71,7 +114,7 @@ public class ShopUI : SlotInteractHandler
     {
         if (_shopSlots.Count == index)
         {
-            CreateSlot(index, _shopSlots, shopItem, ShopType.purchase);
+            CreateSlot(_shopSlots, ShopType.purchase);
         }
         else if (_inventorySlots.Count < index)
         {
@@ -79,6 +122,7 @@ public class ShopUI : SlotInteractHandler
             return;
         }
 
+        InitSlotInfo(_shopSlots[index], shopItem, ShopType.purchase);
         _shopSlots[index].SetItemAmount(99); // db에서 값 가져와야함
     }
 
@@ -91,13 +135,15 @@ public class ShopUI : SlotInteractHandler
     {
         if (_inventorySlots.Count == index)
         {
-            CreateSlot(index, _inventorySlots, shopItem, ShopType.sell);
+            CreateSlot(_inventorySlots, ShopType.sell);
         }
         else if (_inventorySlots.Count < index)
         {
             Debug.Log("index 오류");
             return;
         }
+
+        InitSlotInfo(_inventorySlots[index], shopItem, ShopType.sell);
     }
 
     public void Trade(int index, int amount)

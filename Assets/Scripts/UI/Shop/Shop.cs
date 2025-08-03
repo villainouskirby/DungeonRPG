@@ -42,10 +42,14 @@ public class Shop : MonoBehaviour
     /// </summary>
     public void InitShop()
     {
-        for (int i = 0; i < _shopItems.Count; i++)
+        int i;
+
+        for (i = 0; i < _shopItems.Count; i++)
         {
             _shopUI.SetShopItemSlot(i, _shopItems[i]);
         }
+
+        _shopUI.RemoveGarbageSlots(i, ShopType.purchase);
     }
 
     /// <summary>
@@ -53,7 +57,9 @@ public class Shop : MonoBehaviour
     /// </summary>
     public void InitInvenToShop()
     {
-        for (int i = 0; i < _inventory.InventoryItems.Count; i++)
+        int i;
+
+        for (i = 0; i < _inventory.InventoryItems.Count; i++)
         {
             Item item = _inventory.InventoryItems[i];
 
@@ -66,6 +72,14 @@ public class Shop : MonoBehaviour
                 UpdateSlot(i, 1);
             }
         }
+
+        _shopUI.RemoveGarbageSlots(i, ShopType.sell);
+    }
+
+    public void ResetShop()
+    {
+        _shopItems.Clear();
+        InitShop();
     }
 
     /// <summary> 슬롯 아이템 수 업데이트 </summary>

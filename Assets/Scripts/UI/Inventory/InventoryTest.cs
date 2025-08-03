@@ -57,6 +57,11 @@ public class InventoryTest : MonoBehaviour
         shop.InitShop();
     }
 
+    public void ResetShop()
+    {
+        shop.ResetShop();
+    }
+
     public void AddQuest()
     {
         Mission mission = new Mission();
