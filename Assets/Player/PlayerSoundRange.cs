@@ -46,11 +46,13 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
         else NoiseRadius = 0f;   // 예외·공격 등
     }
 #if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
-        if (!Application.isPlaying) return;   // 재생 중일 때만
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.35f);
+        if (Application.isPlaying == false) return;   // 에디터 정지-상태에서는 표시 안 함
+
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.35f);   // 주황, 35% 투명
         Gizmos.DrawWireSphere(transform.position, NoiseRadius);
+        Gizmos.DrawSphere(transform.position, 0.05f); // 중심점 표시(선택)
     }
 #endif
 }
