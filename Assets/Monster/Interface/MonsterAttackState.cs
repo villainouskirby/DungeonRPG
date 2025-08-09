@@ -28,7 +28,7 @@ public sealed class CombatSuperState : IMonsterState
     public void Tick()
     {
         float dist = Vector2.Distance(ctx.transform.position, ctx.player.position);
-        bool see = ctx.CanSeePlayer(ctx.data.lostDistance);
+        bool see = ctx.CanSeePlayer(ctx.data.lostDistance, ctx.data.sightAngle);
 
         if (!see || dist > ctx.data.lostDistance)
             lostTimer += Time.deltaTime;
