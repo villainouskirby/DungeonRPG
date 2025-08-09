@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class AgentChunkMove : MonoBehaviour
 {
     private NavMeshAgent _agent;
+    private bool _isMoving = false;
 
     IEnumerator Start()
     {
@@ -14,23 +15,25 @@ public class AgentChunkMove : MonoBehaviour
         agent.autoTraverseOffMeshLink = false;
         while (true)
         {
-            if (agent.isOnOffMeshLink)
+            if (agent.isOnOffMeshLink && !_isMoving)
             {
-                yield return StartCoroutine(MoveChunk(agent));
+                _isMoving = true;
+                OffMeshLinkData data = agent.currentOffMeshLinkData;
+                yield return StartCoroutine(MoveChunk(agent, data));
                 agent.CompleteOffMeshLink();
             }
             yield return null;
         }
     }
 
-    IEnumerator MoveChunk(NavMeshAgent agent)
+    IEnumerator MoveChunk(NavMeshAgent agent, OffMeshLinkData data)
     {
-        OffMeshLinkData data = agent.currentOffMeshLinkData;
         Vector3 endPos = data.endPos;
         while (Vector3.Distance(agent.transform.position, endPos) > 0.01f)
         {
             agent.transform.position = Vector3.MoveTowards(agent.transform.position, endPos, agent.speed * Time.deltaTime);
             yield return null;
         }
+        _isMoving = false;
     }
 }

@@ -44,7 +44,9 @@ public class ResourceNodeBase : MonoBehaviour
     private void Awake()
     {
         Init();
+        PotionDic = SheetDataUtil.DicByKey(Item_Info.Potion, x => x.Potion_id);
     }
+    public Dictionary<string, Item_Info_Potion> PotionDic;
 
     public ResourceNodeSaveData Save()
     {
@@ -199,6 +201,7 @@ public class ResourceNodeBase : MonoBehaviour
                     var item = DropTableUtil.GetDropItemFromTable(Info.DT_lastInteraction);
                     for (int j = 0; j < item.Count; j++)
                     {
+
                         UIPopUpHandler.Instance.InventoryScript.AddItem(item[j].data, item[j].amount);
                     }
                     farmEnd.Invoke();
