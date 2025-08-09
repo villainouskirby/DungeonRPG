@@ -11,6 +11,8 @@ public class MonsterSpawner : Spawner
 
     public MonsterSpawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange) : base(spawnerTile, genericMinRange, genericMaxRange)
     {
+        var a = DropTableUtil.GetDropItemFromTable("TableTest1");
+        UIPopUpHandler.Instance.InventoryScript.AddItem(a.data, a.amount);
     }
 
     public MonsterSpawner()

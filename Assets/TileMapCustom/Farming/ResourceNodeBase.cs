@@ -44,7 +44,6 @@ public class ResourceNodeBase : MonoBehaviour
     private void Awake()
     {
         Init();
-        PotionDic = SheetDataUtil.DicByKey(Item_Info.Potion, x => x.Potion_id);
     }
     public Dictionary<string, Item_Info_Potion> PotionDic;
 
@@ -172,14 +171,11 @@ public class ResourceNodeBase : MonoBehaviour
 
     public void DropItem(int num)
     {
-        List<(ResourceItemData data, int amount)> item = DropTableUtil.GetDropItemFromTable(Info.DT_destroy);
+        (ResourceItemData data, int amount) item = DropTableUtil.GetDropItemFromTable(Info.DT_destroy);
 
-        for (int i = 0; i < item.Count; i++)
-        {
-            DropItem dropItem = DropItemPool.Instance.Get(item[i].data);
-            dropItem.Set(item[i].data, item[i].amount, transform.position, EllipseVisualizer.GetRandomPos(_ev));
-            dropItem.gameObject.SetActive(true);
-        }
+        DropItem dropItem = DropItemPool.Instance.Get(item.data);
+        dropItem.Set(item.data, item.amount, transform.position, EllipseVisualizer.GetRandomPos(_ev));
+        dropItem.gameObject.SetActive(true);
     }
 
     public void GetItem(Action farmEnd)
@@ -199,20 +195,13 @@ public class ResourceNodeBase : MonoBehaviour
                 if (i == Info.Gathering_count - 1)
                 {
                     var item = DropTableUtil.GetDropItemFromTable(Info.DT_lastInteraction);
-                    for (int j = 0; j < item.Count; j++)
-                    {
-
-                        UIPopUpHandler.Instance.InventoryScript.AddItem(item[j].data, item[j].amount);
-                    }
+                    UIPopUpHandler.Instance.InventoryScript.AddItem(item.data, item.amount);
                     farmEnd.Invoke();
                 }
                 else
                 {
                     var item = DropTableUtil.GetDropItemFromTable(Info.DT_interaction);
-                    for (int j = 0; j < item.Count; j++)
-                    {
-                        UIPopUpHandler.Instance.InventoryScript.AddItem(item[j].data, item[j].amount);
-                    }
+                    UIPopUpHandler.Instance.InventoryScript.AddItem(item.data, item.amount);
                 }
 
                 break;
