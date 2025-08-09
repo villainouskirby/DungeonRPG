@@ -7,13 +7,13 @@ public  class Item_Info_Condition
     /// <summary>
     /// 컨디션 id
     /// </summary>
-    public string Condition_id;
+    public string id;
     /// <summary>
     /// 컨디션 이름
     /// </summary>
-    public string Condition_name;
+    public string name;
     /// <summary>
     /// 설명
     /// </summary>
-    public string Condition_explanation;
+    public string explanation;
 }

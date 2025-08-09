@@ -62,11 +62,11 @@ public class ShopUI : SlotInteractHandler
         switch (tradeType)
         {
             case ShopType.purchase:
-                price = shopItem.Data.Info.Purchase_price;
+                price = shopItem.Data.Info.purchase_price;
                 break;
 
             case ShopType.sell:
-                price = shopItem.Data.Info.Sell_price;
+                price = shopItem.Data.Info.sell_price;
                 break;
 
             default:
@@ -191,7 +191,7 @@ public class ShopUI : SlotInteractHandler
         foreach (int i in _selectedIndex)
         {
             Item item = GetItemData(i);
-            int price = item.Data.Info.Sell_price;
+            int price = item.Data.Info.sell_price;
 
             if (item is CountableItem ci)
             {

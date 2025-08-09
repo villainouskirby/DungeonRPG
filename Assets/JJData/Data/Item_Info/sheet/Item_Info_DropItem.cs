@@ -7,7 +7,7 @@ public  class Item_Info_DropItem
     /// <summary>
     /// 아이템 id
     /// </summary>
-    public string UseItem_id;
+    public string id;
     /// <summary>
     /// 설명
     /// </summary>

@@ -35,7 +35,7 @@ public class InventoryTest : MonoBehaviour
     public Dictionary<string, Item_Info_Item> PotionDic;
     public void AddPotion()
     {
-        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.Item_id);
+        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         PotionItemData itemData = new(PotionDic["ITM_POT_001"], null);
         UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
     }

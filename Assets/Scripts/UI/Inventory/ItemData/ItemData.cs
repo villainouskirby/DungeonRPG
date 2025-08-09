@@ -25,10 +25,10 @@ public abstract class ItemData
     {
         _info = info;
         //_id = _info.Item_id;
-        _sid = _info.Item_id;
-        _name = _info.Item_name;
+        _sid = _info.id;
+        _name = _info.name;
         //_tooltip = _info.Item_
-        _weight = (int)_info.Item_weight;
+        _weight = (int)_info.weight;
         _iconSprite = sprite;
     }
 

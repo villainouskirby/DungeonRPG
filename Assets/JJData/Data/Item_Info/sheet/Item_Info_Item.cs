@@ -7,49 +7,49 @@ public  class Item_Info_Item
     /// <summary>
     /// 아이템 id
     /// </summary>
-    public string Item_id;
+    public string id;
     /// <summary>
     /// 아이템 이름
     /// </summary>
-    public string Item_name;
+    public string name;
     /// <summary>
     /// 아이템 이미지
     /// </summary>
-    public string Item_sprite;
+    public string sprite;
     /// <summary>
     /// 아이템 최대개수
     /// </summary>
-    public int Item_maxAmount;
+    public int max_amount;
     /// <summary>
     /// 랭크
     /// </summary>
-    public int Item_rank;
+    public int rank;
     /// <summary>
     /// 무게
     /// </summary>
-    public float Item_weight;
+    public float weight;
     /// <summary>
     /// 판매 가격
     /// </summary>
-    public int Sell_price;
+    public int sell_price;
     /// <summary>
     /// 구매 가격
     /// </summary>
-    public int Purchase_price;
+    public int purchase_price;
     /// <summary>
     /// 아이템 사용가능 여부
     /// </summary>
-    public bool Item_usable;
+    public bool usable;
     /// <summary>
     /// 아이템 장착가능 여부
     /// </summary>
-    public bool Item_wearable;
+    public bool wearable;
     /// <summary>
     /// 파우치 등록 여부
     /// </summary>
-    public bool Item_pouchable;
+    public bool pouchable;
     /// <summary>
     /// 아이템 상세정보 DT
     /// </summary>
-    public string Item_PAR_DT;
+    public string PAR_DT;
 }
