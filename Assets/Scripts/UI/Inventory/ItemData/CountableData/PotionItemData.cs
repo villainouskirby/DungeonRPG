@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PotionData", menuName = "ItemData/CountableItem/PotionData")]
 public class PotionItemData : CountableItemData
 {
     public float Percentage => percentage;

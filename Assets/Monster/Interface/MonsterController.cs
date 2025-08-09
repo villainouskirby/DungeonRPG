@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using HeapExplorer;
+using System.Collections.Generic;
 using UnityEditor;   // Handles, Gizmos
 #endif
 using UnityEngine;
@@ -10,10 +12,11 @@ public class MonsterController : MonoBehaviour
     [SerializeField] MonsterData data;
     [SerializeField] Transform spawner;
     [SerializeField] LayerMask obstacleMask;
-
+    [SerializeField] string monster_Id;
     public LayerMask ObstacleMask => obstacleMask;
     // 캐시
     public MonsterData Data => data;
+    public Monster_Info_Monster mdata;
     public NavMeshAgent Agent { get; private set; }
     public Animator Animator { get; private set; }
     public SpriteRenderer Sprite { get; private set; }
@@ -21,6 +24,7 @@ public class MonsterController : MonoBehaviour
     public Transform Player { get; private set; }
     public MonsterStateMachine StateMachine => root;
 
+    public Dictionary<string, Monster_Info_Monster> monsterDic;
     MonsterStateMachine root = new();
     MonsterContext ctx;
 
@@ -34,8 +38,11 @@ public class MonsterController : MonoBehaviour
         Agent.updateRotation = false;
         Agent.updateUpAxis = false;
 
-        ctx = new MonsterContext(this);
+        monsterDic = SheetDataUtil.DicByKey(Monster_Info.Monster, x => x.Monster_id);
+        mdata = monsterDic[monster_Id];
+        ctx = new(this, mdata);
     }
+
 
     void Start()
     {
@@ -47,14 +54,16 @@ public class MonsterController : MonoBehaviour
     // 외부에서 데미지
     public void TakeDamage(float dmg)
     {
-        ctx.Hp -= dmg;
-        if (ctx.Hp <= 0) root.ChangeState(new MonsterKilledState(ctx, root));
+        ctx.hp -= dmg;
+        if (ctx.hp <= 0) root.ChangeState(new MonsterKilledState(ctx, root));
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()
     {
+        if (!Application.isPlaying) return;
+
         if (data == null) return;
-        if (ctx == null) ctx = new MonsterContext(this);   // 에디터 모드 대비
+        if (ctx == null) ctx = new MonsterContext(this,mdata);   // 에디터 모드 대비
 
         Vector3 pos = transform.position;
         Vector3 forward3 = (Vector3)ctx.GetForward();
