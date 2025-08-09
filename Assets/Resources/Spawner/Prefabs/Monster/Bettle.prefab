@@ -15,7 +15,8 @@ GameObject:
   - component: {fileID: 1845626266987991732}
   - component: {fileID: 2183658777493688030}
   - component: {fileID: 5842328666675466451}
-  - component: {fileID: 1669018344285207890}
+  - component: {fileID: 5943831726345952343}
+  - component: {fileID: 8946492151150093642}
   m_Layer: 20
   m_Name: Bettle
   m_TagString: Monster
@@ -224,7 +225,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1669018344285207890
+--- !u!114 &5943831726345952343
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -233,14 +234,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 1272526528818684848}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94522cf7d817b3247b3527b27162f2ea, type: 3}
+  m_Script: {fileID: 11500000, guid: 6bd11f81db6dcc6478479b0cf27f6e24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: ef1386b878d0a014bb165f3b3b017123, type: 2}
+  data: {fileID: 11400000, guid: 59039b0458b151b4a91bc43203ce801f, type: 2}
   spawner: {fileID: 0}
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 7340416
+    m_Bits: 128
+  monster_Id: MST_BTL
+  mdata:
+    Monster_id: 
+    Monster_rank: 0
+    Monster_atk: 0
+    Monster_hp: 0
+    Monster_speed: 0
+    Monster_detection_level: 0
+    Monster_view_detection: 0
+    Monster_sound_detection: 0
+    Monster_property: 
+    Monster_DT: 
+    Monster_condition: 
+    Monster_condition_DT: 
+--- !u!114 &8946492151150093642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272526528818684848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2d2ad50369f294c9581569421dc52d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3398163645843324330
 GameObject:
   m_ObjectHideFlags: 0

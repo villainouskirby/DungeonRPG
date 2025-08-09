@@ -1,8 +1,10 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
 public sealed class MonsterContext
 {
+    public readonly Monster_Info_Monster statData;
     public readonly MonsterData data;
     public readonly Transform transform;
     public readonly NavMeshAgent agent;
@@ -15,13 +17,19 @@ public sealed class MonsterContext
     public readonly MonsterStateMachine sm;
     public readonly string[] interestTags;
     public bool isaggressive;
-    public float Hp;
+    public int rank;
+    public float hp;
+    public float attack;
+    public float hearRange;
+    public float sightDistance;
+    public float speed;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     Vector2 _lastForward = Vector2.right;
 
-    public MonsterContext(MonsterController owner)
+    public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
+        statData = mdata;
         mono = owner;
         sm = owner.StateMachine;
         data = owner.Data;
@@ -31,7 +39,14 @@ public sealed class MonsterContext
         sr = owner.Sprite;
         spawner = owner.Spawner;
         player = owner.Player;
-        Hp = data.maxHp;
+
+        rank = mdata.Monster_rank;
+        attack = mdata.Monster_atk;
+        hp = mdata.Monster_hp;
+        hearRange = mdata.Monster_sound_detection;
+        sightDistance = mdata.Monster_view_detection;
+        speed = mdata.Monster_speed;
+
         isaggressive = data.isaggressive;
         interestTags = data.interestTags;
         obstacleMask = owner.ObstacleMask;

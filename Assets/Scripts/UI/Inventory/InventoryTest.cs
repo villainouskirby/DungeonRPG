@@ -32,13 +32,25 @@ public class InventoryTest : MonoBehaviour
     {
         AddInventory(testItemData);
     }
-
+    public Dictionary<string, Item_Info_Item> PotionDic;
+    public void AddPotion()
+    {
+        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.Item_id);
+        PotionItemData itemData = new(PotionDic["ITM_POT_001"], null);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+    }
+    public void AddDropItem()
+    {
+        var a = DropTableUtil.GetDropItemFromTable("ITM_MIN_CPR/100/2/3");
+        UIPopUpHandler.Instance.InventoryScript.AddItem(a.data, a.amount);
+    }
     public void AddInventory(ItemData data)
     {
         int rest = inventory.AddItem(data, amount);
         if (rest > 0) Debug.Log("들어가지 못한 아이템 개수 : " + rest);
     }
-
+    
+    
     public void AddAllEquipment()
     {
         foreach (ItemData data in allEquipment)
