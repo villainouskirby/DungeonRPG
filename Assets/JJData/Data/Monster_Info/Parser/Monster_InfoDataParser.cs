@@ -106,6 +106,10 @@ public static class Monster_InfoDataParser
             offset += 4;
             sheetRowData.Monster_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.Monster_name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
             sheetRowData.Monster_rank = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.Monster_atk = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));

@@ -18,7 +18,7 @@ public class SpawnerPool : MonoBehaviour
 
     public static string            DataFilePath = "Spawner/Prefabs/";
 
-    public MonsterPool<MonsterEnum>        MonsterPool;
+    public MonsterPool                     MonsterPool;
     public ResourceNodePool                ResourceNodePool;
 
     private Transform _monsterRoot;
@@ -98,13 +98,13 @@ public class ResourceNodePool
 }
 
 
-public class MonsterPool<TEnum> where TEnum : Enum
+public class MonsterPool
 {
     private readonly string _folderName;
     private readonly Transform _root;
     private readonly string _dataFilePath;
-    private readonly Dictionary<TEnum, GameObject> _caching = new();
-    private readonly Dictionary<TEnum, Queue<GameObject>> _pool = new();
+    private readonly Dictionary<string, GameObject> _caching = new();
+    private readonly Dictionary<string, Queue<GameObject>> _pool = new();
 
     public MonsterPool(string dataFilePath, string folderName, Transform root)
     {
@@ -113,7 +113,7 @@ public class MonsterPool<TEnum> where TEnum : Enum
         _root = root;
     }
 
-    public void Generate(TEnum type)
+    public void Generate(string type)
     {
         if (!_caching.TryGetValue(type, out GameObject target))
         {
@@ -137,7 +137,7 @@ public class MonsterPool<TEnum> where TEnum : Enum
         _pool[type].Enqueue(obj);
     }
 
-    public GameObject Get(TEnum type)
+    public GameObject Get(string type)
     {
         if (!_pool.ContainsKey(type))
         {
@@ -152,7 +152,7 @@ public class MonsterPool<TEnum> where TEnum : Enum
         return obj;
     }
 
-    public void Release(TEnum type, GameObject obj)
+    public void Release(string type, GameObject obj)
     {
         obj.SetActive(false);
         obj.transform.position = Vector3.zero;

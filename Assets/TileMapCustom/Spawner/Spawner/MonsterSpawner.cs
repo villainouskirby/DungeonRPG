@@ -5,14 +5,12 @@ using UnityEngine;
 [System.Serializable]
 public class MonsterSpawner : Spawner
 {
-    public MonsterEnum[]        Monsters;
-    public MonsterEnum          Select;
-    public float                ActiveRange;
+    public string[]        Monsters;
+    public string          Select;
+    public static Dictionary<string, Monster_Info_Monster> MonsterDic;
 
     public MonsterSpawner(SpawnerTile spawnerTile, float genericMinRange, float genericMaxRange) : base(spawnerTile, genericMinRange, genericMaxRange)
     {
-        var a = DropTableUtil.GetDropItemFromTable("TableTest1");
-        UIPopUpHandler.Instance.InventoryScript.AddItem(a.data, a.amount);
     }
 
     public MonsterSpawner()
@@ -23,22 +21,24 @@ public class MonsterSpawner : Spawner
     public override void Spawn()
     {
         base.Spawn();
-        // SpawnManager에서 Enum을 통해 오브젝트를 풀링후 스폰한다.
         Debug.Log($"Monster {Select}이 스폰됨!");
+        SpawnObj.SetActive(false);
     }
 
     public override GameObject GetSpawnObject()
     {
-        return SpawnerPool.Instance.MonsterPool.Get(Select);
+        return SpawnerPool.Instance.MonsterPool.Get(MonsterDic[Select].Monster_id);
     }
 
     public override void Init()
     {
         base.Init();
+        if (MonsterDic == null)
+            MonsterDic = SheetDataUtil.DicByKey(Monster_Info.Monster, x => x.Monster_name);
         if (Monsters.Length == 0)
         {
             Debug.LogWarning($"{TilePos.ToString()}에 위치한 Spawner의 Monsters가 비어있습니다.");
-            Select = MonsterEnum.None;
+            Select = "Error";
         }
         else
         {

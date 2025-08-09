@@ -96,6 +96,10 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
 
         for (int i = 0; i < AllMonsterSpawner.Count; i++)
         {
+            if (AllMonsterSpawner[i].SpawnObj != null)
+            {
+                SpawnerPool.Instance.MonsterPool.Release(AllMonsterSpawner[i].Select, AllMonsterSpawner[i].SpawnObj);
+            }
         }
 
         AllMonsterSpawner.Clear();

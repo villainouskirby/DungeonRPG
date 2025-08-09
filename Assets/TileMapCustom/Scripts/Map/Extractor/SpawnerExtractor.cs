@@ -48,7 +48,6 @@ public class SpawnerExtractor : MonoBehaviour, IExtractor
                     MonsterSpawner monster = new(spawnerTile, GenericMinRange, GenericMaxRange);
                     MonsterSpawnerTile monsterTile = (MonsterSpawnerTile)spawnerTile;
                     monster.Monsters = monsterTile.Monsters;
-                    monster.ActiveRange = monsterTile.ActiveRange;
 
                     if (!_spawners.ContainsKey(spawnerTile.Group))
                         _spawners[spawnerTile.Group] = new();
