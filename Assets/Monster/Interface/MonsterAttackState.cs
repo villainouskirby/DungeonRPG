@@ -28,16 +28,15 @@ public sealed class CombatSuperState : IMonsterState
     public void Tick()
     {
         float dist = Vector2.Distance(ctx.transform.position, ctx.player.position);
-        bool see = ctx.CanSeePlayer(ctx.data.lostDistance, ctx.data.sightAngle);
 
-        if (!see || dist > ctx.data.lostDistance)
+        if (dist > ctx.data.lostDistance)
             lostTimer += Time.deltaTime;
         else
             lostTimer = 0f;
 
         if (lostTimer >= 1f)            // 1초 이상 놓치면 Return
         {
-            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 dist:{dist:F1} see:{see}");
+            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 dist:{dist:F1}");
             Interrupt();
             root.ChangeState(new MonsterReturnState(ctx, root));
         }

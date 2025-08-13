@@ -64,7 +64,7 @@ public class DropItemPool : MonoBehaviour
 
         DropItem obj = _pool.Dequeue();
         //Debug.Log(itemData.Info.Item_sprite);
-        Sprite sprite = SpriteAtlas.GetSprite(itemData.Info.Item_sprite);
+        Sprite sprite = SpriteAtlas.GetSprite(itemData.Info.sprite);
         if (sprite == null)
             sprite = ErrorSprite;
         obj.gameObject.SetActive(true);

@@ -4722,10 +4722,6 @@ PrefabInstance:
       propertyPath: spawner
       value: 
       objectReference: {fileID: 1302068632}
-    - target: {fileID: 0}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
     m_RemovedComponents:
     - {fileID: 0}
     m_RemovedGameObjects: []
@@ -19416,7 +19412,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 975032064}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddPotion
+        m_MethodName: AddPotion1
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -19481,6 +19477,8 @@ MonoBehaviour:
   shop: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 21300000, guid: bf886f0da04a86143bdaba6e7d8fea4f, type: 3}
+  tempPotion2: {fileID: 21300000, guid: f7ed0da14d3193743a178ab8c6869661, type: 3}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -38769,10 +38767,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 0}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
     - target: {fileID: 2024195903231688819, guid: 3825a651f0273024a948dbb220f7099c,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -7,15 +7,15 @@ public  class Item_Info_Pouch
     /// <summary>
     /// 파우치 id
     /// </summary>
-    public string PCH_id;
+    public string id;
     /// <summary>
     /// 파우치 개수
     /// </summary>
-    public int PCH_count;
+    public int count;
     /// <summary>
     /// 회복량 증가
     /// </summary>
-    public float PCH_heal_buff;
+    public float heal_buff;
     /// <summary>
     /// 설명
     /// </summary>

@@ -16,6 +16,8 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private QuickSlot quickSlot;
 
+    [SerializeField] private Sprite tempPotion1;
+    [SerializeField] private Sprite tempPotion2;
 
     [Header("Quest")]
     [SerializeField] private Quest quest;
@@ -33,10 +35,16 @@ public class InventoryTest : MonoBehaviour
         AddInventory(testItemData);
     }
     public Dictionary<string, Item_Info_Item> PotionDic;
-    public void AddPotion()
+    public void AddPotion1()
     {
-        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.Item_id);
-        PotionItemData itemData = new(PotionDic["ITM_POT_001"], null);
+        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
+        PotionItemData itemData = new(PotionDic["ITM_POT_001"], tempPotion1);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+    }
+    public void AddPotion2()
+    {
+        PotionDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
+        PotionItemData itemData = new(PotionDic["ITM_POT_002"], tempPotion2);
         UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
     }
     public void AddDropItem()
