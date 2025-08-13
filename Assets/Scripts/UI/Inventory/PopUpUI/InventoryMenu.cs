@@ -55,7 +55,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void InitButton(int index)
     {
         ItemData data = _inventoryUI.GetItemData(index);
-        _setToQuickSlotButton.interactable = data is PotionItemData;
+        _setToQuickSlotButton.interactable = _inventoryUI.CheckItemUsable(index);
         _useButton.interactable = _inventoryUI.CheckItemUsable(index);
         _removeButton.interactable = true;
 
