@@ -15,7 +15,7 @@ public abstract class ItemData
     [SerializeField] private string _name;
     [Multiline]
     [SerializeField] private string _tooltip;
-    [SerializeField] private int _weight;
+    [SerializeField] private float _weight;
     [NonSerialized] private Sprite _iconSprite;
 
     [SerializeField]
@@ -28,7 +28,7 @@ public abstract class ItemData
         _sid = _info.id;
         _name = _info.name;
         //_tooltip = _info.Item_
-        _weight = (int)_info.weight;
+        _weight = _info.weight;
         _iconSprite = sprite;
     }
 
