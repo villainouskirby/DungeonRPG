@@ -5,8 +5,8 @@ using UnityEngine;
 public class HoundReturnBehaviourSO : AttackBehaviourSO
 {
     public override bool CanRun(MonsterContext ctx)
-       => ctx.spawner &&
-          Vector2.Distance(ctx.transform.position, ctx.spawner.position)
+       => 
+          Vector2.Distance(ctx.transform.position, ctx.spawner)
              > ctx.data.maxSpawnerDist;
 
     public override IEnumerator Execute(MonsterContext ctx)

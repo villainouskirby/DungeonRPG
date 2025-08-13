@@ -10,7 +10,7 @@ public sealed class MonsterContext
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
     public readonly SpriteRenderer sr;
-    public readonly Transform spawner;
+    public readonly Vector3 spawner;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;

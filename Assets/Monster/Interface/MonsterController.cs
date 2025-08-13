@@ -10,7 +10,7 @@ using UnityEngine.AI;
 public class MonsterController : MonoBehaviour
 {
     [SerializeField] MonsterData data;
-    [SerializeField] Transform spawner;
+    [SerializeField] public Vector3 spawner;
     [SerializeField] LayerMask obstacleMask;
     [SerializeField] string monster_Id;
     public LayerMask ObstacleMask => obstacleMask;
@@ -20,7 +20,7 @@ public class MonsterController : MonoBehaviour
     public NavMeshAgent Agent { get; private set; }
     public Animator Animator { get; private set; }
     public SpriteRenderer Sprite { get; private set; }
-    public Transform Spawner => spawner;
+    public Vector3 Spawner => spawner;
     public Transform Player { get; private set; }
     public MonsterStateMachine StateMachine => root;
 
