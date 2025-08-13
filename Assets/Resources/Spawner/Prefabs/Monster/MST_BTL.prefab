@@ -97,10 +97,10 @@ GameObject:
   - component: {fileID: 5847440088967297184}
   - component: {fileID: 7445623199434287809}
   - component: {fileID: 1066034587259239054}
+  - component: {fileID: 5772850400858764028}
   - component: {fileID: 6744450290341369502}
   - component: {fileID: 7316859947356465902}
-  - component: {fileID: 339201979307624265}
-  - component: {fileID: -1602278547297606761}
+  - component: {fileID: 4254575406660547895}
   m_Layer: 20
   m_Name: MST_BTL
   m_TagString: Monster
@@ -266,6 +266,38 @@ SortingGroup:
   m_SortingLayer: 3
   m_SortingOrder: 3
   m_SortAtRoot: 0
+--- !u!114 &5772850400858764028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5301721580680312565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bd11f81db6dcc6478479b0cf27f6e24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
+  spawner: {x: 0, y: 0, z: 0}
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 128
+  monster_Id: MST_BTL
+  mdata:
+    Monster_id: 
+    Monster_name: 
+    Monster_rank: 0
+    Monster_atk: 0
+    Monster_hp: 0
+    Monster_speed: 0
+    Monster_detection_level: 0
+    Monster_view_detection: 0
+    Monster_sound_detection: 0
+    Monster_property: 
+    Monster_DT: 
+    Monster_condition: 
+    Monster_condition_DT: 
 --- !u!195 &6744450290341369502
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -285,7 +317,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2.25
-  m_BaseOffset: 1.125
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!95 &7316859947356465902
@@ -309,24 +341,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &339201979307624265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5301721580680312565}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31d978f599660ba4cadb4b3d7c377d65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
-  spawner: {fileID: 0}
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 7340160
---- !u!114 &-1602278547297606761
+--- !u!114 &4254575406660547895
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

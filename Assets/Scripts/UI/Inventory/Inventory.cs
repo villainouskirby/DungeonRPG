@@ -11,7 +11,7 @@ public class Inventory : MonoBehaviour, ISave
 
     [Tooltip("최대 아이템 수용 한도(무게)")]
     [SerializeField] private int _maxCapacity = 300;
-    
+
     [SerializeField] private InventoryUI _inventoryUI;
     [SerializeField] private Equipment _equipment;
     [SerializeField] private QuickSlot _quickSlot;
@@ -213,6 +213,7 @@ public class Inventory : MonoBehaviour, ISave
         Item item = _items[index];
         if (_quickSlot.AddToSlot(item.Clone()))
         {
+            Debug.Log($"{item.Data.ToString()}, {index}");
             // 퀵슬롯에 넣기 성공
             RemoveItem(index, 1);
         }
