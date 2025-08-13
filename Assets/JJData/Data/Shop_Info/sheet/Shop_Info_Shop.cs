@@ -2,22 +2,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public  class Item_Info_Pouch
+public  class Shop_Info_Shop
 {
     /// <summary>
-    /// 파우치 id
+    /// 아이템 id
     /// </summary>
-    public string id;
+    public string item_id;
     /// <summary>
-    /// 파우치 개수
+    /// 판매 개수
     /// </summary>
-    public int count;
+    public int purchase_count;
     /// <summary>
-    /// 회복량 증가
+    /// 판매 가격
     /// </summary>
-    public float heal_buff;
+    public int purchase_price;
     /// <summary>
-    /// 설명
+    /// 판매 시점
     /// </summary>
-    public string Explanation;
+    public int unlock;
 }

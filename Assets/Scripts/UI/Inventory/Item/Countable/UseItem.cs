@@ -1,26 +1,26 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class UseItem : CountableItem, IUsableItem
+public class ThrowItem : CountableItem, IUsableItem
 {
-    public UseItemData UseData { get; }
+    public ThrowItemData ThrowData { get; }
 
-    public UseItem(UseItemData data, int amount = 1) : base(data, amount)
+    public ThrowItem(ThrowItemData data, int amount = 1) : base(data, amount)
     {
-        UseData = data;
+        ThrowData = data;
     }
 
-    public override Item Clone(int amount) => new UseItem(UseData, amount);
+    public override Item Clone(int amount) => new ThrowItem(ThrowData, amount);
 
     public async UniTask<bool> Use()
     {
         if (Amount <= 0) return false;
 
         // 사용 가능 조건 체크 (거리/쿨다운 등)
-        if (!UseItemRuntime.CanUse(UseData)) return false;
+        if (!ThrowItemRuntime.CanUse(ThrowData)) return false;
 
         // 사용 이펙트 적용
-        bool ok = await UseItemRuntime.ApplyEffect(UseData);
+        bool ok = await ThrowItemRuntime.ApplyEffect(ThrowData);
         if (!ok) return false;
 
         // 소모
@@ -30,17 +30,17 @@ public class UseItem : CountableItem, IUsableItem
 }
 
 // 이건 그냥 예시 사용아이템 로직 나중에 추가해야할듯
-public static class UseItemRuntime
+public static class ThrowItemRuntime
 {
     static Transform Player => GameObject.FindWithTag("Player")?.transform; // 또는 PlayerController.instance.transform
 
-    public static bool CanUse(UseItemData data)
+    public static bool CanUse(ThrowItemData data)
     {
         // 필요하면 여기서 쿨다운/상태 잠금/소지 제한 검사 등
         return Player != null;
     }
 
-    public static async Cysharp.Threading.Tasks.UniTask<bool> ApplyEffect(UseItemData data)
+    public static async Cysharp.Threading.Tasks.UniTask<bool> ApplyEffect(ThrowItemData data)
     {
         var row = data.Info;
 

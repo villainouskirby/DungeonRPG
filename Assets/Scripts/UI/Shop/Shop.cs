@@ -115,7 +115,7 @@ public class Shop : MonoBehaviour
         {
             case ShopType.purchase:
                 _inventory.AddItem(item.Data, amount);
-                price = item.Data.Info.purchase_price;
+                //price = item.Data.Info.purchase_price;
                 break;
 
             case ShopType.sell:
@@ -128,7 +128,7 @@ public class Shop : MonoBehaviour
                 return;
         }
 
-       _inventory.UpdateGoldAmount(price * amount * (int)_shopUI.Type);
+       //_inventory.UpdateGoldAmount(price * amount * (int)_shopUI.Type);
     }
 
     public Item GetItemData(int index)

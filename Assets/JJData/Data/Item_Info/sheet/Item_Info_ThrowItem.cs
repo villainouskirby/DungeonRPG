@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public  class Item_Info_UseItem
+public  class Item_Info_ThrowItem
 {
     /// <summary>
     /// 아이템 id
