@@ -7,10 +7,10 @@ public class Inventory : MonoBehaviour, ISave
     public event Action<int, int> OnInventoryChanged;
 
     /// <summary> 남은 가방 용량(무게) </summary>
-    public int RestCapacity { get; private set; }
+    public float RestCapacity { get; private set; }
 
     [Tooltip("최대 아이템 수용 한도(무게)")]
-    [SerializeField] private int _maxCapacity = 300;
+    [SerializeField] private float _maxCapacity = 300;
 
     [SerializeField] private InventoryUI _inventoryUI;
     [SerializeField] private Equipment _equipment;
@@ -313,7 +313,7 @@ public class Inventory : MonoBehaviour, ISave
     /// 현재 남은 중량 계산
     /// <para/> amount의 부호는 아이템이 줄어드는 경우 +, 아이템이 늘어나는 경우 -
     /// </summary>
-    private void CalculateRestWeight(int weight, int amount = 1)
+    private void CalculateRestWeight(float weight, int amount = 1)
     {
         RestCapacity += weight * amount;
     }

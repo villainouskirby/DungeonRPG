@@ -68,7 +68,7 @@ public class Spawner : ISave
         if (target == null)
             return;
         // 채집물 랜덤 스폰 관련
-        target.transform.position = new((TilePos.x + UnityEngine.Random.Range(-0.5f, +0.5f)) * MapManager.Instance.TileSize, (TilePos.y + UnityEngine.Random.Range(-0.5f, 0.5f)) * MapManager.Instance.TileSize, Z);
+        target.transform.position = new(TilePos.x + 0.5f, TilePos.y + 0.5f, Z);
         
         IsIdentify = true;
         SpawnObj.SetActive(true);
