@@ -22,7 +22,7 @@ public class MonsterSpawner : Spawner
     {
         base.Spawn();
         Debug.Log($"Monster {Select}이 스폰됨!");
-        SpawnObj.SetActive(false);
+        SpawnObj.GetComponent<MonsterController>().spawner = new(TilePos.x, TilePos.y);
     }
 
     public override GameObject GetSpawnObject()

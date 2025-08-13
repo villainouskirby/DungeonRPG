@@ -249,13 +249,13 @@ sealed class MonsterReturnState : IMonsterState
     public void Enter()
     {
         ctx.agent.speed = ctx.IsFastReturn ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
-        ctx.agent.SetDestination(ctx.spawner.position);
+        ctx.agent.SetDestination(ctx.spawner);
         ctx.anim.Play("Walk");
     }
 
     public void Tick()
     {
-        if (Vector2.Distance(ctx.transform.position, ctx.spawner.position) <= ctx.data.nearSpawnerDist)
+        if (Vector2.Distance(ctx.transform.position, ctx.spawner) <= ctx.data.nearSpawnerDist)
             machine.ChangeState(new MonsterIdleState(ctx, machine));
     }
 
