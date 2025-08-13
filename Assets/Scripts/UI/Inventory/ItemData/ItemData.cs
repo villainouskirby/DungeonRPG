@@ -7,7 +7,7 @@ public abstract class ItemData
     public string SID => _sid;
     public string Name => _name;
     public string Tooltip => _tooltip;
-    public float Weight => _weight;
+    public int Weight => _weight;
     public Sprite IconSprite => _iconSprite;
     public Item_Info_Item Info => _info;
 
