@@ -64,6 +64,10 @@ public class TileMapMaster : MonoBehaviour
                 Debug.LogError("TileMapMaster - (Test) 해당 슬롯엔 데이터가 없습니다.");
                 return;
             }
+
+            StartTileMap(MapType);
+
+            return;
         }
 #endif
 
