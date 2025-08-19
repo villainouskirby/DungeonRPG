@@ -4,7 +4,7 @@ using UnityEngine;
 public class QuickSlot : MonoBehaviour
 {
     [SerializeField] private QuickSlotUI _quickSlotUI;
-
+    public int Count => _quickSlot.Count;
     private List<Item> _quickSlot = new();
 
     private void Awake()
@@ -17,8 +17,11 @@ public class QuickSlot : MonoBehaviour
         if (_quickSlot.Count == 0) _quickSlot = new List<Item>(new Item[5]);
         _quickSlotUI.InitQuickSlotUI();
     }
+    public Item GetItem(int index)
+    {
+        return (index >= 0 && index < _quickSlot.Count) ? _quickSlot[index] : null;
+    }
 
-   
     private void OnEnable()
     {
         for (int i = 0; i < _quickSlot.Count; i++)

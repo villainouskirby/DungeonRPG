@@ -62,11 +62,11 @@ public class ShopUI : SlotInteractHandler
         switch (tradeType)
         {
             case ShopType.purchase:
-                price = shopItem.Data.Info.Purchase_price;
+                //price = shopItem.Data.Info.purchase_price;
                 break;
 
             case ShopType.sell:
-                price = shopItem.Data.Info.Sell_price;
+                price = shopItem.Data.Info.sell_price;
                 break;
 
             default:
@@ -75,7 +75,7 @@ public class ShopUI : SlotInteractHandler
         }
 
         // 기본정보 설정 => 상점이라 무게대신 가격으로 설정
-        slot.SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, price);
+        //slot.SetItemInfo(shopItem.Data.IconSprite, shopItem.Data.Name, price);
     }
 
     public void RemoveGarbageSlots(int slotCount, ShopType shopType)
@@ -191,7 +191,7 @@ public class ShopUI : SlotInteractHandler
         foreach (int i in _selectedIndex)
         {
             Item item = GetItemData(i);
-            int price = item.Data.Info.Sell_price;
+            int price = item.Data.Info.sell_price;
 
             if (item is CountableItem ci)
             {

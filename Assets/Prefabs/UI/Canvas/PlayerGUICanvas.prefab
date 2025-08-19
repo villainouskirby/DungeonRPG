@@ -716,6 +716,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 137169c19f1f6d249a82921f15aa9866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5953225805468790585 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7291339924304117343, guid: 3a98f4bfd2b6b644589e433dc3417071,
+    type: 3}
+  m_PrefabInstance: {fileID: 4012162269761950054}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9811768f40e2ac4ca6c4d59430e3b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4065304065759747460
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -996,6 +1008,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2078240464856685233}
     m_Modifications:
+    - target: {fileID: 197391773938440602, guid: 0c128c39dae018f49bab91a675cd9aa5,
+        type: 3}
+      propertyPath: _quickSlot
+      value: 
+      objectReference: {fileID: 5953225805468790585}
     - target: {fileID: 197391773938440602, guid: 0c128c39dae018f49bab91a675cd9aa5,
         type: 3}
       propertyPath: _quickSlotUI

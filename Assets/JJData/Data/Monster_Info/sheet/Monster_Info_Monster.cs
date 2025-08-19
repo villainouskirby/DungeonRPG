@@ -9,6 +9,10 @@ public  class Monster_Info_Monster
     /// </summary>
     public string Monster_id;
     /// <summary>
+    /// 몬스터 이름
+    /// </summary>
+    public string Monster_name;
+    /// <summary>
     /// 랭크
     /// </summary>
     public int Monster_rank;

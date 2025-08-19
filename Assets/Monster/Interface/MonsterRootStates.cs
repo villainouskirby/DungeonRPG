@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEditor.Connect;
 using UnityEngine;
 using UnityEngine.AI;
@@ -32,7 +33,7 @@ public sealed class MonsterIdleState : IMonsterState
         }
 
         // 플레이어 감지
-        if (ctx.CanSeePlayer(ctx.data.sightDistance) || ctx.CanHearPlayer(ctx.data.hearRange))
+        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle) || ctx.CanHearPlayer(ctx.data.hearRange))
         {
             machine.ChangeState(new MonsterDetectState(ctx, machine));
             return;
@@ -87,7 +88,7 @@ public sealed class MonsterWanderState : IMonsterState
         }
 
         // 도중에 플레이어가 보이면 Detect
-        if (ctx.CanSeePlayer(ctx.data.sightDistance) || ctx.CanHearPlayer(ctx.data.hearRange))
+        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle) || ctx.CanHearPlayer(ctx.data.hearRange))
             machine.ChangeState(new MonsterDetectState(ctx, machine));
     }
     public void Exit() { }
@@ -142,7 +143,7 @@ public sealed class MonsterDetectState : IMonsterState
         }
 
         /* ─── 플레이어 시야 감지 ─── */
-        if (ctx.CanSeePlayer(ctx.data.sightDistance))
+        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle))
         {
             if (ctx.data.isaggressive)
             {
@@ -155,20 +156,88 @@ public sealed class MonsterDetectState : IMonsterState
             return;
         }
 
-        /* ─── 스포너·타임아웃 처리 ─── */
-        chaseTimer -= Time.deltaTime;
-        if (chaseTimer <= 0f)
+        if (!ctx.agent.pathPending && ctx.agent.remainingDistance <= ctx.agent.stoppingDistance)
         {
-            bool nearSpawner = ctx.spawner &&
-                               Vector2.Distance(ctx.transform.position, ctx.spawner.position)
-                               <= ctx.data.nearSpawnerDist;
+            /* 플레이어를 못 봤다면 Search-Wander 로 */
+            if (!ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle))
+            {
+                machine.ChangeState(new MonsterSearchWanderState(ctx, machine));
+                return;
+            }
+        }
+        /* ─── 스포너·타임아웃 처리 ─── */
+        //chaseTimer -= Time.deltaTime;
+        //if (chaseTimer <= 0f)
+        //{
+        //    bool nearSpawner = ctx.spawner &&
+        //                       Vector2.Distance(ctx.transform.position, ctx.spawner.position)
+        //                       <= ctx.data.nearSpawnerDist;
 
-            machine.ChangeState(nearSpawner
-                               ? new MonsterIdleState(ctx, machine)
-                               : new MonsterReturnState(ctx, machine));
+        //    machine.ChangeState(nearSpawner
+        //                       ? new MonsterIdleState(ctx, machine)
+        //                       : new MonsterReturnState(ctx, machine));
+        //}
+    }
+    public void Exit() { }
+}
+public sealed class MonsterSearchWanderState : IMonsterState
+{
+    readonly MonsterContext ctx;
+    readonly MonsterStateMachine machine;
+
+    const float searchTime = 5f;               // 5초 배회
+    const float stuckTimeout = 1f;   // 한 지점에서 막힘 판정
+    const float sampleCycle = 1f;   // 정상 도착 후 재샘플 주기
+
+    float elapsed;
+    float localTimer;
+
+    public MonsterSearchWanderState(MonsterContext c, MonsterStateMachine m)
+    { ctx = c; machine = m; }
+
+    public void Enter()
+    {
+        if (!ctx.data.canMove) { machine.ChangeState(new MonsterReturnState(ctx, machine)); return; }
+
+        ctx.agent.speed = ctx.data.detectSpeed;   // Idle 보다 약간 빠름
+        ctx.anim.Play("Walk");
+        PickRandomDest();
+    }
+
+    public void Tick()
+    {
+        elapsed += Time.deltaTime;
+        localTimer += Time.deltaTime;
+        if (elapsed >= searchTime)
+        {
+            machine.ChangeState(new MonsterReturnState(ctx, machine));
+            return;
+        }
+        /* 주기적으로 새 배회 지점 */
+        if (!ctx.agent.pathPending &&
+            ctx.agent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            PickRandomDest();
+            return;
+        }
+        bool arrived = !ctx.agent.pathPending &&
+                       ctx.agent.remainingDistance <= ctx.agent.stoppingDistance;
+
+        if (arrived || localTimer >= stuckTimeout)
+        {
+            PickRandomDest();
+            return;
         }
     }
     public void Exit() { }
+
+    void PickRandomDest()
+    {
+        localTimer = 0f;
+        Vector2 rnd = Random.insideUnitCircle * ctx.data.wanderRadius;
+        Vector3 dest = ctx.transform.position + (Vector3)rnd;
+        ctx.agent.SetDestination(dest);
+    }
 }
 sealed class MonsterReturnState : IMonsterState
 {
@@ -180,13 +249,13 @@ sealed class MonsterReturnState : IMonsterState
     public void Enter()
     {
         ctx.agent.speed = ctx.IsFastReturn ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
-        ctx.agent.SetDestination(ctx.spawner.position);
+        ctx.agent.SetDestination(ctx.spawner);
         ctx.anim.Play("Walk");
     }
 
     public void Tick()
     {
-        if (Vector2.Distance(ctx.transform.position, ctx.spawner.position) <= ctx.data.nearSpawnerDist)
+        if (Vector2.Distance(ctx.transform.position, ctx.spawner) <= ctx.data.nearSpawnerDist)
             machine.ChangeState(new MonsterIdleState(ctx, machine));
     }
 

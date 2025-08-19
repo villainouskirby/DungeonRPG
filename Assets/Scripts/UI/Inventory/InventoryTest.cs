@@ -16,6 +16,9 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] private QuickSlot quickSlot;
 
+    [SerializeField] private Sprite tempPotion1;
+    [SerializeField] private Sprite tempPotion2;
+    [SerializeField] private Sprite tempRock;
 
     [Header("Quest")]
     [SerializeField] private Quest quest;
@@ -32,13 +35,38 @@ public class InventoryTest : MonoBehaviour
     {
         AddInventory(testItemData);
     }
+    public Dictionary<string, Item_Info_Item> ItemDic;
+    public void AddPotion1()
+    {
+        ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
+        PotionItemData itemData = new(ItemDic["ITM_POT_001"], tempPotion1);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+    }
+    public void AddPotion2()
+    {
+        ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
+        PotionItemData itemData = new(ItemDic["ITM_POT_002"], tempPotion2);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+    }
+    public void AddStoneItem()
+    {
+        ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
+        ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock);
+        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+    }
 
+    public void AddDropItem()
+    {
+        var a = DropTableUtil.GetDropItemFromTable("ITM_MIN_CPR/100/2/3");
+        UIPopUpHandler.Instance.InventoryScript.AddItem(a.data, a.amount);
+    }
     public void AddInventory(ItemData data)
     {
         int rest = inventory.AddItem(data, amount);
         if (rest > 0) Debug.Log("들어가지 못한 아이템 개수 : " + rest);
     }
-
+    
+    
     public void AddAllEquipment()
     {
         foreach (ItemData data in allEquipment)

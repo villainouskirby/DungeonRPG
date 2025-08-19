@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,23 +22,61 @@ public class PotionManager : MonoBehaviour
 
     private bool isDrinking = false;
 
+    static Dictionary<string, Item_Info_Potion> _potionById;
+    void EnsurePotionTable()
+    {
+        if (_potionById == null)
+            _potionById = SheetDataUtil.DicByKey(Item_Info.Potion, p => p.id); // "PAR_POT_001" 키
+    }
+
     public async UniTask<bool> GetPotionID(ItemData data)
     {
         if (isDrinking || player == null) return false;
         isDrinking = true;
 
+        EnsurePotionTable();
+
         PotionItemData pi = data as PotionItemData;
+        if (pi == null) { isDrinking = false; return false; }
+
+        string dt = pi.Info.PAR_DT;         // 예: "PAR_POT_001"
+        if (string.IsNullOrEmpty(dt) || !_potionById.TryGetValue(dt, out var row))
+        {
+            Debug.LogError($"Potion DT not found: {dt}");
+            isDrinking = false;
+            return false;
+        }
+
         bool success = await Drink();
 
         if (success)
         {
-            // ID임시수정 주석처리
-            /*
-            if (pi.SID <= 10)
-                CreateBuff(pi.ID, pi.Percentage, pi.Duration, pi.IconSprite);
-            else if (pi.SID <= 20)
-                PlayerData.instance.HPValueChange(pi.Healamount);
-            */
+            switch (row.type) // "heal" | "add" | "remove"
+            {
+                case "heal":
+                    // 회복: row.effect를 회복량으로 사용
+                    PlayerData.instance.HPValueChange(row.effect);
+                    break;
+
+                case "add":
+                    // 버프 부여: row.buff = "strong1/strong2" 등
+                    foreach (var kind in ParseKinds(row.buff))
+                    {
+                        int buffId = MapBuffId(kind);     // strong1→1, strong2→2, strong3→3 …
+                        float duration = pi.Duration > 0 ? pi.Duration : 10f;
+                        CreateBuff(buffId, row.effect, duration, pi.IconSprite);
+                    }
+                    break;
+
+                case "remove":
+                    foreach (var kind in ParseKinds(row.buff))
+                        RemoveBuff(kind); // 필요에 맞게 구현
+                    break;
+
+                default:
+                    Debug.LogWarning($"Unknown potion type: {row.type}");
+                    break;
+            }
         }
 
         isDrinking = false;
@@ -67,6 +106,27 @@ public class PotionManager : MonoBehaviour
         player.UnlockState();
 
         return true;
+    }
+    IEnumerable<string> ParseKinds(string buff)
+    {
+        if (string.IsNullOrWhiteSpace(buff)) yield break;
+        foreach (var k in buff.Split('/'))
+            if (!string.IsNullOrWhiteSpace(k)) yield return k.Trim();
+    }
+
+    int MapBuffId(string kind)
+    {
+        return kind switch
+        {
+            "strong1" => 1, // CreateBuff 내부 switch: 1 => AttackUp 등
+            "strong2" => 2,
+            "strong3" => 3,
+            _ => 1
+        };
+    }
+    void RemoveBuff(string kind)
+    {
+        // 예: BuffManager.Instance.Remove(MapBuffType(kind));
     }
 
     // 버프 아이콘 생성

@@ -1,27 +1,35 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
 public sealed class MonsterContext
 {
+    public readonly Monster_Info_Monster statData;
     public readonly MonsterData data;
     public readonly Transform transform;
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
     public readonly SpriteRenderer sr;
-    public readonly Transform spawner;
+    public readonly Vector3 spawner;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;
     public readonly MonsterStateMachine sm;
     public readonly string[] interestTags;
     public bool isaggressive;
-    public float Hp;
+    public int rank;
+    public float hp;
+    public float attack;
+    public float hearRange;
+    public float sightDistance;
+    public float speed;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
+    Vector2 _lastForward = Vector2.right;
 
-
-    public MonsterContext(MonsterController owner)
+    public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
+        statData = mdata;
         mono = owner;
         sm = owner.StateMachine;
         data = owner.Data;
@@ -31,7 +39,14 @@ public sealed class MonsterContext
         sr = owner.Sprite;
         spawner = owner.Spawner;
         player = owner.Player;
-        Hp = data.maxHp;
+
+        rank = mdata.Monster_rank;
+        attack = mdata.Monster_atk;
+        hp = mdata.Monster_hp;
+        hearRange = mdata.Monster_sound_detection;
+        sightDistance = mdata.Monster_view_detection;
+        speed = mdata.Monster_speed;
+
         isaggressive = data.isaggressive;
         interestTags = data.interestTags;
         obstacleMask = owner.ObstacleMask;
@@ -39,20 +54,38 @@ public sealed class MonsterContext
 
     #region 몬스터 시야 / 청각 탐지 로직
     // 시야 확인 (벽 Raycast 포함)
-    public bool CanSeePlayer(float maxDist)
+    public bool CanSeePlayer(float maxDist, float fovAngleDeg)
     {
         if (!player) return false;
+
         Vector2 start = transform.position;
-        Vector2 dir = (player.position - transform.position).normalized;
-        float dist = Vector2.Distance(start, player.position);
+        Vector2 dir = (player.position - transform.position);
+        float dist = dir.magnitude;
         if (dist > maxDist) return false;
 
-        RaycastHit2D hit = Physics2D.Raycast(start, dir, dist, obstacleMask);
-        if (hit) return false;
+        // “몬스터가 바라보는 정면” 벡터 (2D라면 right, 3D라면 forward 등)
+        Vector2 forward = GetForward();
+
+        float halfAngle = fovAngleDeg * 0.5f;
+        // 벡터 간 각도를 구해 부채꼴 범위인지 확인
+        if (Vector2.Angle(forward, dir) > halfAngle) return false;
+
+        RaycastHit2D hit = Physics2D.Raycast(start, dir.normalized, dist, obstacleMask);
+        if (hit) return false;   // 벽에 가렸으면 못 봄
 
         return true;
     }
+    public Vector2 GetForward()
+    {
+        // 움직이고 있으면 속도 벡터
+        if (agent.velocity.sqrMagnitude > 0.001f)
+            _lastForward = agent.velocity.normalized;
 
+        // sprite FlipX 만으로 방향을 바꾼다면 ↓ 예시처럼 교체
+        // _lastForward = sr.flipX ? Vector2.left : Vector2.right;
+
+        return _lastForward;
+    }
     // 벽 개수 세기 (감쇠용)
     public int CountObstaclesBetween(Vector2 from, Vector2 to)
     {

@@ -6,6 +6,5 @@ using UnityEngine;
 public class MonsterSpawnerTile : SpawnerTile
 {
     [Header("Monster Settings")]
-    public int              ActiveRange;
-    public MonsterEnum[]    Monsters;
+    public string[]         Monsters;
 }

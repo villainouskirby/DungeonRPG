@@ -13,15 +13,43 @@ public static class Item_InfoDataParser
     public static void SetXlsxData()
     {
         ConvertRowData2Item();
-        ConvertRowData2UseItem();
+        ConvertRowData2ThrowItem();
         ConvertRowData2DropItem();
         ConvertRowData2Weapon();
         ConvertRowData2Armor();
         ConvertRowData2Backpack();
-        ConvertRowData2Pouch();
+        ConvertRowData2SubWeapon();
         ConvertRowData2Potion();
+        ConvertRowData2Hone();
         ConvertRowData2Condition();
     }
+    public static void ConvertRowData2Hone()
+    {
+        int stringLength = 0;
+        TextAsset binAsset = Resources.Load<TextAsset>(Path.Combine(_dataFilePath, "Item_Info/Hone"));
+        Span<byte> buffer = binAsset.bytes;
+        int offset = 0;
+        long rows = TypeByte2TypeConverter.ConvertTypeByte2long(buffer.Slice(offset, 8));
+        offset += 8;
+        Item_Info.Hone = new Item_Info_Hone[rows];
+        for(int row = 0; row < rows; row++)
+        {
+            Item_Info_Hone sheetRowData = new();
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            sheetRowData.effect = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            offset += 4;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            Item_Info.Hone[row] = sheetRowData;
+        }
+        Resources.UnloadAsset(binAsset);
+    }
+
     public static void ConvertRowData2Backpack()
     {
         int stringLength = 0;
@@ -36,13 +64,13 @@ public static class Item_InfoDataParser
             Item_Info_Backpack sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.BPK_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.BPK_max_weight = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.max_weight = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Armor_speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.BPK_judge = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            sheetRowData.judge = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
@@ -67,35 +95,35 @@ public static class Item_InfoDataParser
             Item_Info_Item sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_sprite = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.sprite = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.Item_maxAmount = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.max_amount = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_rank = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.rank = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_weight = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.weight = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Sell_price = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.sell_price = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Purchase_price = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.Item_usable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            sheetRowData.throwable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
-            sheetRowData.Item_wearable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            sheetRowData.usable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
-            sheetRowData.Item_pouchable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            sheetRowData.wearable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            offset += 1;
+            sheetRowData.pouchable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Item_PAR_DT = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.PAR_DT = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             Item_Info.Item[row] = sheetRowData;
         }
@@ -116,15 +144,15 @@ public static class Item_InfoDataParser
             Item_Info_Armor sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Armor_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.Armor_hp = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.hp = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Armor_stamina = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.stamina = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Armor_speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Armor_hiding = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.hiding = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
@@ -149,31 +177,72 @@ public static class Item_InfoDataParser
             Item_Info_Weapon sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.Weapon_atk = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.atk = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_ability = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.durability = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_1st_Ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.ratio1 = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_2nd_Ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.ratio2 = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_strong_Ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.strong_Ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_max_charge = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.max_charge = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_strong_speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.strong_speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_guard_ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.guard_ratio = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Weapon_justGaurd = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.just_guard = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.repair_cost = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.repair_ing = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            sheetRowData.repair_ing_count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             Item_Info.Weapon[row] = sheetRowData;
+        }
+        Resources.UnloadAsset(binAsset);
+    }
+
+    public static void ConvertRowData2ThrowItem()
+    {
+        int stringLength = 0;
+        TextAsset binAsset = Resources.Load<TextAsset>(Path.Combine(_dataFilePath, "Item_Info/ThrowItem"));
+        Span<byte> buffer = binAsset.bytes;
+        int offset = 0;
+        long rows = TypeByte2TypeConverter.ConvertTypeByte2long(buffer.Slice(offset, 8));
+        offset += 8;
+        Item_Info.ThrowItem = new Item_Info_ThrowItem[rows];
+        for(int row = 0; row < rows; row++)
+        {
+            Item_Info_ThrowItem sheetRowData = new();
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            sheetRowData.max_register_count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.damage = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.use_distance = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.sound_range = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            offset += 4;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            Item_Info.ThrowItem[row] = sheetRowData;
         }
         Resources.UnloadAsset(binAsset);
     }
@@ -192,7 +261,7 @@ public static class Item_InfoDataParser
             Item_Info_DropItem sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.UseItem_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
@@ -217,77 +286,44 @@ public static class Item_InfoDataParser
             Item_Info_Condition sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Condition_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Condition_name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Condition_explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             Item_Info.Condition[row] = sheetRowData;
         }
         Resources.UnloadAsset(binAsset);
     }
 
-    public static void ConvertRowData2Pouch()
+    public static void ConvertRowData2SubWeapon()
     {
         int stringLength = 0;
-        TextAsset binAsset = Resources.Load<TextAsset>(Path.Combine(_dataFilePath, "Item_Info/Pouch"));
+        TextAsset binAsset = Resources.Load<TextAsset>(Path.Combine(_dataFilePath, "Item_Info/SubWeapon"));
         Span<byte> buffer = binAsset.bytes;
         int offset = 0;
         long rows = TypeByte2TypeConverter.ConvertTypeByte2long(buffer.Slice(offset, 8));
         offset += 8;
-        Item_Info.Pouch = new Item_Info_Pouch[rows];
+        Item_Info.SubWeapon = new Item_Info_SubWeapon[rows];
         for(int row = 0; row < rows; row++)
         {
-            Item_Info_Pouch sheetRowData = new();
+            Item_Info_SubWeapon sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.PCH_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.PCH_count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.PCH_heal_buff = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
+            sheetRowData.count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            Item_Info.Pouch[row] = sheetRowData;
-        }
-        Resources.UnloadAsset(binAsset);
-    }
-
-    public static void ConvertRowData2UseItem()
-    {
-        int stringLength = 0;
-        TextAsset binAsset = Resources.Load<TextAsset>(Path.Combine(_dataFilePath, "Item_Info/UseItem"));
-        Span<byte> buffer = binAsset.bytes;
-        int offset = 0;
-        long rows = TypeByte2TypeConverter.ConvertTypeByte2long(buffer.Slice(offset, 8));
-        offset += 8;
-        Item_Info.UseItem = new Item_Info_UseItem[rows];
-        for(int row = 0; row < rows; row++)
-        {
-            Item_Info_UseItem sheetRowData = new();
-            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.UseItem_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
-            offset += stringLength;
-            sheetRowData.UseItem_damage = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.UseItem_useDistance = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.UseItem_useDistance2 = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
-            offset += 4;
-            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
-            offset += 4;
-            sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
-            offset += stringLength;
-            Item_Info.UseItem[row] = sheetRowData;
+            Item_Info.SubWeapon[row] = sheetRowData;
         }
         Resources.UnloadAsset(binAsset);
     }
@@ -306,14 +342,18 @@ public static class Item_InfoDataParser
             Item_Info_Potion sheetRowData = new();
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.Potion_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
-            sheetRowData.Potion_effect = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            sheetRowData.effect = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
-            sheetRowData.isHeal = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
-            offset += 1;
-            sheetRowData.isBuff = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
-            offset += 1;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.type = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.buff = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.Explanation = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));

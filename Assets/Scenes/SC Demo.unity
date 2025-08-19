@@ -4667,11 +4667,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bettle T
       objectReference: {fileID: 0}
-    - target: {fileID: 1669018344285207890, guid: 3825a651f0273024a948dbb220f7099c,
-        type: 3}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
     - target: {fileID: 2024195903231688819, guid: 3825a651f0273024a948dbb220f7099c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4722,15 +4717,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5943831726345952343, guid: 3825a651f0273024a948dbb220f7099c,
+        type: 3}
+      propertyPath: spawner
+      value: 
+      objectReference: {fileID: 1302068632}
     m_RemovedComponents:
-    - {fileID: 1669018344285207890, guid: 3825a651f0273024a948dbb220f7099c, type: 3}
+    - {fileID: 0}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1272526528818684848, guid: 3825a651f0273024a948dbb220f7099c,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2024580076}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3825a651f0273024a948dbb220f7099c, type: 3}
 --- !u!1001 &196271494
 PrefabInstance:
@@ -19344,7 +19340,7 @@ GameObject:
   - component: {fileID: 975032062}
   - component: {fileID: 975032061}
   m_Layer: 0
-  m_Name: AddBuff
+  m_Name: AddItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19416,12 +19412,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 975032064}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddInventory
-        m_Mode: 2
+        m_MethodName: AddStoneItem
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 11400000, guid: 8e0d474c25be12a4585f2b46cffde648,
-            type: 2}
-          m_ObjectArgumentAssemblyTypeName: ItemData, Assembly-CSharp
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -19479,9 +19474,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 1513623986}
   amount: 1
-  shopItems: []
+  shop: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 21300000, guid: bf886f0da04a86143bdaba6e7d8fea4f, type: 3}
+  tempPotion2: {fileID: 21300000, guid: f7ed0da14d3193743a178ab8c6869661, type: 3}
+  tempRock: {fileID: 21300104, guid: 29c9cded5e558164aaf8c9bf08aa1510, type: 3}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -28813,29 +28811,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1255064125 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
-    type: 3}
-  m_PrefabInstance: {fileID: 1673952837}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1255064128
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1255064125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bd11f81db6dcc6478479b0cf27f6e24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
-  spawner: {fileID: 1302068632}
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!1001 &1259318110
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33260,7 +33235,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.016666668
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
   m_HideEditorLogs: 0
@@ -34077,16 +34052,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca,
-        type: 3}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
-    - target: {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca,
-        type: 3}
-      propertyPath: obstacleMask.m_Bits
-      value: 128
-      objectReference: {fileID: 0}
     - target: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}
       propertyPath: m_Name
@@ -34095,17 +34060,33 @@ PrefabInstance:
     - target: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5772850400858764028, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: spawner
+      value: 
+      objectReference: {fileID: 1302068632}
+    - target: {fileID: 5772850400858764028, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: monster_Id
+      value: MST_BTL
+      objectReference: {fileID: 0}
+    - target: {fileID: 5772850400858764028, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 9344
+      objectReference: {fileID: 0}
+    - target: {fileID: 6744450290341369502, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: m_Height
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca, type: 3}
+    - {fileID: 0}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
-        type: 3}
-      insertIndex: 5
-      addedObject: {fileID: 1255064128}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fc256c2320f0409418a23fd135b49aca, type: 3}
 --- !u!1001 &1676877878
 PrefabInstance:
@@ -37533,29 +37514,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2004082125}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2024580075 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1272526528818684848, guid: 3825a651f0273024a948dbb220f7099c,
-    type: 3}
-  m_PrefabInstance: {fileID: 181556948}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2024580076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2024580075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bd11f81db6dcc6478479b0cf27f6e24, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: 59039b0458b151b4a91bc43203ce801f, type: 2}
-  spawner: {fileID: 1302068632}
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!1001 &2055511854
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38815,11 +38773,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1669018344285207890, guid: 3825a651f0273024a948dbb220f7099c,
-        type: 3}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
     - target: {fileID: 2024195903231688819, guid: 3825a651f0273024a948dbb220f7099c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -40094,16 +40047,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca,
-        type: 3}
-      propertyPath: spawner
-      value: 
-      objectReference: {fileID: 1302068632}
-    - target: {fileID: 339201979307624265, guid: fc256c2320f0409418a23fd135b49aca,
-        type: 3}
-      propertyPath: obstacleMask.m_Bits
-      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 5301721580680312565, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}

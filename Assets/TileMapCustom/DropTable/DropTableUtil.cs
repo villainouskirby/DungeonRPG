@@ -23,14 +23,14 @@ public static class DropTableUtil
         for(int i = 0; i < Item_Info.Item.Length; i++)
         {
             ResourceItemData resourceItemData = new(Item_Info.Item[i], null);
-            _mappingItem[Item_Info.Item[i].Item_id] = resourceItemData;
+            _mappingItem[Item_Info.Item[i].id] = resourceItemData;
         }
     }
 
 
-    public static List<(ResourceItemData data, int amount)> GetDropItemFromTable(string dropTableName)
+    public static (ResourceItemData data, int amount) GetDropItemFromTable(string dropTableName)
     {
-        List<(ResourceItemData data, int amount)> result = new();
+        (ResourceItemData data, int amount) result = new();
 
         string dropTableInfo = _mappingTable[dropTableName];
 
@@ -55,7 +55,7 @@ public static class DropTableUtil
                 continue;
 
             ResourceItemData data = _mappingItem[itemId];
-            result.Add((data, amount));
+            result = (data, amount);
             break;
         }
 

@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PotionData", menuName = "ItemData/CountableItem/PotionData")]
 public class PotionItemData : CountableItemData
 {
     public float Percentage => percentage;
@@ -13,8 +13,10 @@ public class PotionItemData : CountableItemData
 
     [SerializeField] private float healamount;
 
+    public Dictionary<string, Item_Info_Item> PotionDic;
     public PotionItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {
+        
     }
 
     // Start is called before the first frame update

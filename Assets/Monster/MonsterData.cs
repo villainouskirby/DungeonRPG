@@ -16,6 +16,7 @@ public class MonsterData : ScriptableObject
     public bool canMove = true; // 터렛처럼 정지형이면 false
     public float hearRange = 3f;   // 청각 반경(고정)
     public float sightDistance = 6f;   // 시야 거리
+    public float sightAngle = 90f;
     public float lostDistance = 8f;   // 시야 벗어나면 Combat 해제
     public float wanderRadius = 4f;   // Idle 산책 범위
 

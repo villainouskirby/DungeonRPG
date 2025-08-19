@@ -15,9 +15,9 @@ public class ItemSlotUI : SlotUI
     [Tooltip("아이템 총 무게")]
     [SerializeField] private TextMeshProUGUI _weightSumText;
 
-    private int _itemWeight;
+    private float _itemWeight;
     
-    public void SetItemInfo(Sprite imageSprite, string name, int Weight)
+    public void SetItemInfo(Sprite imageSprite, string name, float Weight)
     {
         SetItemInfo(imageSprite);
         _nameText.text = name;

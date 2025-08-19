@@ -54,7 +54,7 @@ public class InventoryUI : SlotInteractHandler
     }
 
     /// <summary> 중량 텍스트 수정 </summary>
-    public void UpdateWeightText(int currentCapacity, int maxCapacity)
+    public void UpdateWeightText(float currentCapacity, float maxCapacity)
     {
         if (_weightText == null) return;
 
