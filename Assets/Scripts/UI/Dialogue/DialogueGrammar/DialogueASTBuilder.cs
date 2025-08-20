@@ -12,25 +12,28 @@ public class DialogueNode
 public class DialogueASTBuilder : DialogueGrammarBaseListener
 {
     private List<DialogueNode> _nodes = new();
-    private List<DialogueValue.DialogueKeyValuePair> _scirptValues = new();
     private DialogueNode _currentNode;
+
+    private List<DialogueVariable.DialogueKeyValuePair> _scirptVariables = new();
+
     private Stack<DialogueStatement> _statementStack = new();
     private DialogueStatement _currentStatement;
-    private DialogueValue.DialogueKeyValuePair _currentValueInfo = new();
 
-    private DialogueValue.DialogueValueType _currentValueType;
+    private DialogueVariable.DialogueKeyValuePair _currentValueInfo = new();
+    private DialogueVariable.DialogueValueType _currentValueType;
 
     private void PushStatement() => _statementStack.Push(_currentStatement);
 
-    private DialogueValue GetRawDialogueValue()
+    private DialogueVariable GetRawDialogueValue()
     {
         return _currentValueType switch
         {
-            DialogueValue.DialogueValueType.Num => new NumValue(),
-            DialogueValue.DialogueValueType.Bool => new BoolValue(),
-            DialogueValue.DialogueValueType.String => new StringValue(),
-            DialogueValue.DialogueValueType.Sprite => new SpriteValue(),
-            DialogueValue.DialogueValueType.Image => new ImageValue(),
+            DialogueVariable.DialogueValueType.Num => new NumVariable(),
+            DialogueVariable.DialogueValueType.Bool => new BoolVariable(),
+            DialogueVariable.DialogueValueType.String => new StringVariable(),
+            DialogueVariable.DialogueValueType.Sprite => new SpriteVariable(),
+            DialogueVariable.DialogueValueType.Image => new ImageVariable(),
+            DialogueVariable.DialogueValueType.Identifier => new IdentifierVariable(),
             _ => null
         };
     }
@@ -72,6 +75,14 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
     // Statements
     // =========================
 
+    public override void EnterStatement([NotNull] DialogueGrammarParser.StatementContext context)
+    {
+        if (_currentStatement != null)
+        {
+            PushStatement();
+        }
+    }
+
     public override void EnterCompoundStatement([NotNull] DialogueGrammarParser.CompoundStatementContext context)
     {
         _currentStatement = new CompoundStatement();
@@ -85,15 +96,15 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
 
         _currentValueType = context.type().GetText() switch
         {
-            "num" => DialogueValue.DialogueValueType.Num,
-            "bool" => DialogueValue.DialogueValueType.Bool,
-            "string" => DialogueValue.DialogueValueType.String,
-            "Sprite" => DialogueValue.DialogueValueType.Sprite,
-            "Image" => DialogueValue.DialogueValueType.Image,
-            _ => DialogueValue.DialogueValueType.None
+            "num" => DialogueVariable.DialogueValueType.Num,
+            "bool" => DialogueVariable.DialogueValueType.Bool,
+            "string" => DialogueVariable.DialogueValueType.String,
+            "Sprite" => DialogueVariable.DialogueValueType.Sprite,
+            "Image" => DialogueVariable.DialogueValueType.Image,
+            _ => DialogueVariable.DialogueValueType.None
         };
 
-        if (_currentValueType == DialogueValue.DialogueValueType.None)
+        if (_currentValueType == DialogueVariable.DialogueValueType.None)
         {
             Debug.LogError("Value Type Error");
             return;
@@ -103,37 +114,38 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
     public override void EnterExprStatement([NotNull] DialogueGrammarParser.ExprStatementContext context)
     {
         _currentStatement = new ExprStatement();
-        PushStatement();
     }
 
     public override void EnterDialogueStatement([NotNull] DialogueGrammarParser.DialogueStatementContext context)
     {
         _currentStatement = new DialogueLineStatement();
-        PushStatement();
     }
 
     public override void EnterSelectStatement([NotNull] DialogueGrammarParser.SelectStatementContext context)
     {
         _currentStatement = new SelectStatement();
-        PushStatement();
     }
 
     public override void EnterIfStatement([NotNull] DialogueGrammarParser.IfStatementContext context)
     {
         _currentStatement = new IfStatement();
-        PushStatement();
     }
 
     public override void EnterJumpStatement([NotNull] DialogueGrammarParser.JumpStatementContext context)
     {
         _currentStatement = new JumpStatement();
-        PushStatement();
     }
 
     public override void ExitStatement([NotNull] DialogueGrammarParser.StatementContext context)
     {
-        DialogueStatement prevStatement = _statementStack.Pop();
-        _currentStatement = _statementStack.Peek();
+        if (_statementStack.Count == 0)
+        {
+            return;
+        }
+
+        DialogueStatement prevStatement = _currentStatement;
+
+        _currentStatement = _statementStack.Pop();
         
         switch (_currentStatement)
         {
@@ -158,17 +170,87 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
 
     public override void EnterInitDeclarator([NotNull] DialogueGrammarParser.InitDeclaratorContext context)
     {
-        if (_currentValueType == DialogueValue.DialogueValueType.None) return;
+        if (_currentValueType == DialogueVariable.DialogueValueType.None) return;
 
         _currentValueInfo.Key = context.declarator().IDENTIFIER().GetText();
 
-        DialogueGrammarParser.InitializerContext targetInitializer;
-        
+        DialogueGrammarParser.InitializerContext targetInitializer = context.initializer();
+
+        DialogueVariable variable;
+
+        if (targetInitializer.assignExpr() != null)
+        {
+            variable = GetRawDialogueValue();
+        }
+        else
+        {
+            variable = new ListVariable();
+            (variable as ListVariable).Type = _currentValueType;
+        }
     }
 
     // =========================
     // Expressions
     // =========================
 
+    public override void EnterExpr([NotNull] DialogueGrammarParser.ExprContext context)
+    {
+        base.EnterExpr(context);
+    }
 
+    public override void EnterAssignExpr([NotNull] DialogueGrammarParser.AssignExprContext context)
+    {
+        base.EnterAssignExpr(context);
+    }
+
+    public override void EnterOrExpr([NotNull] DialogueGrammarParser.OrExprContext context)
+    {
+        base.EnterOrExpr(context);
+    }
+
+    public override void EnterAndExpr([NotNull] DialogueGrammarParser.AndExprContext context)
+    {
+        base.EnterAndExpr(context);
+    }
+
+    public override void EnterEqualityExpr([NotNull] DialogueGrammarParser.EqualityExprContext context)
+    {
+        base.EnterEqualityExpr(context);
+    }
+
+    public override void EnterRelationalExpr([NotNull] DialogueGrammarParser.RelationalExprContext context)
+    {
+        base.EnterRelationalExpr(context);
+    }
+
+    public override void EnterAdditiveExpr([NotNull] DialogueGrammarParser.AdditiveExprContext context)
+    {
+        base.EnterAdditiveExpr(context);
+    }
+
+    public override void EnterMultiplicativeExpr([NotNull] DialogueGrammarParser.MultiplicativeExprContext context)
+    {
+        base.EnterMultiplicativeExpr(context);
+    }
+
+    public override void EnterPowerExpr([NotNull] DialogueGrammarParser.PowerExprContext context)
+    {
+        base.EnterPowerExpr(context);
+    }
+
+
+    public override void EnterUnaryExpr([NotNull] DialogueGrammarParser.UnaryExprContext context)
+    {
+        base.EnterUnaryExpr(context);
+    }
+
+    public override void EnterPostfixExpr([NotNull] DialogueGrammarParser.PostfixExprContext context)
+    {
+        base.EnterPostfixExpr(context);
+    }
+
+    public override void EnterPrimaryExpr([NotNull] DialogueGrammarParser.PrimaryExprContext context)
+    {
+        base.EnterPrimaryExpr(context);
+    }
 }

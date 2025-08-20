@@ -5,5 +5,5 @@ using UnityEngine;
 public class DialogueScriptSO : ScriptableObject
 {
     public List<DialogueNode> Nodes;
-    public List<DialogueValue.DialogueKeyValuePair> Values;
+    public List<DialogueVariable.DialogueKeyValuePair> Values;
 }

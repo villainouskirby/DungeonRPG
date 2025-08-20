@@ -14,13 +14,13 @@ public class CompoundStatement : DialogueStatement
 [Serializable]
 public class DeclarationStatement : DialogueStatement
 {
-    public List<DialogueValue.DialogueKeyValuePair> Declarations;
+    public List<DialogueVariable.DialogueKeyValuePair> Declarations;
 }
 
 [Serializable]
 public class ExprStatement : DialogueStatement
 {
-
+    public DialogueVariable Expression;
 }
 
 [Serializable]

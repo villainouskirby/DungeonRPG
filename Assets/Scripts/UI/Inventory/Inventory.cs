@@ -72,19 +72,7 @@ public class Inventory : MonoBehaviour, ISave
     {
         int index;
 
-        // 장비하던 아이템이 아닐경우 중량 차지함
-        if (_equipment)
-        {
-            if (itemData is not EquipmentItemData ||
-                isGetItem)
-            {
-                CalculateRestWeight(itemData.Weight, -amount);
-            }
-        }
-        else
-        {
-            CalculateRestWeight(itemData.Weight, -amount);
-        }
+        CalculateRestWeight(itemData.Weight, -amount);
 
         if (_maxCapacity > 0 && RestCapacity <= 0 && isGetItem)
         {
@@ -189,8 +177,7 @@ public class Inventory : MonoBehaviour, ISave
                 {
                     // 인벤 속 템 제거 및 장비창에 장착
                     _equipment.Equip(ei.Data as EquipmentItemData);
-                    CalculateRestWeight(item.Data.Weight, -1); // 인벤창에서는 제거 되지만 장비창에는 있기에 무게 다시 더함
-                    RemoveItem(index, 1);
+                    
                 }
                 else
                 {
@@ -200,12 +187,6 @@ public class Inventory : MonoBehaviour, ISave
                 }
             }
         }
-    }
-
-    /// <summary> 인벤토리 내부 정렬 </summary>
-    public void SortInventory()
-    {
-
     }
 
     public void SetItemToQuickSlot(int index)

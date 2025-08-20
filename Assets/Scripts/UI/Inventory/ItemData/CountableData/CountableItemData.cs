@@ -9,6 +9,7 @@ public abstract class CountableItemData : ItemData
 
     protected CountableItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {
+        _maxAmount = info.max_amount;
     }
 
     public CountableItemData()
