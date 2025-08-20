@@ -9,6 +9,10 @@ public  class Item_Info_Item
     /// </summary>
     public string id;
     /// <summary>
+    /// 아이템 타입
+    /// </summary>
+    public string type;
+    /// <summary>
     /// 아이템 이름
     /// </summary>
     public string name;
@@ -48,6 +52,10 @@ public  class Item_Info_Item
     /// 파우치 등록 여부
     /// </summary>
     public bool pouchable;
+    /// <summary>
+    /// 판매 가능 여부
+    /// </summary>
+    public bool sellable;
     /// <summary>
     /// 아이템 상세정보 DT
     /// </summary>

@@ -99,6 +99,10 @@ public static class Item_InfoDataParser
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
+            sheetRowData.type = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
             sheetRowData.name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
@@ -120,6 +124,8 @@ public static class Item_InfoDataParser
             sheetRowData.wearable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
             sheetRowData.pouchable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
+            offset += 1;
+            sheetRowData.sellable = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));
             offset += 1;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
