@@ -247,6 +247,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     };
     
     private void DoSlash(int dmg, Vector2 origin, Vector2 dir)
+
     {
         float w = 2f, l = 1f;
         Vector2 center = origin + dir * (l * .5f);
