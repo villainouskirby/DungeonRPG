@@ -135,5 +135,15 @@ public sealed class MonsterContext
         }
         return null;
     }
+    // 던진 오브젝트 소리 감지 (Detect 범위 내) 1번째 최우선순위
+    public bool CanHearThrowObject(float detectRange, out Vector3 noisePos)
+    {
+        noisePos = default;
+        if (!ThrowNoiseManager.Instance) return false;
+
+        bool ok = ThrowNoiseManager.Instance.TryGetNearestNoise(transform.position, detectRange, out noisePos);
+        if (ok) LastHeardPos = noisePos; // 추후 디버그/전환 로직에 활용 가능
+        return ok;
+    }
     #endregion
 }

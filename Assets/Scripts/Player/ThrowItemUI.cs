@@ -36,30 +36,35 @@ public sealed class ThrowAimUI : MonoBehaviour
         Instance = this;
         cam = Camera.main;
 
-        // LineRenderer 없으면 생성
         if (line == null)
             line = gameObject.AddComponent<LineRenderer>();
 
-        // 머티리얼을 강제로 새로 만들지 말고, 기본 Unlit/Color로 지정
-        // (URP라면 "Universal Render Pipeline/Unlit" 사용 권장)
-#if USING_URP
-    var shader = Shader.Find("Universal Render Pipeline/Unlit");
-#else
-        var shader = Shader.Find("Unlit/Color");
-#endif
-        if (line.sharedMaterial == null || line.sharedMaterial.shader != shader)
-            line.sharedMaterial = new Material(shader);
+        var shader = Shader.Find("Particles/Standard Unlit");
+        if (shader == null)
+        {
+            Debug.LogError("Shader not found: Particles/Standard Unlit");
+        }
+        else
+        {
+            line.material = new Material(shader);
+            line.material.SetColor("_Color", defaultColor);
+        }
 
-        // 색/두께/기본 옵션
-        line.startColor = defaultColor;   // 아래 2)에서 선언할 변수
-        line.endColor = defaultColor;
+        // 기본 렌더러 옵션
         line.widthMultiplier = 0.05f;
-        line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        line.receiveShadows = false;
-        line.alignment = LineAlignment.View;        // 2D UI 성격이면 View가 보통 보기 좋아
-        line.textureMode = LineTextureMode.Stretch; // 실선 기본: Stretch
+        line.alignment = LineAlignment.View;
+        line.textureMode = LineTextureMode.Stretch; // 기본 실선
+        line.numCornerVertices = 2;
+        line.numCapVertices = 2;
 
-        // 비주얼 초기 상태
+        // 색상(그라디언트)도 같이 지정 — 셰이더가 버텍스 컬러를 받으면 더 선명
+        var grad = new Gradient();
+        grad.SetKeys(
+            new[] { new GradientColorKey(defaultColor, 0f), new GradientColorKey(defaultColor, 1f) },
+            new[] { new GradientAlphaKey(defaultColor.a, 0f), new GradientAlphaKey(defaultColor.a, 1f) }
+        );
+        line.colorGradient = grad;
+
         line.positionCount = 0;
         line.enabled = false;
         if (targetMark) targetMark.gameObject.SetActive(false);
@@ -158,68 +163,66 @@ public sealed class ThrowAimUI : MonoBehaviour
     {
         if (dashedMat != null) return;
 
-#if USING_URP
-    var shader = Shader.Find("Universal Render Pipeline/Unlit");
-#else
-        var shader = Shader.Find("Unlit/Texture");
-#endif
+        var shader = Shader.Find("Particles/Standard Unlit");
         dashedMat = new Material(shader);
 
-        // 가로 64px, 세로 1px 텍스처 생성: [대쉬][공백] 패턴 반복
+        // 64x1 반복 텍스처 생성
         int texW = 64, texH = 1;
         dashedTex = new Texture2D(texW, texH, TextureFormat.RGBA32, false, true);
         dashedTex.wrapMode = TextureWrapMode.Repeat;
         dashedTex.filterMode = FilterMode.Bilinear;
 
-        // 패턴 채우기: (dash: 불투명, gap: 투명)
-        int dashPx = Mathf.RoundToInt(texW * (dashLength / (dashLength + gapLength)));
+        int dashPx = Mathf.Clamp(Mathf.RoundToInt(texW * (dashLength / Mathf.Max(0.001f, dashLength + gapLength))), 1, texW - 1);
         for (int x = 0; x < texW; x++)
         {
             bool isDash = x < dashPx;
-            Color c = isDash ? Color.white : new Color(1, 1, 1, 0); // 틴트를 위해 흰색/투명
+            Color c = isDash ? Color.white : new Color(1, 1, 1, 0); // 흰색/투명
             dashedTex.SetPixel(x, 0, c);
         }
         dashedTex.Apply();
 
-        dashedMat.mainTexture = dashedTex;
-        dashedMat.SetFloat("_Surface", 1); // (URP Unlit일 때 투명 표면)
-        dashedMat.EnableKeyword("_ALPHATEST_ON");
-        dashedMat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+        dashedMat.SetTexture("_MainTex", dashedTex);
+        dashedMat.SetColor("_Color", defaultColor);
     }
     void ApplyLineStyleAfterDraw()
     {
         if (lineStyle == LineStyle.Solid)
         {
-            // 실선: 색만 적용, Stretch 모드
             line.textureMode = LineTextureMode.Stretch;
-            line.sharedMaterial.SetColor("_Color", defaultColor); // Unlit/Color
-            line.startColor = defaultColor;
-            line.endColor = defaultColor;
+
+            // 머티리얼/그라디언트 둘 다 색 업데이트
+            if (line.material.HasProperty("_Color"))
+                line.material.SetColor("_Color", defaultColor);
+
+            var grad = line.colorGradient;
+            var keys = grad.colorKeys;
+            if (keys.Length >= 2)
+            {
+                keys[0].color = defaultColor;
+                keys[keys.Length - 1].color = defaultColor;
+                grad.SetKeys(keys, grad.alphaKeys);
+                line.colorGradient = grad;
+            }
             return;
         }
 
         // 점선
         EnsureDashedMaterial();
-        line.textureMode = LineTextureMode.Tile;   // 타일 반복
-        line.sharedMaterial = dashedMat;
+        line.textureMode = LineTextureMode.Tile;
+        line.material = dashedMat;
 
-        // 색상 틴트 (흰색 패턴 * 틴트 = 최종 색)
-        if (dashedMat.HasProperty("_Color")) dashedMat.SetColor("_Color", defaultColor);
-        line.startColor = defaultColor;
-        line.endColor = defaultColor;
+        if (line.material.HasProperty("_Color"))
+            line.material.SetColor("_Color", defaultColor);
 
-        // 총 길이로 타일링 조정
+        // 라인 총 길이 계산
         float totalLen = 0f;
         for (int i = 1; i < line.positionCount; i++)
             totalLen += Vector3.Distance(line.GetPosition(i - 1), line.GetPosition(i));
 
-        // 텍스처 한 주기의 월드 길이 = dashLength + gapLength
         float oneCycle = Mathf.Max(0.001f, dashLength + gapLength);
         float tileCount = Mathf.Max(1f, totalLen / oneCycle);
 
-        // 메인 텍스처의 U 방향 타일 수 조정
-        if (dashedMat.mainTexture != null)
-            dashedMat.mainTextureScale = new Vector2(tileCount, 1f);
+        line.material.SetTextureScale("_MainTex", new Vector2(tileCount, 1f));
     }
     Vector3 GetMouseWorldPoint(float zPlane)
     {

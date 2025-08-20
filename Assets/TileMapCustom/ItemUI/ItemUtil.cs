@@ -9,7 +9,7 @@ public static class ItemUtil
         switch (data.type)
         {
             case "THROW":
-                return new ThrowItemData(data, null);
+                return new ThrowItemData(data, null, null);
             case "DROP":
                 return new ResourceItemData(data, null);
             case "HONE":
