@@ -7,6 +7,12 @@ Shader "Tilemap/LitTilemap"
         _NormalMap("Normal Map", 2D) = "bump" {}
         _DefaultColor("DefaultColor", color) = (0, 0, 0, 1)
 
+        _FogColor       ("Fog Color", Color) = (0.7, 0.8, 1.0, 1)
+        _DistanceStart  ("Dist Fog Start", Float) = 10
+        _DistanceEnd    ("Dist Fog End",   Float) = 30
+        _ExtHeightFactor("Height Num", Float) = 0
+        _HeightStrength ("Height Mix", Range(0,1)) = 0
+
         [HideInInspector] _Color("Tint", Color) = (1,1,1,1)
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
         [HideInInspector] _Flip("Flip", Vector) = (1,1,1,1)
@@ -70,6 +76,9 @@ Shader "Tilemap/LitTilemap"
             half4 _MainTex_ST;
             float4 _Color;
             half4 _RendererColor;
+            float _DistanceStart;
+            float _DistanceEnd;
+            float4 _FogColor;
 
             /// TileMap
             // Global
@@ -81,6 +90,7 @@ Shader "Tilemap/LitTilemap"
             int _ViewBoxSize;
             int _ViewChunkSize;
             int _ChunkSize;
+            int _CurrentHeight;
             float _TileSize;
             float4 _DefaultColor;
 
@@ -185,8 +195,21 @@ Shader "Tilemap/LitTilemap"
 
                 InitializeSurfaceData(main.rgb, main.a, mask, surfaceData);
                 InitializeInputData(i.uv, i.lightingUV, inputData);
+                float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
 
-                return lerp(_DefaultColor, CombinedShapeLightShared(surfaceData, inputData), valid);
+                // Fog Logic
+                float  distXY  = length(_PlayerPos.xy - _TileMapTargetCamera.xy);
+                float  distFog = clamp(distXY, _DistanceStart, _DistanceEnd) / _DistanceEnd;
+
+                // temp
+                //float  heightFog = abs(_ExtHeightFactor - _CurrentHeight);
+                //float  fogFactor = lerp(distFog, heightFog, saturate(_HeightStrength));
+                float fogFactor = distFog;
+
+                float4 fogedColor = lerp(lightedColor, _FogColor, fogFactor);
+                // End Fog Logic
+
+                return lerp(_DefaultColor, fogedColor, valid);
             }
             ENDHLSL
         }

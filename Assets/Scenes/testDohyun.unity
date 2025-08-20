@@ -2267,6 +2267,8 @@ MonoBehaviour:
   shop: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 0}
+  tempPotion2: {fileID: 0}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -4326,7 +4328,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
-  spawner: {fileID: 0}
+  spawner: {x: 0, y: 0, z: 0}
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
@@ -5199,7 +5201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapType: 0
   SaveSlotIndex: 0
-  TestMapType: 2
+  TestMapType: 0
   TestSaveSlotIndex: 0
   DefaultStartMapType: 0
   TargetCamera: {fileID: 524322943}
