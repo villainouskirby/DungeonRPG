@@ -33,7 +33,7 @@ public class TradePopUpUI : AmountSelectPopUpUI
         {
             case ShopType.purchase:
                 _popUpName.text = "Buy";
-                _price = item.Data.Info.purchase_price;
+                //_price = item.Data.Info.purchase_price;
                 int maxAmount = (_price <= 0) ? 99 : _shopUI.GetCurrentGold() / _price;
 
                 SetItemData(index, item.Data.IconSprite, item.Data.Name, maxAmount);

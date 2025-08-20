@@ -33,9 +33,9 @@ public  class Item_Info_Item
     /// </summary>
     public int sell_price;
     /// <summary>
-    /// 구매 가격
+    /// 아이템 투척가능 여부
     /// </summary>
-    public int purchase_price;
+    public bool throwable;
     /// <summary>
     /// 아이템 사용가능 여부
     /// </summary>

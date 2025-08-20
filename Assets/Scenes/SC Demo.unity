@@ -19340,7 +19340,7 @@ GameObject:
   - component: {fileID: 975032062}
   - component: {fileID: 975032061}
   m_Layer: 0
-  m_Name: AddBuff
+  m_Name: AddItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19412,7 +19412,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 975032064}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddPotion1
+        m_MethodName: AddStoneItem
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -19479,6 +19479,7 @@ MonoBehaviour:
   quickSlot: {fileID: 0}
   tempPotion1: {fileID: 21300000, guid: bf886f0da04a86143bdaba6e7d8fea4f, type: 3}
   tempPotion2: {fileID: 21300000, guid: f7ed0da14d3193743a178ab8c6869661, type: 3}
+  tempRock: {fileID: 21300104, guid: 29c9cded5e558164aaf8c9bf08aa1510, type: 3}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -34070,6 +34071,11 @@ PrefabInstance:
         type: 3}
       propertyPath: monster_Id
       value: MST_BTL
+      objectReference: {fileID: 0}
+    - target: {fileID: 5772850400858764028, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 9344
       objectReference: {fileID: 0}
     - target: {fileID: 6744450290341369502, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}

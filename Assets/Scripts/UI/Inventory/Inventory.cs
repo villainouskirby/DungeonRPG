@@ -211,10 +211,14 @@ public class Inventory : MonoBehaviour, ISave
     public void SetItemToQuickSlot(int index)
     {
         Item item = _items[index];
+        if (item is not IUsableItem)
+        {
+            Debug.LogWarning("QuickSlot: 사용 불가능한 아이템은 퀵슬롯에 넣지 않습니다.");
+            return;
+        }
+
         if (_quickSlot.AddToSlot(item.Clone()))
         {
-            Debug.Log($"{item.Data.ToString()}, {index}");
-            // 퀵슬롯에 넣기 성공
             RemoveItem(index, 1);
         }
     }

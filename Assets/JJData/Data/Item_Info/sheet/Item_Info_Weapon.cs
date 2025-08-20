@@ -13,9 +13,9 @@ public  class Item_Info_Weapon
     /// </summary>
     public int atk;
     /// <summary>
-    /// 채집능력
+    /// 내구도
     /// </summary>
-    public int ability;
+    public float durability;
     /// <summary>
     /// 1타 배율
     /// </summary>
@@ -44,6 +44,18 @@ public  class Item_Info_Weapon
     /// 저스트 가드 성능
     /// </summary>
     public float just_guard;
+    /// <summary>
+    /// 수리 비용
+    /// </summary>
+    public int repair_cost;
+    /// <summary>
+    /// 수리 재료
+    /// </summary>
+    public string repair_ing;
+    /// <summary>
+    /// 수리 재료 개수
+    /// </summary>
+    public int repair_ing_count;
     /// <summary>
     /// 설명
     /// </summary>
