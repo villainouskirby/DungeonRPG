@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,19 @@ public class InventoryUI : SlotInteractHandler
     [SerializeField] private TextMeshProUGUI _weightText;
 
     private List<ItemSlotUI> _itemSlots = new List<ItemSlotUI>();
+    private PlayerController _playerController;
+
+    [Header("중량 패널티 설정")]
+    [Tooltip("이 비율 미만: 패널티 없음, 이 이상부터 Multiplier1 적용")]
+    [Range(0f, 1f)][SerializeField] private float threshold1 = 0.8f;   // 기본 0.8
+    [Range(0.1f, 1f)][SerializeField] private float multiplier1 = 0.8f; // 기본 0.8
+
+    [Tooltip("이 비율 이상부터 Multiplier2 적용")]
+    [Range(0f, 1f)][SerializeField] private float threshold2 = 0.9f;   // 기본 0.9
+    [Range(0.1f, 1f)][SerializeField] private float multiplier2 = 0.6f; // 기본 0.6
+
+    [Tooltip("threshold2 초과일 때 적용")]
+    [Range(0.1f, 1f)][SerializeField] private float multiplier3 = 0.5f; // 기본 0.5
 
     public void InitInventoryUI()
     {
@@ -76,6 +90,24 @@ public class InventoryUI : SlotInteractHandler
             color = Color.black;
         }
         _weightText.color = color;
+        ApplyWeightPenaltyToPlayer(currentCapacity, maxCapacity);
+    }
+    private void ApplyWeightPenaltyToPlayer(float currentCapacity, float maxCapacity)
+    {
+        if (_playerController == null || maxCapacity <= 0f) return;
+
+        float ratio = currentCapacity / maxCapacity;
+        float m;
+
+        // 비율별 배수 선택(인스펙터 값 사용)
+        if (ratio >= threshold2)
+            m = (ratio > threshold2) ? multiplier3 : multiplier2;
+        else if (ratio >= threshold1)
+            m = multiplier1; // 0.8 이상 ~ 0.9 미만
+        else
+            m = 1f; // 패널티 없음
+
+        _playerController.SetWeightSpeedMultiplier(m);
     }
 
     /// <summary> 중량 초과 알림 팝업 띄우기 </summary>

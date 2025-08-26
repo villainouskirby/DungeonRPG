@@ -19,11 +19,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     [Tooltip("한 번에 차감할 스태미나 양")]
     public float runStaminaCostPerTick = 2f;      // ← 소비량
 
-
+    [Header("가속도 값")]
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
-    public float brake = 30f;
 
+    [Header("중량 패널티 배수(1=정상속도)")]
+    [Range(0.1f, 1.0f)]
+    public float weightSpeedMultiplier = 1f;
+
+    public void SetWeightSpeedMultiplier(float m)
+    {
+        weightSpeedMultiplier = Mathf.Clamp(m, 0.1f, 1f);
+    }
     [Header("회피 설정값")]
     public int dodgeCost = 50;    // 스태미너 소모
     public float diveTime = 0.30f; // 몸 던짐 구간 길이
@@ -127,7 +134,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         if (dir != Vector2.zero)
         {
-            Vector2 targetVel = dir.normalized * speed;
+            float finalSpeed = speed * weightSpeedMultiplier;
+            Vector2 targetVel = dir.normalized * finalSpeed;
             rb.velocity = Vector2.MoveTowards(rb.velocity, targetVel,
                                               accel * Time.fixedDeltaTime);
         }
