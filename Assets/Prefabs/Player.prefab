@@ -648,17 +648,18 @@ MonoBehaviour:
   anim: {fileID: 5382554830589741717}
   speed: 3
   runStaminaTickInterval: 0.1
-  runspeed: 5
-  runStaminaCostPerTick: 5
-  accel: 10
+  runspeed: 4.5
+  accel: 20
+  speedSmoothTime: 0.2
+  animSmoothTime: 0.18
   weightSpeedMultiplier: 1
   dodgeCost: 30
-  diveTime: 0.4
+  diveTime: 0.6
   proneTime: 0.55
-  getUpTime: 0.45
-  invincibleTime: 0.2
-  slideForce: 6
-  getUpBoost: 2
+  getUpTime: 0.4
+  invincibleTime: 1
+  slideForce: 4
+  getUpBoost: 1
   diveAccel: 60
   slideDecel: 40
   getUpAccel: 50
@@ -890,7 +891,7 @@ MonoBehaviour:
   afterDelay:
   - 0.5
   - 1
-  comboInputTime: 0.08
+  comboInputTime: 0.35
   hitboxActiveTime: 0.12
   chargeThreshold: 0.3
   maxChargeTime: 1
