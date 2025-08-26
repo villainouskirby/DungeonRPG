@@ -291,12 +291,30 @@ public class ChargingState : IPlayerState
             player.ChangeState(new EscapeState(player));
             return;
         }
+        PlayerData.instance.isStaminaBlocked = true;
+        // 차징 도중 스태미너 지속 소모
+        float need = ac != null ? ac.GetType()
+            .GetField("heavyChargeStaminaPerSec", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) != null
+            ? (float)ac.GetType().GetField("heavyChargeStaminaPerSec", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(ac)
+            : 25f : 25f; // 뭔코든진 모르겠는데 나중에 렉걸리면 수정
+
+        float consume = need * Time.deltaTime;
+        if (!PlayerData.instance.SpendStamina(consume))
+        {
+            // 스태미너 바닥 → 강공격 취소 및 Idle
+            ac.CancelCharging();
+            player.ChangeState(new IdleState(player));
+            PlayerData.instance.BlockStaminaRegen(1f);
+            return;
+        }
         // 우클릭을 떼면 공격 발사
         if (!released && Input.GetMouseButtonUp(0))
         {
             ac.ReleaseCharging();
             released = true;
+            Debug.Log("차징 공격 발사");
             player.ChangeState(new IdleState(player));
+            PlayerData.instance.BlockStaminaRegen(1f);
             return;
         }
 

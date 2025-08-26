@@ -30,7 +30,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
 
-    private bool isStaminaBlocked = false;
+    public bool isStaminaBlocked = false;
 
     [Header("포션 UI")]
     [SerializeField] private ChargeUIController chargeUI;

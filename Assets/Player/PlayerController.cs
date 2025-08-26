@@ -56,6 +56,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     private PlayerStateMachine stateMachine;
     [SerializeField] IPlayerState nowState;
 
+    // 강공격 등 잠시 1초동안 움직임을 멈추는 로직, 그로기상태나 이럴때 쓸만할듯
+    float _moveFreezeUntil = -1f;
+    public void FreezeMoveFor(float seconds)
+    {
+        float until = Time.time + Mathf.Max(0f, seconds);
+        if (until > _moveFreezeUntil) _moveFreezeUntil = until;
+    }
     #region Escape 내부 상태
     enum EscapePhase { None, Dive, Down, GetUp }
     EscapePhase escPhase = EscapePhase.None;
@@ -131,6 +138,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void FixedUpdate()
     {
+        if (_moveFreezeUntil > 0f && Time.time < _moveFreezeUntil)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
         if (EscapeActive) return;
 
         // 입력 / 속도 계산
@@ -152,9 +164,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         {
             rb.velocity = Vector2.zero;
         }
-        bool attacking = attackController && attackController.IsInAttack;
+        bool attackingAnim = attackController && attackController.IsInAttackAnimation;
         bool guarding = stateMachine.GetCurrentState() is GuardState;
-        if (!attacking && !guarding)
+        if (!attackingAnim && !guarding)
         {
             // 방향 결정
             if (dir != Vector2.zero)
@@ -183,7 +195,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void UpdateAnimation(bool moving)
     {
-        if (attackController && attackController.IsInAttack) { return; }
+        if (attackController && attackController.IsInAttackAnimation) { return; }
 
         string clip = moving
             ? facingDir switch
@@ -245,7 +257,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
             return false;
-        PlayerData.instance.BlockStaminaRegen(2f);
+        PlayerData.instance.BlockStaminaRegen(1f);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;
