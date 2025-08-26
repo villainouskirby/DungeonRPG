@@ -17,12 +17,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
     public float runspeed = 5f;
 
-    [Tooltip("한 번에 차감할 스태미나 양")]
-    public float runStaminaCostPerTick = 2f;      // 플레이어 상태머신에서도 변경이 필요함!!!!!!!!!
-
     [Header("가속도 값")]
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
+
+    [Header("달리기 속도/애니메이션 전이 스무딩")]
+    [SerializeField, Tooltip("speed가 목표값으로 수렴하는 시간(초). 0이면 즉시 전환")]
+    private float speedSmoothTime = 0.12f;
+    [SerializeField, Tooltip("anim.speed가 목표값으로 수렴하는 시간(초). 0이면 즉시 전환")]
+    private float animSmoothTime = 0.18f;
+
+    float _speedSmoothVel = 0f;
+    float _animSmoothVel = 0f;
 
     [Header("중량 패널티 배수(1=정상속도)")]
     [Range(0.1f, 1.0f)]
@@ -135,9 +141,12 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (dir != Vector2.zero)
         {
             float finalSpeed = speed * weightSpeedMultiplier;
-            Vector2 targetVel = dir.normalized * finalSpeed;
-            rb.velocity = Vector2.MoveTowards(rb.velocity, targetVel,
-                                              accel * Time.fixedDeltaTime);
+            float curSpeed = rb.velocity.magnitude;
+            float nextSpeed = Mathf.MoveTowards(curSpeed, finalSpeed, accel * Time.fixedDeltaTime);
+
+            Vector2 nextVel = dir.normalized * nextSpeed;
+
+            rb.velocity = nextVel;
         }
         else
         {
@@ -195,7 +204,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     private void UpdateByState() // 상태에 따른 속력
     {
         var cur = stateMachine.GetCurrentState();
-        speed = cur switch
+        float targetSpeed = cur switch
         {
             IdleState or SneakState or NormalAttackState or GuardState => 0f,
             SneakMoveState or ChargingState => 1f,
@@ -203,18 +212,32 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             RunState => runspeed,
             _ => speed
         };
+        float targetAnimSpeed;
         if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
         {
             // 0이면 그대로 1로, 아닐 때는 비율로 조절
-            anim.speed = speed > 0.01f
-                ? Mathf.Clamp(speed / baseMoveSpeed, 0.3f, 2.0f) // 하한·상한
-                : 1f;                                            // Idle은 1배속
+            targetAnimSpeed = targetSpeed > 0.01f
+            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 2.0f)
+            : 1f; // Idle은 1배속                                           // Idle은 1배속
         }
         else
         {
             // 특수 모션(회피, 공격 등)은 원래 속도로
-            anim.speed = 1f;
+            targetAnimSpeed = 1f;
         }
+        if (targetSpeed <= 3f)   // 달리기 상태가 아니면
+        {
+            speed = targetSpeed;              // 즉시 적용
+            anim.speed = targetAnimSpeed;         // 1배속
+            _speedSmoothVel = 0f;    // 스무딩 속도 초기화
+            _animSmoothVel = 0f;
+        }
+        else
+        {
+            speed = Mathf.SmoothDamp(speed, targetSpeed, ref _speedSmoothVel, speedSmoothTime);
+            anim.speed = Mathf.SmoothDamp(anim.speed, targetAnimSpeed, ref _animSmoothVel, animSmoothTime);
+        }
+
     }
 
     #region 회피 기동 로직
@@ -222,6 +245,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
             return false;
+        PlayerData.instance.BlockStaminaRegen(2f);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;
