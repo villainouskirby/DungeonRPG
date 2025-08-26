@@ -10,7 +10,7 @@ public class InventoryPopUpUI : ItemPopUpUI
 
     protected override void Awake()
     {
-        base.Awake();
+        //base.Awake();
 
         if (_menuPopUp == null) return;
 

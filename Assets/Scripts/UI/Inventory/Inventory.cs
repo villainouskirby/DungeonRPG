@@ -20,6 +20,12 @@ public class Inventory : MonoBehaviour, ISave
     public List<Item> InventoryItems => _items;
     protected List<Item> _items = new();
 
+    // 각 date class 생성하고 그에따라 넣도록 해야할듯
+    private List<Item> _equipmentItems = new();
+    private List<Item> _usableItems = new();
+    private List<Item> _potionItems = new();
+    private List<Item> _ingredientItems = new();
+
     private void Awake()
     {
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
@@ -70,7 +76,7 @@ public class Inventory : MonoBehaviour, ISave
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
-        int index;
+        int index = FindSlotIndex(itemData);
 
         CalculateRestWeight(itemData.Weight, -amount);
 
@@ -88,38 +94,16 @@ public class Inventory : MonoBehaviour, ISave
         // 수량이 있는 아이템
         if (itemData is CountableItemData ciData)
         {
-            // 이미 아이템이 존재하는지, 용량의 여유가 있는지 체크
-            bool findNextCountable = true;
-            index = -1;
-
             while (amount > 0)
             {
-                if (findNextCountable)
-                {
-                    index = FindCountableItemSlotIndex(ciData, index);
-
-                    if (index == -1)
-                    {
-                        findNextCountable = false;
-                    }
-                    else
-                    {
-                        CountableItem ci = _items[index] as CountableItem;
-                        amount = ci.AddAmountAndGetExcess(amount);
-
-                        UpdateSlot(index);
-                        OnInventoryChanged?.Invoke(index, ci.Amount);
-                    }
-                }
-                else
+                if (index == _items.Count || itemData.SID == _items[index].Data.SID)
                 {
                     // 새 아이템 생성
                     CountableItem ci = ciData.Createitem() as CountableItem;
                     ci.SetAmount(amount);
 
                     // 슬롯에 추가
-                    index = _items.Count;
-                    _items.Add(ci);
+                    _items.Insert(index, ci);
 
                     // 남은 개수 계산
                     amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
@@ -127,16 +111,26 @@ public class Inventory : MonoBehaviour, ISave
                     UpdateSlot(index);
                     OnInventoryChanged?.Invoke(index, ci.Amount);
                 }
+                else
+                {
+                    CountableItem ci = _items[index] as CountableItem;
+                    amount = ci.AddAmountAndGetExcess(amount);
+
+                    UpdateSlot(index);
+                    OnInventoryChanged?.Invoke(index, ci.Amount);
+
+                    index++;
+                }
             }
         }
         // 수량이 없는 아이템
         else
         {
-            for (; amount > 0; amount--)
+            for (; amount > 0; amount--, index++)
             {
                 // 아이템 생성 및 슬롯에 추가
                 index = _items.Count;
-                _items.Add(itemData.Createitem());
+                _items.Insert(index, itemData.Createitem());
 
                 UpdateSlot(index);
                 OnInventoryChanged?.Invoke(index, 1);
@@ -147,10 +141,10 @@ public class Inventory : MonoBehaviour, ISave
     }
 
     /// <summary> 아이템 넣기 </summary>
-    public int AddItem(ItemData itemData, int amount = 1, bool isGetItem = true)
+    public int AddItem(ItemData itemData, int amount = 1, bool isGetItem = true) // 반환값 쓸 일 없어서 지울듯?
     {
         // 가방에 넣을 수 있는 개수 체크
-        if (_maxCapacity > 0 && RestCapacity <= 0)
+        if (_maxCapacity > 0 && RestCapacity <= -0.2f * _maxCapacity)
         {
             _inventoryUI.OpenExcessPopUp();
             return amount;
@@ -175,7 +169,7 @@ public class Inventory : MonoBehaviour, ISave
             {
                 if (item is EquipmentItem ei)
                 {
-                    // 인벤 속 템 제거 및 장비창에 장착
+                    // 해당 슬롯 UI 업데이트
                     _equipment.Equip(ei.Data as EquipmentItemData);
                     
                 }
@@ -266,6 +260,28 @@ public class Inventory : MonoBehaviour, ISave
         return -1;
     }
 
+    private int FindSlotIndex(ItemData data, int index = -1)
+    {
+        while (++index < _items.Count)
+        {
+            int comparer = _items[index].Data.SID.CompareTo(data.SID);
+            if (comparer == 0)
+            {
+                if (_items[index] is CountableItem ci && ci.IsMax)
+                {
+                    continue;
+                }
+                else
+                {
+                    return index;
+                }
+            }
+            else if (comparer < 0) return index;
+        }
+
+        return index;
+    }
+
     private void UpdateSlot(int index)
     {
         if (!IsValidIndex(index)) return;
@@ -301,6 +317,15 @@ public class Inventory : MonoBehaviour, ISave
     private void CalculateRestWeight(float weight, int amount = 1)
     {
         RestCapacity += weight * amount;
+
+        if (RestCapacity < -0.2f * _maxCapacity)
+        {
+
+        }
+        else if (RestCapacity < -0.1f * _maxCapacity)
+        {
+
+        }
     }
 
     private void UpdateWeightText()

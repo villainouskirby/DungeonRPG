@@ -32,15 +32,15 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5574334716235395334}
+  - {fileID: 7918079006622842215}
+  - {fileID: 4495466243715607554}
+  - {fileID: 7712636273096581708}
+  - {fileID: 7662325927887178457}
   - {fileID: 1847429057390043431}
   - {fileID: 7782443784090686533}
   - {fileID: 280836777584818368}
   - {fileID: 8860581367799986223}
-  - {fileID: 7662325927887178457}
-  - {fileID: 7712636273096581708}
-  - {fileID: 4495466243715607554}
-  - {fileID: 7918079006622842215}
-  - {fileID: 5574334716235395334}
   - {fileID: 2389941837419062412}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -587,12 +587,12 @@ PrefabInstance:
     - target: {fileID: 3318434545905512513, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 600
+      value: 1920
       objectReference: {fileID: 0}
     - target: {fileID: 3318434545905512513, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 800
+      value: 1080
       objectReference: {fileID: 0}
     - target: {fileID: 3318434545905512513, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
@@ -632,7 +632,7 @@ PrefabInstance:
     - target: {fileID: 3318434545905512513, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 260
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3318434545905512513, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
@@ -664,10 +664,25 @@ PrefabInstance:
       propertyPath: _quickSlotInGameUI
       value: 
       objectReference: {fileID: 5426216257115388984}
+    - target: {fileID: 5861478063954166594, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6765442670238909724, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: m_Name
       value: Inventory
+      objectReference: {fileID: 0}
+    - target: {fileID: 7191604882806176430, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7191604882806176430, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

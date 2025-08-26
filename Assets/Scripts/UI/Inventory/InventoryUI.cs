@@ -11,13 +11,14 @@ public class InventoryUI : SlotInteractHandler
     [SerializeField] private Transform _inventoryContent;
     [SerializeField] private GameObject _itemSlotPrefab;
 
-    [SerializeField] private TextMeshProUGUI _weightText;
+    [SerializeField] private TextMeshProUGUI _currentWeightText;
+    [SerializeField] private TextMeshProUGUI _maxWeightText;
 
-    private List<ItemSlotUI> _itemSlots = new List<ItemSlotUI>();
+    private List<InventoryItemSlotUI> _itemSlots = new();
 
     public void InitInventoryUI()
     {
-        foreach (ItemSlotUI itemSlot in _itemSlots)
+        foreach (InventoryItemSlotUI itemSlot in _itemSlots)
         {
             Destroy(itemSlot.gameObject);
         }
@@ -27,9 +28,9 @@ public class InventoryUI : SlotInteractHandler
     /// <summary> 새 슬롯 추가 </summary>
     private void CreateSlot()
     {
-        ItemSlotUI slotUI;
+        InventoryItemSlotUI slotUI;
         GameObject newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
-        if ((slotUI = newSlot.GetComponent<ItemSlotUI>()) == null) slotUI = newSlot.AddComponent<ItemSlotUI>();
+        if ((slotUI = newSlot.GetComponent<InventoryItemSlotUI>()) == null) slotUI = newSlot.AddComponent<InventoryItemSlotUI>();
         _itemSlots.Add(slotUI);
     }
 
@@ -56,10 +57,11 @@ public class InventoryUI : SlotInteractHandler
     /// <summary> 중량 텍스트 수정 </summary>
     public void UpdateWeightText(float currentCapacity, float maxCapacity)
     {
-        if (_weightText == null) return;
+        if (_currentWeightText == null) return;
 
         // 텍스트 세팅
-        _weightText.text = currentCapacity.ToString() + " / " + maxCapacity.ToString();
+        _currentWeightText.text = currentCapacity.ToString();
+        _maxWeightText.text = maxCapacity.ToString();
 
         // 현제 중량에 따른 색 변경
         Color color;
@@ -75,7 +77,7 @@ public class InventoryUI : SlotInteractHandler
         {
             color = Color.black;
         }
-        _weightText.color = color;
+        _currentWeightText.color = color;
     }
 
     /// <summary> 중량 초과 알림 팝업 띄우기 </summary>
@@ -136,7 +138,7 @@ public class InventoryUI : SlotInteractHandler
     }
 
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
-    protected int GetItemSlotIndex(ItemSlotUI slot)
+    protected int GetItemSlotIndex(InventoryItemSlotUI slot)
     {
         return _itemSlots.IndexOf(slot);
     }
@@ -145,28 +147,24 @@ public class InventoryUI : SlotInteractHandler
 
     public override void OnDoubleClick()
     {
-        _inventory.UseItem(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
     }
 
     public override void OnLeftClick()
     {
-        
+        _inventoryPopUpUI.OpenMenu(GetItemSlotIndex(_pointedSlot as InventoryItemSlotUI));
     }
 
     public override void OnRightClick()
     {
-        _inventoryPopUpUI.OpenMenu(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
-        _inventoryPopUpUI.CloseInfo();
+        (_pointedSlot as InventoryItemSlotUI).ToggleDetail();
     }
 
     public override void OnPointerIn()
     {
-        _inventoryPopUpUI.OpenInfo(GetItemSlotIndex(_pointedSlot as ItemSlotUI));
     }
 
     public override void OnPointerOut()
     {
-        _inventoryPopUpUI.CloseInfo();
     }
 
     #endregion

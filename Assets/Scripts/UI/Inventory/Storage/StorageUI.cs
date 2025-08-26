@@ -7,13 +7,13 @@ public class StorageUI : InventoryUI
 
     public override void OnDoubleClick()
     {
-        int index = GetItemSlotIndex(_pointedSlot as ItemSlotUI);
+        int index = GetItemSlotIndex(_pointedSlot as InventoryItemSlotUI);
         _storage.MoveItemToTarget(index, _storage.GetItemAmount(index));
     }
 
     public override void OnRightClick()
     {
-        int index = GetItemSlotIndex(_pointedSlot as ItemSlotUI);
+        int index = GetItemSlotIndex(_pointedSlot as InventoryItemSlotUI);
         _storage.MoveItemToTarget(index, 1);
     }
 }

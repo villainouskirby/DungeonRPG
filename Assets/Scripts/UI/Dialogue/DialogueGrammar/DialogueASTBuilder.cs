@@ -19,24 +19,11 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
     private Stack<DialogueStatement> _statementStack = new();
     private DialogueStatement _currentStatement;
 
-    private DialogueVariable.DialogueKeyValuePair _currentValueInfo = new();
+    private Stack<DialogueVariable> _variableValueStack;
+    private DialogueVariable.DialogueKeyValuePair _currentVariableInfo = new();
     private DialogueVariable.DialogueValueType _currentValueType;
 
     private void PushStatement() => _statementStack.Push(_currentStatement);
-
-    private DialogueVariable GetRawDialogueValue()
-    {
-        return _currentValueType switch
-        {
-            DialogueVariable.DialogueValueType.Num => new NumVariable(),
-            DialogueVariable.DialogueValueType.Bool => new BoolVariable(),
-            DialogueVariable.DialogueValueType.String => new StringVariable(),
-            DialogueVariable.DialogueValueType.Sprite => new SpriteVariable(),
-            DialogueVariable.DialogueValueType.Image => new ImageVariable(),
-            DialogueVariable.DialogueValueType.Identifier => new IdentifierVariable(),
-            _ => null
-        };
-    }
 
     // 초기화
     public override void EnterScript([NotNull] DialogueGrammarParser.ScriptContext context)
@@ -172,21 +159,10 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
     {
         if (_currentValueType == DialogueVariable.DialogueValueType.None) return;
 
-        _currentValueInfo.Key = context.declarator().IDENTIFIER().GetText();
+        _currentVariableInfo.Key = context.declarator().IDENTIFIER().GetText();
 
         DialogueGrammarParser.InitializerContext targetInitializer = context.initializer();
 
-        DialogueVariable variable;
-
-        if (targetInitializer.assignExpr() != null)
-        {
-            variable = GetRawDialogueValue();
-        }
-        else
-        {
-            variable = new ListVariable();
-            (variable as ListVariable).Type = _currentValueType;
-        }
     }
 
     // =========================
@@ -251,6 +227,18 @@ public class DialogueASTBuilder : DialogueGrammarBaseListener
 
     public override void EnterPrimaryExpr([NotNull] DialogueGrammarParser.PrimaryExprContext context)
     {
-        base.EnterPrimaryExpr(context);
+        if (context.value() != null)
+        {
+            DialogueVariable valriable = _currentValueType switch
+            {
+                DialogueVariable.DialogueValueType.Num => new NumVariable(),
+                DialogueVariable.DialogueValueType.Bool => new BoolVariable(),
+                DialogueVariable.DialogueValueType.String => new StringVariable(),
+                DialogueVariable.DialogueValueType.Sprite => new SpriteVariable(),
+                DialogueVariable.DialogueValueType.Image => new ImageVariable(),
+                DialogueVariable.DialogueValueType.Identifier => new IdentifierVariable(),
+                _ => null
+            };
+        }
     }
 }
