@@ -12,12 +12,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
     private float baseMoveSpeed = 3f;
 
-    [Header("달리기 스태미너 소모 설정")]
+    [Header("달리기 설정")]
     [Tooltip("RunState 동안 이 간격(초)마다 스태미나를 차감")]
     public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
+    public float runspeed = 5f;
 
     [Tooltip("한 번에 차감할 스태미나 양")]
-    public float runStaminaCostPerTick = 2f;      // ← 소비량
+    public float runStaminaCostPerTick = 2f;      // 플레이어 상태머신에서도 변경이 필요함!!!!!!!!!
 
     [Header("가속도 값")]
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
@@ -109,7 +110,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         stateMachine.Update();
         UpdateByState();
-        DrainStaminaWhileRunning();
         if (EscapeActive) UpdateEscape();
 
         //강제정지
@@ -191,36 +191,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             };
         anim.Play(clip);
     }
-    private float _runStaminaTimer = 0f;
-    private void DrainStaminaWhileRunning()
-    {
-        // 달리기 상태가 아닌 경우 타이머 리셋 후 종료
-        if (stateMachine.GetCurrentState() is not RunState)
-        {
-            _runStaminaTimer = 0f;
-            return;
-        }
-
-        if (!PlayerData.instance) return;
-
-        _runStaminaTimer += Time.deltaTime;
-
-        // 설정한 간격을 넘으면 소비
-        if (_runStaminaTimer >= runStaminaTickInterval)
-        {
-            bool ok = PlayerData.instance.SpendStamina(runStaminaCostPerTick);
-
-            _runStaminaTimer = 0f;   // 타이머 리셋
-
-            if (!ok)
-            {
-                // 스태미나가 부족하면 달리기 해제
-                stateMachine.ChangeState(new MoveState(this));
-            }
-        }
-    }
-
-
+    
     private void UpdateByState() // 상태에 따른 속력
     {
         var cur = stateMachine.GetCurrentState();
@@ -229,7 +200,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             IdleState or SneakState or NormalAttackState or GuardState => 0f,
             SneakMoveState or ChargingState => 1f,
             MoveState => 3f,
-            RunState => 5f,
+            RunState => runspeed,
             _ => speed
         };
         if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
@@ -251,7 +222,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
             return false;
-
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;

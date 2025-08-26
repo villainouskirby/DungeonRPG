@@ -53,7 +53,7 @@ public class MoveState : IPlayerState
        
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
-        if (Input.GetKey(KeyCode.LeftShift)) player.ChangeState(new RunState(player));
+        if (Input.GetKey(KeyCode.LeftShift) && PlayerData.instance.CanStartSprint()) player.ChangeState(new RunState(player));
     }
 
     public void Exit()
@@ -86,7 +86,11 @@ public class RunState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyUp(KeyCode.LeftShift)) player.ChangeState(new MoveState(player));
+        if (!PlayerData.instance.TryConsumeSprintThisFrame(Time.deltaTime))
+        { 
+            player.ChangeState(new MoveState(player));
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
     }
 

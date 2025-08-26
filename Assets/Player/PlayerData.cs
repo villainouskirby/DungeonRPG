@@ -24,6 +24,12 @@ public class PlayerData : MonoBehaviour
     [Header("스테미나 리젠 속도")]
     [SerializeField] private float StaminaSpeed = 2f;
 
+    [Header("Sprint")]
+    [SerializeField] private float runCostPerSec = 5f;          // 달리기 1초당 소모
+    [SerializeField] private float sprintResumeThreshold = 10f; // 재시작 가능 최소 스태미나
+    [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
+    public bool SprintLocked { get; private set; } = false;
+
     private bool isStaminaBlocked = false;
 
     [Header("포션 UI")]
@@ -55,6 +61,7 @@ public class PlayerData : MonoBehaviour
         {
             currentStamina.Value = currentStamina.Value;
         }
+        TryUnlockSprint();
         if (isPotionCharging)
             chargeUI.SetPotionRatio(PotionChargeRatio);
     }
@@ -98,6 +105,40 @@ public class PlayerData : MonoBehaviour
         isStaminaBlocked = true;
         yield return new WaitForSeconds(seconds);
         isStaminaBlocked = false;
+    }
+    // ▼ 달리기 “지속 소모” API (RunState에서 매 프레임 호출)
+    public bool TryConsumeSprintThisFrame(float dt)
+    {
+        if (SprintLocked) return false;
+
+        float need = runCostPerSec * dt;
+        if (currentStamina.Value < need)
+        {
+            // 바닥 → 락 + 리젠 블락 + 0으로 고정
+            currentStamina.Value = 0f;
+            SprintLocked = true;
+            BlockStaminaRegen(exhaustRegenBlockSec);
+            return false;
+        }
+
+        currentStamina.Value -= need;
+        return true;
+    }
+
+    // 달리기 시작 가능 여부 (MoveState → RunState 진입 체크용)
+    public bool CanStartSprint()
+    {
+        return !SprintLocked && currentStamina.Value >= sprintResumeThreshold;
+    }
+
+    // 락 해제 규칙: Shift를 “떼고” + 스태미나가 일정 이상
+    private void TryUnlockSprint()
+    {
+        if (SprintLocked)
+        {
+            if (!Input.GetKey(KeyCode.LeftShift) && currentStamina.Value >= sprintResumeThreshold)
+                SprintLocked = false;
+        }
     }
     // 포션 게이지 UI
     public void StartPotionGauge(float durationSec)
