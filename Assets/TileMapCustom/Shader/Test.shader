@@ -190,15 +190,9 @@ Shader "Tilemap/LitTilemap"
 
                 const half4 main = i.color * targetColor;
                 const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, i.uv);
-                SurfaceData2D surfaceData;
-                InputData2D inputData;
 
-                InitializeSurfaceData(main.rgb, main.a, mask, surfaceData);
-                InitializeInputData(i.uv, i.lightingUV, inputData);
-                float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
-
-                // Fog Logic
-                float  distXY  = length(_PlayerPos.xy - _TileMapTargetCamera.xy);
+                 // Fog Logic
+                float  distXY  = length(_PlayerPos.xy - i.worldPos.xy);
                 float  distFog = clamp(distXY, _DistanceStart, _DistanceEnd) / _DistanceEnd;
 
                 // temp
@@ -206,10 +200,17 @@ Shader "Tilemap/LitTilemap"
                 //float  fogFactor = lerp(distFog, heightFog, saturate(_HeightStrength));
                 float fogFactor = distFog;
 
-                float4 fogedColor = lerp(lightedColor, _FogColor, fogFactor);
+                float3 fogedColor = lerp(main.rgb, _FogColor.rgb, fogFactor);
                 // End Fog Logic
 
-                return lerp(_DefaultColor, fogedColor, valid);
+                SurfaceData2D surfaceData;
+                InputData2D inputData;
+
+                InitializeSurfaceData(fogedColor.rgb, main.a, mask, surfaceData);
+                InitializeInputData(i.uv, i.lightingUV, inputData);
+                float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
+
+                return lerp(_DefaultColor, lightedColor, valid);
             }
             ENDHLSL
         }

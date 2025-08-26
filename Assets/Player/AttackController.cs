@@ -29,7 +29,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float heavyRadius = 2.5f; // 범위 반경 r
     [SerializeField] private float heavyAfterDelay = 0.7f; // 후딜
 
-    private int ChargeAttackCost = 50;
+    [Header("강공격 차징 소모")]
+    [SerializeField] public float heavyChargeStaminaPerSec = 25f;
+
     private bool isAttacking = false;
     private bool isAttackCharging = false;
     private int comboStep = 0;
@@ -38,7 +40,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private bool heavyOnCooldown = false;
     float pressTime;
     bool pressActive;
-
+    public bool IsCharging => isAttackCharging;
+    public bool IsInAttackAnimation => isAttacking;
     private Animator anim;
     private SpriteRenderer sprite;
 
@@ -90,7 +93,17 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         };
         return $"Attack{step}{suffix}";   // 예: Attack1Down, Attack2Side
     }
-
+    private static string HeavyAttackClipName(int dir)
+    {
+        // dir: 0=Up, 1=Down, 2=Left, 3=Right
+        string suffix = dir switch
+        {
+            0 => "Up",
+            1 => "Down",
+            _ => "Side"
+        };
+        return $"HeavyAttack{suffix}";   // 예: HeavyAttackUp, HeavyAttackSide, HeavyAttackDown
+    }
 
     // 공격 입력 
     void HandleAttackInput()
@@ -181,7 +194,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
-        if (!PlayerData.instance || PlayerData.instance.currentStamina.Value < ChargeAttackCost )
+        if (!PlayerData.instance || PlayerData.instance.currentStamina.Value <= 0f)
         {
             Debug.Log("스테미너 부족");
             return false;
@@ -191,7 +204,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         isAttackCharging = true;
         chargeStart = Time.time;
         chargeUI.ShowAttackGauge();
-        anim.SetTrigger("ChargeStart");
+        //anim.SetTrigger("ChargeStart");
         return true;
     }
     // 현재 캔슬 로직은 PlayerStates 스크립트의 ChargeState 클래스에서 관리중.
@@ -200,25 +213,32 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         if (!isAttackCharging) return;
         isAttackCharging = false;
         chargeUI.HideAll();
-        anim.SetTrigger("ChargeCancel");
+        //anim.SetTrigger("ChargeCancel");
     }
     public void ReleaseCharging()
     {
+        
         if (!isAttackCharging) return;
         isAttackCharging = false;
-
         float ratio = Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime);
         int damage = Mathf.RoundToInt(baseDamage * (1f + heavyMultiplier * ratio));
 
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
-        anim.SetInteger("Direction", dir);
-        anim.SetTrigger("HeavyAttack");
+
+        string clip = HeavyAttackClipName(dir);
+        anim.Play(clip, 0, 0f);
+
+        isAttacking = true;
+
+        pc.FreezeMoveFor(heavyAfterDelay);
+
+        pc.rb.velocity = Vector2.zero;
+        pc.ChangeState(new NormalAttackState(pc, heavyAfterDelay));
 
         DoHeavyCircle(damage, transform.position, heavyRadius);
         heavyOnCooldown = true;
         //pc.ChangeState(new NormalAttackState(pc, after));
-        PlayerData.instance?.SpendStamina(ChargeAttackCost);
         StartCoroutine(HeavyCooldown());
         chargeUI.HideAll();
     }
@@ -226,7 +246,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     {
         yield return new WaitForSeconds(heavyAfterDelay);
         heavyOnCooldown = false;   // 쿨타임 해제
-        pc.ChangeState(new IdleState(pc));
+        isAttacking = false;
     }
 
     // UI 실시간 갱신
@@ -247,6 +267,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     };
     
     private void DoSlash(int dmg, Vector2 origin, Vector2 dir)
+
     {
         float w = 2f, l = 1f;
         Vector2 center = origin + dir * (l * .5f);

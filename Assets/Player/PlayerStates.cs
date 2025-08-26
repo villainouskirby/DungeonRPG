@@ -53,7 +53,7 @@ public class MoveState : IPlayerState
        
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
-        if (Input.GetKey(KeyCode.LeftShift)) player.ChangeState(new RunState(player));
+        if (Input.GetKey(KeyCode.LeftShift) && PlayerData.instance.CanStartSprint()) player.ChangeState(new RunState(player));
     }
 
     public void Exit()
@@ -86,7 +86,11 @@ public class RunState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyUp(KeyCode.LeftShift)) player.ChangeState(new MoveState(player));
+        if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.instance.TryConsumeSprintThisFrame(Time.deltaTime))
+        { 
+            player.ChangeState(new MoveState(player));
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
     }
 
@@ -287,12 +291,24 @@ public class ChargingState : IPlayerState
             player.ChangeState(new EscapeState(player));
             return;
         }
+        float consume = ac.heavyChargeStaminaPerSec * Time.deltaTime; // 게터 사용
+
+        if (!PlayerData.instance.SpendStamina(consume))
+        {
+            // 부족 → 바로 0으로, 무방비 진입, 차징 취소
+            PlayerData.instance.ForceExhaustToZero();
+            ac.CancelCharging();
+            player.ChangeState(new IdleState(player));
+            return;
+        }
         // 우클릭을 떼면 공격 발사
         if (!released && Input.GetMouseButtonUp(0))
         {
             ac.ReleaseCharging();
             released = true;
+            Debug.Log("차징 공격 발사");
             player.ChangeState(new IdleState(player));
+            PlayerData.instance.BlockStaminaRegen(1f);
             return;
         }
 

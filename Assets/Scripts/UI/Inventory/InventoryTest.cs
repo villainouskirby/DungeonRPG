@@ -51,7 +51,7 @@ public class InventoryTest : MonoBehaviour
     public void AddStoneItem()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
-        ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock);
+        ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock, "PAR_MIN_ROC");
         UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
     }
 

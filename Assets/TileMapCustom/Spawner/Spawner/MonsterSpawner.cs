@@ -34,7 +34,7 @@ public class MonsterSpawner : Spawner
     {
         base.Init();
         if (MonsterDic == null)
-            MonsterDic = SheetDataUtil.DicByKey(Monster_Info.Monster, x => x.Monster_name);
+            MonsterDic = SheetDataUtil.DicByKey(Monster_Info.Monster, x => x.Monster_id);
         if (Monsters.Length == 0)
         {
             Debug.LogWarning($"{TilePos.ToString()}에 위치한 Spawner의 Monsters가 비어있습니다.");

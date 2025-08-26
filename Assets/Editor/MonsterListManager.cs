@@ -16,7 +16,7 @@ public static class MonsterListManager
         MonsterList = new string[Monster.Length];
         for (int i = 0; i < Monster.Length; i++)
         {
-            MonsterList[i] = Monster[i].Monster_name;
+            MonsterList[i] = Monster[i].Monster_id;
         }
     }
 }

@@ -23,8 +23,22 @@ public class PlayerData : MonoBehaviour
 
     [Header("스테미나 리젠 속도")]
     [SerializeField] private float StaminaSpeed = 2f;
+    [Header("무방비 상태 지속시간")]
+    [SerializeField] private float exhaustedDuration = 2f;  // 스테미너 0 → 무방비 2초
+    public bool IsExhausted { get; private set; } = false;
+    Coroutine exhaustCo;
 
-    private bool isStaminaBlocked = false;
+    [Header("Sprint")]
+    [SerializeField] private float runCostPerSec = 5f;          // 달리기 1초당 소모
+    [SerializeField] private float sprintResumeThreshold = 10f; // 재시작 가능 최소 스태미나
+    [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
+    public bool SprintLocked { get; private set; } = false;
+
+    //스테미나 필드
+    int regenBlockCount = 0;
+    public bool isStaminaBlocked => regenBlockCount > 0;
+    void AddRegenBlock() { regenBlockCount++; }
+    void RemoveRegenBlock() { regenBlockCount = Mathf.Max(0, regenBlockCount - 1); }
 
     [Header("포션 UI")]
     [SerializeField] private ChargeUIController chargeUI;
@@ -55,6 +69,7 @@ public class PlayerData : MonoBehaviour
         {
             currentStamina.Value = currentStamina.Value;
         }
+        TryUnlockSprint();
         if (isPotionCharging)
             chargeUI.SetPotionRatio(PotionChargeRatio);
     }
@@ -62,15 +77,23 @@ public class PlayerData : MonoBehaviour
     {
         currentHP.Value += value;
     }
+
+    #region 스태미나
     public void StaminaValueChange(float value)
     {
         currentStamina.Value += value;
     }
     public bool SpendStamina(float amount)
     {
+        if (IsExhausted) return false;
         if (currentStamina.Value < amount) return false;
         currentStamina.Value -= amount;
         return true;
+    }
+    public void ForceExhaustToZero()
+    {
+        if (currentStamina.Value > 0f) currentStamina.Value = 0f;
+        EnterExhaust();
     }
     private IEnumerator StaminaRegen()
     {
@@ -90,15 +113,88 @@ public class PlayerData : MonoBehaviour
     }
     public void BlockStaminaRegen(float seconds)
     {
-        StartCoroutine(BlockRegenCoroutine(seconds));
+        StartCoroutine(BlockRegenFor(seconds));
+    }
+    IEnumerator BlockRegenFor(float sec)
+    {
+        AddRegenBlock();
+        yield return new WaitForSeconds(sec);
+        RemoveRegenBlock();
     }
 
-    private IEnumerator BlockRegenCoroutine(float seconds)
+
+    // 달리기 시작 가능 여부 (MoveState → RunState 진입 체크용)
+    public bool CanStartSprint()
     {
-        isStaminaBlocked = true;
-        yield return new WaitForSeconds(seconds);
-        isStaminaBlocked = false;
+        return !IsExhausted && !SprintLocked && currentStamina.Value >= sprintResumeThreshold;
     }
+
+    // 락 해제 규칙: Shift를 “떼고” + 스태미나가 일정 이상
+    private void TryUnlockSprint()
+    {
+        if (SprintLocked)
+        {
+            if (!Input.GetKey(KeyCode.LeftShift) && currentStamina.Value >= sprintResumeThreshold)
+                SprintLocked = false;
+        }
+    }
+    // 액션형 소비: 행동 "종료 시점"에 호출
+    // - stamina < cost였어도 모션은 이미 정상 출력됨 → 여기서 0 처리 + 무방비 진입
+    // - stamina >= cost면 정상 차감
+    public bool ConsumeActionStamina(float cost, bool allowDebt = true)
+    {
+        if (IsExhausted) return false;                 // 무방비면 액션 자체가 불가
+
+        if (currentStamina.Value >= cost)
+        {
+            currentStamina.Value -= cost;              // 정상 차감
+            BlockStaminaRegen(1f);
+            return true;
+        }
+
+        if (allowDebt)                                  // 빚 허용: 0으로 만들고 무방비
+        {
+            currentStamina.Value = 0f;
+            EnterExhaust();                             // 2초 무방비 + 리젠금지
+            return true;                                // 모션은 이미 끝났으므로 true
+        }
+
+        return false;
+    }
+
+    // 달리기 “지속 소모” (RunState에서 매 프레임 호출)
+    public bool TryConsumeSprintThisFrame(float dt)
+    {
+        if (IsExhausted || SprintLocked) return false;
+
+        float need = runCostPerSec * dt;
+        if (currentStamina.Value <= need)
+        {
+            currentStamina.Value = 0f;
+            EnterExhaust();                             // 0 → 무방비 진입
+            return false;                               // 더 이상 달릴 수 없음
+        }
+
+        currentStamina.Value -= need;
+        BlockStaminaRegen(1f);
+        return true;
+    }
+    void EnterExhaust()
+    {
+        StopCoroutine(nameof(ExhaustRoutine));
+        StartCoroutine(ExhaustRoutine());
+    }
+
+    IEnumerator ExhaustRoutine()
+    {
+        IsExhausted = true;
+        AddRegenBlock();                       // 무방비 동안 리젠 금지
+        yield return new WaitForSeconds(exhaustedDuration);
+        RemoveRegenBlock();
+        IsExhausted = false;
+    }
+    #endregion
+    #region 포션
     // 포션 게이지 UI
     public void StartPotionGauge(float durationSec)
     {
@@ -155,4 +251,5 @@ public class PlayerData : MonoBehaviour
         BuffType.SpeedDown => BuffType.SpeedUp,
         _ => t
     };
+    #endregion
 }

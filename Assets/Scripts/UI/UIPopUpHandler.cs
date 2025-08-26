@@ -63,13 +63,13 @@ public class UIPopUpHandler : MonoBehaviour
     private void InitAllUI()
     {
         _inventory.SetActive(true);
-        _shop.SetActive(true);
+        //_shop.SetActive(true);
         _storage.SetActive(true);
         _quest.SetActive(true);
         _smith.SetActive(true);
 
         _inventory.SetActive(false);
-        _shop.SetActive(false);
+        //_shop.SetActive(false);
         _storage.SetActive(false);
         _quest.SetActive(false);
         _smith.SetActive(false);

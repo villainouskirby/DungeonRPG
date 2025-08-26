@@ -12,18 +12,32 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float speed = 5f;   // 현재 이동 속도(상태별로 변동)
     private float baseMoveSpeed = 3f;
 
-    [Header("달리기 스태미너 소모 설정")]
+    [Header("달리기 설정")]
     [Tooltip("RunState 동안 이 간격(초)마다 스태미나를 차감")]
     public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
+    public float runspeed = 5f;
 
-    [Tooltip("한 번에 차감할 스태미나 양")]
-    public float runStaminaCostPerTick = 2f;      // ← 소비량
-
-
+    [Header("가속도 값")]
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
-    public float brake = 30f;
 
+    [Header("달리기 속도/애니메이션 전이 스무딩")]
+    [SerializeField, Tooltip("speed가 목표값으로 수렴하는 시간(초). 0이면 즉시 전환")]
+    private float speedSmoothTime = 0.12f;
+    [SerializeField, Tooltip("anim.speed가 목표값으로 수렴하는 시간(초). 0이면 즉시 전환")]
+    private float animSmoothTime = 0.18f;
+
+    float _speedSmoothVel = 0f;
+    float _animSmoothVel = 0f;
+
+    [Header("중량 패널티 배수(1=정상속도)")]
+    [Range(0.1f, 1.0f)]
+    public float weightSpeedMultiplier = 1f;
+
+    public void SetWeightSpeedMultiplier(float m)
+    {
+        weightSpeedMultiplier = Mathf.Clamp(m, 0.1f, 1f);
+    }
     [Header("회피 설정값")]
     public int dodgeCost = 50;    // 스태미너 소모
     public float diveTime = 0.30f; // 몸 던짐 구간 길이
@@ -42,6 +56,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     private PlayerStateMachine stateMachine;
     [SerializeField] IPlayerState nowState;
 
+    // 강공격 등 잠시 1초동안 움직임을 멈추는 로직, 그로기상태나 이럴때 쓸만할듯
+    float _moveFreezeUntil = -1f;
+    public void FreezeMoveFor(float seconds)
+    {
+        float until = Time.time + Mathf.Max(0f, seconds);
+        if (until > _moveFreezeUntil) _moveFreezeUntil = until;
+    }
     #region Escape 내부 상태
     enum EscapePhase { None, Dive, Down, GetUp }
     EscapePhase escPhase = EscapePhase.None;
@@ -102,7 +123,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         stateMachine.Update();
         UpdateByState();
-        DrainStaminaWhileRunning();
         if (EscapeActive) UpdateEscape();
 
         //강제정지
@@ -118,6 +138,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void FixedUpdate()
     {
+        if (_moveFreezeUntil > 0f && Time.time < _moveFreezeUntil)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
         if (EscapeActive) return;
 
         // 입력 / 속도 계산
@@ -127,17 +152,21 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         if (dir != Vector2.zero)
         {
-            Vector2 targetVel = dir.normalized * speed;
-            rb.velocity = Vector2.MoveTowards(rb.velocity, targetVel,
-                                              accel * Time.fixedDeltaTime);
+            float finalSpeed = speed * weightSpeedMultiplier;
+            float curSpeed = rb.velocity.magnitude;
+            float nextSpeed = Mathf.MoveTowards(curSpeed, finalSpeed, accel * Time.fixedDeltaTime);
+
+            Vector2 nextVel = dir.normalized * nextSpeed;
+
+            rb.velocity = nextVel;
         }
         else
         {
             rb.velocity = Vector2.zero;
         }
-        bool attacking = attackController && attackController.IsInAttack;
+        bool attackingAnim = attackController && attackController.IsInAttackAnimation;
         bool guarding = stateMachine.GetCurrentState() is GuardState;
-        if (!attacking && !guarding)
+        if (!attackingAnim && !guarding)
         {
             // 방향 결정
             if (dir != Vector2.zero)
@@ -166,7 +195,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void UpdateAnimation(bool moving)
     {
-        if (attackController && attackController.IsInAttack) { return; }
+        if (attackController && attackController.IsInAttackAnimation) { return; }
 
         string clip = moving
             ? facingDir switch
@@ -183,67 +212,51 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             };
         anim.Play(clip);
     }
-    private float _runStaminaTimer = 0f;
-    private void DrainStaminaWhileRunning()
-    {
-        // 달리기 상태가 아닌 경우 타이머 리셋 후 종료
-        if (stateMachine.GetCurrentState() is not RunState)
-        {
-            _runStaminaTimer = 0f;
-            return;
-        }
-
-        if (!PlayerData.instance) return;
-
-        _runStaminaTimer += Time.deltaTime;
-
-        // 설정한 간격을 넘으면 소비
-        if (_runStaminaTimer >= runStaminaTickInterval)
-        {
-            bool ok = PlayerData.instance.SpendStamina(runStaminaCostPerTick);
-
-            _runStaminaTimer = 0f;   // 타이머 리셋
-
-            if (!ok)
-            {
-                // 스태미나가 부족하면 달리기 해제
-                stateMachine.ChangeState(new MoveState(this));
-            }
-        }
-    }
-
-
+    
     private void UpdateByState() // 상태에 따른 속력
     {
         var cur = stateMachine.GetCurrentState();
-        speed = cur switch
+        float targetSpeed = cur switch
         {
             IdleState or SneakState or NormalAttackState or GuardState => 0f,
             SneakMoveState or ChargingState => 1f,
             MoveState => 3f,
-            RunState => 5f,
+            RunState => runspeed,
             _ => speed
         };
+        float targetAnimSpeed;
         if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
         {
             // 0이면 그대로 1로, 아닐 때는 비율로 조절
-            anim.speed = speed > 0.01f
-                ? Mathf.Clamp(speed / baseMoveSpeed, 0.3f, 2.0f) // 하한·상한
-                : 1f;                                            // Idle은 1배속
+            targetAnimSpeed = targetSpeed > 0.01f
+            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 2.0f)
+            : 1f; // Idle은 1배속                                           // Idle은 1배속
         }
         else
         {
             // 특수 모션(회피, 공격 등)은 원래 속도로
-            anim.speed = 1f;
+            targetAnimSpeed = 1f;
         }
+        if (targetSpeed <= 3f)   // 달리기 상태가 아니면
+        {
+            speed = targetSpeed;              // 즉시 적용
+            anim.speed = targetAnimSpeed;         // 1배속
+            _speedSmoothVel = 0f;    // 스무딩 속도 초기화
+            _animSmoothVel = 0f;
+        }
+        else
+        {
+            speed = Mathf.SmoothDamp(speed, targetSpeed, ref _speedSmoothVel, speedSmoothTime);
+            anim.speed = Mathf.SmoothDamp(anim.speed, targetAnimSpeed, ref _animSmoothVel, animSmoothTime);
+        }
+
     }
 
     #region 회피 기동 로직
     public bool TryBeginEscape()
     {
-        if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
-            return false;
-
+        if (PlayerData.instance.IsExhausted) return false;
+        PlayerData.instance.ConsumeActionStamina(dodgeCost, allowDebt: true);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;
@@ -320,14 +333,23 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         Vector2 dir = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         if (dir != Vector2.zero)
         {
-            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                SetFacingDirection(dir.x < 0 ? 2 : 3);
-            else
-                SetFacingDirection(dir.y > 0 ? 0 : 1);
-        }
+            escDir = dir.normalized;
 
-        escDir = facingDir switch
-        { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
+            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                SetFacingDirection(dir.x < 0 ? 2 : 3);   // 좌우
+            else
+                SetFacingDirection(dir.y > 0 ? 0 : 1);   // 상하
+        }
+        else
+        {
+            escDir = facingDir switch
+            {
+                0 => Vector2.up,
+                1 => Vector2.down,
+                2 => Vector2.left,
+                _ => Vector2.right
+            };
+        }
 
         rb.velocity = escDir * getUpBoost;
         anim.SetTrigger("GetUp");

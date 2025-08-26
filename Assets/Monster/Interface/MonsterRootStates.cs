@@ -25,6 +25,10 @@ public sealed class MonsterIdleState : IMonsterState
 
     public void Tick()
     {
+        if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
+        {
+            machine.ChangeState(new MonsterDetectState(ctx, machine));
+        }
         // 아이템 감지
         if (ctx.CanSeeObject(ctx.data.sightDistance))
         {
@@ -122,6 +126,13 @@ public sealed class MonsterDetectState : IMonsterState
     }
     public void Tick()
     {
+        if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
+        {
+            ctx.agent.speed = ctx.data.detectSpeed;
+            ctx.agent.SetDestination(noisePos);
+            ctx.anim.Play("Walk");
+            return;
+        }
         /* ─── 아이템 우선 ─── */
         if (ctx.CanSeeObject(ctx.data.sightDistance))
         {
