@@ -255,9 +255,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #region 회피 기동 로직
     public bool TryBeginEscape()
     {
-        if (!PlayerData.instance || !PlayerData.instance.SpendStamina(dodgeCost))
-            return false;
-        PlayerData.instance.BlockStaminaRegen(1f);
+        if (PlayerData.instance.IsExhausted) return false;
+        PlayerData.instance.ConsumeActionStamina(dodgeCost, allowDebt: true);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;

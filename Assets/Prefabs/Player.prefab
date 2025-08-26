@@ -866,7 +866,8 @@ MonoBehaviour:
   currentHP: {fileID: 11400000, guid: e25990f3ef3e20a4e85bcbcdbf249453, type: 2}
   currentStamina: {fileID: 11400000, guid: 70fa28d0b71b2794e972a597db4337aa, type: 2}
   StaminaSpeed: 2
-  runCostPerSec: 50
+  exhaustedDuration: 2
+  runCostPerSec: 25
   sprintResumeThreshold: 10
   exhaustRegenBlockSec: 1.5
   chargeUI: {fileID: 2912204716069094641}
@@ -898,6 +899,7 @@ MonoBehaviour:
   heavyMultiplier: 1
   heavyRadius: 2.5
   heavyAfterDelay: 1.2
+  heavyChargeStaminaPerSec: 50
 --- !u!210 &8422171715171851318
 SortingGroup:
   m_ObjectHideFlags: 0

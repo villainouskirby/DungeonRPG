@@ -30,7 +30,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float heavyAfterDelay = 0.7f; // 후딜
 
     [Header("강공격 차징 소모")]
-    [SerializeField] private float heavyChargeStaminaPerSec = 25f;
+    [SerializeField] public float heavyChargeStaminaPerSec = 25f;
 
     private bool isAttacking = false;
     private bool isAttackCharging = false;
