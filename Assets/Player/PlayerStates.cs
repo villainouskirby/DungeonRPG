@@ -86,7 +86,7 @@ public class RunState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (!PlayerData.instance.TryConsumeSprintThisFrame(Time.deltaTime))
+        if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.instance.TryConsumeSprintThisFrame(Time.deltaTime))
         { 
             player.ChangeState(new MoveState(player));
             return;

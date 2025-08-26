@@ -648,9 +648,10 @@ MonoBehaviour:
   anim: {fileID: 5382554830589741717}
   speed: 3
   runStaminaTickInterval: 0.1
+  runspeed: 5
   runStaminaCostPerTick: 5
   accel: 10
-  brake: 200
+  weightSpeedMultiplier: 1
   dodgeCost: 30
   diveTime: 0.4
   proneTime: 0.55
@@ -864,6 +865,9 @@ MonoBehaviour:
   currentHP: {fileID: 11400000, guid: e25990f3ef3e20a4e85bcbcdbf249453, type: 2}
   currentStamina: {fileID: 11400000, guid: 70fa28d0b71b2794e972a597db4337aa, type: 2}
   StaminaSpeed: 2
+  runCostPerSec: 50
+  sprintResumeThreshold: 10
+  exhaustRegenBlockSec: 1.5
   chargeUI: {fileID: 2912204716069094641}
 --- !u!114 &6620938914345478364
 MonoBehaviour:
