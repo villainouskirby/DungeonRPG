@@ -322,14 +322,23 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         Vector2 dir = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         if (dir != Vector2.zero)
         {
-            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-                SetFacingDirection(dir.x < 0 ? 2 : 3);
-            else
-                SetFacingDirection(dir.y > 0 ? 0 : 1);
-        }
+            escDir = dir.normalized;
 
-        escDir = facingDir switch
-        { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
+            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+                SetFacingDirection(dir.x < 0 ? 2 : 3);   // 좌우
+            else
+                SetFacingDirection(dir.y > 0 ? 0 : 1);   // 상하
+        }
+        else
+        {
+            escDir = facingDir switch
+            {
+                0 => Vector2.up,
+                1 => Vector2.down,
+                2 => Vector2.left,
+                _ => Vector2.right
+            };
+        }
 
         rb.velocity = escDir * getUpBoost;
         anim.SetTrigger("GetUp");
