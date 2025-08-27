@@ -39,7 +39,7 @@ public class InventoryItemSlotUI : ItemSlotUI
     [ContextMenu("Slide")]
     public void ToggleDetail()
     {
-        _viewportHeight = _detailArea.sizeDelta.y + 4; // 나중에 init으로 빼고 instantiate 한 후에 호출하는 식으로 하면 해결 되려나 // start에 하니 vertical layout 연산 잔에 이루어지는 듯 해 height가 0으로 표기됨
+        _viewportHeight = _detailArea.sizeDelta.y; // 나중에 init으로 빼고 instantiate 한 후에 호출하는 식으로 하면 해결 되려나 // start에 하니 vertical layout 연산 잔에 이루어지는 듯 해 height가 0으로 표기됨
 
         cts?.Cancel();
         cts?.Dispose();
