@@ -12,6 +12,7 @@ public sealed class MonsterContext
     public readonly SpriteRenderer sr;
     //public readonly Vector3 spawner;
     public Vector3 spawner => mono.Spawner;
+    public readonly SpriteRenderer alert;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;
@@ -39,6 +40,7 @@ public sealed class MonsterContext
         anim = owner.Animator;
         sr = owner.Sprite;
         //spawner = owner.Spawner;
+        alert = owner.AlertSR;
         player = owner.Player;
 
         rank = mdata.Monster_rank;

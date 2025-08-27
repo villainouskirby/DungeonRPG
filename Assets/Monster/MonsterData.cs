@@ -28,6 +28,16 @@ public class MonsterData : ScriptableObject
     [Header("소리 탐지 로직")]
     public float soundObstaclePenalty = 2f;   // 벽 1개당 거리 보정치(또는 dB 감쇠)
 
+    [Header("몬스터 상태 전이 설정")]
+    public float aggroHoldSeconds = 2f;        // 전투 진입까지 연속 유지 시간
+    public float disengageHoldSeconds = 2f;    // 전투 이탈까지 연속 미유지 시간
+
+    public Sprite questionSprite;              // 감지 중(물음표)
+    public Sprite exclamationSprite;           // 전투 진입(느낌표)
+    public Color questionStartColor = Color.white;
+    public Color questionEndColor = Color.red;
+
+
     [Header("스포너")]
     public float maxSpawnerDist = 15f;  // 이 거리 이상이면 Return
     public float nearSpawnerDist = 2f; // 이 거리만큼 스포너 근접 시 Idle 복귀

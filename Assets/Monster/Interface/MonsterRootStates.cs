@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEditor.Connect;
 using UnityEngine;
 using UnityEngine.AI;
@@ -20,7 +22,7 @@ public sealed class MonsterIdleState : IMonsterState
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
         ctx.anim.Play("Idle");
-        restTimer = Random.Range(0.5f, 2f);
+        restTimer = UnityEngine.Random.Range(0.5f, 2f);
     }
 
     public void Tick()
@@ -47,7 +49,7 @@ public sealed class MonsterIdleState : IMonsterState
         if (restTimer > 0f) return;
 
         // 배회 목적지 선정
-        Vector2 rnd = Random.insideUnitCircle * ctx.data.wanderRadius;
+        Vector2 rnd = UnityEngine.Random.insideUnitCircle * ctx.data.wanderRadius;
         Vector3 dest = ctx.transform.position + (Vector3)rnd;
 
         ctx.agent.speed = ctx.data.detectSpeed;
@@ -103,6 +105,7 @@ public sealed class MonsterDetectState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine machine;
+    CancellationTokenSource cts;
 
     const float hearInterval = 0.5f;   // 청각 체크 주기
     const float chaseTimeout = 5f;     // 최근 소리 후 추적 유지 시간
@@ -123,6 +126,19 @@ public sealed class MonsterDetectState : IMonsterState
 
         hearTimer = 0f;
         chaseTimer = chaseTimeout;
+
+        // 아이콘 초기화(물음표 + 흰색)
+        if (ctx.alert && ctx.data.questionSprite)
+        {
+            ctx.alert.sprite = ctx.data.questionSprite;
+            ctx.alert.color = ctx.data.questionStartColor; // white
+            ctx.alert.gameObject.SetActive(true);
+        }
+
+        cts = new CancellationTokenSource();
+
+        // “전투 조건 2초 연속 유지” 감시 시작
+        StartAggroWatcherAsync(cts.Token).Forget();
     }
     public void Tick()
     {
@@ -152,19 +168,16 @@ public sealed class MonsterDetectState : IMonsterState
                 chaseTimer = chaseTimeout;
             }
         }
-
+        bool seeNow = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
         /* ─── 플레이어 시야 감지 ─── */
-        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle))
+        if (seeNow)
         {
-            if (ctx.data.isaggressive)
+            // 감시 태스크(ConditionAwaiter.HoldTrueContinuously)가 전환을 담당.
+            // 플레이어 쪽으로 움직이기 유지.
+            if (ctx.player)
             {
-                machine.ChangeState(new CombatSuperState(ctx, machine));
+                ctx.agent.SetDestination(ctx.player.position);
             }
-            else
-            {
-                machine.ChangeState(new MonsterFleeState(ctx, machine));
-            }
-            return;
         }
 
         if (!ctx.agent.pathPending && ctx.agent.remainingDistance <= ctx.agent.stoppingDistance)
@@ -176,20 +189,65 @@ public sealed class MonsterDetectState : IMonsterState
                 return;
             }
         }
-        /* ─── 스포너·타임아웃 처리 ─── */
-        //chaseTimer -= Time.deltaTime;
-        //if (chaseTimer <= 0f)
-        //{
-        //    bool nearSpawner = ctx.spawner &&
-        //                       Vector2.Distance(ctx.transform.position, ctx.spawner.position)
-        //                       <= ctx.data.nearSpawnerDist;
-
-        //    machine.ChangeState(nearSpawner
-        //                       ? new MonsterIdleState(ctx, machine)
-        //                       : new MonsterReturnState(ctx, machine));
-        //}
+        
     }
-    public void Exit() { }
+    public void Exit() 
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        cts = null;
+
+        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
+    }
+    // ========== 내부 로직 ==========
+    bool SeePredicate()
+    => ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
+    async UniTaskVoid StartAggroWatcherAsync(CancellationToken token)
+    {
+        // 초기 아이콘: 물음표 + 시작색(흰색)
+        if (ctx.alert && ctx.data.questionSprite)
+        {
+            ctx.alert.sprite = ctx.data.questionSprite;
+            ctx.alert.color = ctx.data.questionStartColor; // white
+            ctx.alert.gameObject.SetActive(true);
+        }
+
+        void Progress(float t)
+        {
+            if (!ctx.alert) return;
+            // t는 0~1: '시야 true'가 이어진 시간 / 요구 시간
+            ctx.alert.color = Color.Lerp(ctx.data.questionStartColor,
+                                         ctx.data.questionEndColor, // red
+                                         t);
+        }
+
+        // 시야만 2초 연속 유지돼야 true
+        bool ok = await ConditionAwaiter.HoldTrueContinuously(
+            ctx.data.aggroHoldSeconds,
+            SeePredicate,       // 시야만
+            Progress,
+            token);
+
+        if (token.IsCancellationRequested || !ok) return;
+
+        // 전투 진입 직전, 느낌표 한 번만
+        await ShowExclamationAsync(token);
+
+        if (!token.IsCancellationRequested)
+            machine.ChangeState(new CombatSuperState(ctx, machine));
+    }
+
+    async UniTask ShowExclamationAsync(CancellationToken token)
+    {
+        if (!ctx.alert || !ctx.data.exclamationSprite) return;
+
+        ctx.alert.sprite = ctx.data.exclamationSprite;
+        ctx.alert.color = Color.red;
+        ctx.alert.gameObject.SetActive(true);
+
+        // 잠깐(0.5초) 보여주고 유지하거나, Combat 쪽에서 관리해도 됨
+        await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: token);
+    }
 }
 public sealed class MonsterSearchWanderState : IMonsterState
 {
@@ -245,7 +303,7 @@ public sealed class MonsterSearchWanderState : IMonsterState
     void PickRandomDest()
     {
         localTimer = 0f;
-        Vector2 rnd = Random.insideUnitCircle * ctx.data.wanderRadius;
+        Vector2 rnd = UnityEngine.Random.insideUnitCircle * ctx.data.wanderRadius;
         Vector3 dest = ctx.transform.position + (Vector3)rnd;
         ctx.agent.SetDestination(dest);
     }

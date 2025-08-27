@@ -34238,6 +34238,21 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5576968882271249353, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5576968882271249353, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5576968882271249353, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5772850400858764028, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}
       propertyPath: monster_Id
@@ -34251,6 +34266,11 @@ PrefabInstance:
     - target: {fileID: 6744450290341369502, guid: fc256c2320f0409418a23fd135b49aca,
         type: 3}
       propertyPath: m_Height
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9200365501202104010, guid: fc256c2320f0409418a23fd135b49aca,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:

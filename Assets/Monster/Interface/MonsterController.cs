@@ -9,6 +9,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator), typeof(SpriteRenderer))]
 public class MonsterController : MonoBehaviour
 {
+    public SpriteRenderer AlertSR { get; private set; }
+    [SerializeField] SpriteRenderer alertSR;
     [SerializeField] MonsterData data;
     [SerializeField] public Vector3 spawner;
     [SerializeField] LayerMask obstacleMask;
@@ -35,6 +37,9 @@ public class MonsterController : MonoBehaviour
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
         Player = GameObject.FindWithTag("Player")?.transform;
+
+        AlertSR = alertSR;
+        if (AlertSR) AlertSR.gameObject.SetActive(false);
 
         Agent.updateRotation = false;
         Agent.updateUpAxis = false;
