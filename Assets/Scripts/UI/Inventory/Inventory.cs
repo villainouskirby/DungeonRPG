@@ -95,6 +95,8 @@ public class Inventory : MonoBehaviour, ISave
         // 수량이 있는 아이템
         if (itemData is CountableItemData ciData)
         {
+            if (ciData.MaxAmount == 0) return amount;
+
             while (amount > 0)
             {
                 if (isAddable)

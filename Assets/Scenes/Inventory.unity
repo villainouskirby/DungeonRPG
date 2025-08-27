@@ -4297,7 +4297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93941952bd8c9a14291611ca358cb10f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory: {fileID: 0}
+  inventory: {fileID: 1816680351}
   amount: 1
   shop: {fileID: 207250254791748581}
   smithData: {fileID: 0}
@@ -4354,7 +4354,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1979232881}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddShopItem
+        m_MethodName: AddInventory
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5305,7 +5305,7 @@ PrefabInstance:
     - target: {fileID: 4117373528867153482, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6080887379038743496, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}

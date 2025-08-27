@@ -51,7 +51,9 @@ public class ItemGetPopUpUI : MonoBehaviour
         _itemQueue.Enqueue(new PopUpItemInfo(itemData.IconSprite, itemData.Name, amount));
 
         if (!_isProcessingQueue)
+        {
             ProcessItemQueue().Forget();
+        }
     }
 
     private void PushBackToStack()
@@ -77,12 +79,12 @@ public class ItemGetPopUpUI : MonoBehaviour
                 float startTime = Time.time;
                 float dTime;
 
-                Vector2 startPos = _content.position;
-                Vector2 destPos = startPos + Vector2.up * 150;
+                float startPosY = _content.anchoredPosition.y;
+                float destPosY = startPosY + 150;
 
                 while ((dTime = (Time.time - startTime) / 0.1f) < 1)
                 {
-                    _content.position = Vector2.Lerp(startPos, destPos, dTime);
+                    _content.anchoredPosition = Vector2.up * Mathf.Lerp(startPosY, destPosY, dTime);
 
                     await UniTask.NextFrame(cancellationToken: _cts.Token);
                 }
@@ -93,7 +95,7 @@ public class ItemGetPopUpUI : MonoBehaviour
             slot.SetItemInfo(info.Sprite, info.Name, info.Amount);
             _popUpSlotQueue.Enqueue(slot);
 
-            await slot.PopUpSlot(transform.position, 0.2f, _cts.Token);
+            await slot.PopUpSlot(_content.anchoredPosition.y, 0.2f, _cts.Token);
             slot.OnPopUpClose += PushBackToStack;
         }
 

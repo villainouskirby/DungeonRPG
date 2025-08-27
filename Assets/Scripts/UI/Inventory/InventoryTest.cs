@@ -33,7 +33,11 @@ public class InventoryTest : MonoBehaviour
 
     public void AddInventory()
     {
-        AddInventory(testItemData);
+        Item_Info_Item info = new Item_Info_Item();
+        info.max_amount = 99;
+        info.id = "";
+        ItemData data = new TestItemData(info, null);
+        AddInventory(data);
     }
     public Dictionary<string, Item_Info_Item> ItemDic;
     public void AddPotion1()

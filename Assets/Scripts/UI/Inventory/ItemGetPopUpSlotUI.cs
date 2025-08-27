@@ -40,15 +40,21 @@ public class ItemGetPopUpSlotUI : SlotUI
         _amountText.text = "X" + amount.ToString();
     }
 
-    public async UniTask PopUpSlot(Vector2 destPos, float targetTime, CancellationToken token)
+    public async UniTask PopUpSlot(float contentPosY, float targetTime, CancellationToken token)
     {
         if(_rect == null)
+        {
             _rect = GetComponent<RectTransform>();
-        if(_image == null)
-            _image = GetComponent<Image>();
+        }
 
-        Vector2 startPos = destPos + Vector2.right * _rect.sizeDelta.x;
-        _rect.position = startPos;
+        if(_image == null)
+        {
+            _image = GetComponent<Image>();
+        }
+
+        Vector2 destPos = Vector2.down * contentPosY;
+        Vector2 startPos = destPos + Vector2.right *_rect.sizeDelta.x;
+        _rect.anchoredPosition = startPos;
 
         Color color = _image.color;
         color.a = 1;
@@ -61,12 +67,12 @@ public class ItemGetPopUpSlotUI : SlotUI
 
         while ((dTime = (Time.time - startTime) / targetTime) < 1)
         {
-            _rect.position = Vector2.Lerp(startPos, destPos, dTime);
+            _rect.anchoredPosition = Vector2.Lerp(startPos, destPos, dTime);
 
             await UniTask.NextFrame(cancellationToken: token);
         }
 
-        _rect.position = destPos;
+        _rect.anchoredPosition = destPos;
 
         WaitBeforeClose(token).Forget();
     }
@@ -89,7 +95,7 @@ public class ItemGetPopUpSlotUI : SlotUI
     {
         _isOpen = false;
 
-        Vector2 startPos = _rect.position;
+        Vector2 startPos = _rect.anchoredPosition;
         Vector2 destPos = startPos + Vector2.up * _rect.sizeDelta.y;
 
         float startTime = Time.time;
@@ -97,7 +103,7 @@ public class ItemGetPopUpSlotUI : SlotUI
 
         while ((dTime = (Time.time - startTime) / 0.1f) < 1)
         {
-            _rect.position = Vector2.Lerp(startPos, destPos, dTime);
+            _rect.anchoredPosition = Vector2.Lerp(startPos, destPos, dTime);
             Color color = _image.color;
             color.a = 1 - dTime;
             _image.color = color;
