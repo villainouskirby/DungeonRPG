@@ -28,6 +28,7 @@ public class MonsterController : MonoBehaviour
     MonsterStateMachine root = new();
     MonsterContext ctx;
 
+    bool _initialized = false;
     void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
@@ -39,17 +40,44 @@ public class MonsterController : MonoBehaviour
         Agent.updateUpAxis = false;
 
         monsterDic = SheetDataUtil.DicByKey(Monster_Info.Monster, x => x.Monster_id);
-        mdata = monsterDic[monster_Id];
-        ctx = new(this, mdata);
+        Debug.Log($"[{name}] serialized spawner={spawner}", this);
     }
 
+    public void InitAfterSpawn(string monsterId)
+    {
+        if (string.IsNullOrEmpty(monsterId))
+        {
+            Debug.LogError($"[{name}] InitAfterSpawn: monsterId is null/empty");
+            return;
+        }
+        if (Data == null)
+        {
+            Debug.LogError($"[{name}] MonsterData is not assigned on prefab/instance!");
+            return;
+        }
+
+        mdata = monsterDic[monsterId];
+
+        ctx = new(this, mdata); 
+        root = new MonsterStateMachine(); 
+        root.ChangeState(new MonsterIdleState(ctx, root));
+
+        _initialized = true;
+    }
+    void OnDisable()
+    {
+        _initialized = false;           // 풀로 반환될 때 등, 안전 가드
+    }
 
     void Start()
     {
-        root.ChangeState(new MonsterIdleState(ctx, root));   // 루트 시작
     }
 
-    void Update() => root.Tick();
+    void Update() 
+    {
+        if (!_initialized) return; 
+        root.Tick(); 
+    }
 
     // 외부에서 데미지
     public void TakeDamage(float dmg)

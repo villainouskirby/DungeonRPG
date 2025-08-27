@@ -21,8 +21,12 @@ public class MonsterSpawner : Spawner
     public override void Spawn()
     {
         base.Spawn();
+
+        var mc = SpawnObj.GetComponent<MonsterController>();
+        mc.spawner = new Vector3(TilePos.x, TilePos.y, 0f);
+        mc.InitAfterSpawn(Select);
+
         Debug.Log($"Monster {Select}이 스폰됨!");
-        SpawnObj.GetComponent<MonsterController>().spawner = new(TilePos.x, TilePos.y);
     }
 
     public override GameObject GetSpawnObject()

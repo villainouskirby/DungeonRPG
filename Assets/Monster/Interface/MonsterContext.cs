@@ -10,7 +10,8 @@ public sealed class MonsterContext
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
     public readonly SpriteRenderer sr;
-    public readonly Vector3 spawner;
+    //public readonly Vector3 spawner;
+    public Vector3 spawner => mono.Spawner;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
     public readonly MonsterController mono;
@@ -37,7 +38,7 @@ public sealed class MonsterContext
         agent = owner.Agent;
         anim = owner.Animator;
         sr = owner.Sprite;
-        spawner = owner.Spawner;
+        //spawner = owner.Spawner;
         player = owner.Player;
 
         rank = mdata.Monster_rank;
