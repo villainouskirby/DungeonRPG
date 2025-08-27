@@ -76,7 +76,8 @@ public class Inventory : MonoBehaviour, ISave
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
-        int index = FindSlotIndex(itemData);
+        int index = -1;
+        bool isAddable = FindSlotIndex(itemData, ref index);
 
         CalculateRestWeight(itemData.Weight, -amount);
 
@@ -96,7 +97,17 @@ public class Inventory : MonoBehaviour, ISave
         {
             while (amount > 0)
             {
-                if (index == _items.Count || itemData.SID == _items[index].Data.SID)
+                if (isAddable)
+                {
+                    CountableItem ci = _items[index] as CountableItem;
+                    amount = ci.AddAmountAndGetExcess(amount);
+
+                    UpdateSlot(index);
+                    OnInventoryChanged?.Invoke(index, ci.Amount);
+
+                    index++;
+                }
+                else
                 {
                     // 새 아이템 생성
                     CountableItem ci = ciData.Createitem() as CountableItem;
@@ -110,16 +121,6 @@ public class Inventory : MonoBehaviour, ISave
 
                     UpdateSlot(index);
                     OnInventoryChanged?.Invoke(index, ci.Amount);
-                }
-                else
-                {
-                    CountableItem ci = _items[index] as CountableItem;
-                    amount = ci.AddAmountAndGetExcess(amount);
-
-                    UpdateSlot(index);
-                    OnInventoryChanged?.Invoke(index, ci.Amount);
-
-                    index++;
                 }
             }
         }
@@ -260,26 +261,34 @@ public class Inventory : MonoBehaviour, ISave
         return -1;
     }
 
-    private int FindSlotIndex(ItemData data, int index = -1)
+    /// <summary> index는 참조, 수량만 추가해도 되는 경우 true 그렇지 않으면 fasle </summary>
+    private bool FindSlotIndex(ItemData data, ref int index)
     {
         while (++index < _items.Count)
         {
             int comparer = _items[index].Data.SID.CompareTo(data.SID);
             if (comparer == 0)
             {
-                if (_items[index] is CountableItem ci && ci.IsMax)
+                if (_items[index] is CountableItem ci)
                 {
-                    continue;
+                    if (ci.IsMax)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
-                    return index;
+                    continue;
                 }
             }
-            else if (comparer < 0) return index;
+            else if (comparer < 0) return false;
         }
 
-        return index;
+        return false;
     }
 
     private void UpdateSlot(int index)
