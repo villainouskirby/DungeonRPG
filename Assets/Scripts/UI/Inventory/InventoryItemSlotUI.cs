@@ -17,7 +17,8 @@ public class InventoryItemSlotUI : ItemSlotUI
     [SerializeField] private Sprite _detailOffSprite;
     [SerializeField] private Sprite _detailOnSprite;
 
-    [SerializeField] private float _slideTime = 0.1f;
+    [SerializeField] private float _slideSpeed = 10;
+    [SerializeField] private float _slideInterval = 0.1f;
 
     private bool _isDetailOn = false;
 
@@ -39,8 +40,6 @@ public class InventoryItemSlotUI : ItemSlotUI
     [ContextMenu("Slide")]
     public void ToggleDetail()
     {
-        _viewportHeight = _detailArea.sizeDelta.y; // 나중에 init으로 빼고 instantiate 한 후에 호출하는 식으로 하면 해결 되려나 // start에 하니 vertical layout 연산 잔에 이루어지는 듯 해 height가 0으로 표기됨
-
         cts?.Cancel();
         cts?.Dispose();
 
@@ -49,6 +48,7 @@ public class InventoryItemSlotUI : ItemSlotUI
             _slotBackground.sprite = _detailOnSprite;
         }
 
+        _viewportHeight = _detailArea.sizeDelta.y;
         SlideDetail(_isDetailOn).Forget();
         _isDetailOn = !_isDetailOn;
     }
@@ -57,28 +57,30 @@ public class InventoryItemSlotUI : ItemSlotUI
     {
         cts = new CancellationTokenSource();
 
-        float startTime = Time.time;
-
-        float startHeight = _viewport.sizeDelta.y;
+        float speed;
         float targetHeight;
 
         if (isOn)
         {
+            speed = -_slideSpeed;
             targetHeight = 0;
         }
         else
         {
+            speed = _slideSpeed;
             targetHeight = _viewportHeight;
         }
 
-        float t;
         try
         {
-            while ((t = (Time.time - startTime) / _slideTime) < 1)
+            while (true)
             {
-                _viewport.sizeDelta = new Vector2(_viewportWidth, Mathf.Lerp(startHeight, targetHeight, t));
+                _viewport.sizeDelta = _viewport.sizeDelta + Vector2.up * speed;
 
-                await UniTask.NextFrame(cts.Token);
+                float height = _viewport.sizeDelta.y;
+                if (height < 0 || height > _viewportHeight) break;
+
+                await UniTask.WaitForSeconds(_slideInterval ,cancellationToken: cts.Token);
             }
 
             _viewport.sizeDelta = new Vector2(_viewportWidth, targetHeight);
