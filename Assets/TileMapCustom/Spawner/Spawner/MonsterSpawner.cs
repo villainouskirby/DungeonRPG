@@ -46,7 +46,8 @@ public class MonsterSpawner : Spawner
         }
         else
         {
-            Select = Monsters[Random.Range(0, Monsters.Length)];
+            Select = "MST_BTL";
+            //Select = Monsters[Random.Range(0, Monsters.Length)];
         }
     }
 }
