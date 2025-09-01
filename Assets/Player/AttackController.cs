@@ -24,13 +24,14 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
 
-    [Header("1타 원뿔 공격 파라미터")]
-    [SerializeField, Min(0.01f)] private float thrustRadius = 1.5f;
-    [SerializeField, Range(1f, 179f)] private float thrustArcDeg = 60f;
-    [Header("2타 직사각형 공격 파라미터")]
-    [SerializeField, Min(0.01f)] private float slashWidth = 1.0f;   // 좌우 폭
-    [SerializeField, Min(0.01f)] private float slashLength = 1.8f;   // 전방 길이
-    [SerializeField, Range(-0.5f, 0.5f)] private float slashCenterOffset = 0.0f;
+    [Header("1타 슬래시(직사각형)")]
+    [SerializeField, Min(0.01f)] private float slash1Width = 2.0f;  // 좌우 폭
+    [SerializeField, Min(0.01f)] private float slash1Length = 1.2f;  // 전방 길이
+    [SerializeField, Range(-0.5f, 0.5f)] private float slash1CenterOffset = 0.0f; // 중앙을 전/후로 미세 이동(길이에 대한 비율: -0.5~0.5 정도가 직관적)
+    [Header("2타 슬래시(직사각형)")]
+    [SerializeField, Min(0.01f)] private float slash2Width = 1.4f;
+    [SerializeField, Min(0.01f)] private float slash2Length = 2.0f;
+    [SerializeField, Range(-0.5f, 0.5f)] private float slash2CenterOffset = 0.0f;
 
     private int comboLockedDir = -1; // 1타 때 방향 ‑> 2타까지 유지
     public bool IsInAttack => isAttacking || isAttackCharging;
@@ -46,8 +47,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] public float heavyChargeStaminaPerSec = 25f;
     private int previewDir = 3;
     [Header("Gizmo 색상 커스터마이즈")]
-    [SerializeField] private Color gizmoSlashColor = new Color(1f, 0f, 0f, 0.25f);
-    [SerializeField] private Color gizmoThrustColor = new Color(0f, 0f, 1f, 0.25f);
+    [SerializeField] private Color gizmoSlash1Color = new Color(1f, 0f, 0f, 0.25f);
+    [SerializeField] private Color gizmoSlash2Color = new Color(1f, 0f, 1f, 0.25f);
     [SerializeField] private Color gizmoHeavyColor = new Color(1f, 1f, 0f, 0.15f);
     private bool isAttacking = false;
     private bool isAttackCharging = false;
@@ -223,8 +224,17 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float activeTime = Mathf.Min(hitboxActiveTime, totalCast);
         Vector2 forward = FacingVector(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
-        if (step == 1) DoThrust(dmg, transform.position, forward);
-        else DoSlash(dmg, transform.position, forward);
+
+        if (step == 1)
+        {
+            DoSlashBox(dmg, transform.position, forward,
+                       slash1Width, slash1Length, slash1CenterOffset);
+        }
+        else // step == 2
+        {
+            DoSlashBox(dmg, transform.position, forward,
+                       slash2Width, slash2Length, slash2CenterOffset);
+        }
 
 
         yield return new WaitForSeconds(activeTime);
@@ -336,21 +346,21 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         dir.Normalize();
         return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
     }
-    private void DoSlash(int dmg, Vector2 origin, Vector2 dir)
+    private void DoSlashBox(int dmg, Vector2 origin, Vector2 dir,
+                        float width, float length, float centerOffset01)
     {
         if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
         dir.Normalize();
 
-        // 박스 중심은 캐릭터 앞쪽으로 이동 (길이의 절반 + 보정치)
-        float forward = (slashLength * 0.5f) + (slashCenterOffset * slashLength);
+        // 중심 위치 = 캐릭터 앞쪽으로 (길이의 절반) + 오프셋(비율 * 길이)
+        float forward = (length * 0.5f) + (centerOffset01 * length);
         Vector2 center = origin + dir * forward;
-
         float angleDeg = AngleDegFromDir(dir);
-        Vector2 size = new Vector2(slashWidth, slashLength);
+        Vector2 size = new Vector2(width, length);
 
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg, hitMask);
-
         HashSet<MonsterBase1> done = new();
+
         foreach (var h in hits)
         {
             if (!h || !h.enabled) continue;
@@ -360,35 +370,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
             if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
                 f.Damage(dmg);
-        }
-
-#if UNITY_EDITOR
-        if (hits.Length == 0)
-            Debug.Log($"[Slash] no hits  center={center} angle={angleDeg} size={size}");
-#endif
-    }
-    private void DoThrust(int dmg, Vector2 origin, Vector2 dir)
-    {
-        if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
-        dir.Normalize();
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, thrustRadius, hitMask);
-        float halfArc = thrustArcDeg * 0.5f;
-
-        HashSet<MonsterBase1> done = new();
-        foreach (var h in hits)
-        {
-            if (!h || !h.enabled) continue;
-
-            Vector2 to = (Vector2)h.transform.position - origin;
-            // 각도 필터 (원뿔 내부만)
-            if (Vector2.Angle(dir, to) > halfArc) continue;
-
-            if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
-                f.Damage(dmg);
-
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
-                m.TakeDamage(dmg);
         }
     }
     private void DoHeavyCircle(int dmg, Vector2 origin, float r)
@@ -406,66 +387,56 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
-        DrawAttackGizmos(selectedOnly: false);
-    }
-    private void OnDrawGizmosSelected()
-    {
-        DrawAttackGizmos(selectedOnly: true);
+        DrawAttackGizmos(always: true);
     }
 
-    private void DrawAttackGizmos(bool selectedOnly)
+    private void OnDrawGizmosSelected()
+    {
+        DrawAttackGizmos(always: false);
+    }
+
+    private void DrawAttackGizmos(bool always)
     {
         Vector2 origin = transform.position;
 
-        int dirInt;
-        if (Application.isPlaying && pc != null) dirInt = pc.FacingDir;
-        else dirInt = Mathf.Clamp(previewDir, 0, 3);
-
+        int dirInt = (Application.isPlaying && pc != null) ? pc.FacingDir
+                                                           : Mathf.Clamp(previewDir, 0, 3);
         Vector2 dir = FacingVector(dirInt);
         float angleDeg = AngleDegFromDir(dir);
 
-        // 2타 직사각형 공격
-        {
-            float forward = (slashLength * 0.5f) + (slashCenterOffset * slashLength);
-            Vector2 center = origin + dir * forward;
-            Vector3 size3 = new Vector3(slashWidth, slashLength, 0f);
+        // 1타 박스
+        DrawBoxGizmo(origin, dir, angleDeg, slash1Width, slash1Length, slash1CenterOffset, gizmoSlash1Color);
 
-            Matrix4x4 old = Gizmos.matrix;
-            Gizmos.color = gizmoSlashColor;
-            Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angleDeg), Vector3.one);
-            Gizmos.DrawCube(Vector3.zero, size3);
-            Gizmos.matrix = old;
+        // 2타
+        DrawBoxGizmo(origin, dir, angleDeg, slash2Width, slash2Length, slash2CenterOffset, gizmoSlash2Color);
 
-            // 외곽선(시각화 보조)
-#if UNITY_EDITOR
-            Handles.color = new Color(gizmoSlashColor.r, gizmoSlashColor.g, gizmoSlashColor.b, 0.8f);
-            Vector3 p0 = center + (Vector2)(Quaternion.Euler(0, 0, angleDeg) * new Vector2(-slashWidth * 0.5f, -slashLength * 0.5f));
-            Vector3 p1 = center + (Vector2)(Quaternion.Euler(0, 0, angleDeg) * new Vector2(slashWidth * 0.5f, -slashLength * 0.5f));
-            Vector3 p2 = center + (Vector2)(Quaternion.Euler(0, 0, angleDeg) * new Vector2(slashWidth * 0.5f, slashLength * 0.5f));
-            Vector3 p3 = center + (Vector2)(Quaternion.Euler(0, 0, angleDeg) * new Vector2(-slashWidth * 0.5f, slashLength * 0.5f));
-            Handles.DrawAAPolyLine(3f, new Vector3[] { p0, p1, p2, p3, p0 });
-#endif
-        }
-
-        //1타 원뿔 공격
-#if UNITY_EDITOR
-        {
-            Handles.color = gizmoThrustColor;
-            float arc = thrustArcDeg;
-            // 시작방향 = dir을 -arc/2만큼 회전
-            Vector3 startDir = Quaternion.Euler(0, 0, -arc * 0.5f) * (Vector3)dir;
-            Handles.DrawSolidArc(origin, Vector3.forward, startDir, arc, thrustRadius);
-
-            // 외곽선
-            Handles.color = new Color(gizmoThrustColor.r, gizmoThrustColor.g, gizmoThrustColor.b, 0.9f);
-            Handles.DrawWireArc(origin, Vector3.forward, startDir, arc, thrustRadius);
-            Handles.DrawLine((Vector3)origin,(Vector3)(origin + dir.normalized * thrustRadius));
-        }
-#endif
-
-        // 강공격 원형 공격
+        // Heavy 원형
         Gizmos.color = gizmoHeavyColor;
         Gizmos.DrawSphere(origin, heavyRadius);
+    }
+
+    private void DrawBoxGizmo(Vector2 origin, Vector2 dir, float angleDeg,
+                              float width, float length, float centerOffset01, Color col)
+    {
+        float forward = (length * 0.5f) + (centerOffset01 * length);
+        Vector2 center = origin + dir.normalized * forward;
+
+        Matrix4x4 old = Gizmos.matrix;
+        Gizmos.color = col;
+        Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angleDeg), Vector3.one);
+        Gizmos.DrawCube(Vector3.zero, new Vector3(width, length, 0f));
+        Gizmos.matrix = old;
+
+#if UNITY_EDITOR
+        // 외곽선도 같이
+        Handles.color = new Color(col.r, col.g, col.b, 0.9f);
+        Vector3 sL = Quaternion.Euler(0, 0, angleDeg) * new Vector3(-width * 0.5f, -length * 0.5f, 0);
+        Vector3 sR = Quaternion.Euler(0, 0, angleDeg) * new Vector3(width * 0.5f, -length * 0.5f, 0);
+        Vector3 eR = Quaternion.Euler(0, 0, angleDeg) * new Vector3(width * 0.5f, length * 0.5f, 0);
+        Vector3 eL = Quaternion.Euler(0, 0, angleDeg) * new Vector3(-width * 0.5f, length * 0.5f, 0);
+        Handles.DrawAAPolyLine(3f,
+            (Vector3)center + sL, (Vector3)center + sR, (Vector3)center + eR, (Vector3)center + eL, (Vector3)center + sL);
+#endif
     }
 #endif
 }
