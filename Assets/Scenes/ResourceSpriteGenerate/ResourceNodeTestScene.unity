@@ -2575,9 +2575,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 2088815031}
   amount: 1
-  shopItems: []
+  shop: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 0}
+  tempPotion2: {fileID: 0}
+  tempRock: {fileID: 0}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -11039,9 +11042,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 0}
   amount: 1
-  shopItems: []
+  shop: {fileID: 0}
   smithData: {fileID: 0}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 0}
+  tempPotion2: {fileID: 0}
+  tempRock: {fileID: 0}
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
@@ -12397,9 +12403,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: {fileID: 2088815031}
   amount: 1
-  shopItems: []
+  shop: {fileID: 0}
   smithData: {fileID: 11400000, guid: 41c7e66d8567ca24b93f1f3c9fb091c8, type: 2}
   quickSlot: {fileID: 0}
+  tempPotion1: {fileID: 0}
+  tempPotion2: {fileID: 0}
+  tempRock: {fileID: 0}
   quest: {fileID: 595817438}
   isMainQuest: 0
   sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
