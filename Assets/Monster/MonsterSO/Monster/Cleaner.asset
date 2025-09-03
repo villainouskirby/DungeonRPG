@@ -20,6 +20,7 @@ MonoBehaviour:
   canMove: 1
   hearRange: 3
   sightDistance: 6
+  sightAngle: 90
   lostDistance: 8
   wanderRadius: 4
   detectSpeed: 1.5
@@ -27,12 +28,18 @@ MonoBehaviour:
   fleeSpeed: 3.5
   stoppingDistance: 1
   soundObstaclePenalty: 2
+  aggroHoldSeconds: 2
+  disengageHoldSeconds: 2
+  questionSprite: {fileID: 0}
+  exclamationSprite: {fileID: 0}
+  questionStartColor: {r: 1, g: 1, b: 1, a: 1}
+  questionEndColor: {r: 1, g: 0, b: 0, a: 1}
   maxSpawnerDist: 15
   nearSpawnerDist: 2
   isaggressive: 0
   canHearNoise: 1
   hearToCombat: 0
-  category: 0
+  category: 4
   attackBehaviours: []
   fleeBehaviours: []
   specialBehaviours:

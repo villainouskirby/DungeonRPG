@@ -47,7 +47,7 @@ public class MonsterData : ScriptableObject
     [Header("지각 능력")]
     public bool canHearNoise = true;   // 청각 보유 여부
     public bool hearToCombat = false;  // 소리만 들어도 바로 전투
-    public enum MonsterCategory { Hound, Turret, Miner, Beetle }
+    public enum MonsterCategory { Hound, Turret, Miner, Beetle, Cleaner }
     [Header("행동 타입")]
     public MonsterCategory category = MonsterCategory.Hound;
 
