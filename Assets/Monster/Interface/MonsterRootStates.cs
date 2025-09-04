@@ -334,9 +334,9 @@ public sealed class MonsterKilledState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
-
-    public MonsterKilledState(MonsterContext c, MonsterStateMachine m)
-    { ctx = c; root = m; }
+    readonly GameObject go;
+    public MonsterKilledState(MonsterContext c, MonsterStateMachine m, GameObject go)
+    { ctx = c; root = m; this.go = go; }
 
     public void Enter()
     {
@@ -346,10 +346,11 @@ public sealed class MonsterKilledState : IMonsterState
         ctx.transform.gameObject.layer = LayerMask.NameToLayer("Corpse"); // 선택
         ctx.transform.GetComponent<Collider2D>().enabled = false;
 
+        SpawnerPool.Instance.MonsterPool.Release(ctx.id,go);
         // 2초 뒤 파괴
-        ctx.transform.gameObject
-            .AddComponent<AutoDestroy>()
-            .Init(2f);           // 짧은 헬퍼 스크립트
+        //ctx.transform.gameObject
+            //.AddComponent<AutoDestroy>()
+            //.Init(2f);           // 짧은 헬퍼 스크립트
     }
 
     public void Tick() { }

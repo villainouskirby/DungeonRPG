@@ -27,6 +27,7 @@ public sealed class MonsterContext
     public float speed;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
+    public string id;
     Vector2 _lastForward = Vector2.right;
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
@@ -39,6 +40,7 @@ public sealed class MonsterContext
         agent = owner.Agent;
         anim = owner.Animator;
         sr = owner.Sprite;
+        id = owner.monster_Id;
         //spawner = owner.Spawner;
         alert = owner.AlertSR;
         player = owner.Player;

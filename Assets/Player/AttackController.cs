@@ -359,13 +359,13 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         Vector2 size = new Vector2(width, length);
 
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg, hitMask);
-        HashSet<MonsterBase1> done = new();
+        HashSet<MonsterController> done = new();
 
         foreach (var h in hits)
         {
             if (!h || !h.enabled) continue;
 
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
+            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
                 m.TakeDamage(dmg);
 
             if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))

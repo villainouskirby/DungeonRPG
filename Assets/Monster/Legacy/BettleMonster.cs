@@ -24,7 +24,7 @@ public class BeetleMonster : MonsterBase1
     {
         ChangeState(State.Flee);
         hp -= dmg;
-        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
+        //HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
         Debug.Log("현재 몬스터 체력" + hp);
         if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
     }
