@@ -27,6 +27,7 @@ public sealed class MonsterIdleState : IMonsterState
 
     public void Tick()
     {
+        // TODO : 현재는 그냥 순서대로 가중치를 둬서 로직을 변경하지만 가중치를 설정해 분기 필요
         if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
         {
             machine.ChangeState(new MonsterDetectState(ctx, machine));
@@ -142,6 +143,7 @@ public sealed class MonsterDetectState : IMonsterState
     }
     public void Tick()
     {
+        // 1순위 : 던진 오브젝트 감지
         if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
         {
             ctx.agent.speed = ctx.data.detectSpeed;
@@ -149,7 +151,7 @@ public sealed class MonsterDetectState : IMonsterState
             ctx.anim.Play("Walk");
             return;
         }
-        /* ─── 아이템 우선 ─── */
+        // 2순위 : 드롭 아이템과 상호작용
         if (ctx.CanSeeObject(ctx.data.sightDistance))
         {
             machine.ChangeState(new MonsterSpecialState(ctx, machine));
@@ -233,8 +235,18 @@ public sealed class MonsterDetectState : IMonsterState
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
 
-        if (!token.IsCancellationRequested)
-            machine.ChangeState(new CombatSuperState(ctx, machine));
+        // 전투몹인지 비전투몹인지에 따라 분기
+        if (!token.IsCancellationRequested) 
+        {
+            if (ctx.isaggressive)
+            {
+                machine.ChangeState(new CombatSuperState(ctx, machine));
+            }
+            else
+            {
+                machine.ChangeState(new MonsterFleeState(ctx, machine));
+            }
+        }
     }
 
     async UniTask ShowExclamationAsync(CancellationToken token)
@@ -334,9 +346,9 @@ public sealed class MonsterKilledState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
-
-    public MonsterKilledState(MonsterContext c, MonsterStateMachine m)
-    { ctx = c; root = m; }
+    readonly GameObject go;
+    public MonsterKilledState(MonsterContext c, MonsterStateMachine m, GameObject go)
+    { ctx = c; root = m; this.go = go; }
 
     public void Enter()
     {
@@ -346,10 +358,11 @@ public sealed class MonsterKilledState : IMonsterState
         ctx.transform.gameObject.layer = LayerMask.NameToLayer("Corpse"); // 선택
         ctx.transform.GetComponent<Collider2D>().enabled = false;
 
+        SpawnerPool.Instance.MonsterPool.Release(ctx.id,go);
         // 2초 뒤 파괴
-        ctx.transform.gameObject
-            .AddComponent<AutoDestroy>()
-            .Init(2f);           // 짧은 헬퍼 스크립트
+        //ctx.transform.gameObject
+            //.AddComponent<AutoDestroy>()
+            //.Init(2f);           // 짧은 헬퍼 스크립트
     }
 
     public void Tick() { }

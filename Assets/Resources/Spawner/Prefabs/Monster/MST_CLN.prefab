@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 5943831726345952343}
   - component: {fileID: 8946492151150093642}
   m_Layer: 20
-  m_Name: MST_BTL
+  m_Name: MST_CLN
   m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -381,12 +381,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alertSR: {fileID: 6927413861422287132}
-  data: {fileID: 11400000, guid: ef1386b878d0a014bb165f3b3b017123, type: 2}
+  data: {fileID: 11400000, guid: 59039b0458b151b4a91bc43203ce801f, type: 2}
   spawner: {x: 0, y: 0, z: 0}
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
-  monster_Id: MST_BTL
+  monster_Id: MST_CLN
   mdata:
     Monster_id: 
     Monster_rank: 0

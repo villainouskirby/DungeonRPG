@@ -2508,6 +2508,11 @@ PrefabInstance:
     - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: Monsters.Array.data[0]
+      value: MST_HOD
+      objectReference: {fileID: 0}
+    - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: Monsters.Array.data[1]
       value: MST_BTL
       objectReference: {fileID: 0}
     - target: {fileID: 5369752577767291831, guid: 5278e7bb3542ffc4587390afee8045ce,
@@ -2518,12 +2523,12 @@ PrefabInstance:
     - target: {fileID: 8919458623170179607, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 90.5
+      value: 90.48
       objectReference: {fileID: 0}
     - target: {fileID: 8919458623170179607, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 47.5
+      value: 47.52
       objectReference: {fileID: 0}
     - target: {fileID: 8919458623170179607, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
@@ -70888,7 +70893,7 @@ PrefabInstance:
     - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: Monsters.Array.data[0]
-      value: MST_HOD
+      value: MST_BTL
       objectReference: {fileID: 0}
     - target: {fileID: 5369752577767291831, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}

@@ -14,7 +14,7 @@ public class MonsterController : MonoBehaviour
     [SerializeField] MonsterData data;
     [SerializeField] public Vector3 spawner;
     [SerializeField] LayerMask obstacleMask;
-    [SerializeField] string monster_Id;
+    [SerializeField] public string monster_Id;
     public LayerMask ObstacleMask => obstacleMask;
     // 캐시
     public MonsterData Data => data;
@@ -25,6 +25,10 @@ public class MonsterController : MonoBehaviour
     public Vector3 Spawner => spawner;
     public Transform Player { get; private set; }
     public MonsterStateMachine StateMachine => root;
+    public float MaxHP { get; private set; }
+    public float CurrentHP { get; private set; }
+    public event System.Action<float, float> OnHpChanged;
+
 
     public Dictionary<string, Monster_Info_Monster> monsterDic;
     MonsterStateMachine root = new();
@@ -63,10 +67,15 @@ public class MonsterController : MonoBehaviour
 
         mdata = monsterDic[monsterId];
 
-        ctx = new(this, mdata); 
+        ctx = new(this, mdata);
+
+        MaxHP = mdata.Monster_hp;
+        CurrentHP = MaxHP;
+        ctx.hp = MaxHP;
+        OnHpChanged?.Invoke(CurrentHP, MaxHP);
+
         root = new MonsterStateMachine(); 
         root.ChangeState(new MonsterIdleState(ctx, root));
-
         _initialized = true;
     }
     void OnDisable()
@@ -87,8 +96,14 @@ public class MonsterController : MonoBehaviour
     // 외부에서 데미지
     public void TakeDamage(float dmg)
     {
-        ctx.hp -= dmg;
-        if (ctx.hp <= 0) root.ChangeState(new MonsterKilledState(ctx, root));
+        ctx.hp = Mathf.Max(0, ctx.hp - dmg);
+        CurrentHP = ctx.hp;
+        OnHpChanged?.Invoke(CurrentHP, MaxHP);
+
+        Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해!");
+
+        if (ctx.hp <= 0)
+            root.ChangeState(new MonsterKilledState(ctx, root, gameObject));
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()
