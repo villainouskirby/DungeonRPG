@@ -17,14 +17,61 @@ public class Inventory : MonoBehaviour, ISave
     [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
-    public List<Item> InventoryItems => _items;
     protected List<Item> _items = new();
 
-    // 각 date class 생성하고 그에따라 넣도록 해야할듯
+    // --- Items ---
+
     private List<Item> _equipmentItems = new();
     private List<Item> _usableItems = new();
     private List<Item> _potionItems = new();
     private List<Item> _ingredientItems = new();
+
+    public int GetItemsCount() => _equipmentItems.Count + _usableItems.Count + _potionItems.Count + _ingredientItems.Count;
+    
+    public Item GetItemByIndex(int index)
+    {
+        index = GetInnerIndex(index, out List<Item> itemList);
+
+        return itemList[index];
+    }
+
+    /// <summary> 아이템 전체 index에서 올바른 항목의 index로 변환 </summary>
+    public int GetInnerIndex(int index, out List<Item> itemList)
+    {
+        int prefixSum = 0;
+
+        if (index < (prefixSum += _equipmentItems.Count))
+        {
+            itemList = _equipmentItems;
+            return index - prefixSum;
+        }
+        else if (index < (prefixSum += _usableItems.Count))
+        {
+            itemList = _usableItems;
+            return index - prefixSum;
+        }
+        else if (index < (prefixSum += _potionItems.Count))
+        {
+            itemList = _potionItems;
+            return index - prefixSum;
+        }
+        else if (index < (prefixSum += _ingredientItems.Count))
+        {
+            itemList = _ingredientItems;
+            return index - prefixSum;
+        }
+        else // index error
+        {
+            itemList = null;
+            return -1;
+        }
+    }
+
+    public int GetInnerIndex(int index) => GetInnerIndex(index, out _);
+
+    //public List<Item> GetItemListByType()
+
+    // -------------
 
     private void Awake()
     {
@@ -32,7 +79,6 @@ public class Inventory : MonoBehaviour, ISave
         UpdateWeightText();
         InitInventory();
     }
-
 
     /// <summary> 인벤토리 열기 </summary>
     public void OpenInventory()
@@ -252,15 +298,6 @@ public class Inventory : MonoBehaviour, ISave
         }
 
         return amount;
-    }
-
-    private int FindCountableItemSlotIndex(CountableItemData ciData, int index)
-    {
-        while (++index < _items.Count)
-        {
-            if (_items[index].Data.SID == ciData.SID) return index;
-        }
-        return -1;
     }
 
     /// <summary> index는 참조, 수량만 추가해도 되는 경우 true 그렇지 않으면 fasle </summary>
