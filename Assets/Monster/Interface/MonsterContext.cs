@@ -115,7 +115,7 @@ public sealed class MonsterContext
         return dist <= hearable;
     }
 
-    public Vector2 lastItemDir; // 아이템으로 이동했던 방향
+    public Vector2 lastItemDir; // 아이템으로 이동했던 방향, 먹고 반대방향으로 도망가기 위한
     public Transform CanSeeObject(float maxDist)
     {
         if (interestTags == null || interestTags.Length == 0) return null;
@@ -131,6 +131,7 @@ public sealed class MonsterContext
                 Vector2 pos = obj.transform.position;
                 float dist = Vector2.Distance(start, pos);
                 if (dist > maxDist) continue;
+                // 현재는 그냥 거리에 따라 되는걸로 되어있음 추후에 시야각에 맞춰서 오브젝트 보도록 할 수 있을듯
 
                 Vector2 dir = (pos - start).normalized;
                 if (Physics2D.Raycast(start, dir, dist, obstacleMask)) continue;
