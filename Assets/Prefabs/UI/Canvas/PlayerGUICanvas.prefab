@@ -397,6 +397,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5dcdf54ef45ec6841ad685273ab9c874, type: 3}
+--- !u!114 &5887144518494488318 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5615767560890845148, guid: 5dcdf54ef45ec6841ad685273ab9c874,
+    type: 3}
+  m_PrefabInstance: {fileID: 2043614332160246050}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5398fed88ec8f0e4a84b281b23adbaa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6558675446274001506 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5141273464664099648, guid: 5dcdf54ef45ec6841ad685273ab9c874,
@@ -677,6 +689,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4101594155000263517, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      propertyPath: _itemGetPopUpUI
+      value: 
+      objectReference: {fileID: 5887144518494488318}
     - target: {fileID: 4423998082807740241, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: _quickSlotInGameUI

@@ -103,7 +103,7 @@ public class MonsterController : MonoBehaviour
         Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해!");
 
         if (ctx.hp <= 0)
-            root.ChangeState(new MonsterKilledState(ctx, root, gameObject));
+            root.ChangeState(new MonsterKilledState(ctx, root, gameObject, this));
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()
