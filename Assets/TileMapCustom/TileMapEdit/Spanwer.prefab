@@ -283,6 +283,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 173184445652336751}
     m_Modifications:
+    - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: Monsters.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: Monsters.Array.data[0]
+      value: MST_BTL
+      objectReference: {fileID: 0}
+    - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: Monsters.Array.data[1]
+      value: MST_BTL
+      objectReference: {fileID: 0}
+    - target: {fileID: 1789055514832507716, guid: 5278e7bb3542ffc4587390afee8045ce,
+        type: 3}
+      propertyPath: Monsters.Array.data[2]
+      value: MST_BTL
+      objectReference: {fileID: 0}
     - target: {fileID: 2679749913245853259, guid: 5278e7bb3542ffc4587390afee8045ce,
         type: 3}
       propertyPath: m_DynamicOccludee

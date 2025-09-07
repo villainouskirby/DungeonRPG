@@ -59,9 +59,9 @@ public class Shop : MonoBehaviour
     {
         int i;
 
-        for (i = 0; i < _inventory.InventoryItems.Count; i++)
+        for (i = 0; i < _inventory.GetItemsCount(); i++)
         {
-            Item item = _inventory.InventoryItems[i];
+            Item item = _inventory.GetItemByIndex(i);
 
             if (item is CountableItem ci)
             {
@@ -92,7 +92,7 @@ public class Shop : MonoBehaviour
             return;
         }
 
-        Item item = _inventory.InventoryItems[index];
+        Item item = _inventory.GetItemByIndex(index);
 
         _shopUI.SetInventoryItemSlot(index, item);
 
@@ -139,7 +139,7 @@ public class Shop : MonoBehaviour
                 return (_shopItems.Count > index && index >= 0) ? _shopItems[index] : null;
 
             case ShopType.sell:
-                return (_inventory.InventoryItems.Count > index && index >= 0) ? _inventory.InventoryItems[index] : null;
+                return (_inventory.GetItemsCount() > index && index >= 0) ? _inventory.GetItemByIndex(index) : null;
 
             default:
                 Debug.Log("상점 타입 오류");

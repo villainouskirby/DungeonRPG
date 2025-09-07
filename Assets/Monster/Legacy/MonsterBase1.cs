@@ -66,8 +66,8 @@ public abstract class MonsterBase1 : MonoBehaviour
     protected virtual void Start()
     {
         StartState(State.Idle);      // 처음 상태
-        if (HealthBarManager.Instance)
-            HealthBarManager.Instance.Register(this);
+        //if (HealthBarManager.Instance)
+            //HealthBarManager.Instance.Register(this);
     }
 
     void StartState(State s)
@@ -302,7 +302,7 @@ public abstract class MonsterBase1 : MonoBehaviour
     {
         Play(DieAnim);
         yield return new WaitForSeconds(2f);
-        HealthBarManager.Instance?.Unregister(this);
+        //HealthBarManager.Instance?.Unregister(this);
         Destroy(gameObject);
     }
     protected virtual IEnumerator Escaped() { yield break; }
@@ -418,7 +418,7 @@ public abstract class MonsterBase1 : MonoBehaviour
     public virtual void TakeDamage(float dmg)
     {
         hp -= dmg;
-        HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
+        //HealthBarManager.Instance?.UpdateBar(this, GetHPRatio());
         Debug.Log("현재 몬스터 체력" + hp);
         if (hp <= 0 && state != State.Killed) ChangeState(State.Killed);
     }

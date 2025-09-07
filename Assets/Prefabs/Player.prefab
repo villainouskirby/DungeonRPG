@@ -885,21 +885,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pc: {fileID: 1176493953370868176}
   chargeUI: {fileID: 2912204716069094641}
-  baseDamage: 10
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  baseDamage: 5
   comboRate:
   - 0.7
   - 1.3
-  afterDelay:
-  - 0.5
+  baseAnimLength:
   - 1
+  - 1.3
+  afterDelay:
+  - 0.7
+  - 0.8
   comboInputTime: 0.35
   hitboxActiveTime: 0.12
+  thrustRadius: 1.5
+  thrustArcDeg: 60
+  slashWidth: 1
+  slashLength: 1.8
+  slashCenterOffset: 0
   chargeThreshold: 0.3
   maxChargeTime: 1
   heavyMultiplier: 1
   heavyRadius: 2.5
   heavyAfterDelay: 1.2
   heavyChargeStaminaPerSec: 50
+  gizmoSlashColor: {r: 1, g: 0, b: 0, a: 0.25}
+  gizmoThrustColor: {r: 0, g: 0, b: 1, a: 0.25}
+  gizmoHeavyColor: {r: 1, g: 1, b: 0, a: 0.15}
 --- !u!210 &8422171715171851318
 SortingGroup:
   m_ObjectHideFlags: 0

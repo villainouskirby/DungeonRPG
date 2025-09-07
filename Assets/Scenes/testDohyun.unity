@@ -7056,6 +7056,56 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].Select
+      value: MST_BTL
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].IsSpawn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].CoolTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].MaxRange
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].MinRange
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].TilePos.x
+      value: 26
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].TilePos.y
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].Monsters.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8055743171922981462, guid: dbac8dd0854a974419fb793d0b4a1ace,
+        type: 3}
+      propertyPath: AllMonsterSpawner.Array.data[0].Monsters.Array.data[0]
+      value: MST_BTL
+      objectReference: {fileID: 0}
     - target: {fileID: 8990978528313093977, guid: dbac8dd0854a974419fb793d0b4a1ace,
         type: 3}
       propertyPath: m_LocalPosition.x

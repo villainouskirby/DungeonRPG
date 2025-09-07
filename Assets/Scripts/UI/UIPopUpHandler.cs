@@ -53,10 +53,7 @@ public class UIPopUpHandler : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Escape))
         {
-            if (_openUI == null) return;
-            
-            _openUI.SetActive(false);
-            _openUI = null;
+            CloseUI();
         }
     }
 
@@ -77,10 +74,18 @@ public class UIPopUpHandler : MonoBehaviour
 
     private void OpenUI(GameObject ui)
     {
-        if (_openUI != null) return;
+        if (_openUI != null && _openUI.activeSelf) return;
 
         ui.SetActive(true);
         _openUI = ui;
+    }
+
+    public void CloseUI()
+    {
+        if (_openUI == null) return;
+
+        _openUI.SetActive(false);
+        _openUI = null;
     }
 
     /// <summary> 인벤토리 열기 </summary>

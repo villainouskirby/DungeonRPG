@@ -11,13 +11,27 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     /* ---------- 외부 연결 ---------- */
     [SerializeField] private PlayerController pc;           // 이동·방향 담당
     [SerializeField] private ChargeUIController chargeUI;   // 공격 차징 UI
-
+    private static readonly int HashAttackSpeed = Animator.StringToHash("AttackSpeed");
+    [Header("공격 판정(2D) - LayerMask")]
+    [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
+    [Header("평타 애니 재생 시간(1타/2타), 사실상 상수. 애니메이션 시간 달라지면 여기서 수정")]
+    [SerializeField] private float[] baseAnimLength = { 1.0f, 1.3f };
+    [Header("평타 공격 시전 시간(1타/2타) 값이 적을수록 공격이 빨라짐, 애니메이션도 빨라짐")]
     [SerializeField] private float[] afterDelay = { 0.3f, 0.5f }; // 1 타, 2 타 후딜
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
+
+    [Header("1타 슬래시(직사각형)")]
+    [SerializeField, Min(0.01f)] private float slash1Width = 2.0f;  // 좌우 폭
+    [SerializeField, Min(0.01f)] private float slash1Length = 1.2f;  // 전방 길이
+    [SerializeField, Range(-0.5f, 0.5f)] private float slash1CenterOffset = 0.0f; // 중앙을 전/후로 미세 이동(길이에 대한 비율: -0.5~0.5 정도가 직관적)
+    [Header("2타 슬래시(직사각형)")]
+    [SerializeField, Min(0.01f)] private float slash2Width = 1.4f;
+    [SerializeField, Min(0.01f)] private float slash2Length = 2.0f;
+    [SerializeField, Range(-0.5f, 0.5f)] private float slash2CenterOffset = 0.0f;
 
     private int comboLockedDir = -1; // 1타 때 방향 ‑> 2타까지 유지
     public bool IsInAttack => isAttacking || isAttackCharging;
@@ -31,7 +45,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
     [Header("강공격 차징 소모")]
     [SerializeField] public float heavyChargeStaminaPerSec = 25f;
-
+    private int previewDir = 3;
+    [Header("Gizmo 색상 커스터마이즈")]
+    [SerializeField] private Color gizmoSlash1Color = new Color(1f, 0f, 0f, 0.25f);
+    [SerializeField] private Color gizmoSlash2Color = new Color(1f, 0f, 1f, 0.25f);
+    [SerializeField] private Color gizmoHeavyColor = new Color(1f, 1f, 0f, 0.15f);
     private bool isAttacking = false;
     private bool isAttackCharging = false;
     private int comboStep = 0;
@@ -62,6 +80,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         HandleAttackInput();
         HandleHeavyChargeUI();
     }
+    #region 애니메이션 재생 로직
     private int DirFromMouse()
     {
         Vector3 pos = Input.mousePosition;
@@ -104,8 +123,16 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         };
         return $"HeavyAttack{suffix}";   // 예: HeavyAttackUp, HeavyAttackSide, HeavyAttackDown
     }
-
-    // 공격 입력 
+    private AnimationClip FindClip(string clipName)
+    {
+        if (anim.runtimeAnimatorController == null) return null;
+        foreach (var c in anim.runtimeAnimatorController.animationClips)
+            if (c && c.name == clipName) return c;
+        return null;
+    }
+    #endregion
+    // 공격 입력
+    private bool comboQueued = false;    // 후딜 중 눌린 입력 버퍼
     void HandleAttackInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -132,16 +159,27 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             return;
         }
 
-        // 짧게 눌렀다가 떼면 기본 콤보 공격
         if (Input.GetMouseButtonUp(0))
         {
             if (!isAttackCharging)
-                DoQuickComboAttack();           // 콤보 처리
+            {
+                float now = Time.time;
 
+                // 아직 1타/2타의 후딜이 끝나기 전이면 => 콤보 입력만 버퍼링
+                if (isAttacking || now < nextAttackReady)
+                {
+                    comboQueued = true;
+                }
+                else
+                {
+                    DoQuickComboAttack();
+                }
+            }
             else
-                ReleaseCharging();              // 차징 발사
-
-            pressActive = false;                // 이벤트 소비
+            {
+                ReleaseCharging();
+            }
+            pressActive = false;
         }
     }
     //콤보 공격
@@ -152,11 +190,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float now = Time.time;
         if (now < nextAttackReady) return;
 
-        bool within = now - nextAttackReady <= comboInputTime;
+        bool within = (now >= nextAttackReady) && (now <= nextAttackReady + comboInputTime);
+
         comboStep = within ? (comboStep == 1 ? 2 : 1) : 1;
 
-        if (comboStep == 1)
-            comboLockedDir = DirFromMouse();
 
         StartCoroutine(PerformAttack(comboStep));
     }
@@ -166,28 +203,58 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     {
         isAttacking = true;
 
-        float after = afterDelay[step - 1];
-        pc.ChangeState(new NormalAttackState(pc, after));
+        float totalCast = Mathf.Max(0.05f, afterDelay[step - 1]); // 총 시전시간(=애니 길이)
+        pc.ChangeState(new NormalAttackState(pc, totalCast));
 
-        int dir = (step == 1)                // ★ 1타→comboLockedDir, 2타도 그대로
-                  ? comboLockedDir
-                  : comboLockedDir;
-        pc.SetFacingDirection(dir);               // ← 바라보는 방향 변경 (Flip + Animator)
+        int dir = DirFromMouse();
+        pc.SetFacingDirection(dir);
 
         string clip = AttackClipName(step, dir);
+
+        var c = FindClip(clip);
+        float baseLen = baseAnimLength[Mathf.Clamp(step - 1, 0, baseAnimLength.Length - 1)];
+        float speedMul = baseLen / Mathf.Max(0.01f, totalCast);
+
+        anim.SetFloat(HashAttackSpeed, speedMul);
+
+        // 재생
         anim.Play(clip, 0, 0f);
 
+        // 히트 타이밍: 필요하면 비율로 스케일
+        float activeTime = Mathf.Min(hitboxActiveTime, totalCast);
         Vector2 forward = FacingVector(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
-        if (step == 1) DoThrust(dmg, transform.position, forward);
-        else DoSlash(dmg, transform.position, forward);
 
-        yield return new WaitForSeconds(hitboxActiveTime);
+        if (step == 1)
+        {
+            DoSlashBox(dmg, transform.position, forward,
+                       slash1Width, slash1Length, slash1CenterOffset);
+        }
+        else // step == 2
+        {
+            DoSlashBox(dmg, transform.position, forward,
+                       slash2Width, slash2Length, slash2CenterOffset);
+        }
 
-        nextAttackReady = Time.time + afterDelay[step - 1];
-        yield return new WaitForSeconds(afterDelay[step - 1]);
+
+        yield return new WaitForSeconds(activeTime);
+
+        nextAttackReady = Time.time + Mathf.Max(0f, totalCast - activeTime);
+        float remain = Mathf.Max(0f, totalCast - activeTime);
+        if (remain > 0f) yield return new WaitForSeconds(remain);
+
+        anim.SetFloat(HashAttackSpeed, 1f);
+
+        if (step == 1 && comboQueued && Time.time <= nextAttackReady + comboInputTime)
+        {
+            comboQueued = false;
+            isAttacking = false;
+            DoQuickComboAttack();
+            yield break;
+        }
 
         isAttacking = false;
+        comboStep = (step == 2) ? 0 : comboStep;
         pc.ChangeState(new IdleState(pc));
     }
 
@@ -227,6 +294,12 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         pc.SetFacingDirection(dir);
 
         string clip = HeavyAttackClipName(dir);
+        var c = FindClip(clip);
+        float baseLen = (c != null && c.length > 0f) ? c.length : 1f;
+        float speedMul = baseLen / Mathf.Max(0.01f, heavyAfterDelay);
+
+        anim.SetFloat(HashAttackSpeed, speedMul);
+
         anim.Play(clip, 0, 0f);
 
         isAttacking = true;
@@ -240,6 +313,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         heavyOnCooldown = true;
         //pc.ChangeState(new NormalAttackState(pc, after));
         StartCoroutine(HeavyCooldown());
+        anim.SetFloat(HashAttackSpeed, 1f);
         chargeUI.HideAll();
     }
     private IEnumerator HeavyCooldown()
@@ -265,38 +339,37 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         3 => Vector2.right,
         _ => Vector2.zero
     };
-    
-    private void DoSlash(int dmg, Vector2 origin, Vector2 dir)
-
+    private static float AngleDegFromDir(Vector2 dir)
     {
-        float w = 2f, l = 1f;
-        Vector2 center = origin + dir * (l * .5f);
-        float angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(w, l), angleDeg);
-        HashSet<MonsterBase1> done = new();
-        foreach (var h in hits)
-        {
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
-                m.TakeDamage(dmg);
-            if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
-                Debug.Log($"채집물 공격! {h.gameObject.name}");
-        }
+        // Physics2D 회전각은 Z축 도(deg)
+        if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
+        dir.Normalize();
+        return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
     }
-    private void DoThrust(int dmg, Vector2 origin, Vector2 dir)
+    private void DoSlashBox(int dmg, Vector2 origin, Vector2 dir,
+                        float width, float length, float centerOffset01)
     {
-        float radius = 2f, arc = 60f;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, radius);
-        HashSet<MonsterBase1> done = new();
+        if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
+        dir.Normalize();
+
+        // 중심 위치 = 캐릭터 앞쪽으로 (길이의 절반) + 오프셋(비율 * 길이)
+        float forward = (length * 0.5f) + (centerOffset01 * length);
+        Vector2 center = origin + dir * forward;
+        float angleDeg = AngleDegFromDir(dir);
+        Vector2 size = new Vector2(width, length);
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg, hitMask);
+        HashSet<MonsterController> done = new();
+
         foreach (var h in hits)
         {
-            Vector2 to = (Vector2)h.transform.position - origin;
-            if (h.CompareTag("Farm") && Vector2.Angle(dir, to) <= arc * .5f &&
-                h.TryGetComponent(out ResourceNodeBase f))
-                f.Damage(dmg);
-            if (!h.CompareTag("Monster")) continue;
-            if (Vector2.Angle(dir, to) <= arc * .5f &&
-                h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
+            if (!h || !h.enabled) continue;
+
+            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
                 m.TakeDamage(dmg);
+
+            if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
+                f.Damage(dmg);
         }
     }
     private void DoHeavyCircle(int dmg, Vector2 origin, float r)
@@ -312,37 +385,58 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     public IPlayerState GetCurrentState() => pc.GetCurrentState();
     public void RestorePreviousState() => pc.RestorePreviousState();
 #if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        DrawAttackGizmos(always: true);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        if (!Application.isPlaying) return;
+        DrawAttackGizmos(always: false);
+    }
 
+    private void DrawAttackGizmos(bool always)
+    {
         Vector2 origin = transform.position;
-        int dirInt = pc ? pc.FacingDir : 1;
-        Vector2 dir = FacingVector(dirInt);
 
-        // Slash (직사각형) – 빨간색
-        float w = 2f, l = 1f;
-        Vector2 center   = origin + dir * (l * 0.5f);
-        float   angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        int dirInt = (Application.isPlaying && pc != null) ? pc.FacingDir
+                                                           : Mathf.Clamp(previewDir, 0, 3);
+        Vector2 dir = FacingVector(dirInt);
+        float angleDeg = AngleDegFromDir(dir);
+
+        // 1타 박스
+        DrawBoxGizmo(origin, dir, angleDeg, slash1Width, slash1Length, slash1CenterOffset, gizmoSlash1Color);
+
+        // 2타
+        DrawBoxGizmo(origin, dir, angleDeg, slash2Width, slash2Length, slash2CenterOffset, gizmoSlash2Color);
+
+        // Heavy 원형
+        Gizmos.color = gizmoHeavyColor;
+        Gizmos.DrawSphere(origin, heavyRadius);
+    }
+
+    private void DrawBoxGizmo(Vector2 origin, Vector2 dir, float angleDeg,
+                              float width, float length, float centerOffset01, Color col)
+    {
+        float forward = (length * 0.5f) + (centerOffset01 * length);
+        Vector2 center = origin + dir.normalized * forward;
 
         Matrix4x4 old = Gizmos.matrix;
-        Gizmos.color  = new Color(1f, 0f, 0f, 0.25f);
-        Gizmos.matrix = Matrix4x4.TRS(center,
-                                      Quaternion.Euler(0, 0, angleDeg),
-                                      Vector3.one);
-        Gizmos.DrawCube(Vector3.zero, new Vector3(w, l, 0));
+        Gizmos.color = col;
+        Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angleDeg), Vector3.one);
+        Gizmos.DrawCube(Vector3.zero, new Vector3(width, length, 0f));
         Gizmos.matrix = old;
 
-        // Thrust (부채꼴) – 파란색
-        Handles.color = new Color(0f, 0f, 1f, 0.25f);
-        float radius = 2f, arc = 60f;
-        Handles.DrawSolidArc(origin, Vector3.forward,
-                             Quaternion.Euler(0, 0, -arc * 0.5f) * dir,
-                             arc, radius);
-
-        // Heavy (원형) – 노란색
-        Gizmos.color = new Color(1f, 1f, 0f, 0.15f);
-        Gizmos.DrawSphere(origin, heavyRadius);
+#if UNITY_EDITOR
+        // 외곽선도 같이
+        Handles.color = new Color(col.r, col.g, col.b, 0.9f);
+        Vector3 sL = Quaternion.Euler(0, 0, angleDeg) * new Vector3(-width * 0.5f, -length * 0.5f, 0);
+        Vector3 sR = Quaternion.Euler(0, 0, angleDeg) * new Vector3(width * 0.5f, -length * 0.5f, 0);
+        Vector3 eR = Quaternion.Euler(0, 0, angleDeg) * new Vector3(width * 0.5f, length * 0.5f, 0);
+        Vector3 eL = Quaternion.Euler(0, 0, angleDeg) * new Vector3(-width * 0.5f, length * 0.5f, 0);
+        Handles.DrawAAPolyLine(3f,
+            (Vector3)center + sL, (Vector3)center + sR, (Vector3)center + eR, (Vector3)center + eL, (Vector3)center + sL);
+#endif
     }
 #endif
 }
