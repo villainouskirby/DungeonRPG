@@ -10,6 +10,7 @@ Shader "Tilemap/LitTilemap"
         _FogColor       ("Fog Color", Color) = (0.7, 0.8, 1.0, 1)
         _DistanceStart  ("Dist Fog Start", Float) = 10
         _DistanceEnd    ("Dist Fog End",   Float) = 30
+        _DistanceCorrect    ("Dist Fog Correct",   Float) = 5
         _ExtHeightFactor("Height Num", Float) = 0
         _HeightStrength ("Height Mix", Range(0,1)) = 0
 
@@ -78,6 +79,7 @@ Shader "Tilemap/LitTilemap"
             half4 _RendererColor;
             float _DistanceStart;
             float _DistanceEnd;
+            float _DistanceCorrect;
             float4 _FogColor;
 
             /// TileMap
@@ -193,6 +195,7 @@ Shader "Tilemap/LitTilemap"
 
                  // Fog Logic
                 float  distXY  = length(_PlayerPos.xy - i.worldPos.xy);
+                distXY += _DistanceCorrect;
                 float  distFog = clamp(distXY, _DistanceStart, _DistanceEnd) / _DistanceEnd;
 
                 // temp

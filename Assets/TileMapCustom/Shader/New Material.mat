@@ -45,12 +45,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _DistanceCorrect: 7
+    - _DistanceEnd: 15
+    - _DistanceStart: 0
     - _EnableExternalAlpha: 0
+    - _ExtHeightFactor: 0
+    - _HeightStrength: 0
     - _Smoothness: 0.39
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColorTint: {r: 1, g: 1, b: 1, a: 1}
     - _DefaultColor: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _FogColor: {r: 0.7, g: 0.8, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
