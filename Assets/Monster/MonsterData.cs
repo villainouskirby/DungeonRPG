@@ -32,6 +32,22 @@ public class MonsterData : ScriptableObject
     public float aggroHoldSeconds = 2f;        // 전투 진입까지 연속 유지 시간
     public float disengageHoldSeconds = 2f;    // 전투 이탈까지 연속 미유지 시간
 
+    [Header("전투/도망/따라가기 전환 공통 지연")]
+    [Tooltip("Combat/Flee/Trace 로 전환하기 전에 잠깐 대기")]
+    public float preTransitionDelay = 0.3f;
+
+    [Header("추적 모드(Trace)")]
+    public bool istracing = false;
+    [Tooltip("Trace 이동 속도 (비워두면 detectSpeed 사용)")]
+    public float traceSpeed = 0f;
+
+    [Tooltip("플레이어와 유지하고 싶은 목표 거리")]
+    public float traceDesiredDistance = 4f;
+    [Tooltip("이 거리보다 가까우면 살짝 벌어짐(정지 밴드 하한)")]
+    public float traceNearDistance = 2.5f;
+    [Tooltip("이 거리보다 멀면 다가감(정지 밴드 상한)")]
+    public float traceFarDistance = 5.5f;
+
     [Header("상태 전이 지연(Inspector 조절)")]
     [Tooltip("플레이어 감지 후 Detect 상태로 들어가기 전에 요구되는 연속 유지 시간")]
     public float detectGateDelay = 0.25f;

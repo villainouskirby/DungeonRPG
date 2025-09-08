@@ -152,4 +152,15 @@ public sealed class MonsterContext
         return ok;
     }
     #endregion
+    //길찾기 안전로직
+    public bool TrySetDestinationSafe(Vector3 desired, float sampleRadius = 3f)
+    {
+        if (NavMesh.SamplePosition(desired, out var hit, sampleRadius, NavMesh.AllAreas))
+        {
+            agent.isStopped = false;
+            agent.SetDestination(hit.position);
+            return true;
+        }
+        return false;
+    }
 }

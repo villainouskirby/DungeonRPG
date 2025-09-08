@@ -290,6 +290,16 @@ public sealed class MonsterDetectState : IMonsterState
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
 
+        float delay = Mathf.Max(0f, ctx.data.preTransitionDelay);
+        if (delay > 0f)
+            await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
+
+        if (token.IsCancellationRequested) return;
+
+        if (ctx.data.istracing)
+        {
+            machine.ChangeState(new MonsterTraceState(ctx, machine));
+        }
         // 전투몹인지 비전투몹인지에 따라 분기
         if (!token.IsCancellationRequested) 
         {
@@ -411,15 +421,107 @@ public sealed class MonsterSearchWanderState : IMonsterState
         ctx.agent.SetDestination(dest);
     }
 }
+public sealed class MonsterTraceState : IMonsterState
+{
+    readonly MonsterContext ctx;
+    readonly MonsterStateMachine machine;
+
+    float returnGate;
+
+    public MonsterTraceState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
+
+    public void Enter()
+    {
+        returnGate = 0f;
+
+        float spd = (ctx.data.traceSpeed > 0f) ? ctx.data.traceSpeed : ctx.data.detectSpeed;
+        ctx.agent.speed = spd;
+        ctx.agent.isStopped = false;
+        ctx.anim.Play("Walk");
+    }
+
+    public void Tick()
+    {
+        // 플레이어 유효성
+        if (!ctx.player)
+        {
+            machine.ChangeState(new MonsterSearchWanderState(ctx, machine));
+            return;
+        }
+
+        // 스포너 거리 초과 → 귀환 게이트
+        float distSpawn = Vector2.Distance(ctx.transform.position, ctx.spawner);
+        if (distSpawn > ctx.data.maxSpawnerDist)
+        {
+            returnGate += Time.deltaTime;
+            if (returnGate >= ctx.data.returnGateDelay)
+            {
+                ctx.IsFastReturn = true;
+                machine.ChangeState(new MonsterReturnState(ctx, machine));
+                return;
+            }
+        }
+        else returnGate = 0f;
+
+        // 추적 거리 유지 로직
+        Vector3 p = ctx.player.position;
+        Vector3 me = ctx.transform.position;
+        Vector3 toPlayer = (p - me);
+        float d = toPlayer.magnitude;
+
+        float near = ctx.data.traceNearDistance;
+        float far = ctx.data.traceFarDistance;
+        float desired = ctx.data.traceDesiredDistance;
+
+        if (d > far)                 // 너무 멀다 → 다가가기
+        {
+            Vector3 target = p - toPlayer.normalized * desired;
+            if (ctx.TrySetDestinationSafe(target, 3f))
+            {
+                ctx.agent.isStopped = false;
+                ctx.anim.Play("Walk");
+            }
+        }
+        else if (d < near)           // 너무 가깝다 → 살짝 벌리기
+        {
+            // 플레이어 반대 방향으로 desired 링에 위치
+            Vector3 target = me - toPlayer.normalized * (near - d + 0.5f);
+            // 또는 player 기준 링: p + (-dir)*desired;
+            if (ctx.TrySetDestinationSafe(target, 3f))
+            {
+                ctx.agent.isStopped = false;
+                ctx.anim.Play("Walk");
+            }
+        }
+        else                         // 적정 밴드 안 → 정지/대기
+        {
+            if (!ctx.agent.isStopped)
+            {
+                ctx.agent.isStopped = true;
+                ctx.agent.velocity = Vector3.zero;
+                ctx.anim.Play("Idle");
+            }
+            // 바라보는 방향만 유지하고 끝
+        }
+    }
+    public void Exit()
+    {
+        ctx.agent.isStopped = false;
+    }
+}
 sealed class MonsterReturnState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine machine;
     float detectGate;
+    bool ReturnLock;
     public MonsterReturnState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
     public void Enter()
     {
+        ReturnLock = ctx.IsFastReturn;
+
+        ctx.agent.isStopped = false;
         ctx.agent.speed = ctx.IsFastReturn ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
         ctx.agent.SetDestination(ctx.spawner);
         ctx.anim.Play("Walk");
@@ -428,10 +530,27 @@ sealed class MonsterReturnState : IMonsterState
 
     public void Tick()
     {
-       float dist = Vector2.Distance(ctx.transform.position, ctx.spawner);
-        bool isNear = dist <= ctx.data.nearSpawnerDist;     // 아주 가까움(도착)
-        bool isFar = dist > ctx.data.maxSpawnerDist;      // 너무 멀리 떨어짐
-        bool inMid = !isNear && !isFar;                    // 중간 구간
+        float dist = Vector2.Distance(ctx.transform.position, ctx.spawner);
+
+        // FastReturn 모드 동안은 감지 완전 무시 → 스포너까지 무조건 복귀
+        if (dist <= ctx.data.nearSpawnerDist)
+        {
+            machine.ChangeState(new MonsterIdleState(ctx, machine));
+            return;
+        }
+        if (!ctx.agent.pathPending && ctx.agent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            ctx.agent.SetDestination(ctx.spawner);
+        }
+        if (ReturnLock)
+        {
+            return; // 도중 Detect/Special 등으로 절대 전환하지 않음
+        }
+
+        // 이후는 평범한 귀환 로직
+        bool isNear = dist <= ctx.data.nearSpawnerDist;
+        bool isFar = dist > ctx.data.maxSpawnerDist;
+        bool inMid = !isNear && !isFar;
 
         // 스포너 근접 → Idle 복귀
         if (isNear)
@@ -440,14 +559,12 @@ sealed class MonsterReturnState : IMonsterState
             return;
         }
 
-        // 너무 멀리 떨어져 있으면(귀환 중요 구간) 감지 금지
         if (isFar)
         {
             detectGate = 0f; // 게이트 누적도 리셋해서 우발 전환 방지
             return;          // 계속 스포너로 향하게 둠
         }
 
-        // 중간 구간에서만 Detect 감지 허용 (연산자 괄호 주의!)
         bool sensedNoise = ctx.CanHearThrowObject(ctx.data.sightDistance, out var _);
         bool sensedPlayer = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle)
                           || ctx.CanHearPlayer(ctx.data.hearRange);

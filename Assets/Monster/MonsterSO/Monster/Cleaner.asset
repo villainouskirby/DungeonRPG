@@ -30,6 +30,12 @@ MonoBehaviour:
   soundObstaclePenalty: 2
   aggroHoldSeconds: 2
   disengageHoldSeconds: 2
+  preTransitionDelay: 0.3
+  istracing: 1
+  traceSpeed: 2
+  traceDesiredDistance: 4
+  traceNearDistance: 4
+  traceFarDistance: 5.5
   detectGateDelay: 0.25
   returnGateDelay: 0.75
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
