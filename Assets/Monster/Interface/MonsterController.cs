@@ -94,16 +94,37 @@ public class MonsterController : MonoBehaviour
     }
 
     // 외부에서 데미지
-    public void TakeDamage(float dmg)
+    // 기존 시그니처 보존
+    public void TakeDamage(float dmg) => TakeDamage(dmg, 0f);
+
+    // 새 시그니처 스턴 지속시간 포함
+    public void TakeDamage(float dmg, float stunSec)
     {
         ctx.hp = Mathf.Max(0, ctx.hp - dmg);
         CurrentHP = ctx.hp;
         OnHpChanged?.Invoke(CurrentHP, MaxHP);
 
-        Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해!");
+        Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
 
-        if (ctx.hp <= 0)
-            root.ChangeState(new MonsterKilledState(ctx, root, gameObject, this));
+        if (ctx.hp <= 0f)
+        {
+            StateMachine.ChangeState(new MonsterKilledState(ctx, StateMachine, gameObject, this));
+            return;
+        }
+
+        // 스턴 적용
+        if (stunSec > 0f)
+        {
+            // 현재 최상단이 스턴이면 갱신, 아니면 푸시
+            if (StateMachine.Current is MonsterStunState stunState)
+            {
+                stunState.Refresh(stunSec); // 남은 시간 갱신
+            }
+            else
+            {
+                StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec));
+            }
+        }
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public interface IMonsterState
@@ -39,13 +40,39 @@ public abstract class SpecialBehaviourSO : ScriptableObject, IMonsterBehaviour
 
 public sealed class MonsterStateMachine
 {
-    public IMonsterState Current { get; private set; }
+    readonly Stack<IMonsterState> stack = new();
+
+    public IMonsterState Current => stack.Count > 0 ? stack.Peek() : null;
 
     public void ChangeState(IMonsterState next)
     {
-        Current?.Exit();
-        Current = next;
-        Current?.Enter();
+        while (stack.Count > 0)
+        {
+            var s = stack.Pop();
+            s.Exit();
+        }
+        if (next != null)
+        {
+            stack.Push(next);
+            next.Enter();
+        }
+    }
+    /// 오버레이 상태(예: 스턴) 푸시
+    public void PushState(IMonsterState overlay)
+    {
+        // 아래 상태의 비동기 태스크/코루틴 중단을 위해 Exit() 호출 후 스택에 유지
+        if (Current != null) Current.Exit();      // 감지 상태의 UniTask/CTS 끊기 목적
+        stack.Push(overlay);
+        overlay.Enter();
+    }
+
+    /// 오버레이 상태 종료 → 아래 상태 재진입(Enter 재호출)
+    public void PopState()
+    {
+        if (stack.Count == 0) return;
+        var top = stack.Pop();
+        top.Exit();
+        if (Current != null) Current.Enter();     // 기존 상태 재진입(안전한 재개)
     }
 
     public void Tick() => Current?.Tick();

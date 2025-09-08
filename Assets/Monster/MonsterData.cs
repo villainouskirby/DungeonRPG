@@ -32,6 +32,14 @@ public class MonsterData : ScriptableObject
     public float aggroHoldSeconds = 2f;        // 전투 진입까지 연속 유지 시간
     public float disengageHoldSeconds = 2f;    // 전투 이탈까지 연속 미유지 시간
 
+    [Header("상태 전이 지연(Inspector 조절)")]
+    [Tooltip("플레이어 감지 후 Detect 상태로 들어가기 전에 요구되는 연속 유지 시간")]
+    public float detectGateDelay = 0.25f;
+
+    [Tooltip("스포너 최대 거리 초과 상태가 연속 유지되어 Return으로 돌아가기까지의 지연")]
+    public float returnGateDelay = 0.75f;
+
+
     public Sprite questionSprite;              // 감지 중(물음표)
     public Sprite exclamationSprite;           // 전투 진입(느낌표)
     public Color questionStartColor = Color.white;

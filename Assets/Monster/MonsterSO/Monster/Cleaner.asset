@@ -18,7 +18,7 @@ MonoBehaviour:
   attackCooldown: 1.5
   attackRange: 1.2
   canMove: 1
-  hearRange: 3
+  hearRange: 2
   sightDistance: 6
   sightAngle: 90
   lostDistance: 8
@@ -30,11 +30,13 @@ MonoBehaviour:
   soundObstaclePenalty: 2
   aggroHoldSeconds: 2
   disengageHoldSeconds: 2
+  detectGateDelay: 0.25
+  returnGateDelay: 0.75
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}
   questionStartColor: {r: 1, g: 1, b: 1, a: 1}
   questionEndColor: {r: 1, g: 0, b: 0, a: 1}
-  maxSpawnerDist: 15
+  maxSpawnerDist: 20
   nearSpawnerDist: 2
   isaggressive: 0
   canHearNoise: 1
