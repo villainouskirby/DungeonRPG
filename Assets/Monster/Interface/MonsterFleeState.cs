@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 public sealed class MonsterFleeState : IMonsterState
 {
     readonly MonsterContext ctx;
@@ -38,7 +39,7 @@ public sealed class MonsterFleeState : IMonsterState
 
         while (elapsed < fleeDuration)
         {
-            /* ── 반대 + X성분 우선 방향 찾기 ── */
+            // 반대 + X성분 우선 방향 찾기
             Vector2 away = (ctx.transform.position - ctx.player.position).normalized;
 
             Vector2 bestDir = away;
@@ -59,7 +60,7 @@ public sealed class MonsterFleeState : IMonsterState
             Vector3 dest = ctx.transform.position + (Vector3)(bestDir * dirSampleDist);
             ctx.agent.SetDestination(dest);
 
-            /* ── 이동했는지 확인 ── */
+            // 이동했는지 확인
             Vector3 prevPos = ctx.transform.position;
             float stuckT = 0f;
             bool moved = false;
@@ -76,7 +77,7 @@ public sealed class MonsterFleeState : IMonsterState
                 yield return null;
             }
 
-            /* ── 막혔으면 X축 반대방향으로 한 번 더 ── */
+            // 막혔으면 X축 반대방향으로 한 번 더
             if (!moved)
             {
                 Vector2 oppositeDir = -bestDir.normalized;
@@ -87,7 +88,7 @@ public sealed class MonsterFleeState : IMonsterState
                     runT += Time.deltaTime;
                     elapsed += Time.deltaTime;
 
-                    /* 매 프레임 앞으로 dirSampleDist 만큼 목표 갱신 */
+                    // 매 프레임 앞으로 dirSampleDist 만큼 목표 갱신
                     Vector3 des = ctx.transform.position + (Vector3)(oppositeDir * dirSampleDist);
                     ctx.agent.SetDestination(des);
 
@@ -96,7 +97,7 @@ public sealed class MonsterFleeState : IMonsterState
                 continue;   // 3초 후 다시 샘플링 루프로
             }
 
-            /* ── 정상 이동 중이면 1초 후 재계산 ── */
+            // 정상 이동 중이면 1초 후 재계산
             yield return new WaitForSeconds(resampleCycle);
             elapsed += resampleCycle;
         }

@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using HeapExplorer;
+using System;
 using System.Collections.Generic;
 using UnityEditor;   // Handles, Gizmos
 #endif
@@ -28,7 +29,7 @@ public class MonsterController : MonoBehaviour
     public float MaxHP { get; private set; }
     public float CurrentHP { get; private set; }
     public event System.Action<float, float> OnHpChanged;
-
+    public event Action<float> OnDamaged;
 
     public Dictionary<string, Monster_Info_Monster> monsterDic;
     MonsterStateMachine root = new();
@@ -103,6 +104,7 @@ public class MonsterController : MonoBehaviour
         ctx.hp = Mathf.Max(0, ctx.hp - dmg);
         CurrentHP = ctx.hp;
         OnHpChanged?.Invoke(CurrentHP, MaxHP);
+        OnDamaged?.Invoke(dmg);
 
         Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
 

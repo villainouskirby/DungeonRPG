@@ -24,7 +24,8 @@ public class DropItem : MonoBehaviour
     private int _amount;
     private Vector3 _startPos;
     private Vector3 _endPos;
-
+    public ItemData Data => _itemData;
+    public int Amount => _amount;
     private void Awake()
     {
         _collider = GetComponent<CircleCollider2D>();

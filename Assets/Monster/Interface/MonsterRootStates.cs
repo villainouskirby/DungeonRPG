@@ -533,6 +533,10 @@ public sealed class MonsterStunState : IMonsterState
             var hasStun = ctx.data.animator ? true : true;
             ctx.anim.Play("Stun", 0, 0f);
         }
+        if (ctx.mono.TryGetComponent(out MonsterStomach stomach) && stomach.HasItems)
+        {
+            stomach.VomitAll(); // 또는 stomach.VomitOne();
+        }
     }
 
     public void Tick()

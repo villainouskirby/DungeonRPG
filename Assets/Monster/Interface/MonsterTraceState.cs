@@ -48,6 +48,11 @@ public sealed class MonsterTraceState : IMonsterState
         }
         else returnGate = 0f;
 
+        if (ctx.CanSeeObject(ctx.data.sightDistance))
+        {
+            machine.ChangeState(new MonsterSpecialState(ctx, machine));
+            return;
+        }
         // 추적 거리 유지 로직
         Vector3 p = ctx.player.position;
         Vector3 me = ctx.transform.position;

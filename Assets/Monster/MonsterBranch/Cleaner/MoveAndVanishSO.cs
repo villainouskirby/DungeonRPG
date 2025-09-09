@@ -22,52 +22,93 @@ public class MoveAndVanishSO : SpecialBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
-        //  방향 계산 (아이템 반대 + 각도 오차)
-        Vector2 baseDir = ctx.lastItemDir == Vector2.zero
-                        ? Random.insideUnitCircle.normalized
-                        : -ctx.lastItemDir;
+        bool gotHit = false;
+        void OnHit(float dmg) => gotHit = true;
 
-        float deltaDeg = Random.Range(-angleOffset, angleOffset);
-        Vector2 dir = Quaternion.Euler(0, 0, deltaDeg) * baseDir;
+        // 구독(안전가드)
+        if (ctx.mono) ctx.mono.OnDamaged += OnHit;
 
-        // 거리·속도 선택
-        float dist = Random.Range(minDistance, maxDistance);
-        float speed = speedOptions.Length > 0
-                    ? speedOptions[Random.Range(0, speedOptions.Length)]
-                    : 2f;  // fallback
-
-        Vector3 dest = ctx.transform.position + (Vector3)(dir.normalized * dist);
-        ctx.agent.speed = speed;
-        ctx.agent.SetDestination(dest);
-
-        //  moveTime 동안 이동(도착하면 조기 종료)
-        float t = 0f;
-        while (t < moveTime)
+        try
         {
-            if (!ctx.agent.isOnNavMesh) break;  // NavMesh 이탈 안전장치
-            if (!ctx.agent.pathPending &&
-                ctx.agent.remainingDistance <= ctx.agent.stoppingDistance) break;
+            //  방향 계산 (아이템 반대 + 각도 오차)
+            Vector2 baseDir = ctx.lastItemDir == Vector2.zero
+                            ? Random.insideUnitCircle.normalized
+                            : -ctx.lastItemDir;
 
-            t += Time.deltaTime;
-            yield return null;
+            float deltaDeg = Random.Range(-angleOffset, angleOffset);
+            Vector2 dir = Quaternion.Euler(0, 0, deltaDeg) * baseDir;
+
+            // 거리·속도 선택
+            float dist = Random.Range(minDistance, maxDistance);
+            float speed = speedOptions.Length > 0
+                        ? speedOptions[Random.Range(0, speedOptions.Length)]
+                        : 2f;  // fallback
+
+            Vector3 dest = ctx.transform.position + (Vector3)(dir.normalized * dist);
+            ctx.agent.speed = speed;
+            ctx.agent.SetDestination(dest);
+
+            //  moveTime 동안 이동(도착하면 조기 종료)
+            float t = 0f;
+            while (t < moveTime)
+            {
+                // 피격되면 즉시 Special 중단 → Flee로 전환
+                if (gotHit)
+                {
+                    // 현재 SpecialState는 ChangeState시 Exit()에서 코루틴을 Stop하므로
+                    // 여기서 바로 yield break 해도 안전.
+                    ctx.sm.ChangeState(new MonsterFleeState(ctx, ctx.sm));
+                    yield break;
+                }
+
+                if (!ctx.agent.isOnNavMesh) break;
+                if (!ctx.agent.pathPending &&
+                    ctx.agent.remainingDistance <= ctx.agent.stoppingDistance) break;
+
+                t += Time.deltaTime;
+                yield return null;
+            }
+
+            // standTime 동안 제자리 대기 (피격 체크 계속)
+            ctx.agent.ResetPath();
+            float st = 0f;
+            while (st < standTime)
+            {
+                if (gotHit)
+                {
+                    ctx.sm.ChangeState(new MonsterFleeState(ctx, ctx.sm));
+                    yield break;
+                }
+                st += Time.deltaTime;
+                yield return null;
+            }
+
+            // 피격 없이 끝까지 갔을 때만 Vanish 진행
+            ctx.agent.enabled = false;   // NavMeshAgent 업데이트 차단
+            ctx.anim.Play("Vanish");
+            float vt = 0f;
+            while (vt < vanishDelay)
+            {
+                if (gotHit)
+                {
+                    // Vanish 직전이라도 피격되면 Flee로
+                    // 에이전트 다시 활성화
+                    ctx.agent.enabled = true;
+                    ctx.sm.ChangeState(new MonsterFleeState(ctx, ctx.sm));
+                    yield break;
+                }
+                vt += Time.deltaTime;
+                yield return null;
+            }
+
+            // 풀 반환(네 기존 로직 유지)
+            SpawnerPool.Instance.MonsterPool.Release(ctx.id, ctx.mono.gameObject);
+            yield break;
         }
-
-        // standTime 동안 제자리 대기
-        ctx.agent.ResetPath();
-        yield return new WaitForSeconds(standTime);
-
-        // vanish 직전
-        ctx.agent.enabled = false;   // NavMeshAgent 업데이트 완전 차단
-
-        /*  소멸 애니메이션 */
-        ctx.anim.Play("Vanish");
-        yield return new WaitForSeconds(vanishDelay);
-
-        ctx.mono.StopAllCoroutines();
-        ctx.mono.enabled = false;
-
-        /*  실제 파괴 */
-        Object.Destroy(ctx.mono.gameObject);
-        yield break;
+        finally
+        {
+            // 구독 해제 필수!
+            if (ctx.mono) ctx.mono.OnDamaged -= OnHit;
+        }
     }
 }

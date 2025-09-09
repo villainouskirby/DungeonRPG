@@ -163,4 +163,18 @@ public sealed class MonsterContext
         }
         return false;
     }
+    // 거리 계산
+    public float PathLengthTo(Vector3 target, out NavMeshPathStatus status)
+    {
+        var path = new NavMeshPath();
+        NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
+        status = path.status;
+        if (path.status == NavMeshPathStatus.PathInvalid || path.corners == null || path.corners.Length < 2)
+            return 0f;
+
+        float sum = 0f;
+        for (int i = 1; i < path.corners.Length; ++i)
+            sum += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+        return sum;
+    }
 }

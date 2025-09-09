@@ -158,6 +158,8 @@ GameObject:
   - component: {fileID: 5842328666675466451}
   - component: {fileID: 5943831726345952343}
   - component: {fileID: 8946492151150093642}
+  - component: {fileID: -8067890087460922874}
+  - component: {fileID: 241730755621206250}
   m_Layer: 20
   m_Name: MST_CLN
   m_TagString: Monster
@@ -412,6 +414,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e2d2ad50369f294c9581569421dc52d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-8067890087460922874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272526528818684848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17541193be106a34595d1cb65ab976d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CenterOffset: {x: 0, y: 0}
+  RadiusX: 2
+  RadiusY: 1
+  segments: 60
+  DropAngle: 90
+--- !u!114 &241730755621206250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272526528818684848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7ba83fc399c27e4cb7d0393dffcec4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ellipse: {fileID: 0}
+  fallbackRadius: 0.4
 --- !u!1 &3398163645843324330
 GameObject:
   m_ObjectHideFlags: 0
