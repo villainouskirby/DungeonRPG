@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] private bool _isResetOnRealease = true;
+    [SerializeField] private bool _isSetSizeToSprite;
 
     [Header("Sprites")]
     [SerializeField] private Sprite _defaultSprite;
@@ -13,12 +14,15 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     [SerializeField] private Sprite _disabledSprite;
 
     private Image _image;
+    private RectTransform _rect;
     private bool _isFixed = false;
 
     private void Awake()
     {
         _image = GetComponent<Image>();
         _image.sprite = _defaultSprite;
+
+        _rect = GetComponent<RectTransform>();
 
         Init();
     }
@@ -77,6 +81,7 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         }
 
         _image.sprite = _defaultSprite;
+        ChangeSize(_defaultSprite);
     }
 
     public void SetPressedSprite()
@@ -89,6 +94,7 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         }
 
         _image.sprite = _pressedSprite;
+        ChangeSize(_pressedSprite);
     }
 
     public void SetDisabledSprite()
@@ -101,5 +107,13 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         }
 
         _image.sprite = _disabledSprite;
+        ChangeSize(_disabledSprite);
+    }
+
+    private void ChangeSize(Sprite sprite)
+    {
+        if (!_isSetSizeToSprite) return;
+
+        _rect.sizeDelta = sprite.bounds.size;
     }
 }
