@@ -105,7 +105,6 @@ public class MonsterController : MonoBehaviour
         CurrentHP = ctx.hp;
         OnHpChanged?.Invoke(CurrentHP, MaxHP);
         OnDamaged?.Invoke(dmg);
-
         Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
 
         if (ctx.hp <= 0f)
@@ -124,7 +123,10 @@ public class MonsterController : MonoBehaviour
             }
             else
             {
-                StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, false));
+                if (!data.isaggressive) // 비적대일시 때리면 도망침
+                { StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, goToFleeOnEnd: true)); }
+                else // 적대적일시 때리면 그냥 스턴
+                { StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, goToFleeOnEnd: false)); }
             }
         }
     }

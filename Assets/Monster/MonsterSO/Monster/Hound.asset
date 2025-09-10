@@ -28,9 +28,16 @@ MonoBehaviour:
   fleeSpeed: 4
   stoppingDistance: 2
   soundObstaclePenalty: 3
-  aggroHoldSeconds: 2
+  aggroHoldSeconds: 0.5
   disengageHoldSeconds: 2
+  preTransitionDelay: 0.3
+  istracing: 0
+  traceSpeed: 0
+  traceDesiredDistance: 4
+  traceNearDistance: 2.5
+  traceFarDistance: 5.5
   detectGateDelay: 0.25
+  defaultHitStunSeconds: 0.3
   returnGateDelay: 0.75
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}

@@ -28,7 +28,6 @@ public sealed class MonsterContext
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     public string id;
-    public int hitSerial; // 피격 변화 감지용 카운터
     Vector2 _lastForward = Vector2.right;
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
