@@ -52,6 +52,10 @@ public class MonsterData : ScriptableObject
     [Tooltip("플레이어 감지 후 Detect 상태로 들어가기 전에 요구되는 연속 유지 시간")]
     public float detectGateDelay = 0.25f;
 
+    [Header("몬스터 피격 시 스턴")]
+    public float defaultHitStunSeconds = 0.3f;
+
+
     [Tooltip("스포너 최대 거리 초과 상태가 연속 유지되어 Return으로 돌아가기까지의 지연")]
     public float returnGateDelay = 0.75f;
 

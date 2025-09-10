@@ -502,7 +502,7 @@ public sealed class MonsterStunState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine machine;
-
+    readonly bool goToFleeOnEnd;
     float duration;
     float elapsed;
 
@@ -513,16 +513,15 @@ public sealed class MonsterStunState : IMonsterState
         else duration += addDuration;
     }
 
-    public MonsterStunState(MonsterContext c, MonsterStateMachine m, float stunSec)
-    { ctx = c; machine = m; duration = Mathf.Max(0.01f, stunSec); }
+    public MonsterStunState(MonsterContext c, MonsterStateMachine m, float stunSec, bool goToFleeOnEnd = false)
+    { ctx = c; machine = m; duration = Mathf.Max(0.01f, stunSec); this.goToFleeOnEnd = goToFleeOnEnd; }
 
     public void Enter()
     {
         elapsed = 0f;
 
         // 이동 완전 정지
-        ctx.agent.isStopped = true;
-        ctx.agent.velocity = Vector3.zero;
+        ctx.SafeStopAgent();
 
         // 경고 아이콘 숨김
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
@@ -544,15 +543,17 @@ public sealed class MonsterStunState : IMonsterState
         elapsed += Time.deltaTime;
         if (elapsed >= duration)
         {
-            // 스턴 끝 → 아래 상태 재개
-            machine.PopState();
+            if (goToFleeOnEnd)
+                machine.ChangeState(new MonsterFleeState(ctx, machine)); // Flee
+            else
+                machine.PopState(); // 스턴 끝 → 아래 상태 재개
         }
     }
 
     public void Exit()
     {
         // 이동 재개
-        ctx.agent.isStopped = false;
+        ctx.SafeResumeAgent();
     }
 }
 // AutoDestroy.cs

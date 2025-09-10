@@ -124,7 +124,7 @@ public class MonsterController : MonoBehaviour
             }
             else
             {
-                StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec));
+                StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, false));
             }
         }
     }

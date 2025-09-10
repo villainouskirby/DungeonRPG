@@ -28,6 +28,7 @@ public sealed class MonsterContext
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     public string id;
+    public int hitSerial; // 피격 변화 감지용 카운터
     Vector2 _lastForward = Vector2.right;
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
@@ -152,29 +153,46 @@ public sealed class MonsterContext
         return ok;
     }
     #endregion
-    //길찾기 안전로직
-    public bool TrySetDestinationSafe(Vector3 desired, float sampleRadius = 3f)
+    #region 네브메쉬 안전로직
+    public bool EnsureAgentReady(float sampleRadius = 3f)
     {
-        if (NavMesh.SamplePosition(desired, out var hit, sampleRadius, NavMesh.AllAreas))
+        if (!agent) return false;
+
+        if (!agent.enabled) agent.enabled = true;           // 1) enable
+        if (agent.isOnNavMesh) return true;                 // 2) 이미 NavMesh 위면 OK
+
+        // 3) 현재 위치 근처에서 NavMesh 포인트를 찾아서 워프
+        if (NavMesh.SamplePosition(transform.position, out var hit, sampleRadius, NavMesh.AllAreas))
         {
-            agent.isStopped = false;
-            agent.SetDestination(hit.position);
-            return true;
+            // Warp는 enabled=true여야 함
+            return agent.Warp(hit.position);
         }
-        return false;
+        return false; // 복구 실패 – SetDestination/Resume 금지
+    }
+
+    public void SafeStopAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        agent.ResetPath();
+    }
+
+    public void SafeResumeAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = false; // (= Resume)
+    }
+
+    public bool TrySetDestinationSafe(Vector3 pos, float sampleRadius = 3f)
+    {
+        if (!EnsureAgentReady(sampleRadius)) return false;
+        return agent.SetDestination(pos);
     }
     // 거리 계산
-    public float PathLengthTo(Vector3 target, out NavMeshPathStatus status)
-    {
-        var path = new NavMeshPath();
-        NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
-        status = path.status;
-        if (path.status == NavMeshPathStatus.PathInvalid || path.corners == null || path.corners.Length < 2)
-            return 0f;
-
-        float sum = 0f;
-        for (int i = 1; i < path.corners.Length; ++i)
-            sum += Vector3.Distance(path.corners[i - 1], path.corners[i]);
-        return sum;
-    }
+    #endregion
 }
