@@ -152,4 +152,80 @@ public sealed class MonsterContext
         return ok;
     }
     #endregion
+    #region 네브메쉬 안전로직
+    public bool EnsureAgentReady(float sampleRadius = 3f)
+    {
+        if (!agent) return false;
+
+        if (!agent.enabled) agent.enabled = true;           // 1) enable
+        if (agent.isOnNavMesh) return true;                 // 2) 이미 NavMesh 위면 OK
+
+        // 3) 현재 위치 근처에서 NavMesh 포인트를 찾아서 워프
+        if (NavMesh.SamplePosition(transform.position, out var hit, sampleRadius, NavMesh.AllAreas))
+        {
+            // Warp는 enabled=true여야 함
+            return agent.Warp(hit.position);
+        }
+        return false; // 복구 실패 – SetDestination/Resume 금지
+    }
+
+    public void SafeStopAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        agent.ResetPath();
+    }
+
+    public void SafeResumeAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = false; // (= Resume)
+    }
+
+    public bool TrySetDestinationSafe(Vector3 pos, float sampleRadius = 3f)
+    {
+        if (!EnsureAgentReady(sampleRadius)) return false;
+        return agent.SetDestination(pos);
+    }
+    // 거리 계산
+    public float PathLengthTo(Vector3 target, out NavMeshPathStatus status, float sampleRadius = 2f)
+    {
+        status = NavMeshPathStatus.PathInvalid;
+
+        // 에이전트가 비활성/메시에 없으면 복구 시도
+        if (!EnsureAgentReady(sampleRadius))
+            return Mathf.Infinity;
+
+        // 시작/도착 지점을 NavMesh 위로 스냅
+        Vector3 start = transform.position;
+        if (!NavMesh.SamplePosition(start, out var startHit, sampleRadius, NavMesh.AllAreas))
+            startHit.position = start; // 못 찾으면 그냥 현재 위치 사용
+        if (!NavMesh.SamplePosition(target, out var targetHit, sampleRadius, NavMesh.AllAreas))
+            return Mathf.Infinity;
+
+        // 경로 계산
+        var path = new NavMeshPath();
+        bool ok = NavMesh.CalculatePath(startHit.position, targetHit.position, NavMesh.AllAreas, path);
+        status = path.status;
+
+        if (!ok || status == NavMeshPathStatus.PathInvalid)
+            return Mathf.Infinity;
+
+        // 길이 합산
+        var corners = path.corners;
+        if (corners == null || corners.Length < 2)
+            return 0f;
+
+        float len = 0f;
+        for (int i = 1; i < corners.Length; i++)
+            len += Vector3.Distance(corners[i - 1], corners[i]);
+
+        return len;
+    }
+    #endregion
 }

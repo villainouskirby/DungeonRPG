@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using HeapExplorer;
+using System;
 using System.Collections.Generic;
 using UnityEditor;   // Handles, Gizmos
 #endif
@@ -28,7 +29,7 @@ public class MonsterController : MonoBehaviour
     public float MaxHP { get; private set; }
     public float CurrentHP { get; private set; }
     public event System.Action<float, float> OnHpChanged;
-
+    public event Action<float> OnDamaged;
 
     public Dictionary<string, Monster_Info_Monster> monsterDic;
     MonsterStateMachine root = new();
@@ -94,16 +95,40 @@ public class MonsterController : MonoBehaviour
     }
 
     // 외부에서 데미지
-    public void TakeDamage(float dmg)
+    // 기존 시그니처 보존
+    public void TakeDamage(float dmg) => TakeDamage(dmg, 0f);
+
+    // 새 시그니처 스턴 지속시간 포함
+    public void TakeDamage(float dmg, float stunSec)
     {
         ctx.hp = Mathf.Max(0, ctx.hp - dmg);
         CurrentHP = ctx.hp;
         OnHpChanged?.Invoke(CurrentHP, MaxHP);
+        OnDamaged?.Invoke(dmg);
+        Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
 
-        Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해!");
+        if (ctx.hp <= 0f)
+        {
+            StateMachine.ChangeState(new MonsterKilledState(ctx, StateMachine, gameObject, this));
+            return;
+        }
 
-        if (ctx.hp <= 0)
-            root.ChangeState(new MonsterKilledState(ctx, root, gameObject));
+        // 스턴 적용
+        if (stunSec > 0f)
+        {
+            // 현재 최상단이 스턴이면 갱신, 아니면 푸시
+            if (StateMachine.Current is MonsterStunState stunState)
+            {
+                stunState.Refresh(stunSec); // 남은 시간 갱신
+            }
+            else
+            {
+                if (!data.isaggressive) // 비적대일시 때리면 도망침
+                { StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, goToFleeOnEnd: true)); }
+                else // 적대적일시 때리면 그냥 스턴
+                { StateMachine.PushState(new MonsterStunState(ctx, StateMachine, stunSec, goToFleeOnEnd: false)); }
+            }
+        }
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()

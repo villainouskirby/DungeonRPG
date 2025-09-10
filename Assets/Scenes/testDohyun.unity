@@ -4517,6 +4517,21 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6080887379038743496, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6080887379038743496, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6080887379038743496, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7400161765399166181, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_fontAsset
@@ -4538,6 +4553,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7419178380967891492, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000004053116
       objectReference: {fileID: 0}
     - target: {fileID: 7718053417435750209, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
@@ -6807,7 +6827,7 @@ MonoBehaviour:
   TestSaveSlotIndex: 0
   DefaultStartMapType: 0
   TargetCamera: {fileID: 524322943}
-  ViewBoxSize: 20
+  ViewBoxSize: 40
   Player: {fileID: 1252477883}
   WallRoot: {fileID: 0}
   LayerRoot: {fileID: 446844720}
