@@ -27,8 +27,9 @@ public sealed class MonsterFleeState : IMonsterState
     float radius;                 // 플레이어 중심 링 반지름
     float angleBias;              // 각도 시프트
     Phase phase;
-
-    // ───── MonsterData 기반 파라미터 (없으면 기본값 사용) ─────
+    bool cleanerMode;
+    float cleanerWaitTimer;
+    // MonsterData 기반 파라미터 (없으면 기본값 사용)
     float fleeDuration => ctx.data.fleeDespawnSeconds > 0 ? ctx.data.fleeDespawnSeconds : 5f;
     float resampleCycle => ctx.data.fleeResampleCycle > 0 ? ctx.data.fleeResampleCycle : 0.75f;
     float stuckWindow => ctx.data.fleeStuckCheckTime > 0 ? ctx.data.fleeStuckCheckTime : 0.30f;
@@ -72,6 +73,14 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.agent.stoppingDistance = ctx.data.stoppingDistance;
         ctx.anim.Play("Run");
 
+        cleanerMode = (ctx.data.category == MonsterData.MonsterCategory.Cleaner);
+        if (cleanerMode)
+        {
+            cleanerWaitTimer = 0f;
+            ctx.TrySetDestinationSafe(ctx.spawner, 3f);
+            return;                                    // 일반 도망 로직 생략
+        }
+
         totalElapsed = resampleTimer = stuckTimer = keepTimer = 0f;
         dashRemain = vanishTimer = 0f;
         lastPos = ctx.transform.position;
@@ -96,6 +105,27 @@ public sealed class MonsterFleeState : IMonsterState
 
     public void Tick()
     {
+        if (cleanerMode)
+        {
+            // 스포너로 계속 목적지 업데이트
+            ctx.TrySetDestinationSafe(ctx.spawner, 3f);
+
+            float dist = Vector2.Distance(ctx.transform.position, ctx.spawner);
+            if (dist <= ctx.data.nearSpawnerDist + 0.05f)
+            {
+                // 도착 후 대기
+                ctx.SafeStopAgent();
+                ctx.anim.Play("Idle");
+                cleanerWaitTimer += Time.deltaTime;
+                if (cleanerWaitTimer >= 1f)
+                {
+                    // 여기서 사라지는 애니 후 지연을 추가하면 될듯
+                    SpawnerPool.Instance.MonsterPool.Release(ctx.id, ctx.mono.gameObject);
+                    return;
+                }
+            }
+            return;  // Cleaner 이외에는 일반 도망 로직 건드리지 않음
+        }
         // 항상 최신 플레이어 위치 사용
         Vector3 p = ctx.player ? ctx.player.position : ctx.transform.position;
 
@@ -201,7 +231,7 @@ public sealed class MonsterFleeState : IMonsterState
         }
     }
 
-    // ───────────────────────── 샘플링 ─────────────────────────
+    //  샘플링
     void RecomputeTarget(bool forceExpand)
     {
         if (forceExpand) { radius += ringStep; angleBias += 37f; }
