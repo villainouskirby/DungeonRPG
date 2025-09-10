@@ -52,14 +52,61 @@ public class MonsterData : ScriptableObject
     [Tooltip("플레이어 감지 후 Detect 상태로 들어가기 전에 요구되는 연속 유지 시간")]
     public float detectGateDelay = 0.25f;
 
-    [Header("몬스터 피격 시 스턴")]
+    [Header("몬스터 피격 시 스턴 지속시간")]
     public float defaultHitStunSeconds = 0.3f;
-
 
     [Tooltip("스포너 최대 거리 초과 상태가 연속 유지되어 Return으로 돌아가기까지의 지연")]
     public float returnGateDelay = 0.75f;
 
+    [Header("Flee (Run Away) Sampling")]
+    [Tooltip("플레이어 중심 링의 초기 반지름")]
+    [Min(0f)] public float fleeTargetRadius = 6f;
+    [Tooltip("막힘/재샘플 시 링 반지름을 늘리는 스텝 크기")]
+    [Min(0f)] public float fleeRingStep = 1.5f;
+    [Tooltip("정상 이동 중 재샘플 주기(초)")]
+    [Min(0f)] public float fleeResampleCycle = 0.75f;
+    [Tooltip("‘제자리’로 판정하기 전 대기 시간(초)")]
+    [Min(0f)] public float fleeStuckCheckTime = 0.30f;
+    [Tooltip("제자리 판정 이동 임계치(미만이면 거의 안 움직인 것으로 간주)")]
+    [Min(0f)] public float fleeStuckMoveEps = 0.05f;
+    [Tooltip("NavMesh.SamplePosition 검색 반경")]
+    [Min(0f)] public float fleeSamplePositionRadius = 2f;
+    [Tooltip("플레이어 중심 링에서 각도 샘플 개수")]
+    [Min(1)] public int fleeAngularSamples = 16;
 
+    [Header("Flee Corner Dash")]
+    [Tooltip("구석에 몰렸을 때 반대 방향으로 튀는 시간(초)")]
+    [Min(0f)] public float fleeCornerDashSeconds = 2f;
+    [Tooltip("대쉬 중 매 프레임 앞쪽으로 갱신할 목표 스텝 거리")]
+    [Min(0f)] public float fleeCornerDashStep = 3f;
+
+    [Header("Flee End / Despawn")]
+    [Tooltip("도망 지속 시간(초) — 경과 시 디스폰")]
+    [Min(0f)] public float fleeDespawnSeconds = 5f;
+    [Header("Flee – Hysteresis")]
+    [Min(0f)] public float fleeKeepTargetTime = 0.8f;
+    [Min(0f)] public float fleeKeepTargetDist = 0.5f;
+
+    [Header("Flee – Multi Ring")]
+    [Min(1)] public int fleeMultiRingCount = 3;
+
+    [Header("Flee – Panic")]
+    [Min(0f)] public float fleePanicDistance = 2.5f;
+
+    [Header("Flee – 도망 위치 선정 가중치")]
+    public float fleeW_Dist = 1.0f;   // 거리
+    public float fleeW_Len = -0.25f; // 경로길이(음수=짧을수록 유리)
+    public float fleeW_Away = 0.35f;  // 반대방향성
+    public float fleeW_LOS = 0.20f;  // 시야 차단
+    public float fleeW_Inertia = 0.30f;
+    [Header("Flee – 사라지는데 걸리는 시간")]
+    [Min(0f)] public float fleeVanishPauseSeconds = 1f;
+
+    [Header("Flee – Outward Drift")]
+    [Min(0f)] public float fleeOutwardGrowPerSec = 0f;
+
+
+    [Header("감지/플레이어 발각 상태 스프라이트")]
     public Sprite questionSprite;              // 감지 중(물음표)
     public Sprite exclamationSprite;           // 전투 진입(느낌표)
     public Color questionStartColor = Color.white;

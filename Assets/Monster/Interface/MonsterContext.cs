@@ -193,5 +193,39 @@ public sealed class MonsterContext
         return agent.SetDestination(pos);
     }
     // 거리 계산
+    public float PathLengthTo(Vector3 target, out NavMeshPathStatus status, float sampleRadius = 2f)
+    {
+        status = NavMeshPathStatus.PathInvalid;
+
+        // 에이전트가 비활성/메시에 없으면 복구 시도
+        if (!EnsureAgentReady(sampleRadius))
+            return Mathf.Infinity;
+
+        // 시작/도착 지점을 NavMesh 위로 스냅
+        Vector3 start = transform.position;
+        if (!NavMesh.SamplePosition(start, out var startHit, sampleRadius, NavMesh.AllAreas))
+            startHit.position = start; // 못 찾으면 그냥 현재 위치 사용
+        if (!NavMesh.SamplePosition(target, out var targetHit, sampleRadius, NavMesh.AllAreas))
+            return Mathf.Infinity;
+
+        // 경로 계산
+        var path = new NavMeshPath();
+        bool ok = NavMesh.CalculatePath(startHit.position, targetHit.position, NavMesh.AllAreas, path);
+        status = path.status;
+
+        if (!ok || status == NavMeshPathStatus.PathInvalid)
+            return Mathf.Infinity;
+
+        // 길이 합산
+        var corners = path.corners;
+        if (corners == null || corners.Length < 2)
+            return 0f;
+
+        float len = 0f;
+        for (int i = 1; i < corners.Length; i++)
+            len += Vector3.Distance(corners[i - 1], corners[i]);
+
+        return len;
+    }
     #endregion
 }
