@@ -69,6 +69,7 @@ public class MonsterController : MonoBehaviour
         mdata = monsterDic[monsterId];
 
         ctx = new(this, mdata);
+        ctx.hub.ResetAll();
 
         MaxHP = mdata.Monster_hp;
         CurrentHP = MaxHP;

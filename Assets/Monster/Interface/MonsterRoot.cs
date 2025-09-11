@@ -77,3 +77,15 @@ public sealed class MonsterStateMachine
 
     public void Tick() => Current?.Tick();
 }
+public enum Route
+{
+    None,           // 유지
+    Idle,           // 대기
+    Return,         // 스포너 복귀(빠른 복귀 포함)
+    Detect,         // 소리/흔적 추적(수사)
+    Attack,         // 적대 전투 루프
+    Special,        // 아이템/특수 상호작용
+    Flee,           // 비적대 도주
+    Trace           // 플레이어 추적(근접 유지)
+}
+public interface IWithCooldown { float CooldownSeconds { get; } }

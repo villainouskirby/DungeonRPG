@@ -126,8 +126,17 @@ public class MonsterData : ScriptableObject
     [Header("행동 타입")]
     public MonsterCategory category = MonsterCategory.Hound;
 
-    [Tooltip("이 몬스터가 사용할 공격 패턴들 (순서대로 BT Selector)")]
-    public AttackBehaviourSO[] attackBehaviours;
+    [Header("이 몬스터가 사용할 공격 패턴들 (순서대로 BT Selector)")]
+    [Tooltip("이 이내면 공격 우선")]
+    public float attackEnterDistance = 2.2f;
+    [Tooltip("이 밖이면 이동 우선(히스테리시스)")]
+    public float attackExitDistance = 3.0f;
+
+    [Header("접근/ 이동 행동 리프 각각 구분해서 넣기")]
+    public AttackBehaviourSO[] combatMoveBehaviours;   // 접근/오빗 등
+    public AttackBehaviourSO[] combatAttackBehaviours; // 차지/근접공격 등
+    public float[] moveWeights = { 60, 25, 15 }; // 이동 행동 가중치
+
 
     [Tooltip("도망(또는 특수) 패턴들")]
     public FleeBehaviourSO[] fleeBehaviours;

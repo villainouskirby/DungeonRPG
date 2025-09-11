@@ -10,123 +10,106 @@ public sealed class CombatSuperState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
-    CancellationTokenSource cts;
 
     Coroutine running;
-    IMonsterBehaviour currentBeh;   // ← 인터럽트용
+    IMonsterBehaviour currentBeh;
+    float lostHold;   // 전투 해제 누적
 
-    int idx;                          // 순환 인덱스
-    float lostTimer;
-
-    public CombatSuperState(MonsterContext c, MonsterStateMachine r)
-    { ctx = c; root = r; }
+    public CombatSuperState(MonsterContext c, MonsterStateMachine r) { ctx = c; root = r; }
 
     public void Enter()
     {
-        Debug.Log($"{ctx.data.monsterName} ▶ Combat 진입");
-        if (ctx.alert && ctx.data.exclamationSprite)
-        {
-            ctx.alert.sprite = ctx.data.exclamationSprite;
-            ctx.alert.color = Color.red;
-            ctx.alert.gameObject.SetActive(true);
-        }
-
-        lostTimer = 0f;
-        PickAndRun();
-
-        cts = new CancellationTokenSource();
-        StartDisengageWatcherAsync(cts.Token).Forget();
+        if (!ctx.isCombat) ctx.isCombat = true;
+        lostHold = 0f;
+        SelectAndRun();
     }
-    public void Exit()
-    {
-        Interrupt();
 
-        // 감시 태스크 취소
-        cts?.Cancel();
-        cts?.Dispose();
-        cts = null;
-
-        // 아이콘은 Return/Detect에서 상태별로 관리한다면 꺼도 되고 유지해도 됨
-        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
-    }
     public void Tick()
     {
-        if (Vector2.Distance(ctx.transform.position, ctx.spawner) > ctx.data.maxSpawnerDist)
+        // 전투 유지/해제 판정
+        if (GuardDisengage(Time.deltaTime)) return;
+    }
+
+    public void Exit() { Interrupt(); }
+
+    // 전투 해제 가드 
+    bool GuardDisengage(float dt)
+    {
+        // 스포너 과거리 → Return
+        float dSpawn = Vector2.Distance(ctx.transform.position, ctx.spawner);
+        if (dSpawn > ctx.data.maxSpawnerDist)
         {
-            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 스포너와 멀어졌음");
-            Interrupt();
-
-            // 전투 해제 감시 태스크 취소 (Enter에서 만든 cts가 있다면)
-            cts?.Cancel();
-            cts?.Dispose();
-            cts = null;
-
             ctx.IsFastReturn = true;
-            root.ChangeState(new MonsterReturnState(ctx, root));
-            return;
+            ctx.isCombat = false;
+            Switch(Route.Return);
+            return true;
         }
-    }
 
-    // 내부
-    bool CombatPredicate()
-        => ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle)
-        || ctx.CanHearPlayer(ctx.data.hearRange);
-    async UniTaskVoid StartDisengageWatcherAsync(CancellationToken token)
-    {
-        // 진행도 콜백(선택): 해제 게이지/알파 등 UI 연출 가능
-        void Progress(float t)
+        bool see = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
+        bool hear = ctx.CanHearPlayer(ctx.data.hearRange);
+        float dPlayer = ctx.player ? Vector2.Distance(ctx.transform.position, ctx.player.position) : Mathf.Infinity;
+
+        if (see || hear) lostHold = 0f;
+        else lostHold += dt;
+
+        if (dPlayer > ctx.data.lostDistance && lostHold >= ctx.data.disengageHoldSeconds)
         {
-            // 예시) 알파 깜빡임/게이지 바 등
-            // if (ctx.alert) ctx.alert.color = Color.Lerp(Color.red, Color.white, t);
+            ctx.isCombat = false;  // 전투 종료
+            Switch(Route.Detect);  // 흔적 수사로 복귀
+            return true;
         }
-
-        bool lostLongEnough = await ConditionAwaiter.HoldFalseContinuously(
-            ctx.data.disengageHoldSeconds,
-            CombatPredicate,
-            Progress,
-            token);
-
-        if (token.IsCancellationRequested || !lostLongEnough) return;
-
-        Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료: 전투 조건 미유지 {ctx.data.disengageHoldSeconds:F1}s");
-        Interrupt();
-        root.ChangeState(new MonsterReturnState(ctx, root));
+        return false;
     }
 
-    void PickAndRun()
+    // 선택/실행
+    void SelectAndRun()
     {
         Interrupt();
 
-        var list = ctx.data.attackBehaviours;
-        if (list == null || list.Length == 0)
-        { ctx.sm.ChangeState(new MonsterReturnState(ctx, ctx.sm)); return; }
+        bool inMelee = ctx.player &&
+            Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.attackEnterDistance;
 
-        /* attackBehaviours 배열을 한 바퀴 돌며 CanRun==true 찾기 */
-        for (int i = 0; i < list.Length; ++i)
+        var bucket = inMelee ? ctx.data.combatAttackBehaviours
+                             : ctx.data.combatMoveBehaviours;
+
+        IMonsterBehaviour beh = inMelee
+            ? PickFirstReady(bucket)                  // 공격은 순서 우선(혹은 별 규칙)
+            : PickWeightedReady(bucket, ctx.data.moveWeights);
+
+        if (beh == null)
         {
-            idx = (idx + 1) % list.Length;
-            var beh = list[idx];
-            if (beh != null && beh.CanRun(ctx))
-            {
-                Run(beh);
-                return;
-            }
+            // 대체: 이동 버킷/공격 버킷 서로 교차 시도
+            var alt = inMelee ? PickWeightedReady(ctx.data.combatMoveBehaviours, ctx.data.moveWeights)
+                              : PickFirstReady(ctx.data.combatAttackBehaviours);
+            if (alt == null) { Switch(Route.Return); return; }
+            beh = alt;
         }
 
-        /* 실행할 게 없다면 귀환 */
-        root.ChangeState(new MonsterReturnState(ctx, root));
-    }
-
-    void Run(IMonsterBehaviour beh)
-    {
         currentBeh = beh;
-        running = ctx.mono.StartCoroutine(Wrap());
+        running = ctx.mono.StartCoroutine(RunWithPreempt(beh));
+    }
 
-        IEnumerator Wrap()
+    IEnumerator RunWithPreempt(IMonsterBehaviour beh)
+    {
+        var inner = beh.Execute(ctx);
+
+        while (true)
         {
-            yield return beh.Execute(ctx);
-            PickAndRun();            // 종료 후 다음 패턴 선정
+            if (GuardDisengage(0f)) yield break;   // 프레임 단위 프리엠프
+
+            if (!inner.MoveNext()) break;
+            yield return inner.Current;
         }
+
+        // 종료 직후에도 가드 체크
+        if (GuardDisengage(0f)) yield break;
+
+        // 쿨다운 부여
+        float cd = (beh is IWithCooldown w) ? w.CooldownSeconds : 0.15f;
+        ctx.SetCooldown(beh, cd);
+
+        // 다음 선택
+        if (ctx.isCombat) SelectAndRun();
     }
 
     void Interrupt()
@@ -134,9 +117,64 @@ public sealed class CombatSuperState : IMonsterState
         if (running != null)
         {
             ctx.mono.StopCoroutine(running);
+
+            // 인터럽트에도 쿨 부여(정의 쿨의 절반, 최소 0.2s)
+            if (currentBeh is IWithCooldown w)
+                ctx.SetCooldown(currentBeh, Mathf.Max(0.2f, w.CooldownSeconds * 0.5f));
+
             currentBeh?.OnInterrupt(ctx);
             running = null;
             currentBeh = null;
         }
+    }
+
+    void Switch(Route r)
+    {
+        Interrupt();
+        switch (r)
+        {
+            case Route.Return: root.ChangeState(new MonsterReturnState(ctx, root)); break;
+            case Route.Detect: root.ChangeState(new MonsterDetectState(ctx, root)); break;
+            default: root.ChangeState(new MonsterIdleState(ctx, root)); break;
+        }
+    }
+
+    // 픽커들
+    IMonsterBehaviour PickFirstReady(AttackBehaviourSO[] list)
+    {
+        if (list == null) return null;
+        foreach (var b in list)
+        {
+            if (!b) continue;
+            if (!ctx.IsReady(b)) continue;
+            if (!b.CanRun(ctx)) continue;
+            return b;
+        }
+        return null;
+    }
+
+    IMonsterBehaviour PickWeightedReady(AttackBehaviourSO[] list, float[] weights)
+    {
+        if (list == null || weights == null || list.Length == 0 || weights.Length < list.Length) return PickFirstReady(list);
+
+        // 가중치에서 쿨/조건 불가 항목은 0으로
+        float total = 0f;
+        var tmp = new float[list.Length];
+        for (int i = 0; i < list.Length; i++)
+        {
+            bool ok = list[i] && ctx.IsReady(list[i]) && list[i].CanRun(ctx);
+            tmp[i] = ok ? Mathf.Max(0f, weights[i]) : 0f;
+            total += tmp[i];
+        }
+        if (total <= 0f) return null;
+
+        float pick = Random.value * total;
+        float acc = 0f;
+        for (int i = 0; i < list.Length; i++)
+        {
+            acc += tmp[i];
+            if (pick <= acc) return list[i];
+        }
+        return null;
     }
 }

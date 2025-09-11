@@ -9,7 +9,8 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
     public float recoverTime = 0.4f;
     public float dashSpeed = 10f;
     public int damage = 20;
-
+    [Min(0f)] public float cooldown = 1.0f;
+    public float CooldownSeconds => cooldown;
     public override bool CanRun(MonsterContext ctx)
         => Vector2.Distance(ctx.transform.position, ctx.player.position) <= chargeDistance;
 

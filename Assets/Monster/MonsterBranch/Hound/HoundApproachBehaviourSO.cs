@@ -6,6 +6,8 @@ public class HoundApproachBehaviourSO : AttackBehaviourSO
 {
     [Tooltip("이 거리 이내로 접근할 때까지 실행")]
     public float desiredDistance = 2f;
+    [Min(0f)] public float cooldown = 0.25f;
+    public float CooldownSeconds => cooldown;
 
     public override bool CanRun(MonsterContext ctx)
         => Vector2.Distance(ctx.transform.position, ctx.player.position) > desiredDistance;

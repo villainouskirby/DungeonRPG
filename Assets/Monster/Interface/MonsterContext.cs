@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,6 +13,7 @@ public sealed class MonsterContext
     public readonly SpriteRenderer sr;
     //public readonly Vector3 spawner;
     public Vector3 spawner => mono.Spawner;
+    public MonsterDecisionHub hub { get; private set; }
     public readonly SpriteRenderer alert;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
@@ -28,7 +30,21 @@ public sealed class MonsterContext
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     public string id;
+    public bool isCombat;   // 공격 묶음 우선 선택 신호
+    public bool isMoveState;     // 이동(접근/오빗 등) 묶음 우선 선택 신호
     Vector2 _lastForward = Vector2.right;
+
+
+    // 각 행동 쿨다운 관리용
+    public readonly Dictionary<IMonsterBehaviour, float> nextReadyTime = new();
+    public void SetCooldown(IMonsterBehaviour beh, float cd)
+    {
+        if (!nextReadyTime.ContainsKey(beh)) nextReadyTime[beh] = 0f;
+        nextReadyTime[beh] = Time.time + Mathf.Max(0f, cd);
+    }
+    public bool IsReady(IMonsterBehaviour beh)
+        => !nextReadyTime.TryGetValue(beh, out var t) || Time.time >= t;
+
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
@@ -51,7 +67,7 @@ public sealed class MonsterContext
         hearRange = mdata.Monster_sound_detection;
         sightDistance = mdata.Monster_view_detection;
         speed = mdata.Monster_speed;
-
+        hub = new MonsterDecisionHub(this);
         isaggressive = data.isaggressive;
         interestTags = data.interestTags;
         obstacleMask = owner.ObstacleMask;
