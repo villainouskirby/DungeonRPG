@@ -16,6 +16,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
+    [SerializeField] private float comboBuffer = 0.5f;   // 콤보 버퍼시간
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [Header("평타 애니 재생 시간(1타/2타), 사실상 상수. 애니메이션 시간 달라지면 여기서 수정")]
     [SerializeField] private float[] baseAnimLength = { 1.0f, 1.3f };
@@ -171,7 +172,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 float now = Time.time;
 
                 // 아직 1타/2타의 후딜이 끝나기 전이면 => 콤보 입력만 버퍼링
-                if (isAttacking || now < nextAttackReady)
+                if (now <= nextAttackReady && now >= nextAttackReady - comboBuffer)
                 {
                     comboQueued = true;
                 }
