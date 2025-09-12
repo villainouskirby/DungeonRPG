@@ -65,6 +65,7 @@ public sealed class MonsterFleeState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Flee);
         ctx.EnsureAgentReady();
         ctx.agent.isStopped = false;
         ctx.agent.autoRepath = true;

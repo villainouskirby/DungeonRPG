@@ -14,6 +14,7 @@ public sealed class MonsterSpecialState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Special);
         PickAndRun();
     }
     public void Exit() => Interrupt();

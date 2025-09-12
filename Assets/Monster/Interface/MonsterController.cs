@@ -10,6 +10,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator), typeof(SpriteRenderer))]
 public class MonsterController : MonoBehaviour
 {
+    [SerializeField] MonsterStateIndicator stateIndicator;
+    public MonsterStateIndicator StateIndicator => stateIndicator;
     public SpriteRenderer AlertSR { get; private set; }
     [SerializeField] SpriteRenderer alertSR;
     [SerializeField] MonsterData data;

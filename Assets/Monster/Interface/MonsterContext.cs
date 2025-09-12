@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public sealed class MonsterContext
 {
+    public readonly MonsterStateIndicator indicator;
     public readonly Monster_Info_Monster statData;
     public readonly MonsterData data;
     public readonly Transform transform;
@@ -48,6 +49,7 @@ public sealed class MonsterContext
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
+        indicator = owner.StateIndicator;
         statData = mdata;
         mono = owner;
         sm = owner.StateMachine;

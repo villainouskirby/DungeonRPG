@@ -45,6 +45,9 @@ public sealed class CombatSuperState : IMonsterState
         bool inMelee = ctx.player &&
             Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.attackEnterDistance;
 
+        if (inMelee) ctx.indicator?.ShowCombatAttack();
+        else ctx.indicator?.ShowCombatMove();
+
         var bucket = inMelee ? ctx.data.combatAttackBehaviours
                              : ctx.data.combatMoveBehaviours;
 
