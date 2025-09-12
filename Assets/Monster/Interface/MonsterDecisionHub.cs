@@ -77,19 +77,34 @@ public sealed class MonsterDecisionHub
     }
 
     // 전투 해제(Combat 전용)
-    public Route DecideWhileCombat(float dt)
+    public Route DecideDuringCombat(float dt)
     {
-        bool engaged = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle)
-                       || ctx.CanHearPlayer(ctx.data.hearRange);
-        if (engaged) { _disengageHold = 0f; return Route.None; }
-
-        _disengageHold += dt;
-        if (_disengageHold >= ctx.data.disengageHoldSeconds)
+        // 스포너로부터 멀어짐 : 전투 중에는 즉시 귀환(게이트 X)
+        float dSpawn = Vector2.Distance(ctx.transform.position, ctx.spawner);
+        if (dSpawn > ctx.data.maxSpawnerDist)
+        {
+            IsFastReturnRequested = true;
+            ctx.isCombat = false;          // 전투 종료
             return Route.Return;
+        }
 
-        return Route.None;
+        // 전투 유지/해제 홀드
+        bool see = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
+        bool hear = ctx.CanHearPlayer(ctx.data.hearRange);
+        float dPlayer = ctx.player ? Vector2.Distance(ctx.transform.position, ctx.player.position) : Mathf.Infinity;
+
+        if (see || hear) _disengageHold = 0f;
+        else _disengageHold += dt;
+
+        // 플레이어가 충분히 멀어졌고 일정 시간 미감지 → 전투 종료 → 수사(Detect)로 복귀
+        if (dPlayer > ctx.data.lostDistance && _disengageHold >= ctx.data.disengageHoldSeconds)
+        {
+            ctx.isCombat = false;
+            return Route.Detect;
+        }
+
+        return Route.None; // 전투 유지
     }
-
     static bool Gate(ref float acc, float dt, float need)
     {
         acc += dt;

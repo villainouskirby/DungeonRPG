@@ -26,40 +26,16 @@ public sealed class CombatSuperState : IMonsterState
 
     public void Tick()
     {
-        // 전투 유지/해제 판정
-        if (GuardDisengage(Time.deltaTime)) return;
+        var r = ctx.hub.DecideDuringCombat(Time.deltaTime);
+        if (r != Route.None)
+        {
+            if (r == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+            Switch(r);
+            return;
+        }
     }
 
     public void Exit() { Interrupt(); }
-
-    // 전투 해제 가드 
-    bool GuardDisengage(float dt)
-    {
-        // 스포너 과거리 → Return
-        float dSpawn = Vector2.Distance(ctx.transform.position, ctx.spawner);
-        if (dSpawn > ctx.data.maxSpawnerDist)
-        {
-            ctx.IsFastReturn = true;
-            ctx.isCombat = false;
-            Switch(Route.Return);
-            return true;
-        }
-
-        bool see = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
-        bool hear = ctx.CanHearPlayer(ctx.data.hearRange);
-        float dPlayer = ctx.player ? Vector2.Distance(ctx.transform.position, ctx.player.position) : Mathf.Infinity;
-
-        if (see || hear) lostHold = 0f;
-        else lostHold += dt;
-
-        if (dPlayer > ctx.data.lostDistance && lostHold >= ctx.data.disengageHoldSeconds)
-        {
-            ctx.isCombat = false;  // 전투 종료
-            Switch(Route.Detect);  // 흔적 수사로 복귀
-            return true;
-        }
-        return false;
-    }
 
     // 선택/실행
     void SelectAndRun()
@@ -86,29 +62,41 @@ public sealed class CombatSuperState : IMonsterState
         }
 
         currentBeh = beh;
-        running = ctx.mono.StartCoroutine(RunWithPreempt(beh));
+        running = ctx.mono.StartCoroutine(RunWithHubPreempt(beh));
     }
 
-    IEnumerator RunWithPreempt(IMonsterBehaviour beh)
+    IEnumerator RunWithHubPreempt(IMonsterBehaviour beh)
     {
         var inner = beh.Execute(ctx);
 
         while (true)
         {
-            if (GuardDisengage(0f)) yield break;   // 프레임 단위 프리엠프
+            // 프레임 단위로 허브에 전투 중 분기만 조회 (귀환/수사 복귀)
+            var rr = ctx.hub.DecideDuringCombat(0f);
+            if (rr != Route.None)
+            {
+                if (rr == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+                Switch(rr);
+                yield break;
+            }
 
             if (!inner.MoveNext()) break;
             yield return inner.Current;
         }
 
-        // 종료 직후에도 가드 체크
-        if (GuardDisengage(0f)) yield break;
+        // 종료 직후에도 한 번 더 확인
+        var post = ctx.hub.DecideDuringCombat(0f);
+        if (post != Route.None)
+        {
+            if (post == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+            Switch(post);
+            yield break;
+        }
 
-        // 쿨다운 부여
+        // 쿨다운 부여(없으면 기본 0.15s)
         float cd = (beh is IWithCooldown w) ? w.CooldownSeconds : 0.15f;
         ctx.SetCooldown(beh, cd);
 
-        // 다음 선택
         if (ctx.isCombat) SelectAndRun();
     }
 
