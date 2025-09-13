@@ -11,6 +11,8 @@ public sealed class MonsterContext
     public readonly Transform transform;
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
+    public readonly HoundAnimationPlayer houndanimPlayer;
+    public readonly CleanerAnimationPlayer cleaneranimPlayer;
     public readonly SpriteRenderer sr;
     //public readonly Vector3 spawner;
     public Vector3 spawner => mono.Spawner;
@@ -57,6 +59,8 @@ public sealed class MonsterContext
         transform = owner.transform;
         agent = owner.Agent;
         anim = owner.Animator;
+        houndanimPlayer = owner.HoundAnimationPlayer;
+        cleaneranimPlayer = owner.CleanerAnimationPlayer;
         sr = owner.Sprite;
         id = owner.monster_Id;
         //spawner = owner.Spawner;

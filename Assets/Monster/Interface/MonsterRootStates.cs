@@ -20,6 +20,8 @@ public sealed class MonsterIdleState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Idle);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.Idle, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Idle, ctx);
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
         ctx.anim.Play("Idle");
@@ -139,6 +141,8 @@ public sealed class MonsterDetectState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Detect);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.Detect, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
         ctx.agent.speed = ctx.data.detectSpeed;
 
@@ -326,6 +330,8 @@ public sealed class MonsterSearchWanderState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.SearchWander);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.SearchWander, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.SearchWander, ctx);
         if (!ctx.data.canMove) { machine.ChangeState(new MonsterReturnState(ctx, machine)); return; }
 
         ctx.agent.speed = ctx.data.detectSpeed;   // Idle 보다 약간 빠름
@@ -414,6 +420,8 @@ sealed class MonsterReturnState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Return);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.Return, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Return, ctx);
         ReturnLock = ctx.IsFastReturn;
 
         ctx.agent.isStopped = false;
@@ -502,6 +510,8 @@ public sealed class MonsterStunState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Stun);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.Stun, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Stun, ctx);
         elapsed = 0f;
 
         // 이동 완전 정지

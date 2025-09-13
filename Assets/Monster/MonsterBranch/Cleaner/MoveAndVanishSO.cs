@@ -22,6 +22,7 @@ public class MoveAndVanishSO : SpecialBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Flee, ctx);
         bool gotHit = false;
         void OnHit(float dmg) => gotHit = true;
 

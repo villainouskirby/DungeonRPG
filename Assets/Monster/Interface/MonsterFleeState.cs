@@ -66,6 +66,8 @@ public sealed class MonsterFleeState : IMonsterState
     public void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Flee);
+        ctx.houndanimPlayer?.SetTag(MonsterStateTag.Flee, ctx);
+        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Flee, ctx);
         ctx.EnsureAgentReady();
         ctx.agent.isStopped = false;
         ctx.agent.autoRepath = true;
