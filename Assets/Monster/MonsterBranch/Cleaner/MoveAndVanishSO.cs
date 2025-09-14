@@ -18,7 +18,14 @@ public class MoveAndVanishSO : SpecialBehaviourSO
     public float vanishDelay = 0.5f; // 소멸 애니메이션 대기
 
     public override bool CanRun(MonsterContext ctx)
-        => ctx.CanSeeObject(ctx.data.sightDistance) == null;   // 더 이상 아이템 없음
+    {
+        // 배에 아이템이 하나라도 있으면 바로 실행
+        if (ctx.mono.TryGetComponent(out MonsterStomach stomach) && stomach.HasItems)
+            return true;
+
+        // (fallback) 기존 조건: 더 이상 먹을 아이템이 없을 때
+        return ctx.CanSeeObject(ctx.data.sightDistance) == null;
+    }
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
