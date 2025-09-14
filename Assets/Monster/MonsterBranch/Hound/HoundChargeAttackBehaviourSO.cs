@@ -9,23 +9,26 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
     public float recoverTime = 0.4f;
     public float dashSpeed = 10f;
     public int damage = 20;
-    [Min(0f)] public float cooldown = 1.0f;
-    public float CooldownSeconds => cooldown;
     public override bool CanRun(MonsterContext ctx)
         => Vector2.Distance(ctx.transform.position, ctx.player.position) <= chargeDistance;
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
         /* 1) 준비 */
+        ctx.SetForward(dir);
+        ctx.agent.isStopped = true;
+        ctx.agent.velocity = Vector3.zero;
         ctx.anim.Play("ChargePrep");
         yield return new WaitForSeconds(windupTime);
 
         /* 2) 돌진 */
         ctx.anim.Play("Charge");
-        Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
-        float travelled = 0f;
-        ctx.agent.isStopped = true;               // 경로 계산 중단
 
+        ctx.SetForward(dir);
+        ctx.anim.Play("Charge");
+
+        float travelled = 0f;
         while (travelled < chargeDistance)
         {
             float step = dashSpeed * Time.deltaTime;
@@ -43,6 +46,17 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
         yield return new WaitForSeconds(recoverTime);
 
         ctx.agent.isStopped = false;
+
+        // 돌진 끝난 후 플레이어 쪽으로 다시 방향 갱신
+        if (ctx.player)
+        {
+            Vector2 toPlayer = (ctx.player.position - ctx.transform.position).normalized;
+            ctx.SetForward(toPlayer);
+        }
+
+        int roll = Random.Range(0, 100);
+        if (roll < 30) ctx.nextBehaviourIndex = 0;   // 근접공격
+        else ctx.nextBehaviourIndex = 3;             // 백점프
     }
 
     public override void OnInterrupt(MonsterContext ctx)

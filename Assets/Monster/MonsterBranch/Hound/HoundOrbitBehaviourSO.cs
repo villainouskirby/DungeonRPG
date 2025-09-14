@@ -39,5 +39,6 @@ public class HoundOrbitBehaviourSO : AttackBehaviourSO
 
             yield return new WaitForSeconds(stepInterval);
         }
+        ctx.nextBehaviourIndex = 0;   // 근접공격
     }
 }

@@ -13,14 +13,13 @@ public sealed class CombatSuperState : IMonsterState
 
     Coroutine running;
     IMonsterBehaviour currentBeh;
-    float lostHold;   // 전투 해제 누적
 
     public CombatSuperState(MonsterContext c, MonsterStateMachine r) { ctx = c; root = r; }
 
     public void Enter()
     {
         if (!ctx.isCombat) ctx.isCombat = true;
-        lostHold = 0f;
+        UpdatePresentationByRange();
         SelectAndRun();
     }
 
@@ -31,47 +30,49 @@ public sealed class CombatSuperState : IMonsterState
         {
             if (r == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
             Switch(r);
-            return;
+        }
+        else
+        {
+            UpdatePresentationByRange();
         }
     }
 
     public void Exit() { Interrupt(); }
 
-    // 선택/실행
+    // === 실행/선택 ===
     void SelectAndRun()
     {
         Interrupt();
 
-        bool inMelee = ctx.player &&
-            Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.attackEnterDistance;
-
-        if (inMelee)
+        if (TryPickForced(out var forcedBeh, out bool forcedIsAttack))
         {
-            ctx.indicator?.Show(MonsterStateTag.CombatAttack);
-            ctx.houndanimPlayer?.SetTag(MonsterStateTag.CombatAttack, ctx);
-        }
-        else
-        {
-            ctx.indicator?.Show(MonsterStateTag.CombatMove);
-            ctx.houndanimPlayer?.SetTag(MonsterStateTag.CombatMove, ctx);
+            SetPresentation(forcedIsAttack);
+            Run(forcedBeh);
+            return;
         }
 
-        var bucket = inMelee ? ctx.data.combatAttackBehaviours
-                             : ctx.data.combatMoveBehaviours;
+        bool inMelee = IsInMelee();
+        SetPresentation(inMelee);
 
         IMonsterBehaviour beh = inMelee
-            ? PickFirstReady(bucket)                  // 공격은 순서 우선(혹은 별 규칙)
-            : PickWeightedReady(bucket, ctx.data.moveWeights);
+            ? PickFirst(ctx.data.combatAttackBehaviours)
+            : PickWeighted(ctx.data.combatMoveBehaviours, ctx.data.moveWeights);
 
         if (beh == null)
         {
-            // 대체: 이동 버킷/공격 버킷 서로 교차 시도
-            var alt = inMelee ? PickWeightedReady(ctx.data.combatMoveBehaviours, ctx.data.moveWeights)
-                              : PickFirstReady(ctx.data.combatAttackBehaviours);
+            var alt = inMelee
+                ? PickWeighted(ctx.data.combatMoveBehaviours, ctx.data.moveWeights)
+                : PickFirst(ctx.data.combatAttackBehaviours);
+
             if (alt == null) { Switch(Route.Return); return; }
             beh = alt;
         }
 
+        Run(beh);
+    }
+
+    void Run(IMonsterBehaviour beh)
+    {
         currentBeh = beh;
         running = ctx.mono.StartCoroutine(RunWithHubPreempt(beh));
     }
@@ -82,7 +83,6 @@ public sealed class CombatSuperState : IMonsterState
 
         while (true)
         {
-            // 프레임 단위로 허브에 전투 중 분기만 조회 (귀환/수사 복귀)
             var rr = ctx.hub.DecideDuringCombat(0f);
             if (rr != Route.None)
             {
@@ -95,7 +95,6 @@ public sealed class CombatSuperState : IMonsterState
             yield return inner.Current;
         }
 
-        // 종료 직후에도 한 번 더 확인
         var post = ctx.hub.DecideDuringCombat(0f);
         if (post != Route.None)
         {
@@ -103,10 +102,6 @@ public sealed class CombatSuperState : IMonsterState
             Switch(post);
             yield break;
         }
-
-        // 쿨다운 부여(없으면 기본 0.15s)
-        float cd = (beh is IWithCooldown w) ? w.CooldownSeconds : 0.15f;
-        ctx.SetCooldown(beh, cd);
 
         if (ctx.isCombat) SelectAndRun();
     }
@@ -116,11 +111,6 @@ public sealed class CombatSuperState : IMonsterState
         if (running != null)
         {
             ctx.mono.StopCoroutine(running);
-
-            // 인터럽트에도 쿨 부여(정의 쿨의 절반, 최소 0.2s)
-            if (currentBeh is IWithCooldown w)
-                ctx.SetCooldown(currentBeh, Mathf.Max(0.2f, w.CooldownSeconds * 0.5f));
-
             currentBeh?.OnInterrupt(ctx);
             running = null;
             currentBeh = null;
@@ -130,6 +120,8 @@ public sealed class CombatSuperState : IMonsterState
     void Switch(Route r)
     {
         Interrupt();
+        ctx.isCombat = false;
+
         switch (r)
         {
             case Route.Return: root.ChangeState(new MonsterReturnState(ctx, root)); break;
@@ -138,30 +130,66 @@ public sealed class CombatSuperState : IMonsterState
         }
     }
 
-    // 픽커들
-    IMonsterBehaviour PickFirstReady(AttackBehaviourSO[] list)
+    // === 선택 유틸 ===
+    bool TryPickForced(out IMonsterBehaviour beh, out bool isAttackPick)
+    {
+        beh = null;
+        isAttackPick = false;
+
+        if (ctx.nextBehaviourIndex < 0) return false;
+
+        int idx = ctx.nextBehaviourIndex;
+        ctx.nextBehaviourIndex = -1;  // 소진
+
+        // 공격 배열 영역
+        var attacks = ctx.data.combatAttackBehaviours;
+        if (attacks != null && idx >= 0 && idx < attacks.Length)
+        {
+            var b = attacks[idx];
+            if (b && b.CanRun(ctx))
+            {
+                beh = b;
+                isAttackPick = true;
+                return true;
+            }
+        }
+
+        // 이동 배열 영역
+        var moves = ctx.data.combatMoveBehaviours;
+        int mIdx = idx - (attacks?.Length ?? 0);
+        if (moves != null && mIdx >= 0 && mIdx < moves.Length)
+        {
+            var b = moves[mIdx];
+            if (b && b.CanRun(ctx))
+            {
+                beh = b;
+                isAttackPick = false;
+                return true;
+            }
+        }
+
+        return false;
+    }
+    IMonsterBehaviour PickFirst(AttackBehaviourSO[] list)
     {
         if (list == null) return null;
         foreach (var b in list)
         {
-            if (!b) continue;
-            if (!ctx.IsReady(b)) continue;
-            if (!b.CanRun(ctx)) continue;
-            return b;
+            if (b && b.CanRun(ctx)) return b;
         }
         return null;
     }
 
-    IMonsterBehaviour PickWeightedReady(AttackBehaviourSO[] list, float[] weights)
+    IMonsterBehaviour PickWeighted(AttackBehaviourSO[] list, float[] weights)
     {
-        if (list == null || weights == null || list.Length == 0 || weights.Length < list.Length) return PickFirstReady(list);
+        if (list == null || list.Length == 0 || weights == null || weights.Length < list.Length)
+            return PickFirst(list);
 
-        // 가중치에서 쿨/조건 불가 항목은 0으로
         float total = 0f;
         var tmp = new float[list.Length];
         for (int i = 0; i < list.Length; i++)
         {
-            bool ok = list[i] && ctx.IsReady(list[i]) && list[i].CanRun(ctx);
+            bool ok = list[i] && list[i].CanRun(ctx);
             tmp[i] = ok ? Mathf.Max(0f, weights[i]) : 0f;
             total += tmp[i];
         }
@@ -175,5 +203,21 @@ public sealed class CombatSuperState : IMonsterState
             if (pick <= acc) return list[i];
         }
         return null;
+    }
+
+    // === 표시/애니 ===
+    bool IsInMelee()
+    {
+        if (!ctx.player) return false;
+        return Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.attackEnterDistance;
+    }
+
+    void UpdatePresentationByRange() => SetPresentation(IsInMelee());
+
+    void SetPresentation(bool attackTag)
+    {
+        var tag = attackTag ? MonsterStateTag.CombatAttack : MonsterStateTag.CombatMove;
+        ctx.indicator?.Show(tag);
+        ctx.houndanimPlayer?.SetTag(tag, ctx);
     }
 }

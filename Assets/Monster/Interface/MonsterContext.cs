@@ -33,6 +33,7 @@ public sealed class MonsterContext
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     public string id;
+    public int nextBehaviourIndex = -1;
     public bool isCombat;   // 공격 묶음 우선 선택 신호
     public bool isMoveState;     // 이동(접근/오빗 등) 묶음 우선 선택 신호
     Vector2 _lastForward = Vector2.right;
@@ -172,6 +173,18 @@ public sealed class MonsterContext
         bool ok = ThrowNoiseManager.Instance.TryGetNearestNoise(transform.position, detectRange, out noisePos);
         if (ok) LastHeardPos = noisePos; // 추후 디버그/전환 로직에 활용 가능
         return ok;
+    }
+    public void SetForward(Vector2 dir)
+    {
+        if (dir.sqrMagnitude > 0.001f)
+            _lastForward = dir.normalized;
+
+        // 애니메이터 파라미터도 갱신 가능
+        anim.SetFloat("DirX", _lastForward.x);
+        anim.SetFloat("DirY", _lastForward.y);
+
+        // flipX를 쓰는 경우
+        sr.flipX = (_lastForward.x < 0);
     }
     #endregion
     #region 네브메쉬 안전로직
