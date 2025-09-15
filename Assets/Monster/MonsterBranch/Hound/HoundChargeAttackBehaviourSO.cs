@@ -19,8 +19,13 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
         ctx.SetForward(dir);
         ctx.agent.isStopped = true;
         ctx.agent.velocity = Vector3.zero;
-        ctx.anim.Play("ChargePrep");
-        yield return new WaitForSeconds(windupTime);
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
+        for (int i = 0; i < 3; i++)
+        {
+            yield return new WaitForSeconds(windupTime / 3);
+            ctx.SetForward(dir);
+        }
+
 
         /* 2) 돌진 */
         ctx.anim.Play("Charge");
@@ -28,6 +33,7 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
         ctx.SetForward(dir);
         ctx.anim.Play("Charge");
 
+        ctx.animationHub?.SetTag(MonsterStateTag.CombatAttack, ctx);
         float travelled = 0f;
         while (travelled < chargeDistance)
         {
