@@ -11,8 +11,7 @@ public sealed class MonsterContext
     public readonly Transform transform;
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
-    public readonly HoundAnimationPlayer houndanimPlayer;
-    public readonly CleanerAnimationPlayer cleaneranimPlayer;
+    public readonly MonsterAnimationHub animationHub;
     public readonly SpriteRenderer sr;
     //public readonly Vector3 spawner;
     public Vector3 spawner => mono.Spawner;
@@ -53,6 +52,7 @@ public sealed class MonsterContext
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
         indicator = owner.StateIndicator;
+        animationHub = owner.AnimationHub;
         statData = mdata;
         mono = owner;
         sm = owner.StateMachine;
@@ -60,8 +60,6 @@ public sealed class MonsterContext
         transform = owner.transform;
         agent = owner.Agent;
         anim = owner.Animator;
-        houndanimPlayer = owner.HoundAnimationPlayer;
-        cleaneranimPlayer = owner.CleanerAnimationPlayer;
         sr = owner.Sprite;
         id = owner.monster_Id;
         //spawner = owner.Spawner;

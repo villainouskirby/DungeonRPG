@@ -358,6 +358,7 @@ GameObject:
   - component: {fileID: 4254575406660547895}
   - component: {fileID: 2792765607173353309}
   - component: {fileID: 208910127237641683}
+  - component: {fileID: -7543886781866867926}
   m_Layer: 20
   m_Name: MST_HOD
   m_TagString: Monster
@@ -539,7 +540,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateIndicator: {fileID: 2792765607173353309}
-  animationPlayer: {fileID: 208910127237641683}
+  animationHub: {fileID: -7543886781866867926}
+  houndanimationPlayer: {fileID: 208910127237641683}
+  cleaneranimationPlayer: {fileID: 0}
   alertSR: {fileID: 9200365501202104010}
   data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
   spawner: {x: 0, y: 0, z: 0}
@@ -664,6 +667,20 @@ MonoBehaviour:
   idleKey: idle
   walkKey: walk
   runKey: run
+--- !u!114 &-7543886781866867926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5301721580680312565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9b2acfa05d2a744ca27de7b261c6c72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  players:
+  - {fileID: 208910127237641683}
 --- !u!1 &7667273431447154749
 GameObject:
   m_ObjectHideFlags: 0

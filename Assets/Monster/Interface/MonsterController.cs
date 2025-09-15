@@ -11,11 +11,9 @@ using UnityEngine.AI;
 public class MonsterController : MonoBehaviour
 {
     [SerializeField] MonsterStateIndicator stateIndicator;
-    [SerializeField] HoundAnimationPlayer houndanimationPlayer;
-    [SerializeField] CleanerAnimationPlayer cleaneranimationPlayer;
-    public HoundAnimationPlayer HoundAnimationPlayer => houndanimationPlayer;
-    public CleanerAnimationPlayer CleanerAnimationPlayer => cleaneranimationPlayer;
+    [SerializeField] MonsterAnimationHub animationHub;
     public MonsterStateIndicator StateIndicator => stateIndicator;
+    public MonsterAnimationHub AnimationHub => animationHub;
     public SpriteRenderer AlertSR { get; private set; }
     [SerializeField] SpriteRenderer alertSR;
     [SerializeField] MonsterData data;
@@ -46,10 +44,8 @@ public class MonsterController : MonoBehaviour
     {
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
-        if (!houndanimationPlayer)
-            houndanimationPlayer = GetComponentInChildren<HoundAnimationPlayer>(true);
-        if (!cleaneranimationPlayer)
-            cleaneranimationPlayer = GetComponentInChildren<CleanerAnimationPlayer>(true);
+        if (!animationHub)
+            animationHub = GetComponentInChildren<MonsterAnimationHub>(true);
         Sprite = GetComponent<SpriteRenderer>();
         Player = GameObject.FindWithTag("Player")?.transform;
 
@@ -195,10 +191,8 @@ public class MonsterController : MonoBehaviour
     }
     void OnValidate()
     {
-        if (!houndanimationPlayer)
-            houndanimationPlayer = GetComponentInChildren<HoundAnimationPlayer>(true);
-        if (!cleaneranimationPlayer)
-            cleaneranimationPlayer = GetComponentInChildren<CleanerAnimationPlayer>(true);
+        if (!animationHub)
+            animationHub = GetComponentInChildren<MonsterAnimationHub>(true);
     }
 #endif
 }

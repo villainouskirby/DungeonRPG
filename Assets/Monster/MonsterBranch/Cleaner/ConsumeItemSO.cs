@@ -15,7 +15,7 @@ public class ConsumeItemSO : SpecialBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         ctx.anim.Play("Eat");
-        ctx.cleaneranimPlayer?.SetTag(MonsterStateTag.Idle, ctx);
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         yield return new WaitForSeconds(eatTime);
 
         Transform t = ctx.CanSeeObject(consumeDist);

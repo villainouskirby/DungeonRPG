@@ -52,6 +52,10 @@ public sealed class CombatSuperState : IMonsterState
         }
 
         bool inMelee = IsInMelee();
+        if (inMelee)
+            ctx.animationHub?.SetTag(MonsterStateTag.CombatAttack, ctx);
+        else
+            ctx.animationHub?.SetTag(MonsterStateTag.CombatMove, ctx);
         SetPresentation(inMelee);
 
         IMonsterBehaviour beh = inMelee
@@ -218,6 +222,5 @@ public sealed class CombatSuperState : IMonsterState
     {
         var tag = attackTag ? MonsterStateTag.CombatAttack : MonsterStateTag.CombatMove;
         ctx.indicator?.Show(tag);
-        ctx.houndanimPlayer?.SetTag(tag, ctx);
     }
 }
