@@ -21,6 +21,7 @@ public sealed class MonsterKilledState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Killed);
         ctx.agent.isStopped = true;
         ctx.anim.Play("Die");
 

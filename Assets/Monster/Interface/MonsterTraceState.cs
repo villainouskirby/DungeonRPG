@@ -17,6 +17,8 @@ public sealed class MonsterTraceState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Trace);
+        ctx.animationHub?.SetTag(MonsterStateTag.Trace, ctx);
         returnGate = 0f;
 
         float spd = (ctx.data.traceSpeed > 0f) ? ctx.data.traceSpeed : ctx.data.detectSpeed;

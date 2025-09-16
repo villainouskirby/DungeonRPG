@@ -19,6 +19,8 @@ public sealed class MonsterIdleState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Idle);
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
         ctx.anim.Play("Idle");
@@ -30,53 +32,8 @@ public sealed class MonsterIdleState : IMonsterState
     public void Tick()
     {
         // TODO : 현재는 그냥 순서대로 가중치를 둬서 로직을 변경하지만 가중치를 설정해 분기 필요
-        // 1순위 : 스포너 거리 초과 → Return
-        if (Vector2.Distance(ctx.transform.position, ctx.spawner) > ctx.data.maxSpawnerDist)
-        {
-            returnGate += Time.deltaTime;
-            if (returnGate >= ctx.data.returnGateDelay)
-            {
-                ctx.IsFastReturn = true;
-                machine.ChangeState(new MonsterReturnState(ctx, machine));
-                return;
-            }
-        }
-        else returnGate = 0f;
-
-        // 2순위 : 던진 오브젝트 감지 (조금 지연하면서 변경)
-        if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
-        {
-            detectGate += Time.deltaTime;
-            if (detectGate >= ctx.data.detectGateDelay)
-            {
-                machine.ChangeState(new MonsterDetectState(ctx, machine));
-                return;
-            }
-        }
-        else detectGate = 0f;
-        // 3순위 : 아이템 감지 (아이템 감지하는 몬스터만), (이것도 일단 지연)
-        if (ctx.CanSeeObject(ctx.data.sightDistance))
-        {
-            detectGate += Time.deltaTime;
-            if (detectGate >= ctx.data.detectGateDelay)
-            {
-                machine.ChangeState(new MonsterSpecialState(ctx, machine));
-                return;
-            }
-            return;
-        }
-        else detectGate = 0f;
-        // 4순위 : 플레이어 감지 (조금 지연하면서 변경)
-        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle) || ctx.CanHearPlayer(ctx.data.hearRange))
-        {
-            detectGate += Time.deltaTime;
-            if (detectGate >= ctx.data.detectGateDelay)
-            {
-                machine.ChangeState(new MonsterDetectState(ctx, machine));
-                return;
-            }
-        }
-        else detectGate = 0f;
+        Route r = ctx.hub.Decide(Time.deltaTime);
+        if (TryRoute(r)) return;
 
         restTimer -= Time.deltaTime;
         if (restTimer > 0f) return;
@@ -91,10 +48,27 @@ public sealed class MonsterIdleState : IMonsterState
 
         machine.ChangeState(new MonsterWanderState(ctx, machine));
     }
+    bool TryRoute(Route r)
+    {
+        switch (r)
+        {
+            case Route.Return:
+                ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+                machine.ChangeState(new MonsterReturnState(ctx, machine)); return true;
+            case Route.Detect:
+                machine.ChangeState(new MonsterDetectState(ctx, machine)); return true;
+            case Route.Special:
+                machine.ChangeState(new MonsterSpecialState(ctx, machine)); return true;
+            case Route.Attack:
+                machine.ChangeState(new CombatSuperState(ctx, machine)); return true;
+            case Route.Trace:
+                machine.ChangeState(new MonsterTraceState(ctx, machine)); return true;
+            case Route.Flee:
+                machine.ChangeState(new MonsterFleeState(ctx, machine)); return true;
+        }
+        return false; // None
+    }
     public void Exit() { }
-
-    bool CanSee() => ctx.player && Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.sightDistance;
-    bool CanHear() => ctx.player && Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.hearRange;
 }
 
 // WanderState : 이동만 담당, 도착하면 Idle 로 복귀
@@ -108,13 +82,16 @@ public sealed class MonsterWanderState : IMonsterState
 
     public MonsterWanderState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
-    public void Enter() {
-        if (!ctx.data.canMove)         // 고정형 Idle 유지
-            return;
-        detectGate = 0f;
-    }
+    public void Enter() { if (!ctx.data.canMove) return; }         // 고정형 Idle 유지return;
     public void Tick()
     {
+        Route r = ctx.hub.Decide(Time.deltaTime);
+        if (r != Route.None)
+        {
+            // 귀환/수사/특수/전투/추적/도주 등 공통 처리
+            SwitchByRoute(r);
+            return;
+        }
         bool arrived = !ctx.agent.pathPending &&
                       ctx.agent.remainingDistance <= ctx.agent.stoppingDistance;
 
@@ -127,17 +104,18 @@ public sealed class MonsterWanderState : IMonsterState
             machine.ChangeState(new MonsterIdleState(ctx, machine));
             return;
         }
-
-        if (ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle)|| ctx.CanHearPlayer(ctx.data.hearRange))
+    }
+    void SwitchByRoute(Route r)
+    {
+        switch (r)
         {
-            detectGate += Time.deltaTime;
-            if (detectGate >= ctx.data.detectGateDelay)
-            {
-                machine.ChangeState(new MonsterDetectState(ctx, machine));
-                return;
-            }
+            case Route.Return: ctx.IsFastReturn = ctx.hub.IsFastReturnRequested; machine.ChangeState(new MonsterReturnState(ctx, machine)); break;
+            case Route.Detect: machine.ChangeState(new MonsterDetectState(ctx, machine)); break;
+            case Route.Special: machine.ChangeState(new MonsterSpecialState(ctx, machine)); break;
+            case Route.Attack: machine.ChangeState(new CombatSuperState(ctx, machine)); break;
+            case Route.Trace: machine.ChangeState(new MonsterTraceState(ctx, machine)); break;
+            case Route.Flee: machine.ChangeState(new MonsterFleeState(ctx, machine)); break;
         }
-        else detectGate = 0f;
     }
     public void Exit() { }
 }
@@ -161,11 +139,16 @@ public sealed class MonsterDetectState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Detect);
+        ctx.animationHub?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
         ctx.agent.speed = ctx.data.detectSpeed;
 
-        targetPos = ctx.player.position;      // 최초 소리 위치
+        targetPos = (ctx.hub != null && ctx.hub.LastNoisePos != Vector3.zero)
+                       ? ctx.hub.LastNoisePos
+                       : (ctx.player ? ctx.player.position : ctx.transform.position);
         ctx.agent.SetDestination(targetPos);
+
 
         hearTimer = 0f;
         chaseTimer = chaseTimeout;
@@ -186,6 +169,12 @@ public sealed class MonsterDetectState : IMonsterState
     }
     public void Tick()
     {
+        if (ctx.isCombat)
+        {
+            machine.ChangeState(new CombatSuperState(ctx, machine));
+            return;
+        }
+
         // 0) 스포너 거리 초과 → Return 게이트
         if (Vector2.Distance(ctx.transform.position, ctx.spawner) > ctx.data.maxSpawnerDist)
         {
@@ -198,6 +187,7 @@ public sealed class MonsterDetectState : IMonsterState
             }
         }
         else returnGate = 0f;
+
         // 1순위 : 던진 오브젝트 감지
         if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
         {
@@ -213,7 +203,7 @@ public sealed class MonsterDetectState : IMonsterState
             return;
         }
 
-        /* ─── 플레이어 청각 재탐색 (적대일 때만) ─── */
+        // 3 순위 : 플레이어 청각(“감지” 아님, 수사용 보정)
         hearTimer += Time.deltaTime;
         if (ctx.data.isaggressive && hearTimer >= hearInterval)
         {
@@ -225,28 +215,20 @@ public sealed class MonsterDetectState : IMonsterState
                 chaseTimer = chaseTimeout;
             }
         }
-        bool seeNow = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
-        /* ─── 플레이어 시야 감지 ─── */
-        if (seeNow)
-        {
-            // 감시 태스크(ConditionAwaiter.HoldTrueContinuously)가 전환을 담당.
-            // 플레이어 쪽으로 움직이기 유지.
-            if (ctx.player)
-            {
-                ctx.agent.SetDestination(ctx.player.position);
-            }
-        }
 
+        bool seeNow = ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle);
+        if (seeNow && ctx.player) ctx.agent.SetDestination(ctx.player.position);
+
+        // 목적지 도착했고 현재 시야가 아니면 수색-배회로
         if (!ctx.agent.pathPending && ctx.agent.remainingDistance <= ctx.agent.stoppingDistance)
         {
-            /* 플레이어를 못 봤다면 Search-Wander 로 */
-            if (!ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle))
+            if (!seeNow)
             {
                 machine.ChangeState(new MonsterSearchWanderState(ctx, machine));
                 return;
             }
         }
-        
+
     }
     public void Exit() 
     {
@@ -305,6 +287,7 @@ public sealed class MonsterDetectState : IMonsterState
         {
             if (ctx.isaggressive)
             {
+                ctx.isCombat = true;
                 machine.ChangeState(new CombatSuperState(ctx, machine));
             }
             else
@@ -344,6 +327,8 @@ public sealed class MonsterSearchWanderState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.SearchWander);
+        ctx.animationHub?.SetTag(MonsterStateTag.SearchWander, ctx);
         if (!ctx.data.canMove) { machine.ChangeState(new MonsterReturnState(ctx, machine)); return; }
 
         ctx.agent.speed = ctx.data.detectSpeed;   // Idle 보다 약간 빠름
@@ -431,6 +416,8 @@ sealed class MonsterReturnState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Return);
+        ctx.animationHub?.SetTag(MonsterStateTag.Return, ctx);
         ReturnLock = ctx.IsFastReturn;
 
         ctx.agent.isStopped = false;
@@ -518,6 +505,8 @@ public sealed class MonsterStunState : IMonsterState
 
     public void Enter()
     {
+        ctx.indicator?.Show(MonsterStateTag.Stun);
+        ctx.animationHub?.SetTag(MonsterStateTag.Stun, ctx);
         elapsed = 0f;
 
         // 이동 완전 정지

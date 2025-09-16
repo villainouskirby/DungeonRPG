@@ -10,123 +10,104 @@ public sealed class CombatSuperState : IMonsterState
 {
     readonly MonsterContext ctx;
     readonly MonsterStateMachine root;
-    CancellationTokenSource cts;
 
     Coroutine running;
-    IMonsterBehaviour currentBeh;   // ← 인터럽트용
+    IMonsterBehaviour currentBeh;
 
-    int idx;                          // 순환 인덱스
-    float lostTimer;
-
-    public CombatSuperState(MonsterContext c, MonsterStateMachine r)
-    { ctx = c; root = r; }
+    public CombatSuperState(MonsterContext c, MonsterStateMachine r) { ctx = c; root = r; }
 
     public void Enter()
     {
-        Debug.Log($"{ctx.data.monsterName} ▶ Combat 진입");
-        if (ctx.alert && ctx.data.exclamationSprite)
-        {
-            ctx.alert.sprite = ctx.data.exclamationSprite;
-            ctx.alert.color = Color.red;
-            ctx.alert.gameObject.SetActive(true);
-        }
-
-        lostTimer = 0f;
-        PickAndRun();
-
-        cts = new CancellationTokenSource();
-        StartDisengageWatcherAsync(cts.Token).Forget();
+        if (!ctx.isCombat) ctx.isCombat = true;
+        UpdatePresentationByRange();
+        SelectAndRun();
     }
-    public void Exit()
-    {
-        Interrupt();
 
-        // 감시 태스크 취소
-        cts?.Cancel();
-        cts?.Dispose();
-        cts = null;
-
-        // 아이콘은 Return/Detect에서 상태별로 관리한다면 꺼도 되고 유지해도 됨
-        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
-    }
     public void Tick()
     {
-        if (Vector2.Distance(ctx.transform.position, ctx.spawner) > ctx.data.maxSpawnerDist)
+        var r = ctx.hub.DecideDuringCombat(Time.deltaTime);
+        if (r != Route.None)
         {
-            Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료 스포너와 멀어졌음");
-            Interrupt();
+            if (r == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+            Switch(r);
+        }
+        else
+        {
+            UpdatePresentationByRange();
+        }
+    }
 
-            // 전투 해제 감시 태스크 취소 (Enter에서 만든 cts가 있다면)
-            cts?.Cancel();
-            cts?.Dispose();
-            cts = null;
+    public void Exit() { Interrupt(); }
 
-            ctx.IsFastReturn = true;
-            root.ChangeState(new MonsterReturnState(ctx, root));
+    // === 실행/선택 ===
+    void SelectAndRun()
+    {
+        Interrupt();
+
+        if (TryPickForced(out var forcedBeh, out bool forcedIsAttack))
+        {
+            SetPresentation(forcedIsAttack);
+            Run(forcedBeh);
             return;
         }
-    }
 
-    // 내부
-    bool CombatPredicate()
-        => ctx.CanSeePlayer(ctx.data.sightDistance, ctx.data.sightAngle)
-        || ctx.CanHearPlayer(ctx.data.hearRange);
-    async UniTaskVoid StartDisengageWatcherAsync(CancellationToken token)
-    {
-        // 진행도 콜백(선택): 해제 게이지/알파 등 UI 연출 가능
-        void Progress(float t)
+        bool inMelee = IsInMelee();
+        if (inMelee)
+            ctx.animationHub?.SetTag(MonsterStateTag.CombatAttack, ctx);
+        else
+            ctx.animationHub?.SetTag(MonsterStateTag.CombatMove, ctx);
+        SetPresentation(inMelee);
+
+        IMonsterBehaviour beh = inMelee
+            ? PickFirst(ctx.data.combatAttackBehaviours)
+            : PickWeighted(ctx.data.combatMoveBehaviours, ctx.data.moveWeights);
+
+        if (beh == null)
         {
-            // 예시) 알파 깜빡임/게이지 바 등
-            // if (ctx.alert) ctx.alert.color = Color.Lerp(Color.red, Color.white, t);
+            var alt = inMelee
+                ? PickWeighted(ctx.data.combatMoveBehaviours, ctx.data.moveWeights)
+                : PickFirst(ctx.data.combatAttackBehaviours);
+
+            if (alt == null) { Switch(Route.Return); return; }
+            beh = alt;
         }
 
-        bool lostLongEnough = await ConditionAwaiter.HoldFalseContinuously(
-            ctx.data.disengageHoldSeconds,
-            CombatPredicate,
-            Progress,
-            token);
-
-        if (token.IsCancellationRequested || !lostLongEnough) return;
-
-        Debug.Log($"{ctx.data.monsterName} ▶ Combat 종료: 전투 조건 미유지 {ctx.data.disengageHoldSeconds:F1}s");
-        Interrupt();
-        root.ChangeState(new MonsterReturnState(ctx, root));
-    }
-
-    void PickAndRun()
-    {
-        Interrupt();
-
-        var list = ctx.data.attackBehaviours;
-        if (list == null || list.Length == 0)
-        { ctx.sm.ChangeState(new MonsterReturnState(ctx, ctx.sm)); return; }
-
-        /* attackBehaviours 배열을 한 바퀴 돌며 CanRun==true 찾기 */
-        for (int i = 0; i < list.Length; ++i)
-        {
-            idx = (idx + 1) % list.Length;
-            var beh = list[idx];
-            if (beh != null && beh.CanRun(ctx))
-            {
-                Run(beh);
-                return;
-            }
-        }
-
-        /* 실행할 게 없다면 귀환 */
-        root.ChangeState(new MonsterReturnState(ctx, root));
+        Run(beh);
     }
 
     void Run(IMonsterBehaviour beh)
     {
         currentBeh = beh;
-        running = ctx.mono.StartCoroutine(Wrap());
+        running = ctx.mono.StartCoroutine(RunWithHubPreempt(beh));
+    }
 
-        IEnumerator Wrap()
+    IEnumerator RunWithHubPreempt(IMonsterBehaviour beh)
+    {
+        var inner = beh.Execute(ctx);
+
+        while (true)
         {
-            yield return beh.Execute(ctx);
-            PickAndRun();            // 종료 후 다음 패턴 선정
+            var rr = ctx.hub.DecideDuringCombat(0f);
+            if (rr != Route.None)
+            {
+                if (rr == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+                Switch(rr);
+                yield break;
+            }
+
+            if (!inner.MoveNext()) break;
+            yield return inner.Current;
         }
+
+        var post = ctx.hub.DecideDuringCombat(0f);
+        if (post != Route.None)
+        {
+            if (post == Route.Return) ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
+            Switch(post);
+            yield break;
+        }
+
+        if (ctx.isCombat) SelectAndRun();
     }
 
     void Interrupt()
@@ -138,5 +119,108 @@ public sealed class CombatSuperState : IMonsterState
             running = null;
             currentBeh = null;
         }
+    }
+
+    void Switch(Route r)
+    {
+        Interrupt();
+        ctx.isCombat = false;
+
+        switch (r)
+        {
+            case Route.Return: root.ChangeState(new MonsterReturnState(ctx, root)); break;
+            case Route.Detect: root.ChangeState(new MonsterDetectState(ctx, root)); break;
+            default: root.ChangeState(new MonsterIdleState(ctx, root)); break;
+        }
+    }
+
+    // === 선택 유틸 ===
+    bool TryPickForced(out IMonsterBehaviour beh, out bool isAttackPick)
+    {
+        beh = null;
+        isAttackPick = false;
+
+        if (ctx.nextBehaviourIndex < 0) return false;
+
+        int idx = ctx.nextBehaviourIndex;
+        ctx.nextBehaviourIndex = -1;  // 소진
+
+        // 공격 배열 영역
+        var attacks = ctx.data.combatAttackBehaviours;
+        if (attacks != null && idx >= 0 && idx < attacks.Length)
+        {
+            var b = attacks[idx];
+            if (b && b.CanRun(ctx))
+            {
+                beh = b;
+                isAttackPick = true;
+                return true;
+            }
+        }
+
+        // 이동 배열 영역
+        var moves = ctx.data.combatMoveBehaviours;
+        int mIdx = idx - (attacks?.Length ?? 0);
+        if (moves != null && mIdx >= 0 && mIdx < moves.Length)
+        {
+            var b = moves[mIdx];
+            if (b && b.CanRun(ctx))
+            {
+                beh = b;
+                isAttackPick = false;
+                return true;
+            }
+        }
+
+        return false;
+    }
+    IMonsterBehaviour PickFirst(AttackBehaviourSO[] list)
+    {
+        if (list == null) return null;
+        foreach (var b in list)
+        {
+            if (b && b.CanRun(ctx)) return b;
+        }
+        return null;
+    }
+
+    IMonsterBehaviour PickWeighted(AttackBehaviourSO[] list, float[] weights)
+    {
+        if (list == null || list.Length == 0 || weights == null || weights.Length < list.Length)
+            return PickFirst(list);
+
+        float total = 0f;
+        var tmp = new float[list.Length];
+        for (int i = 0; i < list.Length; i++)
+        {
+            bool ok = list[i] && list[i].CanRun(ctx);
+            tmp[i] = ok ? Mathf.Max(0f, weights[i]) : 0f;
+            total += tmp[i];
+        }
+        if (total <= 0f) return null;
+
+        float pick = Random.value * total;
+        float acc = 0f;
+        for (int i = 0; i < list.Length; i++)
+        {
+            acc += tmp[i];
+            if (pick <= acc) return list[i];
+        }
+        return null;
+    }
+
+    // === 표시/애니 ===
+    bool IsInMelee()
+    {
+        if (!ctx.player) return false;
+        return Vector2.Distance(ctx.transform.position, ctx.player.position) <= ctx.data.attackEnterDistance;
+    }
+
+    void UpdatePresentationByRange() => SetPresentation(IsInMelee());
+
+    void SetPresentation(bool attackTag)
+    {
+        var tag = attackTag ? MonsterStateTag.CombatAttack : MonsterStateTag.CombatMove;
+        ctx.indicator?.Show(tag);
     }
 }

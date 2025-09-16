@@ -10,6 +10,10 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator), typeof(SpriteRenderer))]
 public class MonsterController : MonoBehaviour
 {
+    [SerializeField] MonsterStateIndicator stateIndicator;
+    [SerializeField] MonsterAnimationHub animationHub;
+    public MonsterStateIndicator StateIndicator => stateIndicator;
+    public MonsterAnimationHub AnimationHub => animationHub;
     public SpriteRenderer AlertSR { get; private set; }
     [SerializeField] SpriteRenderer alertSR;
     [SerializeField] MonsterData data;
@@ -40,6 +44,8 @@ public class MonsterController : MonoBehaviour
     {
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
+        if (!animationHub)
+            animationHub = GetComponentInChildren<MonsterAnimationHub>(true);
         Sprite = GetComponent<SpriteRenderer>();
         Player = GameObject.FindWithTag("Player")?.transform;
 
@@ -69,6 +75,7 @@ public class MonsterController : MonoBehaviour
         mdata = monsterDic[monsterId];
 
         ctx = new(this, mdata);
+        ctx.hub.ResetAll();
 
         MaxHP = mdata.Monster_hp;
         CurrentHP = MaxHP;
@@ -181,6 +188,11 @@ public class MonsterController : MonoBehaviour
 
         Gizmos.color = new Color(0f, 1f, 1f, 0.35f);            // 시안
         Gizmos.DrawWireSphere(transform.position, hearRadius);
+    }
+    void OnValidate()
+    {
+        if (!animationHub)
+            animationHub = GetComponentInChildren<MonsterAnimationHub>(true);
     }
 #endif
 }

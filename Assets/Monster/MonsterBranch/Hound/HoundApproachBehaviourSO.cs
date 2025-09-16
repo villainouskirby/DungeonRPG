@@ -21,5 +21,8 @@ public class HoundApproachBehaviourSO : AttackBehaviourSO
             ctx.agent.SetDestination(ctx.player.position);
             yield return null;
         }
+        int roll = Random.Range(0, 100);
+        if (roll < 30) ctx.nextBehaviourIndex = 0;   // 근접공격
+        else ctx.nextBehaviourIndex = 2;             // Orbit
     }
 }
