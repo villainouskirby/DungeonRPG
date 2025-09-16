@@ -36,7 +36,10 @@ public sealed class MonsterContext
     public bool isCombat;   // 공격 묶음 우선 선택 신호
     public bool isMoveState;     // 이동(접근/오빗 등) 묶음 우선 선택 신호
     Vector2 _lastForward = Vector2.right;
-
+    public int patternCount;                 // 현재 누적 공격 횟수
+    public int PatternEveryRest = 3;         // n회마다 쉬기(인스펙터에서 각 몬스터 SO로 제어해도 됨)
+    public void IncPattern() => patternCount = Mathf.Min(patternCount + 1, 999);
+    public void ResetPattern() => patternCount = 0;
 
     // 각 행동 쿨다운 관리용
     public readonly Dictionary<IMonsterBehaviour, float> nextReadyTime = new();

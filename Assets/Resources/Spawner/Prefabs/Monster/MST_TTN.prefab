@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 208910127237641683}
   - component: {fileID: -7543886781866867926}
   m_Layer: 20
-  m_Name: MST_HOD
+  m_Name: MST_TTN
   m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,12 +542,12 @@ MonoBehaviour:
   stateIndicator: {fileID: 2792765607173353309}
   animationHub: {fileID: -7543886781866867926}
   alertSR: {fileID: 9200365501202104010}
-  data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
+  data: {fileID: 11400000, guid: c2ffaa83ddb662d42ae66f8463cf669d, type: 2}
   spawner: {x: 0, y: 0, z: 0}
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
-  monster_Id: MST_HOD
+  monster_Id: MST_TTN
   mdata:
     Monster_id: 
     Monster_rank: 0
