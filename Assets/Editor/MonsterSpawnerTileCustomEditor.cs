@@ -5,6 +5,7 @@ using UnityEditorInternal;
 using UnityEngine;
 
 [CustomEditor(typeof(MonsterSpawnerTile))]
+[CanEditMultipleObjects]
 public class MonsterSpawnerTileCustomEditor : Editor
 {
     public string[] Options => MonsterListManager.MonsterList;
