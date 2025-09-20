@@ -6,7 +6,7 @@ public abstract class AmountSelectPopUpUI : MonoBehaviour
 {
     [SerializeField] protected TextMeshProUGUI _popUpName;
 
-    [Header("RemovePopUp Option")]
+    [Header("Options")]
     [SerializeField] protected TMP_InputField _amountInput;
     [SerializeField] protected Button _addButton;
     [SerializeField] protected Button _subButton;
@@ -78,7 +78,7 @@ public abstract class AmountSelectPopUpUI : MonoBehaviour
         }
     }
 
-    protected void Close()
+    public void Close()
     {
         ResetData();
         gameObject.SetActive(false);

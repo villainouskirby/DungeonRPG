@@ -1,18 +1,39 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class InventoryUI : SlotInteractHandler
 {
+    public enum TabType
+    {
+        All = 0,
+        Equipment = 1,
+        Usable = 2,
+        Potion = 3,
+        Ingredient = 4,
+        Others = 5
+    }
+
+    [Header("Scripts")]
     [SerializeField] private Inventory _inventory;
     [SerializeField] private InventoryPopUpUI _inventoryPopUpUI;
     [SerializeField] private ItemGetPopUpUI _itemGetPopUpUI;
+    [SerializeField] private TabHandler _tabHandler;
 
-    [SerializeField] private Transform _inventoryContent;
+    [Header("Contents")] [Tooltip("all 부터 ingredient까지 순서대로 넣어야 함")]
+    [SerializeField] private Transform[] _allContents = new Transform[5];
+
+    [Header("Prefabs")]
     [SerializeField] private GameObject _itemSlotPrefab;
 
+    [Header("Texts")]
     [SerializeField] private TextMeshProUGUI _currentWeightText;
     [SerializeField] private TextMeshProUGUI _maxWeightText;
+
+    private TabType _currentTabType;
+    private Dictionary<TabType, List<InventoryItemSlotUI>> _itemSlotsDict = new();
+    private Dictionary<TabType, Transform> _contentsDict = new();
 
     private List<InventoryItemSlotUI> _itemSlots = new();
     private PlayerController _playerController;
@@ -29,42 +50,81 @@ public class InventoryUI : SlotInteractHandler
     [Tooltip("threshold2 초과일 때 적용")]
     [Range(0.1f, 1f)][SerializeField] private float multiplier3 = 0.5f; // 기본 0.5
 
+    private void OnEnable()
+    {
+        if (_tabHandler == null) return;
+
+        _tabHandler.OnIndexChanged += ChangeCurrentTabType;
+    }
+
+    private void OnDisable()
+    {
+        if (_tabHandler == null) return;
+
+        _tabHandler.OnIndexChanged -= ChangeCurrentTabType;
+    }
+
+    private void ChangeCurrentTabType(int index)
+    {
+        _currentTabType = (TabType)index;
+    }
+
+    public void AfterAwake()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            TabType type = (TabType)i;
+
+            _itemSlotsDict[type] = new();
+            _contentsDict[type] = _allContents[i];
+        }
+    }
+
     public void InitInventoryUI()
     {
-        foreach (InventoryItemSlotUI itemSlot in _itemSlots)
+        foreach (var slotList in _itemSlotsDict.Values)
         {
-            Destroy(itemSlot.gameObject);
+            foreach (var slot in slotList)
+            {
+                Destroy(slot.gameObject);
+            }
+            slotList.Clear();
         }
-        _itemSlots.Clear();
     }
 
     /// <summary> 새 슬롯 추가 </summary>
-    private void CreateSlot()
+    private void CreateSlot(int index, TabType type)
     {
         InventoryItemSlotUI slotUI;
-        GameObject newSlot = Instantiate(_itemSlotPrefab, _inventoryContent); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+        GameObject newSlot = Instantiate(_itemSlotPrefab, _contentsDict[type]); // TODO => 임시로 새로 생길때마다 동적생성으로 해놨지만 나중에 Pool을 만들어 쓰는게 더 나을지도
+        newSlot.transform.SetSiblingIndex(_inventory.GetIndexFromTypeList(index, type));
+
         if ((slotUI = newSlot.GetComponent<InventoryItemSlotUI>()) == null) slotUI = newSlot.AddComponent<InventoryItemSlotUI>();
-        _itemSlots.Add(slotUI);
+
+        _itemSlotsDict[type].Insert(index, slotUI);
+
+        // 복제하여 전체 리스트에도 추가
+        slotUI = Instantiate(slotUI, _contentsDict[TabType.All]);
+        slotUI.transform.SetSiblingIndex(index);
+        _itemSlotsDict[TabType.All].Insert(index, slotUI);
     }
 
     /// <summary> 슬롯 기본 정보 등록 </summary>
-    public void SetItemSlot(int index, ItemData data)
+    public void RegisterItemSlot(int index, ItemData data, TabType type)
     {
-        // 새로 추가된 경우
-        if (_itemSlots.Count == index)
-        {
-            // 슬롯 생성
-            CreateSlot();
+        // 슬롯 생성
+        CreateSlot(index, type);
 
-            // 기본 정보 등록
-            _itemSlots[index].SetItemInfo(data.IconSprite, data.Name, data.Weight);
-        }
+        // 기본 정보 등록
+        _itemSlotsDict[TabType.All][index].SetItemInfo(data.IconSprite, data.Name, data.Weight);
+        _itemSlotsDict[type][_inventory.GetIndexFromTypeList(index, type)].SetItemInfo(data.IconSprite, data.Name, data.Weight);
     }
 
     /// <summary> 아이템 수량 텍스트 수정 </summary>
-    public void SetItemAmountText(int index, int amount = 1)
+    public void SetItemAmountText(int index, TabType type, int amount = 1)
     {
-        _itemSlots[index].SetItemAmount(amount);
+        _itemSlotsDict[TabType.All][index].SetItemAmount(amount);
+        _itemSlotsDict[type][_inventory.GetIndexFromTypeList(index, type)].SetItemAmount(amount);
     }
 
     /// <summary> 중량 텍스트 수정 </summary>
@@ -118,8 +178,13 @@ public class InventoryUI : SlotInteractHandler
     /// <summary> 슬롯 제거 </summary>
     public void RemoveSlot(int index)
     {
-        Destroy(_itemSlots[index].gameObject); // TODO => 위에서 말한 Instantiate와 마찬가지
-        _itemSlots.RemoveAt(index);
+        Destroy(_itemSlotsDict[TabType.All][index].gameObject); // TODO => 위에서 말한 Instantiate와 마찬가지
+        _itemSlotsDict[TabType.All].RemoveAt(index);
+
+        TabType itemType = _inventory.GetItemTypeByIndex(index);
+        index = _inventory.GetIndexFromTypeList(index, itemType); // 이거 제거 팝업 뜰때 안돌아가게 해야되나
+        Destroy(_itemSlotsDict[itemType][index].gameObject);
+        _itemSlotsDict[itemType].RemoveAt(index);
     }
 
     public void UseItem(int index)
@@ -172,7 +237,7 @@ public class InventoryUI : SlotInteractHandler
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
     protected int GetItemSlotIndex(InventoryItemSlotUI slot)
     {
-        return _itemSlots.IndexOf(slot);
+        return _inventory.GetIndexFromAllItems(_itemSlotsDict[_currentTabType].IndexOf(slot), _currentTabType);
     }
 
     #region Pointer Event

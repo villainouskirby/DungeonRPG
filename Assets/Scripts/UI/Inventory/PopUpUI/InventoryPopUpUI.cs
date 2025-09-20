@@ -8,6 +8,13 @@ public class InventoryPopUpUI : ItemPopUpUI
 
     private InventoryMenu _menu;
 
+    private void OnDisable()
+    {
+        if (_menu == null) return;
+
+        _menu.CloseAll();
+    }
+
     protected override void Awake()
     {
         //base.Awake();

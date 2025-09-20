@@ -44,7 +44,14 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
 
         if (_rrList.Count == 0) return null;
 
-        return _rrList[0].gameObject.GetComponent<T>();
+        T component = _rrList[0].gameObject.GetComponent<T>();
+
+        if (component == null)
+        {
+            component = _rrList[0].gameObject.transform.parent.GetComponent<T>();
+        }
+
+        return component;
     }
 
     /// <summary> 더블클릭 </summary>
