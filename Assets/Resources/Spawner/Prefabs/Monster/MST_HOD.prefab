@@ -577,7 +577,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateIndicator: {fileID: 2792765607173353309}
   animationHub: {fileID: -7543886781866867926}
-  primaryHitbox: {fileID: 0}
   alertSR: {fileID: 9200365501202104010}
   data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
   spawner: {x: 0, y: 0, z: 0}
@@ -616,7 +615,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2.25
+  m_Height: 0.00001
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
