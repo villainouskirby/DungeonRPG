@@ -15,10 +15,26 @@ public class ConsumeItemSO : SpecialBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         ctx.anim.Play("Eat");
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         yield return new WaitForSeconds(eatTime);
 
         Transform t = ctx.CanSeeObject(consumeDist);
-        if (t) Object.Destroy(t.gameObject);
+        if (!t) yield break;
+
+        // DropItem이면 데이터/수량을 stomach에 Push 후 풀 반환
+        if (t.TryGetComponent(out DropItem di))
+        {
+            if (ctx.mono.TryGetComponent(out MonsterStomach stomach))
+            {
+                stomach.Swallow(di.Data, di.Amount);
+            }
+            DropItemPool.Instance.Return(di);   // 월드에서 제거(먹었음)
+        }
+        else
+        {
+            // DropItem이 아니면 그냥 파괴
+            Object.Destroy(t.gameObject);
+        }
 
         yield return null;
     }

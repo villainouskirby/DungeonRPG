@@ -10,10 +10,14 @@ public sealed class MonsterSpecialState : IMonsterState
     int curIdx = -1;              // specialBehaviours 순환 인덱스
     Coroutine running;
     IMonsterBehaviour curBeh;
-
     public MonsterSpecialState(MonsterContext c, MonsterStateMachine r) { ctx = c; root = r; }
 
-    public void Enter() => PickAndRun();
+    public void Enter()
+    {
+        ctx.indicator?.Show(MonsterStateTag.Special);
+        ctx.animationHub?.SetTag(MonsterStateTag.Special, ctx);
+        PickAndRun();
+    }
     public void Exit() => Interrupt();
     public void Tick()
     {

@@ -1141,7 +1141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6754b4acbd7faab4e93ba79511be027a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _normalSprite: {fileID: 0}
+  _isResetOnRealease: 1
+  _isSetSizeToSprite: 0
+  _defaultSprite: {fileID: 0}
   _pressedSprite: {fileID: 0}
   _disabledSprite: {fileID: 0}
 --- !u!1 &794141800
@@ -5454,6 +5456,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 672021695693732538, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1326881764191644368, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_AnchorMax.y

@@ -39,5 +39,8 @@ public class HoundOrbitBehaviourSO : AttackBehaviourSO
 
             yield return new WaitForSeconds(stepInterval);
         }
+        ctx.nextBehaviourIndex = 0;   // 근접공격
+        Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
+        ctx.SetForward(dir);
     }
 }

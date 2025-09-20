@@ -16,6 +16,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
+    [SerializeField] private float comboBuffer = 0.5f;   // 콤보 버퍼시간
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [Header("평타 애니 재생 시간(1타/2타), 사실상 상수. 애니메이션 시간 달라지면 여기서 수정")]
     [SerializeField] private float[] baseAnimLength = { 1.0f, 1.3f };
@@ -32,6 +33,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField, Min(0.01f)] private float slash2Width = 1.4f;
     [SerializeField, Min(0.01f)] private float slash2Length = 2.0f;
     [SerializeField, Range(-0.5f, 0.5f)] private float slash2CenterOffset = 0.0f;
+
+    [Header("공격별 스턴 시간(초)")]
+    [SerializeField] private float stunLight1 = 0.20f;  // 1타
+    [SerializeField] private float stunLight2 = 0.35f;  // 2타
+    [SerializeField] private float stunHeavy = 0.60f;  // 강공(최대)
 
     private int comboLockedDir = -1; // 1타 때 방향 ‑> 2타까지 유지
     public bool IsInAttack => isAttacking || isAttackCharging;
@@ -166,7 +172,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 float now = Time.time;
 
                 // 아직 1타/2타의 후딜이 끝나기 전이면 => 콤보 입력만 버퍼링
-                if (isAttacking || now < nextAttackReady)
+                if (now <= nextAttackReady && now >= nextAttackReady - comboBuffer)
                 {
                     comboQueued = true;
                 }
@@ -228,12 +234,12 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         if (step == 1)
         {
             DoSlashBox(dmg, transform.position, forward,
-                       slash1Width, slash1Length, slash1CenterOffset);
+                       slash1Width, slash1Length, slash1CenterOffset, stunLight1);
         }
         else // step == 2
         {
             DoSlashBox(dmg, transform.position, forward,
-                       slash2Width, slash2Length, slash2CenterOffset);
+                       slash2Width, slash2Length, slash2CenterOffset, stunLight2);
         }
 
 
@@ -347,7 +353,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
     }
     private void DoSlashBox(int dmg, Vector2 origin, Vector2 dir,
-                        float width, float length, float centerOffset01)
+                        float width, float length, float centerOffset01, float stunSec = 0f)
     {
         if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
         dir.Normalize();
@@ -366,7 +372,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             if (!h || !h.enabled) continue;
 
             if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
-                m.TakeDamage(dmg);
+                m.TakeDamage(dmg, stunSec);
 
             if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
                 f.Damage(dmg);
@@ -375,10 +381,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private void DoHeavyCircle(int dmg, Vector2 origin, float r)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(origin, r);
-        HashSet<MonsterBase1> done = new();
+        HashSet<MonsterController> done = new();
         foreach (var h in hits)
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterBase1 m) && done.Add(m))
-                m.TakeDamage(dmg);
+            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
+                m.TakeDamage(dmg, stunHeavy);
     }
 
     public void ChangeState(IPlayerState s) => pc.ChangeState(s);

@@ -1,17 +1,21 @@
+using System.Collections.Generic;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
 public sealed class MonsterContext
 {
+    public readonly MonsterStateIndicator indicator;
     public readonly Monster_Info_Monster statData;
     public readonly MonsterData data;
     public readonly Transform transform;
     public readonly NavMeshAgent agent;
     public readonly Animator anim;
+    public readonly MonsterAnimationHub animationHub;
     public readonly SpriteRenderer sr;
     //public readonly Vector3 spawner;
     public Vector3 spawner => mono.Spawner;
+    public MonsterDecisionHub hub { get; private set; }
     public readonly SpriteRenderer alert;
     public readonly Transform player;
     public readonly LayerMask obstacleMask;
@@ -28,10 +32,30 @@ public sealed class MonsterContext
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
     public string id;
+    public int nextBehaviourIndex = -1;
+    public bool isCombat;   // 공격 묶음 우선 선택 신호
+    public bool isMoveState;     // 이동(접근/오빗 등) 묶음 우선 선택 신호
     Vector2 _lastForward = Vector2.right;
+    public int patternCount;                 // 현재 누적 공격 횟수
+    public int PatternEveryRest = 3;         // n회마다 쉬기(인스펙터에서 각 몬스터 SO로 제어해도 됨)
+    public void IncPattern() => patternCount = Mathf.Min(patternCount + 1, 999);
+    public void ResetPattern() => patternCount = 0;
+
+    // 각 행동 쿨다운 관리용
+    public readonly Dictionary<IMonsterBehaviour, float> nextReadyTime = new();
+    public void SetCooldown(IMonsterBehaviour beh, float cd)
+    {
+        if (!nextReadyTime.ContainsKey(beh)) nextReadyTime[beh] = 0f;
+        nextReadyTime[beh] = Time.time + Mathf.Max(0f, cd);
+    }
+    public bool IsReady(IMonsterBehaviour beh)
+        => !nextReadyTime.TryGetValue(beh, out var t) || Time.time >= t;
+
 
     public MonsterContext(MonsterController owner, Monster_Info_Monster mdata)
     {
+        indicator = owner.StateIndicator;
+        animationHub = owner.AnimationHub;
         statData = mdata;
         mono = owner;
         sm = owner.StateMachine;
@@ -51,7 +75,7 @@ public sealed class MonsterContext
         hearRange = mdata.Monster_sound_detection;
         sightDistance = mdata.Monster_view_detection;
         speed = mdata.Monster_speed;
-
+        hub = new MonsterDecisionHub(this);
         isaggressive = data.isaggressive;
         interestTags = data.interestTags;
         obstacleMask = owner.ObstacleMask;
@@ -150,6 +174,94 @@ public sealed class MonsterContext
         bool ok = ThrowNoiseManager.Instance.TryGetNearestNoise(transform.position, detectRange, out noisePos);
         if (ok) LastHeardPos = noisePos; // 추후 디버그/전환 로직에 활용 가능
         return ok;
+    }
+    public void SetForward(Vector2 dir)
+    {
+        if (dir.sqrMagnitude > 0.001f)
+            _lastForward = dir.normalized;
+
+        // 애니메이터 파라미터도 갱신 가능
+        anim.SetFloat("DirX", _lastForward.x);
+        anim.SetFloat("DirY", _lastForward.y);
+
+        // flipX를 쓰는 경우
+        sr.flipX = (_lastForward.x < 0);
+    }
+    #endregion
+    #region 네브메쉬 안전로직
+    public bool EnsureAgentReady(float sampleRadius = 3f)
+    {
+        if (!agent) return false;
+
+        if (!agent.enabled) agent.enabled = true;           // 1) enable
+        if (agent.isOnNavMesh) return true;                 // 2) 이미 NavMesh 위면 OK
+
+        // 3) 현재 위치 근처에서 NavMesh 포인트를 찾아서 워프
+        if (NavMesh.SamplePosition(transform.position, out var hit, sampleRadius, NavMesh.AllAreas))
+        {
+            // Warp는 enabled=true여야 함
+            return agent.Warp(hit.position);
+        }
+        return false; // 복구 실패 – SetDestination/Resume 금지
+    }
+
+    public void SafeStopAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        agent.ResetPath();
+    }
+
+    public void SafeResumeAgent()
+    {
+        if (!agent) return;
+        if (!agent.isActiveAndEnabled) return;
+        if (!agent.isOnNavMesh) { EnsureAgentReady(); if (!agent.isOnNavMesh) return; }
+        agent.isStopped = false; // (= Resume)
+    }
+
+    public bool TrySetDestinationSafe(Vector3 pos, float sampleRadius = 3f)
+    {
+        if (!EnsureAgentReady(sampleRadius)) return false;
+        return agent.SetDestination(pos);
+    }
+    // 거리 계산
+    public float PathLengthTo(Vector3 target, out NavMeshPathStatus status, float sampleRadius = 2f)
+    {
+        status = NavMeshPathStatus.PathInvalid;
+
+        // 에이전트가 비활성/메시에 없으면 복구 시도
+        if (!EnsureAgentReady(sampleRadius))
+            return Mathf.Infinity;
+
+        // 시작/도착 지점을 NavMesh 위로 스냅
+        Vector3 start = transform.position;
+        if (!NavMesh.SamplePosition(start, out var startHit, sampleRadius, NavMesh.AllAreas))
+            startHit.position = start; // 못 찾으면 그냥 현재 위치 사용
+        if (!NavMesh.SamplePosition(target, out var targetHit, sampleRadius, NavMesh.AllAreas))
+            return Mathf.Infinity;
+
+        // 경로 계산
+        var path = new NavMeshPath();
+        bool ok = NavMesh.CalculatePath(startHit.position, targetHit.position, NavMesh.AllAreas, path);
+        status = path.status;
+
+        if (!ok || status == NavMeshPathStatus.PathInvalid)
+            return Mathf.Infinity;
+
+        // 길이 합산
+        var corners = path.corners;
+        if (corners == null || corners.Length < 2)
+            return 0f;
+
+        float len = 0f;
+        for (int i = 1; i < corners.Length; i++)
+            len += Vector3.Distance(corners[i - 1], corners[i]);
+
+        return len;
     }
     #endregion
 }

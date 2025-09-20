@@ -17,59 +17,31 @@ public class Inventory : MonoBehaviour, ISave
     [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
-    protected List<Item> _items = new();
 
     // --- Items ---
 
-    private List<Item> _equipmentItems = new();
-    private List<Item> _usableItems = new();
-    private List<Item> _potionItems = new();
-    private List<Item> _ingredientItems = new();
+    protected List<Item> _items = new();
 
-    public int GetItemsCount() => _equipmentItems.Count + _usableItems.Count + _potionItems.Count + _ingredientItems.Count;
-    
+    protected int _equipmentSlotCount = 0;
+    protected int _usableSlotCount = 0;
+    protected int _potionSlotCount = 0;
+    protected int _ingredientSlotCount = 0;
+
+    protected int _equipmentItemIndex => 0;
+    protected int _usableItemIndex => _equipmentSlotCount;
+    protected int _potionItemIndex => _usableItemIndex + _usableSlotCount;
+    protected int _ingredientItemIndex => _potionItemIndex + _potionSlotCount;
+    protected int _otherItemIndex => _ingredientItemIndex + _ingredientSlotCount;
+
+    public int GetItemsCount()
+    {
+        return _items.Count;
+    }
+
     public Item GetItemByIndex(int index)
     {
-        index = GetInnerIndex(index, out List<Item> itemList);
-
-        return itemList[index];
+        return _items[index];
     }
-
-    /// <summary> 아이템 전체 index에서 올바른 항목의 index로 변환 </summary>
-    public int GetInnerIndex(int index, out List<Item> itemList)
-    {
-        int prefixSum = 0;
-
-        if (index < (prefixSum += _equipmentItems.Count))
-        {
-            itemList = _equipmentItems;
-            return index - prefixSum;
-        }
-        else if (index < (prefixSum += _usableItems.Count))
-        {
-            itemList = _usableItems;
-            return index - prefixSum;
-        }
-        else if (index < (prefixSum += _potionItems.Count))
-        {
-            itemList = _potionItems;
-            return index - prefixSum;
-        }
-        else if (index < (prefixSum += _ingredientItems.Count))
-        {
-            itemList = _ingredientItems;
-            return index - prefixSum;
-        }
-        else // index error
-        {
-            itemList = null;
-            return -1;
-        }
-    }
-
-    public int GetInnerIndex(int index) => GetInnerIndex(index, out _);
-
-    //public List<Item> GetItemListByType()
 
     // -------------
 
@@ -94,7 +66,7 @@ public class Inventory : MonoBehaviour, ISave
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
     /// <summary> 인벤 초기화 </summary>
-    public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함 // TODO => 창고도 OnInventoryChanged로 로직 바꿔야 할듯
+    public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함 // TODO => 창고도 OnInventoryChanged로 로직 바꿔야 할듯 // 냅다 다 빼고 넣는거보다 슬롯 각각 업데이트 하는식으로 바꾸는것도 나쁘지 않을듯
     {
         _inventoryUI.InitInventoryUI();
         List<Item> tempItems = new List<Item>(_items);
@@ -122,8 +94,38 @@ public class Inventory : MonoBehaviour, ISave
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
-        int index = -1;
-        bool isAddable = FindSlotIndex(itemData, ref index);
+        int startIndex;
+        int endIndex;
+
+        switch (itemData.Createitem())
+        {
+            case EquipmentItem:
+                startIndex = _equipmentItemIndex;
+                endIndex = _potionItemIndex;
+                break;
+
+            case PotionItem:
+                startIndex = _potionItemIndex;
+                endIndex = _ingredientItemIndex;
+                break;
+
+            case IUsableItem:
+                startIndex = _usableItemIndex;
+                endIndex = _potionItemIndex;
+                break;
+
+            case IngredientItem:
+                startIndex = _ingredientItemIndex;
+                endIndex = _otherItemIndex;
+                break;
+
+            default:
+                startIndex = _otherItemIndex;
+                endIndex = _items.Count;
+                break;
+        }
+
+        bool isAddable = FindSlotIndex(itemData, ref startIndex, endIndex);
 
         CalculateRestWeight(itemData.Weight, -amount);
 
@@ -141,19 +143,21 @@ public class Inventory : MonoBehaviour, ISave
         // 수량이 있는 아이템
         if (itemData is CountableItemData ciData)
         {
-            if (ciData.MaxAmount == 0) return amount;
+            if (ciData.MaxAmount == 0)
+            {
+                Debug.LogError("ItemData Setting Error!");
+                return amount;
+            }
 
             while (amount > 0)
             {
                 if (isAddable)
                 {
-                    CountableItem ci = _items[index] as CountableItem;
+                    CountableItem ci = _items[startIndex] as CountableItem;
                     amount = ci.AddAmountAndGetExcess(amount);
 
-                    UpdateSlot(index);
-                    OnInventoryChanged?.Invoke(index, ci.Amount);
-
-                    index++;
+                    UpdateSlot(startIndex);
+                    OnInventoryChanged?.Invoke(startIndex, ci.Amount);
                 }
                 else
                 {
@@ -162,27 +166,28 @@ public class Inventory : MonoBehaviour, ISave
                     ci.SetAmount(amount);
 
                     // 슬롯에 추가
-                    _items.Insert(index, ci);
+                    _items.Insert(startIndex, ci);
 
                     // 남은 개수 계산
                     amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
 
-                    UpdateSlot(index);
-                    OnInventoryChanged?.Invoke(index, ci.Amount);
+                    UpdateSlot(startIndex);
+                    OnInventoryChanged?.Invoke(startIndex, ci.Amount);
                 }
+
+                startIndex++;
             }
         }
         // 수량이 없는 아이템
         else
         {
-            for (; amount > 0; amount--, index++)
+            for (; amount > 0; amount--, startIndex++)
             {
                 // 아이템 생성 및 슬롯에 추가
-                index = _items.Count;
-                _items.Insert(index, itemData.Createitem());
+                _items.Insert(startIndex, itemData.Createitem());
 
-                UpdateSlot(index);
-                OnInventoryChanged?.Invoke(index, 1);
+                UpdateSlot(startIndex);
+                OnInventoryChanged?.Invoke(startIndex, 1);
             }
         }
 
@@ -200,6 +205,37 @@ public class Inventory : MonoBehaviour, ISave
         }
 
         return AddItemForce(itemData, amount, isGetItem);
+    }
+
+    /// <summary> index는 참조, 수량만 추가해도 되는 경우 true 그렇지 않으면 false </summary>
+    private bool FindSlotIndex(ItemData data, ref int startIndex, int endIndex)
+    {
+        while (++startIndex < endIndex)
+        {
+            int comparer = _items[startIndex].Data.SID.CompareTo(data.SID);
+
+            if (comparer == 0)
+            {
+                if (_items[startIndex] is CountableItem ci)
+                {
+                    if (ci.IsMax)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            else if (comparer < 0) return false;
+        }
+
+        return false;
     }
 
     public async void UseItem(int index = -1)
@@ -220,7 +256,6 @@ public class Inventory : MonoBehaviour, ISave
                 {
                     // 해당 슬롯 UI 업데이트
                     _equipment.Equip(ei.Data as EquipmentItemData);
-                    
                 }
                 else
                 {
@@ -234,7 +269,7 @@ public class Inventory : MonoBehaviour, ISave
 
     public void SetItemToQuickSlot(int index)
     {
-        Item item = _items[index];
+        Item item = GetItemByIndex(index);
         if (item is not IUsableItem)
         {
             Debug.LogWarning("QuickSlot: 사용 불가능한 아이템은 퀵슬롯에 넣지 않습니다.");
@@ -298,36 +333,6 @@ public class Inventory : MonoBehaviour, ISave
         }
 
         return amount;
-    }
-
-    /// <summary> index는 참조, 수량만 추가해도 되는 경우 true 그렇지 않으면 fasle </summary>
-    private bool FindSlotIndex(ItemData data, ref int index)
-    {
-        while (++index < _items.Count)
-        {
-            int comparer = _items[index].Data.SID.CompareTo(data.SID);
-            if (comparer == 0)
-            {
-                if (_items[index] is CountableItem ci)
-                {
-                    if (ci.IsMax)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            else if (comparer < 0) return false;
-        }
-
-        return false;
     }
 
     private void UpdateSlot(int index)

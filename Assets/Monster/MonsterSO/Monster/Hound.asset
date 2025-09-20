@@ -28,23 +28,60 @@ MonoBehaviour:
   fleeSpeed: 4
   stoppingDistance: 2
   soundObstaclePenalty: 3
-  aggroHoldSeconds: 2
+  aggroHoldSeconds: 0.5
   disengageHoldSeconds: 2
+  preTransitionDelay: 0.3
+  istracing: 0
+  traceSpeed: 0
+  traceDesiredDistance: 4
+  traceNearDistance: 2.5
+  traceFarDistance: 5.5
+  detectGateDelay: 0.25
+  defaultHitStunSeconds: 0.3
+  returnGateDelay: 0.75
+  fleeTargetRadius: 15
+  fleeRingStep: 1.5
+  fleeResampleCycle: 0.75
+  fleeStuckCheckTime: 0.3
+  fleeStuckMoveEps: 0.05
+  fleeSamplePositionRadius: 2
+  fleeAngularSamples: 16
+  fleeCornerDashSeconds: 2
+  fleeCornerDashStep: 3
+  fleeDespawnSeconds: 10
+  fleeKeepTargetTime: 0.8
+  fleeKeepTargetDist: 0.5
+  fleeMultiRingCount: 3
+  fleePanicDistance: 2.5
+  fleeW_Dist: 1
+  fleeW_Len: -0.25
+  fleeW_Away: 0.35
+  fleeW_LOS: 0.2
+  fleeW_Inertia: 0.3
+  fleeVanishPauseSeconds: 1
+  fleeOutwardGrowPerSec: 0
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}
   questionStartColor: {r: 1, g: 1, b: 1, a: 1}
   questionEndColor: {r: 1, g: 0, b: 0, a: 1}
-  maxSpawnerDist: 20
+  maxSpawnerDist: 15
   nearSpawnerDist: 2
   isaggressive: 1
   canHearNoise: 0
   hearToCombat: 0
   category: 0
-  attackBehaviours:
+  attackEnterDistance: 2.5
+  attackExitDistance: 4
+  combatMoveBehaviours:
   - {fileID: 11400000, guid: 9929fb6b1931f7341941609d2e85fac3, type: 2}
-  - {fileID: 11400000, guid: c852dc1b623c9864a965afd241e9c998, type: 2}
   - {fileID: 11400000, guid: 8eced1ca232c40a43b662c9b99e72bf0, type: 2}
-  - {fileID: 11400000, guid: 9db4930f163fbd049b4bcfafaacaa876, type: 2}
+  - {fileID: 11400000, guid: 820f611513ef08a4686013e6de80cddf, type: 2}
+  combatAttackBehaviours:
+  - {fileID: 11400000, guid: c852dc1b623c9864a965afd241e9c998, type: 2}
+  moveWeights:
+  - 60
+  - 25
+  - 15
   fleeBehaviours: []
   specialBehaviours: []
   interestTags: []
