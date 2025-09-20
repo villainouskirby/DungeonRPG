@@ -100,7 +100,7 @@ public class MonsterController : MonoBehaviour
         if (!_initialized) return; 
         root.Tick(); 
     }
-
+    
     // 외부에서 데미지
     // 기존 시그니처 보존
     public void TakeDamage(float dmg) => TakeDamage(dmg, 0f);

@@ -137,12 +137,18 @@ public sealed class MonsterDetectState : IMonsterState
 
     public MonsterDetectState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
-    public void Enter()
+    public async void Enter()
     {
         ctx.indicator?.Show(MonsterStateTag.Detect);
         ctx.animationHub?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
         ctx.agent.speed = ctx.data.detectSpeed;
+
+        Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
+
+        ctx.agent.isStopped = true;
+        await ctx.SetForward(dir);
+        ctx.agent.isStopped = false;
 
         targetPos = (ctx.hub != null && ctx.hub.LastNoisePos != Vector3.zero)
                        ? ctx.hub.LastNoisePos
@@ -289,6 +295,10 @@ public sealed class MonsterDetectState : IMonsterState
             {
                 ctx.isCombat = true;
                 machine.ChangeState(new CombatSuperState(ctx, machine));
+            }
+            else if (ctx.data.istracing)
+            {
+                machine.ChangeState(new MonsterTraceState(ctx, machine));
             }
             else
             {
@@ -536,6 +546,8 @@ public sealed class MonsterStunState : IMonsterState
                 machine.ChangeState(new MonsterFleeState(ctx, machine)); // Flee
             else
                 machine.PopState(); // 스턴 끝 → 아래 상태 재개
+            if (ctx.isaggressive)
+                machine.ChangeState(new CombatSuperState(ctx, machine));
         }
     }
 

@@ -13,11 +13,17 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
     public List<Tilemap> Tilemap;
 
     private List<Sprite> _sprites;
+    private Dictionary<(Sprite a, Sprite b), Sprite> _mergeSprite;
 
 
     public void Extract(MapEnum mapType, TileMapData mapData)
     {
-        Tilemap = EM.Instance.LayerRoot.GetComponentsInChildren<Tilemap>().ToList();
+        Tilemap = new();
+        _mergeSprite = new();
+        int childCount = EM.Instance.LayerRoot.transform.childCount;
+        for (int i = 0; i < childCount; i++)
+            if (EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
+                Tilemap.Add(layerMap);
         _sprites = new();
 
         Vector2Int size = new();
@@ -71,7 +77,11 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
         for (int i = 0; i < Tilemap.Count; i++)
         {
-            TileMapLayerData layerData = ExtractLayer2TileMapData(Tilemap[i], size, chunkSize);
+            Tilemap decoMap = null;
+            if (Tilemap[i].transform.childCount > 0)
+                decoMap = Tilemap[i].transform.GetChild(0).GetComponent<Tilemap>();
+
+            TileMapLayerData layerData = ExtractLayer2TileMapData(Tilemap[i], size, chunkSize, decoMap);
             mapData.All.TileMapLayerInfo[i] = new();
             mapData.All.TileMapLayerInfo[i].LayerIndex = Tilemap[i].gameObject.GetComponent<TilemapRenderer>().sortingOrder;
             mapData.All.TileMapLayerInfo[i].Z = Tilemap[i].transform.position.z;
@@ -98,9 +108,11 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         EM.Instance.ShadowSpriteIndex = ConvertSprite2Int(EM.Instance.ShadowType.Sprites);
     }
 
-    public TileMapLayerData ExtractLayer2TileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize)
+    public TileMapLayerData ExtractLayer2TileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize, Tilemap decoMap)
     {
         targetLayer.CompressBounds();
+        decoMap?.CompressBounds();
+
         BoundsInt bounds = targetLayer.cellBounds;
         Vector3Int startPos = bounds.position;
 
@@ -111,42 +123,62 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
         TileBase[] tiles = targetLayer.GetTilesBlock(bounds);
 
+        BoundsInt decoBounds = new();
+        Vector3Int decoStartPos = Vector3Int.zero;
+        TileBase[] decoTiles = null;
+        if (decoMap != null)
+        {
+            decoBounds = decoMap.cellBounds;
+            decoStartPos = decoBounds.position;
+            decoTiles = decoMap.GetTilesBlock(decoBounds);
+        }
+
+        Sprite[,] oriSprites = new Sprite[size.x, size.y];
         for (int y = 0; y < bounds.size.y; y++)
         {
             for (int x = 0; x < bounds.size.x; x++)
             {
                 int correctX = x + startPos.x - EM.Instance.StartPos.x;
                 int correctY = y + startPos.y - EM.Instance.StartPos.y;
+                Sprite oriSprite = GetTileSpriteByCorrectPos(targetLayer, x, y, startPos, chunkSize, bounds, tiles);
+                oriSprites[correctX, correctY] = oriSprite;
+            }
+        }
 
-                Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
-                Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
+        Sprite[,] decoSprites = new Sprite[size.x, size.y];
+        if (decoMap != null)
+        {
+            for (int y = 0; y < decoBounds.size.y; y++)
+            {
+                for (int x = 0; x < decoBounds.size.x; x++)
+                {
+                    int correctX = x + decoStartPos.x - EM.Instance.StartPos.x;
+                    int correctY = y + decoStartPos.y - EM.Instance.StartPos.y;
+                    Sprite decoSprite = GetTileSpriteByCorrectPos(decoMap, x, y, decoStartPos, chunkSize, decoBounds, decoTiles);
+                    decoSprites[correctX, correctY] = decoSprite;
+                }
+            }
+        }
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                Vector2Int chunkIndex = new(x / EM.ChunkSize, y / EM.ChunkSize);
+                Vector2Int localIndex = new(x % EM.ChunkSize, y % EM.ChunkSize);
 
                 int chunkStartIndex = chunkIndex.x + chunkIndex.y * chunkSize.x;
                 int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
                 int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
 
-                TileBase tileBase = tiles[x + y * bounds.size.x];
-
-                Sprite sprite = null;
-
-                if (tileBase == null)
-                {
+                if (oriSprites[x, y] == null && decoSprites[x, y] == null)
                     tileData[index] = 0;
-                    continue;
-                }
-                else if (tileBase is Tile tile)
-                {
-                    sprite = tile.sprite;
-                }
-                else if (tileBase is RuleTile ruleTile)
-                {
-                    Vector3Int tilePos = new(correctX, correctY, 0);
-                    TileData tileDataOut = new();
-                    ruleTile.GetTileData(tilePos, targetLayer, ref tileDataOut);
-                    sprite = tileDataOut.sprite;
-                }
-                
-                tileData[index] = AddorGetSpriteIndex(sprite);
+                else if (oriSprites[x, y] != null && decoSprites[x, y] == null)
+                    tileData[index] = AddorGetSpriteIndex(oriSprites[x, y]);
+                else if (oriSprites[x, y] == null && decoSprites[x, y] != null)
+                    tileData[index] = AddorGetSpriteIndex(decoSprites[x, y]);
+                else
+                    tileData[index] = AddorGetSpriteIndex(Merge(oriSprites[x, y], decoSprites[x, y]));
             }
         }
 
@@ -154,6 +186,34 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         result.Tile = tileData;
 
         return result;
+    }
+
+    private Sprite GetTileSpriteByCorrectPos(Tilemap targetLayer, int x, int y, Vector3Int startPos, Vector2Int chunkSize, BoundsInt bounds, TileBase[] tiles)
+    {
+        int correctX = x + startPos.x - EM.Instance.StartPos.x;
+        int correctY = y + startPos.y - EM.Instance.StartPos.y;
+
+        TileBase tileBase = tiles[x + y * bounds.size.x];
+
+        Sprite sprite = null;
+
+        if (tileBase == null)
+        {
+            sprite = null;
+        }
+        else if (tileBase is Tile tile)
+        {
+            sprite = tile.sprite;
+        }
+        else if (tileBase is RuleTile ruleTile)
+        {
+            Vector3Int tilePos = new(correctX, correctY, 0);
+            TileData tileDataOut = new();
+            ruleTile.GetTileData(tilePos, targetLayer, ref tileDataOut);
+            sprite = tileDataOut.sprite;
+        }
+
+        return sprite;
     }
 
     public int AddorGetSpriteIndex(Sprite sprite)
@@ -208,5 +268,77 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         }
 
         return result;
+    }
+
+    public Sprite Merge(Sprite baseSprite, Sprite overlaySprite)
+    {
+        if (_mergeSprite.ContainsKey((baseSprite, overlaySprite)))
+            return _mergeSprite[(baseSprite, overlaySprite)];
+
+        Texture2D bt = ExtractTexture(baseSprite);
+        Texture2D ot = ExtractTexture(overlaySprite);
+
+        int w = bt.width;
+        int h = bt.height;
+
+        Color32[] basePx = bt.GetPixels32();
+        Color32[] overPx = ot.GetPixels32();
+
+        Color32[] outPx = new Color32[basePx.Length];
+        Array.Copy(basePx, outPx, outPx.Length);
+
+        for (int i = 0; i < outPx.Length; i++)
+        {
+            Color32 s = overPx[i];
+            if (s.a == 0) continue;
+            if (s.a == 255) { outPx[i] = s; continue; }
+
+            Color32 d = outPx[i];
+            float a = s.a / 255f, ia = 1f - a;
+            outPx[i] = new Color32(
+                (byte)Mathf.Clamp(Mathf.RoundToInt(s.r * a + d.r * ia), 0, 255),
+                (byte)Mathf.Clamp(Mathf.RoundToInt(s.g * a + d.g * ia), 0, 255),
+                (byte)Mathf.Clamp(Mathf.RoundToInt(s.b * a + d.b * ia), 0, 255),
+                (byte)Mathf.Clamp(Mathf.RoundToInt(255 - (255 - d.a) * ia), 0, 255)
+            );
+        }
+
+        Texture2D tex = new(w, h, TextureFormat.RGBA32, false)
+        {
+            filterMode = bt.filterMode,
+            wrapMode = TextureWrapMode.Clamp
+        };
+        tex.SetPixels32(outPx);
+        tex.Apply(false, false);
+
+        float ppu = baseSprite.pixelsPerUnit > 0 ? baseSprite.pixelsPerUnit : 100f;
+        Sprite result = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.FullRect);
+
+        return result;
+    }
+
+    public Texture2D ExtractTexture(Sprite sprite, FilterMode filter = FilterMode.Point)
+    {
+        if (sprite == null) throw new ArgumentNullException(nameof(sprite));
+
+        // 스프라이트가 차지하는 실제 사각형(픽셀 단위, 텍스처 공간)
+        Rect r = sprite.textureRect;
+        int x = Mathf.FloorToInt(r.x);
+        int y = Mathf.FloorToInt(r.y);
+        int w = Mathf.RoundToInt(r.width);
+        int h = Mathf.RoundToInt(r.height);
+
+        // 원본 텍스처에서 해당 영역 픽셀 읽기 (부분 추출)
+        Color[] pixels;
+        pixels = sprite.texture.GetPixels(x, y, w, h);
+
+        // 새 텍스처 생성 후 복사
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.filterMode = filter;
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.SetPixels(pixels);
+        tex.Apply(false);
+
+        return tex;
     }
 }

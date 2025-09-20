@@ -5,6 +5,7 @@ using UnityEditorInternal;
 using UnityEngine;
 
 [CustomEditor(typeof(ResourceNodeSpawnerTile))]
+[CanEditMultipleObjects]
 public class SpawnerTileCustomEditor : Editor
 {
     public string[] Options => ResourceNodeListManager.ResourceNodeList;
