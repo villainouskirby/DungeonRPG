@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Equipment : MonoBehaviour
+public class Equipment : MonoBehaviour, ISave
 {
     [SerializeField] private EquipmentUI _equipmentUI;
     [SerializeField] private Inventory _inventory;
@@ -45,13 +45,13 @@ public class Equipment : MonoBehaviour
 
         BattleEquipmentItemData beiData = _playerEquipments[type].Data as BattleEquipmentItemData;
         int sign = isPlus ? 1 : -1;
-
-        _equipmentEffectSO.Damage += beiData.Damage * sign;
-        _equipmentEffectSO.Hp += beiData.Hp * sign;
+        /*
+        _equipmentEffectSO.Damage += beiData.Atk * sign;
+        _equipmentEffectSO.Hp += beiData.Durability * sign;
         _equipmentEffectSO.Stamina += beiData.Stamina * sign;
 
         if (isPlus) _equipmentEffectSO.AdditionalEffects.Add(beiData.AdditionalEffect);
-        else _equipmentEffectSO.AdditionalEffects.Remove(beiData.AdditionalEffect);
+        else _equipmentEffectSO.AdditionalEffects.Remove(beiData.AdditionalEffect);*/
 
         _equipmentUI.SetEquipmentEffect();
     }
@@ -73,5 +73,15 @@ public class Equipment : MonoBehaviour
     public ItemData GetItemData(EquipmentType type)
     {
         return (_playerEquipments.ContainsKey(type)) ? _playerEquipments[type].Data : null;
+    }
+
+    public void Load(SaveData saveData)
+    {
+        _playerEquipments = saveData.Equipments;
+    }
+
+    public void Save(SaveData saveData)
+    {
+        saveData.Equipments = _playerEquipments;
     }
 }

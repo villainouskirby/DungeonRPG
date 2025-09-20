@@ -9,6 +9,7 @@ public class SaveData
     public Vector3 PlayerPos; // 현재 플레이어 위치
     [SerializeReference]
     public List<Item> Items; // 현재 플레이어 아이템
+    public Dictionary<EquipmentType, EquipmentItem> Equipments; // 현재 장착한 장비
     public List<ResourceNodeSpawner> ResourceNodeSpawner;
 
     public SaveData()
