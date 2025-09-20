@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TabHandler : MonoBehaviour
 {
+    public Action<int> OnIndexChanged;
+
     private ObjectActiveHandler[] _buttons;
     private ButtonSpriteHandler[] _spriteHandlers;
 
@@ -71,5 +73,6 @@ public class TabHandler : MonoBehaviour
         _spriteHandlers[_currentIndex].SetNormalSprite();
 
         _currentIndex = newIdx;
+        OnIndexChanged?.Invoke(_currentIndex);
     }
 }

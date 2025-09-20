@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemType = InventoryUI.TabType;
 
 public class Inventory : MonoBehaviour, ISave
 {
@@ -20,27 +21,78 @@ public class Inventory : MonoBehaviour, ISave
 
     // --- Items ---
 
+    /// <summary>
+    /// 기본적으로 데이터 전달은 전체 아이템 리스트의 index를 통해 전달함
+    /// <para/> 세부 항목에서의 index가 필요할 시 GetIndexFromTypeList 메서드 사용
+    /// </summary>
     protected List<Item> _items = new();
 
-    protected int _equipmentSlotCount = 0;
-    protected int _usableSlotCount = 0;
-    protected int _potionSlotCount = 0;
-    protected int _ingredientSlotCount = 0;
+    protected Dictionary<ItemType, int> _slotCountDict = new();
+    protected Dictionary<ItemType, Func<int>> _indexDict = new();
 
-    protected int _equipmentItemIndex => 0;
-    protected int _usableItemIndex => _equipmentSlotCount;
-    protected int _potionItemIndex => _usableItemIndex + _usableSlotCount;
-    protected int _ingredientItemIndex => _potionItemIndex + _potionSlotCount;
-    protected int _otherItemIndex => _ingredientItemIndex + _ingredientSlotCount;
+    protected int GetAllItemIndex() => 0;
+    protected int GetEquipmentItemIndex() => 0;
+    protected int GetUsableItemIndex() => _slotCountDict[ItemType.Equipment];
+    protected int GetPotionItemIndex() => GetUsableItemIndex() + _slotCountDict[ItemType.Usable];
+    protected int GetIngredientItemIndex() => GetPotionItemIndex() + _slotCountDict[ItemType.Potion];
+    protected int GetOthersItemIndex() => GetIngredientItemIndex() + _slotCountDict[ItemType.Ingredient];
 
+    /// <returns> 총 아이템(슬롯)수 </returns>
     public int GetItemsCount()
     {
         return _items.Count;
     }
 
+    /// <summary> 전체에서의 index => 세부 항목에서의 index </summary>
+    public int GetIndexFromTypeList(int index)
+    {
+        return GetIndexFromTypeList(index, GetItemTypeByIndex(index));
+    }
+
+    /// <summary> 전체에서의 index => 세부 항목에서의 index </summary>
+    public int GetIndexFromTypeList(int index, ItemType type)
+    {
+        return index - _indexDict[type]();
+    }
+
+    /// <summary> 세부 항목에서의 index => 전체에서의 index </summary>
+    public int GetIndexFromAllItems(int index, ItemType type)
+    {
+        return index + _indexDict[type]();
+    }
+
+    /// <returns> 해당 인덱스에 해당하는 아이템 </returns>
+    /// <param name="index"> 전체에서의 index </param>
     public Item GetItemByIndex(int index)
     {
+        if (index < 0 || index >= _items.Count) return null;
+
         return _items[index];
+    }
+
+    /// <returns> 해당 인덱스에 해당하는 아이템 </returns>
+    /// <param name="index"> 세부 항목에서의 index </param>
+    public Item GetItemByIndex(int index, ItemType type)
+    {
+        return GetItemByIndex(GetIndexFromAllItems(index, type));
+    }
+
+    /// <returns> 해당 아이템의 타입 </returns>
+    public ItemType GetItemType(Item item)
+    {
+        return item switch
+        {
+            EquipmentItem => ItemType.Equipment,
+            PotionItem => ItemType.Potion,
+            IUsableItem => ItemType.Usable,
+            IngredientItem => ItemType.Ingredient,
+            _ => ItemType.Ingredient,
+        };
+    }
+
+    public ItemType GetItemTypeByIndex(int index)
+    {
+        return GetItemType(GetItemByIndex(index));
     }
 
     // -------------
@@ -48,7 +100,18 @@ public class Inventory : MonoBehaviour, ISave
     private void Awake()
     {
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
+        
+        _indexDict[ItemType.All] = GetAllItemIndex;
+        _indexDict[ItemType.Equipment] = GetEquipmentItemIndex;
+        _indexDict[ItemType.Usable] = GetUsableItemIndex;
+        _indexDict[ItemType.Potion] = GetPotionItemIndex;
+        _indexDict[ItemType.Ingredient] = GetIngredientItemIndex;
+        _indexDict[ItemType.Others] = GetOthersItemIndex;
+
         UpdateWeightText();
+
+        _inventoryUI.AfterAwake();
+
         InitInventory();
     }
 
@@ -72,6 +135,11 @@ public class Inventory : MonoBehaviour, ISave
         List<Item> tempItems = new List<Item>(_items);
         _items.Clear();
         RestCapacity = _maxCapacity;
+
+        for (int i = 1; i < 5; i++)
+        {
+            _slotCountDict[(ItemType)i] = 0;
+        }
 
         foreach (Item item in tempItems)
         {
@@ -100,31 +168,32 @@ public class Inventory : MonoBehaviour, ISave
         switch (itemData.Createitem())
         {
             case EquipmentItem:
-                startIndex = _equipmentItemIndex;
-                endIndex = _potionItemIndex;
+                startIndex = _indexDict[ItemType.Equipment]();
+                endIndex = _indexDict[ItemType.Usable]();
                 break;
 
             case PotionItem:
-                startIndex = _potionItemIndex;
-                endIndex = _ingredientItemIndex;
+                startIndex = _indexDict[ItemType.Potion]();
+                endIndex = _indexDict[ItemType.Ingredient]();
                 break;
 
             case IUsableItem:
-                startIndex = _usableItemIndex;
-                endIndex = _potionItemIndex;
+                startIndex = _indexDict[ItemType.Usable]();
+                endIndex = _indexDict[ItemType.Potion]();
                 break;
 
             case IngredientItem:
-                startIndex = _ingredientItemIndex;
-                endIndex = _otherItemIndex;
+                startIndex = _indexDict[ItemType.Ingredient]();
+                endIndex = _items.Count;
                 break;
 
             default:
-                startIndex = _otherItemIndex;
+                startIndex = _indexDict[ItemType.All]();
                 endIndex = _items.Count;
                 break;
         }
 
+        startIndex--;
         bool isAddable = FindSlotIndex(itemData, ref startIndex, endIndex);
 
         CalculateRestWeight(itemData.Weight, -amount);
@@ -171,7 +240,7 @@ public class Inventory : MonoBehaviour, ISave
                     // 남은 개수 계산
                     amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
 
-                    UpdateSlot(startIndex);
+                    UpdateSlot(startIndex, true);
                     OnInventoryChanged?.Invoke(startIndex, ci.Amount);
                 }
 
@@ -186,7 +255,7 @@ public class Inventory : MonoBehaviour, ISave
                 // 아이템 생성 및 슬롯에 추가
                 _items.Insert(startIndex, itemData.Createitem());
 
-                UpdateSlot(startIndex);
+                UpdateSlot(startIndex, true);
                 OnInventoryChanged?.Invoke(startIndex, 1);
             }
         }
@@ -335,13 +404,17 @@ public class Inventory : MonoBehaviour, ISave
         return amount;
     }
 
-    private void UpdateSlot(int index)
+    private void UpdateSlot(int index, bool isNew = false)
     {
         if (!IsValidIndex(index)) return;
 
         Item item = _items[index];
+        ItemType type = GetItemType(item);
 
-        _inventoryUI.SetItemSlot(index, item.Data);
+        if (isNew)
+        {
+            _inventoryUI.RegisterItemSlot(index, item.Data, type);
+        }
 
         if (item is CountableItem ci)
         {
@@ -352,12 +425,12 @@ public class Inventory : MonoBehaviour, ISave
             }
             else
             {
-                _inventoryUI.SetItemAmountText(index, ci.Amount);
+                _inventoryUI.SetItemAmountText(index, type, ci.Amount);
             }
         }
         else
         {
-            _inventoryUI.SetItemAmountText(index);
+            _inventoryUI.SetItemAmountText(index, type);
         }
 
         UpdateWeightText();

@@ -5,7 +5,6 @@ public class RemovePopUpUI : AmountSelectPopUpUI
     [Header("Inventory UI")]
     [SerializeField] private InventoryUI _inventoryUI;
 
-
     public override void SetItemData(int index)
     {
         _popUpName.text = "Remove";
