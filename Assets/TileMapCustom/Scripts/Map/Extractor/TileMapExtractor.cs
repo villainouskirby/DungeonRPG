@@ -152,8 +152,8 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
             {
                 for (int x = 0; x < decoBounds.size.x; x++)
                 {
-                    int correctX = x + startPos.x - EM.Instance.StartPos.x;
-                    int correctY = y + startPos.y - EM.Instance.StartPos.y;
+                    int correctX = x + decoStartPos.x - EM.Instance.StartPos.x;
+                    int correctY = y + decoStartPos.y - EM.Instance.StartPos.y;
                     Sprite decoSprite = GetTileSpriteByCorrectPos(decoMap, x, y, decoStartPos, chunkSize, decoBounds, decoTiles);
                     decoSprites[correctX, correctY] = decoSprite;
                 }
@@ -170,9 +170,6 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                 int chunkStartIndex = chunkIndex.x + chunkIndex.y * chunkSize.x;
                 int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
                 int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
-
-                if (decoSprites[x, y] != null)
-                    Debug.Log((oriSprites[x, y] != null) + " " + (decoSprites[x, y] != null));
 
                 if (oriSprites[x, y] == null && decoSprites[x, y] == null)
                     tileData[index] = 0;
@@ -278,8 +275,8 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         if (_mergeSprite.ContainsKey((baseSprite, overlaySprite)))
             return _mergeSprite[(baseSprite, overlaySprite)];
 
-        Texture2D bt = baseSprite.texture;
-        Texture2D ot = overlaySprite.texture;
+        Texture2D bt = ExtractTexture(baseSprite);
+        Texture2D ot = ExtractTexture(overlaySprite);
 
         int w = bt.width;
         int h = bt.height;
@@ -316,7 +313,32 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
         float ppu = baseSprite.pixelsPerUnit > 0 ? baseSprite.pixelsPerUnit : 100f;
         Sprite result = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.FullRect);
-        _mergeSprite[(baseSprite, overlaySprite)] = result;
+
         return result;
+    }
+
+    public Texture2D ExtractTexture(Sprite sprite, FilterMode filter = FilterMode.Point)
+    {
+        if (sprite == null) throw new ArgumentNullException(nameof(sprite));
+
+        // 스프라이트가 차지하는 실제 사각형(픽셀 단위, 텍스처 공간)
+        Rect r = sprite.textureRect;
+        int x = Mathf.FloorToInt(r.x);
+        int y = Mathf.FloorToInt(r.y);
+        int w = Mathf.RoundToInt(r.width);
+        int h = Mathf.RoundToInt(r.height);
+
+        // 원본 텍스처에서 해당 영역 픽셀 읽기 (부분 추출)
+        Color[] pixels;
+        pixels = sprite.texture.GetPixels(x, y, w, h);
+
+        // 새 텍스처 생성 후 복사
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        tex.filterMode = filter;
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.SetPixels(pixels);
+        tex.Apply(false);
+
+        return tex;
     }
 }
