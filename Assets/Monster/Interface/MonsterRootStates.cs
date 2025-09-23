@@ -173,7 +173,7 @@ public sealed class MonsterDetectState : IMonsterState
         // “전투 조건 2초 연속 유지” 감시 시작
         StartAggroWatcherAsync(cts.Token).Forget();
     }
-    public void Tick()
+    public async void Tick()
     {
         if (ctx.isCombat)
         {
@@ -197,6 +197,10 @@ public sealed class MonsterDetectState : IMonsterState
         // 1순위 : 던진 오브젝트 감지
         if (ctx.CanHearThrowObject(ctx.data.sightDistance, out var noisePos))
         {
+            Vector2 dir = (noisePos - ctx.transform.position).normalized;
+            ctx.agent.isStopped = true;
+            await ctx.SetForward(dir);
+            ctx.agent.isStopped = false;
             ctx.agent.speed = ctx.data.detectSpeed;
             ctx.agent.SetDestination(noisePos);
             ctx.anim.Play("Walk");
