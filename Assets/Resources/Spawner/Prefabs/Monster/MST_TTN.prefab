@@ -357,8 +357,8 @@ GameObject:
   - component: {fileID: 7316859947356465902}
   - component: {fileID: 4254575406660547895}
   - component: {fileID: 2792765607173353309}
-  - component: {fileID: 208910127237641683}
   - component: {fileID: -7543886781866867926}
+  - component: {fileID: -1077725683521299190}
   m_Layer: 20
   m_Name: MST_TTN
   m_TagString: Monster
@@ -593,7 +593,7 @@ Animator:
   m_GameObject: {fileID: 5301721580680312565}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c3bf8ca8cb43c814eb3f0e594702e935, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4b2385749222a4f46aecee0e107ee1fb, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -644,27 +644,6 @@ MonoBehaviour:
   popOnChange: 1
   popScale: 1.15
   popTime: 0.08
---- !u!114 &208910127237641683
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5301721580680312565}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb99c2f5267c4aa4c874c0d1ac190c5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 7316859947356465902}
-  spriteRenderer: {fileID: 2336356273613632000}
-  prefix: hound
-  frontKey: front
-  backKey: back
-  sideKey: side
-  idleKey: idle
-  walkKey: walk
-  runKey: run
 --- !u!114 &-7543886781866867926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -678,7 +657,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players:
-  - {fileID: 208910127237641683}
+  - {fileID: 0}
+--- !u!114 &-1077725683521299190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5301721580680312565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9a3ff5c4ee19b94c8decc739eb0e4d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 7316859947356465902}
+  spriteRenderer: {fileID: 2336356273613632000}
+  useDirectionOn: 0
+  prefix: titan
+  idleKey: idle
+  walkKey: walk
+  runKey: run
+  frontKey: front
+  backKey: back
+  sideKey: side
 --- !u!1 &7667273431447154749
 GameObject:
   m_ObjectHideFlags: 0

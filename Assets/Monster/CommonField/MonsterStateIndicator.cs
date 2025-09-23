@@ -6,7 +6,7 @@ public enum MonsterStateTag
 {
     None,
     Idle, Detect, Flee, Special, Trace, Return, Stun, SearchWander, Killed,
-    CombatMove, CombatAttack
+    CombatMove, CombatAttack, SpinAttack
 }
 
 /// 몬스터 머리 위에 상태 아이콘을 띄우는 전담 컴포넌트
