@@ -657,7 +657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players:
-  - {fileID: 0}
+  - {fileID: -1077725683521299190}
 --- !u!114 &-1077725683521299190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,6 +677,7 @@ MonoBehaviour:
   idleKey: idle
   walkKey: walk
   runKey: run
+  spinAttackKey: spinAttack
   frontKey: front
   backKey: back
   sideKey: side

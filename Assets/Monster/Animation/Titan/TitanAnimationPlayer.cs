@@ -16,6 +16,7 @@ public sealed class TitanAnimationPlayer : AnimationPlayerBase
     public string idleKey = "idle";
     public string walkKey = "walk";
     public string runKey = "run";
+    public string preSpinAttackKey = "preSpinAttack";
     public string spinAttackKey = "spinAttack";
 
     [Header("Direction Keys (optional)")]
@@ -100,6 +101,7 @@ public sealed class TitanAnimationPlayer : AnimationPlayerBase
             case MonsterStateTag.CombatMove:
             case MonsterStateTag.CombatAttack:
             case MonsterStateTag.Flee: return runKey;
+            case MonsterStateTag.PreSpinAttack: return preSpinAttackKey;
             case MonsterStateTag.SpinAttack: return spinAttackKey;
             default: return null;
         }

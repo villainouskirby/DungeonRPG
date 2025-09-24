@@ -25,7 +25,7 @@ public class TitanSpinAttackSO : AttackBehaviourSO
     {
         // 준비
         ctx.SafeStopAgent();
-        ctx.anim.Play("SpinPrep");
+        ctx.animationHub?.SetTag(MonsterStateTag.PreSpinAttack, ctx);
         yield return new WaitForSeconds(windup);
 
         // 시전

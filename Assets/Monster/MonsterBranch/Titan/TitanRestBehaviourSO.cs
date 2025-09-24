@@ -12,7 +12,7 @@ public class TitanRestSO : AttackBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         ctx.SafeStopAgent();
-        ctx.anim.Play("Rest"); // 없으면 Idle로 대체해도 됨
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
 
         float t = 0f;
         while (t < restSeconds)
