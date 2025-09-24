@@ -1,34 +1,40 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PotionItemData : CountableItemData
 {
-    public float Percentage => percentage;
-    public float Duration => duration;
-    public float Healamount => healamount;
+    public enum PotionType
+    {
+        None,
+        Heal,
+        Add,
+        Remove
+    }
 
-    [SerializeField] private float percentage;
+    public int EffectAmount => _potionInfo.effect;
+    public float EffectDuration => _potionInfo.duration;
+    public PotionType EffectType => _effectType;
+    public string EffectName => _potionInfo.buff;
 
-    [SerializeField] private float duration;
 
-    [SerializeField] private float healamount;
+    [SerializeField] private PotionType _effectType;
 
-    public Dictionary<string, Item_Info_Item> PotionDic;
+    public Item_Info_Potion PotionInfo => _potionInfo;
+
+    [SerializeReference] private Item_Info_Potion _potionInfo;
+
+    // public Dictionary<string, Item_Info_Item> PotionDic;
     public PotionItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {
-        
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        _potionInfo = Array.Find(Item_Info.Potion, potion => potion.id == info.id);
+        _effectType = _potionInfo.type switch
+        {
+            "heal" => PotionType.Heal,
+            "add" => PotionType.Add,
+            "remove" => PotionType.Remove,
+            _ => PotionType.None
+        };
     }
 
     public override Item Createitem()

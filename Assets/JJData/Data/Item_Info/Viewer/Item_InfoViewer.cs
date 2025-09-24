@@ -6,8 +6,8 @@ using UnityEngine;
 public  class Item_InfoViewer : MonoBehaviour
 {
     public Item_Info_Item[] ItemDataViewer;
-    public Item_Info_ThrowItem[] ThrowItemDataViewer;
-    public Item_Info_DropItem[] DropItemDataViewer;
+    public Item_Info_MiscItem[] MiscItemDataViewer;
+    public Item_Info_ThrowableItem[] ThrowableItemDataViewer;
     public Item_Info_Weapon[] WeaponDataViewer;
     public Item_Info_Armor[] ArmorDataViewer;
     public Item_Info_Backpack[] BackpackDataViewer;
@@ -18,8 +18,8 @@ public  class Item_InfoViewer : MonoBehaviour
     void Start()
     {
         ItemDataViewer = Item_Info.Item;
-        ThrowItemDataViewer = Item_Info.ThrowItem;
-        DropItemDataViewer = Item_Info.DropItem;
+        MiscItemDataViewer = Item_Info.MiscItem;
+        ThrowableItemDataViewer = Item_Info.ThrowableItem;
         WeaponDataViewer = Item_Info.Weapon;
         ArmorDataViewer = Item_Info.Armor;
         BackpackDataViewer = Item_Info.Backpack;

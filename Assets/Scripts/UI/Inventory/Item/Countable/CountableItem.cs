@@ -1,9 +1,10 @@
 using System;
+using UnityEngine;
 
 /// <summary> 셀 수 있는 아이템 </summary>
 public abstract class CountableItem : Item
 {
-    public CountableItemData CountableData { get { return (CountableItemData)_data; } private set { _data = value; } }
+    public CountableItemData CountableData => Data as CountableItemData;
 
     /// <summary> 현재 아이템 개수 </summary>
     public int Amount;
@@ -16,13 +17,7 @@ public abstract class CountableItem : Item
 
     public CountableItem(CountableItemData data, int amount = 1) : base(data)
     {
-        CountableData = data;
         SetAmount(amount);
-    }
-
-    public CountableItem()
-    {
-
     }
 
     /// <summary> 개수 지정(범위 제한)</summary>

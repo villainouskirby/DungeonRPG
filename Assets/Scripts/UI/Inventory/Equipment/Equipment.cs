@@ -10,8 +10,6 @@ public class Equipment : MonoBehaviour, ISave
 
     private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
 
-    // TODO => _playerEquipments를 저장할곳 생성 및 Init기능 만들기
-
     public void Equip(EquipmentItemData equipmentItemData)
     {
         EquipmentType type = equipmentItemData.EquipmentType;

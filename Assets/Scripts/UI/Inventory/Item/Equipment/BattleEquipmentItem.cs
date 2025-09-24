@@ -1,8 +1,7 @@
 public abstract class BattleEquipmentItem : EquipmentItem
 {
-    public BattleEquipmentItemData BattleEquipmentData { get; private set; }
+    public BattleEquipmentItemData BattleEquipmentData => Data as BattleEquipmentItemData;
     protected BattleEquipmentItem(BattleEquipmentItemData data) : base(data)
     {
-        BattleEquipmentData = data;
     }
 }

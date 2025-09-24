@@ -13,6 +13,10 @@ public  class Item_Info_Potion
     /// </summary>
     public int effect;
     /// <summary>
+    /// 지속 시간
+    /// </summary>
+    public float duration;
+    /// <summary>
     /// 포션 종류
     /// </summary>
     public string type;

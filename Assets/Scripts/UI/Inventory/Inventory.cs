@@ -34,8 +34,7 @@ public class Inventory : MonoBehaviour, ISave
     protected int GetEquipmentItemIndex() => 0;
     protected int GetUsableItemIndex() => _slotCountDict[ItemType.Equipment];
     protected int GetPotionItemIndex() => GetUsableItemIndex() + _slotCountDict[ItemType.Usable];
-    protected int GetIngredientItemIndex() => GetPotionItemIndex() + _slotCountDict[ItemType.Potion];
-    protected int GetOthersItemIndex() => GetIngredientItemIndex() + _slotCountDict[ItemType.Ingredient];
+    protected int GetOthersItemIndex() => GetPotionItemIndex() + _slotCountDict[ItemType.Potion];
 
     /// <returns> 총 아이템(슬롯)수 </returns>
     public int GetItemsCount()
@@ -84,9 +83,9 @@ public class Inventory : MonoBehaviour, ISave
         {
             EquipmentItem => ItemType.Equipment,
             PotionItem => ItemType.Potion,
+            ResourceItem => ItemType.Others,
             IUsableItem => ItemType.Usable,
-            IngredientItem => ItemType.Ingredient,
-            _ => ItemType.Ingredient,
+            _ => ItemType.Others,
         };
     }
 
@@ -105,7 +104,6 @@ public class Inventory : MonoBehaviour, ISave
         _indexDict[ItemType.Equipment] = GetEquipmentItemIndex;
         _indexDict[ItemType.Usable] = GetUsableItemIndex;
         _indexDict[ItemType.Potion] = GetPotionItemIndex;
-        _indexDict[ItemType.Ingredient] = GetIngredientItemIndex;
         _indexDict[ItemType.Others] = GetOthersItemIndex;
 
         UpdateWeightText();
@@ -174,21 +172,19 @@ public class Inventory : MonoBehaviour, ISave
 
             case PotionItem:
                 startIndex = _indexDict[ItemType.Potion]();
-                endIndex = _indexDict[ItemType.Ingredient]();
+                endIndex = _indexDict[ItemType.Others]();
                 break;
+
+            case ResourceItem:
+                goto default;
 
             case IUsableItem:
                 startIndex = _indexDict[ItemType.Usable]();
                 endIndex = _indexDict[ItemType.Potion]();
                 break;
 
-            case IngredientItem:
-                startIndex = _indexDict[ItemType.Ingredient]();
-                endIndex = _items.Count;
-                break;
-
             default:
-                startIndex = _indexDict[ItemType.All]();
+                startIndex = _indexDict[ItemType.Others]();
                 endIndex = _items.Count;
                 break;
         }

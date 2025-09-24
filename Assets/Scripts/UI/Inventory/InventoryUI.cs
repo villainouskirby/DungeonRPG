@@ -11,8 +11,7 @@ public class InventoryUI : SlotInteractHandler
         Equipment = 1,
         Usable = 2,
         Potion = 3,
-        Ingredient = 4,
-        Others = 5
+        Others = 4
     }
 
     [Header("Scripts")]
@@ -35,7 +34,6 @@ public class InventoryUI : SlotInteractHandler
     private Dictionary<TabType, List<InventoryItemSlotUI>> _itemSlotsDict = new();
     private Dictionary<TabType, Transform> _contentsDict = new();
 
-    private List<InventoryItemSlotUI> _itemSlots = new();
     private PlayerController _playerController;
 
     [Header("중량 패널티 설정")]

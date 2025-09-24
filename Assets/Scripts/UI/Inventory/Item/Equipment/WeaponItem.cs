@@ -1,9 +1,8 @@
 public class WeaponItem : BattleEquipmentItem
 {
-    public WeaponItemData WeaponData {  get; private set; }
+    public WeaponItemData WeaponData => Data as WeaponItemData;
     public WeaponItem(WeaponItemData data) : base(data)
     {
-        WeaponData = data;
     }
 
     public override Item Clone()

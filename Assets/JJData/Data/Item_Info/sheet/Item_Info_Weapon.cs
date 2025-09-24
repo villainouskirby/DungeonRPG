@@ -37,14 +37,6 @@ public  class Item_Info_Weapon
     /// </summary>
     public float strong_speed;
     /// <summary>
-    /// 가드 성능
-    /// </summary>
-    public float guard_ratio;
-    /// <summary>
-    /// 저스트 가드 성능
-    /// </summary>
-    public float just_guard;
-    /// <summary>
     /// 수리 비용
     /// </summary>
     public int repair_cost;
@@ -57,7 +49,19 @@ public  class Item_Info_Weapon
     /// </summary>
     public int repair_ing_count;
     /// <summary>
-    /// 설명
+    /// 가드 가능
     /// </summary>
-    public string Explanation;
+    public bool isGuard;
+    /// <summary>
+    /// 가드 성능
+    /// </summary>
+    public float guard_ratio;
+    /// <summary>
+    /// 저스트 가드 성능
+    /// </summary>
+    public float just_guard;
+    /// <summary>
+    /// 강공격 가능
+    /// </summary>
+    public bool isStrong;
 }

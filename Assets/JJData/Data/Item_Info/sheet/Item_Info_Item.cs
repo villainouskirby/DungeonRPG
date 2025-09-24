@@ -45,10 +45,6 @@ public  class Item_Info_Item
     /// </summary>
     public bool usable;
     /// <summary>
-    /// 아이템 장착가능 여부
-    /// </summary>
-    public bool wearable;
-    /// <summary>
     /// 파우치 등록 여부
     /// </summary>
     public bool pouchable;
@@ -57,7 +53,7 @@ public  class Item_Info_Item
     /// </summary>
     public bool sellable;
     /// <summary>
-    /// 아이템 상세정보 DT
+    /// 설명
     /// </summary>
-    public string PAR_DT;
+    public string Explanation;
 }

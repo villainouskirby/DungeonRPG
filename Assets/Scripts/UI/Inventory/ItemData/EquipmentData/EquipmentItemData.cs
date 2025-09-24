@@ -4,10 +4,8 @@ using UnityEngine;
 public abstract class EquipmentItemData : ItemData
 {
     public EquipmentType EquipmentType => _equipmentType;
-    public int Rank => _rank;
 
-    [SerializeField] private EquipmentType _equipmentType;
-    [SerializeField] private int _rank;
+    [SerializeField] protected EquipmentType _equipmentType;
 
     protected EquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {

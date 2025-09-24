@@ -20,8 +20,4 @@ public  class Item_Info_Backpack
     /// 회피 강화
     /// </summary>
     public bool judge;
-    /// <summary>
-    /// 설명
-    /// </summary>
-    public string Explanation;
 }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public  class Item_Info_ThrowItem
+public  class Item_Info_ThrowableItem
 {
     /// <summary>
     /// 아이템 id
@@ -24,8 +24,4 @@ public  class Item_Info_ThrowItem
     /// 소리 범위
     /// </summary>
     public float sound_range;
-    /// <summary>
-    /// 설명
-    /// </summary>
-    public string Explanation;
 }

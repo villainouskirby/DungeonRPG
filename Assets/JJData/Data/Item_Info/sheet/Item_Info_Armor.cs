@@ -24,8 +24,4 @@ public  class Item_Info_Armor
     /// 은신 레벨
     /// </summary>
     public int hiding;
-    /// <summary>
-    /// 설명
-    /// </summary>
-    public string Explanation;
 }

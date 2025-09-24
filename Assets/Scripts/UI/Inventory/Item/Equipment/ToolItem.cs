@@ -1,10 +1,9 @@
 public class ToolItem : EquipmentItem
 {
-    public ToolItemData ToolData { get; private set; }
+    public ToolItemData ToolData => Data as ToolItemData;
 
     public ToolItem(ToolItemData data) : base(data)
     {
-        ToolData = data;
     }
 
     public override Item Clone()
