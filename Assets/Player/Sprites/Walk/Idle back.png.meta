@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d8136bca22cac3941b5dc9b1e0dfc858
+guid: 357f540689bb6d345815bdba58e48c64
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Walk_front_0
+      name: Idle back_0
       rect:
         serializedVersion: 2
         x: 9
-        y: 8
+        y: 6
         width: 14
-        height: 23
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,14 +124,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b3d3e57353be41e40a95f2cf96cd31f3
-      internalID: -955572333
+      spriteID: 3e09e342f84b1e04cba6b5dad81848d0
+      internalID: 1424523209
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_front_1
+      name: Idle back_1
       rect:
         serializedVersion: 2
         x: 41
@@ -145,18 +145,18 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3eefe770bfc25844dad29ad58415672b
-      internalID: 1520715301
+      spriteID: 7a2ce97ed1dc36040860e510488d1b3c
+      internalID: -854312238
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_front_2
+      name: Idle back_2
       rect:
         serializedVersion: 2
         x: 73
-        y: 7
+        y: 6
         width: 14
         height: 24
       alignment: 0
@@ -166,20 +166,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 81354d9839b345747a114e32d9e91682
-      internalID: -1680196235
+      spriteID: 9febc1ce18244534a8381b8703970f06
+      internalID: -673896842
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_front_3
+      name: Idle back_3
       rect:
         serializedVersion: 2
         x: 105
-        y: 8
+        y: 6
         width: 14
-        height: 23
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -187,14 +187,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 726ab51a4aa1a144a8af91f1899e3389
-      internalID: 1396492445
+      spriteID: 73ff0f0a88bc07f459529a7dfeb209bc
+      internalID: -371290971
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_front_4
+      name: Idle back_4
       rect:
         serializedVersion: 2
         x: 137
@@ -208,18 +208,60 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4e8f651f5f783242a0f88287154e279
-      internalID: -730721925
+      spriteID: e87a29e0cc0e77e40b40500f8d585a96
+      internalID: -47726398
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_front_5
+      name: Idle back_5
       rect:
         serializedVersion: 2
         x: 169
-        y: 7
+        y: 6
+        width: 14
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b22bad417b7051948bcbcaff47c9b1db
+      internalID: -492145932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle back_6
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 6
+        width: 14
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b36a90b677fdce343a7a4c7415726506
+      internalID: -425868130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle back_7
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 6
         width: 14
         height: 24
       alignment: 0
@@ -229,8 +271,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e3c030dd143230740b75607a0dfa7e4c
-      internalID: -644031009
+      spriteID: 52b2741c3e03ad5409884d7ee6d0d1a7
+      internalID: 1825196524
       vertices: []
       indices: 
       edges: []
@@ -246,12 +288,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Walk_front_0: -955572333
-      Walk_front_1: 1520715301
-      Walk_front_2: -1680196235
-      Walk_front_3: 1396492445
-      Walk_front_4: -730721925
-      Walk_front_5: -644031009
+      Idle back_0: 1424523209
+      Idle back_1: -854312238
+      Idle back_2: -673896842
+      Idle back_3: -371290971
+      Idle back_4: -47726398
+      Idle back_5: -492145932
+      Idle back_6: -425868130
+      Idle back_7: 1825196524
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
