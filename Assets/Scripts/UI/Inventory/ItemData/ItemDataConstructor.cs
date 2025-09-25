@@ -6,6 +6,8 @@ namespace ItemUtility
     {
         public static ItemData GetItemData(Item_Info_Item rawData)
         {
+            if (rawData == null) return null;
+
             ItemData itemData;
 
             switch (rawData.type)

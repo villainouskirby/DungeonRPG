@@ -42,25 +42,25 @@ public class InventoryTest : MonoBehaviour
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         PotionItemData itemData = new(ItemDic["ITM_POT_001"], tempPotion1);
-        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
     }
     public void AddPotion2()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         PotionItemData itemData = new(ItemDic["ITM_POT_002"], tempPotion2);
-        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
     }
     public void AddStoneItem()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock, "PAR_MIN_ROC");
-        UIPopUpHandler.Instance.InventoryScript.AddItem(itemData);
+        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
     }
 
     public void AddDropItem()
     {
         var a = DropTableUtil.GetDropItemFromTable("ITM_MIN_CPR/100/2/3");
-        UIPopUpHandler.Instance.InventoryScript.AddItem(a.data, a.amount);
+        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(a.data, a.amount);
     }
     public void AddInventory(ItemData data)
     {

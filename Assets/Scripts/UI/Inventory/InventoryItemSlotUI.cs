@@ -8,7 +8,9 @@ using UnityEngine.UI;
 public class InventoryItemSlotUI : ItemSlotUI
 {
     [SerializeField] private Image _slotBackground;
+    [SerializeField] private GameObject[] _detailAbilityObjects;
     [SerializeField] private TextMeshProUGUI _tierText;
+    [SerializeField] private TextMeshProUGUI _explanationText;
 
     [Header("Slider")]
     [SerializeField] private RectTransform _viewport;
@@ -20,6 +22,7 @@ public class InventoryItemSlotUI : ItemSlotUI
     [SerializeField] private float _slideSpeed = 10;
     [SerializeField] private float _slideInterval = 0.1f;
 
+    private TextMeshProUGUI[] _detailAbilityTexts;
     private bool _isDetailOn = false;
 
     private float _viewportWidth;
@@ -30,11 +33,51 @@ public class InventoryItemSlotUI : ItemSlotUI
     private void Start()
     {
         _viewportWidth = _detailArea.sizeDelta.x;
+
+        _detailAbilityTexts = new TextMeshProUGUI[_detailAbilityObjects.Length];
+        
+        for (int i = 0; i < _detailAbilityTexts.Length; i++)
+        {
+            _detailAbilityTexts[i] = _detailAbilityObjects[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        }
     }
 
-    public void SetItemDetail(string tier)
+    public void SetItemDetail(ItemData data)
     {
-        _tierText.text = tier;
+        _tierText.text = data.Info.rank.ToString();
+        _explanationText.text = data.Info.Explanation;
+
+        int activatedDetailCnt = 0;
+
+        switch (data)
+        {
+            case WeaponItemData:
+                _detailAbilityTexts[0].text = "공격력 : " + (data as WeaponItemData).WeaponInfo.atk.ToString();
+                activatedDetailCnt = 1;
+
+                break;
+
+            case SubWeaponItemData:
+                _detailAbilityTexts[0].text = "채집 레벨 : " + (data as SubWeaponItemData).SubWeaponInfo.count.ToString();
+                activatedDetailCnt = 1;
+
+                break;
+
+            case ArmorItemData:
+                Item_Info_Armor armorInfo = (data as ArmorItemData).ArmorInfo;
+
+                _detailAbilityTexts[0].text = "체력 : " + armorInfo.hp.ToString();
+                _detailAbilityTexts[1].text = "스태미너 : " + armorInfo.stamina.ToString();
+                activatedDetailCnt = 2;
+
+                break;
+        }
+
+
+        for (int i = activatedDetailCnt; i < _detailAbilityObjects.Length; i++)
+        {
+            _detailAbilityObjects[i].SetActive(false);
+        }
     }
 
     [ContextMenu("Slide")]

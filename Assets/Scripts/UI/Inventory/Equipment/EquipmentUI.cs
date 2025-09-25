@@ -8,19 +8,19 @@ public class EquipmentUI : SlotInteractHandler
 
     [Header("SlotUIs")]
     [SerializeField] private EquipmentSlotUI _weaponSlot;
-    [SerializeField] private EquipmentSlotUI _toolSlot;
-    [SerializeField] private EquipmentSlotUI _bodyArmorSlot;
-    [SerializeField] private EquipmentSlotUI _legArmorSlot;
+    [SerializeField] private EquipmentSlotUI _subWeaponSlot;
+    [SerializeField] private EquipmentSlotUI _ArmorSlot;
+    [SerializeField] private EquipmentSlotUI _backpackSlot;
 
-    public void SetEquipmentSlot(EquipmentType type, Sprite iconSprite)
+    public void SetEquipmentSlot(Equipment.EquipmentType type, Sprite iconSprite)
     {
         SlotUI slot = type switch
         {
-            EquipmentType.weapon => _weaponSlot,
-            EquipmentType.tool => _toolSlot,
-            EquipmentType.bodyArmor => _bodyArmorSlot,
-            EquipmentType.legArmor => _legArmorSlot,
-            _ => _toolSlot
+            Equipment.EquipmentType.Weapon => _weaponSlot,
+            Equipment.EquipmentType.SubWeapon => _subWeaponSlot,
+            Equipment.EquipmentType.Armor => _ArmorSlot,
+            Equipment.EquipmentType.Backpack => _backpackSlot,
+            _ => _backpackSlot
         };
 
         slot.SetItemInfo(iconSprite);
@@ -32,13 +32,13 @@ public class EquipmentUI : SlotInteractHandler
     }
 
     /// <returns> 타입에 맞는 현재 장착하고 있는 장비 데이터 </returns>
-    public ItemData GetItemData(EquipmentType type)
+    public ItemData GetItemData(Equipment.EquipmentType type)
     {
         return _equipment.GetItemData(type);
     }
 
     /// <returns> 해당 슬롯의 장비 타입 </returns>
-    private EquipmentType GetSlotEquipmentType(EquipmentSlotUI slot)
+    private Equipment.EquipmentType GetSlotEquipmentType(EquipmentSlotUI slot)
     {
         return slot.EquipmentType;
     }

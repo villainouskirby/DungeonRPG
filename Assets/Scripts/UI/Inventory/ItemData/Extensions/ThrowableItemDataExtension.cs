@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace ItemDataExtensions
 {
@@ -11,7 +12,7 @@ namespace ItemDataExtensions
 
         public Item_Info_ThrowableItem ThrowItemData => _throwItemData;
 
-        private Item_Info_ThrowableItem _throwItemData;
+        [SerializeReference] private Item_Info_ThrowableItem _throwItemData;
 
         public ThrowableItemDataExtension(string id)
         {

@@ -1,8 +1,10 @@
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public abstract class EquipmentItem : Item, ISyncUsableItem
 {
     public EquipmentItemData EquipmentData => Data as EquipmentItemData;
+    public bool IsEquipped = false;
 
     public EquipmentItem(EquipmentItemData data) : base(data)
     {

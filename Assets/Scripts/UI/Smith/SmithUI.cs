@@ -31,17 +31,17 @@ public class SmithUI : SlotInteractHandler
     /// 대장장이 카테고리
     /// <para/> bodyArmor legArmor를 합쳐서 bodyArmor로 표현해 방어구 카테고리를 나타냄
     /// </summary>
-    private EquipmentType _category;
-    public EquipmentType Category => _category;
+    private Equipment.EquipmentType _category;
+    public Equipment.EquipmentType Category => _category;
 
     private List<SmithSlotUI> _armorSlots = new List<SmithSlotUI>();
     private List<SmithSlotUI> _weaponSlots = new List<SmithSlotUI>();
     private List<SmithSlotUI> _toolSlots = new List<SmithSlotUI>();
     private List<SmithSlotUI> _exposedSlots => _category switch
     {
-        EquipmentType.bodyArmor => _armorSlots,
-        EquipmentType.weapon => _weaponSlots,
-        EquipmentType.tool => _toolSlots,
+        Equipment.EquipmentType.Armor => _armorSlots,
+        Equipment.EquipmentType.Weapon => _weaponSlots,
+        Equipment.EquipmentType.Backpack => _toolSlots,
         _ => _armorSlots
     };
 
@@ -51,7 +51,7 @@ public class SmithUI : SlotInteractHandler
     {
         base.Awake();
 
-        _category = EquipmentType.bodyArmor;
+        _category = Equipment.EquipmentType.Armor;
 
         _currentContent = _armorContent.gameObject;
 

@@ -1,80 +1,59 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Core;
 
-public class UIPopUpHandler : MonoBehaviour
+public class UIPopUpHandler : Singleton<UIPopUpHandler>
 {
-    [SerializeField] private GameObject _inventory;
-    [SerializeField] private GameObject _shop;
-    [SerializeField] private GameObject _storage;
-    [SerializeField] private GameObject _quest;
-    [SerializeField] private GameObject _smith;
-
-    private Inventory _inventoryScript;
-    public Inventory InventoryScript => _inventoryScript;
-    private Shop _shopScript;
-    private Storage _storageScript;
-
-    private GameObject _openUI;
-
-    private static UIPopUpHandler _instance;
-    public static UIPopUpHandler Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                Debug.Log("인스턴스가 존재하지 않음");
-            }
-            return _instance;
-        }
-    }
-
-    private void Awake()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void Start()
-    {
-        _inventoryScript = _inventory.GetComponent<Inventory>();
-        _shopScript = _shop.GetComponent<Shop>();
-        _storageScript = _storage.GetComponent<Storage>();
-
-        InitAllUI();
-    }
+    private Dictionary<Type, UIBase> _uiDict = new(); // 등록된 UI들 inspector에서 참조말고 여기서 불러오는 식으로 다 바꿔야 할듯
+    private UIBase _openUI;
 
     private void Update()
     {
+        if (Input.GetKey(KeyCode.Tab))
+        {
+            OpenUI<Inventory>();
+        }
+
+        if (Input.GetKey(KeyCode.Alpha1))
+        {
+            OpenUI<Quest>();
+        }
+
+        if (Input.GetKey(KeyCode.Alpha2))
+        {
+            // OpenUI<Map>();
+        }
+
+        if (Input.GetKey(KeyCode.Alpha3))
+        {
+            // OpenUI<Document>();
+        }
+
         if (Input.GetKey(KeyCode.Escape))
         {
             CloseUI();
         }
     }
 
-    private void InitAllUI()
+    public void RegisterUI<T>(T ui) where T : UIBase
     {
-        _inventory.SetActive(true);
-        //_shop.SetActive(true);
-        _storage.SetActive(true);
-        _quest.SetActive(true);
-        _smith.SetActive(true);
-
-        _inventory.SetActive(false);
-        //_shop.SetActive(false);
-        _storage.SetActive(false);
-        _quest.SetActive(false);
-        _smith.SetActive(false);
+        _uiDict[typeof(T)] = ui;
     }
 
-    private void OpenUI(GameObject ui)
+    public T GetUI<T>() where T : UIBase
     {
-        if (_openUI != null && _openUI.activeSelf) return;
+        if (!_uiDict.TryGetValue(typeof(T), out var ui)) return null;
+
+        return ui as T;
+    }
+
+    public void OpenUI<T>() where T : UIBase
+    {
+        UIBase ui;
+
+        if (_openUI != null && _openUI.ActiveSelf) return;
+        if ((ui = GetUI<T>()) == null) return;
 
         ui.SetActive(true);
         _openUI = ui;
@@ -88,6 +67,7 @@ public class UIPopUpHandler : MonoBehaviour
         _openUI = null;
     }
 
+    /*
     /// <summary> 인벤토리 열기 </summary>
     public void OpenInventory() // TODO => 매번 호출할때마다 초기화시키는건 비효율적인데 뭔가 개선방안이 필요할듯
     {
@@ -113,5 +93,5 @@ public class UIPopUpHandler : MonoBehaviour
     public void OpenQuest() => OpenUI(_quest);
 
     /// <summary> 대장장이 UI 열기</summary>
-    public void OpenSmith() => OpenUI(_smith);
+    public void OpenSmith() => OpenUI(_smith); */
 }

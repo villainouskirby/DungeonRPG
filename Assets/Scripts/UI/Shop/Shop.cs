@@ -1,15 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shop : MonoBehaviour
+public class Shop : UIBase
 {
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ShopUI _shopUI;
 
     private List<Item> _shopItems = new(); // db에서 판매목록 리스트 가져와야함
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         // db에서 상점데이터 가져오기
         InitShop();
     }
@@ -34,6 +36,11 @@ public class Shop : MonoBehaviour
     public void AddShopItem(Item item)
     {
         _shopItems.Add(item);
+    }
+
+    protected override void InitBase()
+    {
+        UIPopUpHandler.Instance.RegisterUI(this);
     }
 
     /// <summary>

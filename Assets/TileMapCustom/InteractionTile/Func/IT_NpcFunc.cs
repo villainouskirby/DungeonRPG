@@ -61,13 +61,13 @@ public class IT_NpcFunc : MonoBehaviour
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {
                 case NPC.A:
-                    UIPopUpHandler.Instance.OpenSmith();
+                    UIPopUpHandler.Instance.OpenUI<Smith>();
                     break;
                 case NPC.B:
-                    UIPopUpHandler.Instance.OpenShop();
+                    UIPopUpHandler.Instance.OpenUI<Shop>();
                     break;
                 case NPC.C:
-                    UIPopUpHandler.Instance.OpenQuest();
+                    UIPopUpHandler.Instance.OpenUI<Quest>();
                     break;
             }
         }
