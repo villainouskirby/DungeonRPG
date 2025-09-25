@@ -197,6 +197,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (attackController && attackController.IsInAttackAnimation) { return; }
 
+        var cur = stateMachine.GetCurrentState();
         string clip = moving
             ? facingDir switch
             {
@@ -210,6 +211,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 1 => "Idle_front",
                 _ => "Idle_side"
             };
+        if (cur is RunState)
+        {
+            clip = facingDir switch
+            {
+                0 => "Run_back",
+                1 => "Run_front",
+                _ => "Run_side"
+            };
+        }
         anim.Play(clip);
     }
     
