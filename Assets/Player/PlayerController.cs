@@ -239,7 +239,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         {
             // 0이면 그대로 1로, 아닐 때는 비율로 조절
             targetAnimSpeed = targetSpeed > 0.01f
-            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 2.0f)
+            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 1f)
             : 1f; // Idle은 1배속                                           // Idle은 1배속
         }
         else
