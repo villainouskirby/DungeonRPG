@@ -47,9 +47,14 @@ public class MapManager : MonoBehaviour, ITileMapBase
         _mappingBuffer.SetData(CM.Instance.GetMappingArray());
     }
 
-    public void ChangeMapData( int layer)
+    public void ChangeMapData(int layer)
     {
-        ChangeMapDataBuffer(_layerBuffer[layer]);
+        ChangeMapDataBuffer(_layerBuffer[layer], layer);
+    }
+
+    public void ChangeHeightData()
+    {
+        ChangeHeightDataBuffer(_heightMapBuffer);
     }
 
 
@@ -64,11 +69,12 @@ public class MapManager : MonoBehaviour, ITileMapBase
             _controller[i] =
             Instantiate(TileMapPrefab, TM.Instance.LayerRoot.transform, false).GetComponent<TileMapController>();
             SetDataBuffer(ref _layerBuffer[i], i);
-            _controller[i].InitTileMap(_layerBuffer[i]);
+            _controller[i].InitTileMap(_layerBuffer[i], i);
             SpriteRenderer rd = _controller[i].GetComponent<SpriteRenderer>();
             rd.sortingOrder = DL.Instance.All.TileMapLayerInfo[i].LayerIndex;
             _controller[i].transform.position = new(0, 0, DL.Instance.All.TileMapLayerInfo[i].Z);
         }
+        SetHeightBuffer(ref _heightMapBuffer);
 
         SetMappingDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
         SetGlobal();
@@ -83,6 +89,7 @@ public class MapManager : MonoBehaviour, ITileMapBase
     private GraphicsBuffer _visitedMapDataBufferRow;
     private GraphicsBuffer _visitedMapDataBufferColumn;
     private GraphicsBuffer _mappingBuffer;
+    private GraphicsBuffer _heightMapBuffer;
 
     private GraphicsBuffer[] _layerBuffer;
     private TileMapController[] _controller;
@@ -119,6 +126,8 @@ public class MapManager : MonoBehaviour, ITileMapBase
         Shader.SetGlobalBuffer("_MappingBuffer", _mappingBuffer);
         Shader.SetGlobalInt("_CenterChunkX", CM.Instance.LastChunkPos.x);
         Shader.SetGlobalInt("_CenterChunkY", CM.Instance.LastChunkPos.y);
+        Shader.SetGlobalBuffer("_HeightBuffer", _heightMapBuffer);
+        Shader.SetGlobalFloat("_PlayerHeight", 0);
     }
 
     public Texture2DArray CreateTexture2DArray(Texture2D[] tileTexture)
@@ -160,7 +169,11 @@ public class MapManager : MonoBehaviour, ITileMapBase
     /// </summary>
     private void SetDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
-        CM.Instance.GetViewBoxData(layer);
-        SetMapDataBuffer(ref buffer);
+        SetMapDataBuffer(ref buffer, layer);
+    }
+
+    private void SetHeightBuffer(ref GraphicsBuffer buffer)
+    {
+        SetHeightDataBuffer(ref buffer);
     }
 }

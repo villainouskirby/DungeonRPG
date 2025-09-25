@@ -4,7 +4,7 @@ public class TileMapController : MonoBehaviour
 {
     private Material _tileMaterial;
 
-    public void InitTileMap(GraphicsBuffer buffer)
+    public void InitTileMap(GraphicsBuffer buffer, int layer)
     {
         if (_tileMaterial == null)
         {
@@ -14,5 +14,6 @@ public class TileMapController : MonoBehaviour
         }
 
         _tileMaterial.SetBuffer("_MapDataBuffer", buffer);
+        _tileMaterial.SetFloat("_LayerIndex", layer);
     }
 }

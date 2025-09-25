@@ -8,6 +8,7 @@ Shader "Tilemap/LitTilemap"
         _DefaultColor("DefaultColor", color) = (0, 0, 0, 1)
 
         _FogColor       ("Fog Color", Color) = (0.7, 0.8, 1.0, 1)
+        _FogActive      ("Fog Active", float) = 1
         _DistanceStart  ("Dist Fog Start", Float) = 10
         _DistanceEnd    ("Dist Fog End",   Float) = 30
         _DistanceCorrect    ("Dist Fog Correct",   Float) = 5
@@ -81,6 +82,9 @@ Shader "Tilemap/LitTilemap"
             float _DistanceEnd;
             float _DistanceCorrect;
             float4 _FogColor;
+            float _FogActive;
+            float _HeightStrength;
+            float _LayerIndex;
 
             /// TileMap
             // Global
@@ -95,6 +99,7 @@ Shader "Tilemap/LitTilemap"
             int _CurrentHeight;
             float _TileSize;
             float4 _DefaultColor;
+            float _PlayerHeight;
 
             // Matching TileType Texture - _TileTexture[TileType]
             Texture2DArray _TileTexture;
@@ -105,6 +110,9 @@ Shader "Tilemap/LitTilemap"
             // Chunk Mapping
             StructuredBuffer<int> _MappingBuffer;
             /// TileMap
+
+            // HeightMap
+            StructuredBuffer<int> _HeightBuffer;
 
             #if USE_SHAPE_LIGHT_TYPE_0
             SHAPE_LIGHT(0)
@@ -179,6 +187,7 @@ Shader "Tilemap/LitTilemap"
                 float validCoord = step(maxDistance, _ViewBoxSize);
 
                 int index = localChunkOffset * _ChunkSize * _ChunkSize + PosToIndex(localTileIndex, _ChunkSize);
+                int tileHeight = _HeightBuffer[index];
                 index = validCoord * index;
 
                 int tileType = _MapDataBuffer[index];
@@ -193,17 +202,18 @@ Shader "Tilemap/LitTilemap"
                 const half4 main = i.color * targetColor;
                 const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, i.uv);
 
+                int shift = _LayerIndex * 4;
+                tileHeight = (tileHeight >> shift) & 0xF;
                  // Fog Logic
                 float  distXY  = length(_PlayerPos.xy - i.worldPos.xy);
                 distXY += _DistanceCorrect;
                 float  distFog = clamp(distXY, _DistanceStart, _DistanceEnd) / _DistanceEnd;
 
-                // temp
-                //float  heightFog = abs(_ExtHeightFactor - _CurrentHeight);
-                //float  fogFactor = lerp(distFog, heightFog, saturate(_HeightStrength));
-                float fogFactor = distFog;
-
+                float  heightFog = abs(tileHeight - _PlayerHeight);
+                float  fogFactor = lerp(distFog, heightFog, _HeightStrength);
+                fogFactor = distFog;
                 float3 fogedColor = lerp(main.rgb, _FogColor.rgb, fogFactor);
+                fogedColor = lerp(main.rgb, fogedColor, _FogActive);
                 // End Fog Logic
 
                 SurfaceData2D surfaceData;
@@ -212,8 +222,11 @@ Shader "Tilemap/LitTilemap"
                 InitializeSurfaceData(fogedColor.rgb, main.a, mask, surfaceData);
                 InitializeInputData(i.uv, i.lightingUV, inputData);
                 float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
-
-                return lerp(_DefaultColor, lightedColor, valid);
+                
+                //fogedColor = _LayerIndex;
+                float4 resultColor = lerp(float4(fogedColor, main.a), lightedColor, clamp(1 - 0.1 * heightFog, 0, 1));
+                //return lerp(float4(0, 0, 0, 0), float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1), valid);
+                return lerp(_DefaultColor, resultColor, valid);
             }
             ENDHLSL
         }

@@ -117,6 +117,7 @@ public static class SaveManager
             }
 
             JJSave.LSave(mapData.ToArray(), $"{((MapEnum)i).ToString()}_Stream", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
+            JJSave.LSave(oriData.HeightData, $"{((MapEnum)i).ToString()}_Height", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
         }
 
         LoadSaveFileData();

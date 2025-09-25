@@ -14,8 +14,10 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     private static ChunkManager _instance;
 
 
-    public FileStream Stream;
-    public int[] LoadedChunkData;
+    public FileStream MapStream;
+    public FileStream HeightStream;
+    public int[] LoadedChunkMapData;
+    public int[] LoadedChunkHeightData;
     public Dictionary<Vector2Int, int> LoadedChunkIndex;
     public Dictionary<Vector3Int, ChunkGen> CachedChunk;
 
@@ -32,6 +34,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     public int MaxGen = 5;
 
     private byte[] _streamBuffer;
+    private byte[] _heightBuffer;
 
     public class ChunkGen
     {
@@ -47,7 +50,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     private void OnDisable()
     {
-        Stream.Close();
+        MapStream.Close();
+        HeightStream.Close();
     }
 
 
@@ -65,21 +69,33 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         LastChunkPos = GetChunkPos(PlayerMoveChecker.Instance.LastTilePos);
         LoadedChunkIndex.Clear();
         SetViewChunkSize(TM.Instance.ViewBoxSize);
-        LoadedChunkData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
-        ViewBoxBuffer = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
+        LoadedChunkMapData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
+        LoadedChunkHeightData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
         _streamBuffer = new byte[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * 4 + 4];
+        _heightBuffer = new byte[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * 4 + 4];
         CachedChunk.Clear();
 
 
-        string path = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
+        string mapPath = JJSave.GetSavePath($"{mapType.ToString()}_Stream", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
 
-        Stream?.Close();
-        Stream = new FileStream(
-            path,
+        MapStream?.Close();
+        MapStream = new FileStream(
+            mapPath,
             FileMode.Open,
             FileAccess.ReadWrite,
             FileShare.ReadWrite
         );
+
+        string heightPath = JJSave.GetSavePath($"{mapType.ToString()}_Height", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
+
+        HeightStream?.Close();
+        HeightStream = new FileStream(
+            heightPath,
+            FileMode.Open,
+            FileAccess.ReadWrite,
+            FileShare.ReadWrite
+        );
+
 
         PlayerMoveChecker.Instance.AddMoveAction(CheckChunkMove);
     }
@@ -88,6 +104,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         // 맵 시작시 전체 청크 로딩
         UpdateAllChunk(LastChunkPos);
+        Debug.Log("a");
     }
 
     public void SaveMapData()
@@ -95,18 +112,10 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     }
 
-    // 병렬 고려 X 임!
-    public int[] ViewBoxBuffer;
 
-    public void GetViewBoxData(int layerIndex)
+    public int GetViewBoxSize()
     {
-        Array.Copy(
-            LoadedChunkData,
-            GetLayerChunkStartIndex(layerIndex, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
-            ViewBoxBuffer,
-            0,
-            ViewBoxBuffer.Length
-            );
+        return DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize;
     }
 
     public int[] GetMappingArray()
@@ -123,12 +132,14 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         return mapping;
     }
 
+
     public void UpdateAllChunk(Vector2Int playerChunkPos)
     {
         LoadedChunkIndex.Clear();
         CachedChunk.Clear();
         SetViewChunkSize(TM.Instance.ViewBoxSize);
-        LoadedChunkData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
+        LoadedChunkMapData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
+        LoadedChunkHeightData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
         Vector2Int[] allChunk = GetAllChunkIndexInViewBox(_viewChunkSize);
 
         for (int i = 0; i < allChunk.Length; i++)
@@ -139,8 +150,9 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
             {
                 int offset = GetLayerChunkStartIndex(j, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
                 offset += Pos2ArrayIndex(GetLocalChunkPos(allChunk[i], playerChunkPos), _viewChunkSize) * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
-                LoadChunkFromStream(allChunk[i], j).CopyTo(LoadedChunkData.AsSpan(offset));
+                LoadChunkFromStream(allChunk[i], j).CopyTo(LoadedChunkMapData.AsSpan(offset));
             }
+            LoadChunkFromHeight(allChunk[i]).CopyTo(LoadedChunkHeightData.AsSpan(LoadedChunkIndex[allChunk[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
         }
     }
 
@@ -164,27 +176,22 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
             {
                 int offset = GetLayerChunkStartIndex(j, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize);
                 offset += LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
-                LoadChunkFromStream(added[i], j).CopyTo(LoadedChunkData.AsSpan(offset));
+                LoadChunkFromStream(added[i], j).CopyTo(LoadedChunkMapData.AsSpan(offset));
             }
+            LoadChunkFromHeight(added[i]).CopyTo(LoadedChunkHeightData.AsSpan(LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
 
             LoadedChunkIndex.Remove(removed[i]);
             ChunkUnloadAction?.Invoke(removed[i]);
         }
 
         SetMapBuffer();
+        MapManager.Instance.ChangeHeightData();
     }
 
     private void SetMapBuffer()
     {
         for(int i = 0; i < DL.Instance.All.LayerCount; i++)
         {
-            Array.Copy(
-            LoadedChunkData,
-            GetLayerChunkStartIndex(i, DL.Instance.All.ChunkSize, _viewChunkSize, _viewChunkSize),
-            ViewBoxBuffer,
-            0,
-            ViewBoxBuffer.Length
-            );
             MapManager.Instance.ChangeMapData(i);
         }
     }
@@ -247,10 +254,37 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
         Array.Copy(BitConverter.GetBytes(tileCount), 0, _streamBuffer, 0, 4);
         // Byte로 데이터를 읽어오기에 tileCount * 4로 읽어줘야함. Int32 기준
-        Stream.Seek(offset, SeekOrigin.Begin);
-        Stream.Read(_streamBuffer, 4, tileCount * 4);
+        MapStream.Seek(offset, SeekOrigin.Begin);
+        MapStream.Read(_streamBuffer, 4, tileCount * 4);
 
         int[] result = TypeByte2TypeConverter.Convert<int[]>(_streamBuffer);
+
+        return result;
+    }
+
+    public int[] LoadChunkFromHeight(Vector2Int chunkPos)
+    {
+
+        int tileCount = DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
+
+        if (chunkPos.x < 0 || chunkPos.x >= DL.Instance.All.Width || chunkPos.y < 0 || chunkPos.y >= DL.Instance.All.Height)
+        {
+            int[] empty = new int[tileCount];
+            Array.Fill(empty, -1);
+
+            return empty;
+        }
+
+        int offset = 4; // Array Data는 앞에 4의 Header를 가지고 있음, 일단 Layer 시작 지점을 가져옴
+        int chunkIndex = Pos2ArrayIndex(chunkPos, DL.Instance.All.Width);
+        offset += GetChunkStartPos(chunkIndex, DL.Instance.All.ChunkSize) * 4;
+
+        Array.Copy(BitConverter.GetBytes(tileCount), 0, _heightBuffer, 0, 4);
+        // Byte로 데이터를 읽어오기에 tileCount * 4로 읽어줘야함. Int32 기준
+        HeightStream.Seek(offset, SeekOrigin.Begin);
+        HeightStream.Read(_heightBuffer, 4, tileCount * 4);
+
+        int[] result = TypeByte2TypeConverter.Convert<int[]>(_heightBuffer);
 
         return result;
     }
@@ -302,7 +336,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     private int LoadTileFromViewBox(Vector2Int tilePos, int layerIndex)
     {
-        return LoadedChunkData[GetIndexInViewBox(tilePos, layerIndex)];
+        return LoadedChunkMapData[GetIndexInViewBox(tilePos, layerIndex)];
     }
 
     public Vector2Int LastChunkPos;
@@ -379,6 +413,16 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     private int GetLayerChunkStartIndex(int layerIndex, int chunkSize, int chunkCountX, int chunkCountY)
     {
         return chunkSize * chunkSize * chunkCountX * chunkCountY * layerIndex;
+    }
+
+    public int GetLayerStartIndex(int layerIndex)
+    {
+        return GetViewBoxSize() * layerIndex;
+    }
+
+    private int GetHeightChunkStartIndex(int chunkSize, int chunkCountX, int chunkCountY)
+    {
+        return chunkSize * chunkSize * chunkCountX * chunkCountY;
     }
 
     // 지금 보여야하는 박스 안에 있는가..?

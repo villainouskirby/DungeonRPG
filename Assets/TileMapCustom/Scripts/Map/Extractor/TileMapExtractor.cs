@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
 using EM = ExtractorMaster;
-using System.Linq;
 using System;
-using UnityEngine.UIElements;
 
 public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 {
@@ -74,18 +72,25 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
         mapData.LayerData = new TileMapLayerData[Tilemap.Count];
         mapData.All.TileMapLayerInfo = new TileMapLayerInfo[Tilemap.Count];
+        mapData.HeightData = new int[size.x * size.y];
 
         for (int i = 0; i < Tilemap.Count; i++)
         {
             Tilemap decoMap = null;
             if (Tilemap[i].transform.childCount > 0)
                 decoMap = Tilemap[i].transform.GetChild(0).GetComponent<Tilemap>();
+            Tilemap heightMap = null;
+            if (Tilemap[i].transform.childCount > 1)
+                heightMap = Tilemap[i].transform.GetChild(1).GetComponent<Tilemap>();
+
 
             TileMapLayerData layerData = ExtractLayer2TileMapData(Tilemap[i], size, chunkSize, decoMap);
             mapData.All.TileMapLayerInfo[i] = new();
             mapData.All.TileMapLayerInfo[i].LayerIndex = Tilemap[i].gameObject.GetComponent<TilemapRenderer>().sortingOrder;
             mapData.All.TileMapLayerInfo[i].Z = Tilemap[i].transform.position.z;
             mapData.LayerData[i] = layerData;
+
+            ExtractLayerHeightData(mapData, heightMap, i, size, chunkSize.x);
         }
 
         mapData.All.MapTexture = ConvertSprite2Texture2D(_sprites);
@@ -106,6 +111,63 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         // 일단 여기서 진행
         EM.Instance.WallSpriteIndex = ConvertSprite2Int(EM.Instance.WallType.Sprites);
         EM.Instance.ShadowSpriteIndex = ConvertSprite2Int(EM.Instance.ShadowType.Sprites);
+    }
+
+    public int GetIntSliceValue(int source, int index)
+    {
+        int shift = index * 4;
+        int mask = 0b1111 << shift;
+        return (source & mask) >> shift;
+    }
+
+    /// <summary>
+    /// int32를 4bit 단위로 쪼갰을 때, 특정 index(0~7) 위치에 값을 넣는다.
+    /// </summary>
+    public int SetIntSliceValue(int source, int index, int value)
+    {
+        int shift = index * 4;
+        int mask = 0b1111 << shift;
+        source &= ~mask;
+        source |= (value << shift);
+        return source;
+    }
+
+    public void ExtractLayerHeightData(TileMapData mapData, Tilemap heightMap, int layer, Vector2Int size, int mapChunkWidth)
+    {
+        heightMap.CompressBounds();
+        BoundsInt bounds = heightMap.cellBounds;
+        Vector3Int startPos = bounds.position;
+        TileBase[] tiles = heightMap.GetTilesBlock(bounds);
+
+        for (int y = 0; y < size.y; y++)
+        {
+            for (int x = 0; x < size.x; x++)
+                mapData.HeightData[x + y * size.x] = SetIntSliceValue(mapData.HeightData[x + y * size.x], layer, EM.Instance.LayerDefaultHeight[layer]);
+        }
+
+        for (int y = 0; y < bounds.size.y; y++)
+        {
+            for (int x = 0; x < bounds.size.x; x++)
+            {
+                int correctX = x + startPos.x - EM.Instance.StartPos.x;
+                int correctY = y + startPos.y - EM.Instance.StartPos.y;
+
+                Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
+                Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
+
+                int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapChunkWidth;
+                int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                TileBase tileBase = tiles[x + y * bounds.size.x];
+                Sprite height = null;
+                if (tileBase is Tile tile)
+                    height = tile.sprite;
+
+                if (height != null)
+                    mapData.HeightData[index] = SetIntSliceValue(mapData.HeightData[index], layer, int.Parse(height.name));
+            }
+        }
     }
 
     public TileMapLayerData ExtractLayer2TileMapData(Tilemap targetLayer, Vector2Int size, Vector2Int chunkSize, Tilemap decoMap)

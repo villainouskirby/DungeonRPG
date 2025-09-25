@@ -12,6 +12,7 @@ public class TileMapData
     // StreamData
     // 각 Layer 타일 정보
     public TileMapLayerData[] LayerData;
+    public int[] HeightData;
 }
 
 [System.Serializable]

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public static class MapBufferChanger
 {
@@ -30,14 +31,24 @@ public static class MapBufferChanger
         buffer.SetData(data);
     }
 
-    public static void SetMapDataBuffer(ref GraphicsBuffer buffer)
+    public static void SetMapDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
         buffer?.Dispose();
 
-        int bufferSize = ChunkManager.Instance.ViewBoxBuffer.Length;
+        int bufferSize = ChunkManager.Instance.GetViewBoxSize();
 
         buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
-        buffer.SetData(ChunkManager.Instance.ViewBoxBuffer);
+        buffer.SetData(ChunkManager.Instance.LoadedChunkMapData, ChunkManager.Instance.GetLayerStartIndex(layer), 0, bufferSize);
+    }
+
+    public static void SetHeightDataBuffer(ref GraphicsBuffer buffer)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = ChunkManager.Instance.GetViewBoxSize();
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
+        buffer.SetData(ChunkManager.Instance.LoadedChunkHeightData);
     }
 
     public static void ChangeMappingDataBuffer(int[] data, GraphicsBuffer buffer)
@@ -45,9 +56,14 @@ public static class MapBufferChanger
         buffer.SetData(data);
     }
 
-    public static void ChangeMapDataBuffer(GraphicsBuffer buffer)
+    public static void ChangeMapDataBuffer(GraphicsBuffer buffer, int layer)
     {
-        buffer.SetData(ChunkManager.Instance.ViewBoxBuffer);
+        buffer.SetData(ChunkManager.Instance.LoadedChunkMapData, ChunkManager.Instance.GetLayerStartIndex(layer), 0, ChunkManager.Instance.GetViewBoxSize());
+    }
+
+    public static void ChangeHeightDataBuffer(GraphicsBuffer buffer)
+    {
+        buffer.SetData(ChunkManager.Instance.LoadedChunkHeightData);
     }
 
     /*

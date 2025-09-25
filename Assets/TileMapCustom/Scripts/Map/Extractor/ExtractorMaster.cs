@@ -17,6 +17,9 @@ public class ExtractorMaster : MonoBehaviour
     public GameObject           LayerRoot;
     public MapEnum              Map;
 
+    [Header("Height Settings")]
+    public List<int> LayerDefaultHeight;
+
     [Header("Layer Wall Settings")]
     public MapSpriteList        WallType;
     public bool                 IndividualWall = false;
