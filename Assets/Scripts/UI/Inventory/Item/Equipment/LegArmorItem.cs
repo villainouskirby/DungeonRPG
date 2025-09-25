@@ -1,10 +1,9 @@
 public class LegArmorItem : BattleEquipmentItem
 {
-    public LegArmorItemData LegArmorData { get; private set; }
+    public LegArmorItemData LegArmorData => Data as LegArmorItemData;
 
     public LegArmorItem(LegArmorItemData data) : base(data)
     {
-        LegArmorData = data;
     }
 
     public override Item Clone()

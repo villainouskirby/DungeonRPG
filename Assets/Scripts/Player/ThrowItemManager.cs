@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using ItemDataExtensions;
 using UnityEngine;
 
 public class ThrowItemManager : MonoBehaviour
@@ -21,7 +22,7 @@ public class ThrowItemManager : MonoBehaviour
     private bool isUsing = false;
 
     // (선택) 시트 테이블 캐시가 필요하다면 여기서
-    static Dictionary<string, Item_Info_ThrowItem> _useById;
+    static Dictionary<string, Item_Info_ThrowableItem> _useById;
 
     void Awake()
     {
@@ -38,10 +39,10 @@ public class ThrowItemManager : MonoBehaviour
     void EnsureTable()
     {
         if (_useById == null)
-            _useById = SheetDataUtil.DicByKey(Item_Info.ThrowItem, r => r.id); // "PAR_MIN_ROC" 등
+            _useById = SheetDataUtil.DicByKey(Item_Info.ThrowableItem, r => r.id); // "PAR_MIN_ROC" 등
     }
 
-    public async UniTask<bool> UseThrowItem(ThrowItemData data)
+    public async UniTask<bool> UseThrowItem(ItemData data)
     {
         if (isUsing) return false;
         if (data == null) { Debug.LogError("ThrowItemManager: data is null"); return false; }
@@ -54,7 +55,7 @@ public class ThrowItemManager : MonoBehaviour
 
         EnsureTable();
 
-        // 키 결정: 우선 data.Info?.id, 없으면 ITM의 PAR_DT 사용
+        /* // 키 결정: 우선 data.Info?.id, 없으면 ITM의 PAR_DT 사용
         string dt = data.Info != null ? data.Info.id : data.PAR_DT;
         if (string.IsNullOrEmpty(dt))
         {
@@ -68,9 +69,11 @@ public class ThrowItemManager : MonoBehaviour
             Debug.LogError($"ThrowItemManager: UseItem DT not found: {dt}");
             return false;
         }
-        if (data.Info == null) data.SetInfo(row); // 캐시
+        if (data.Info == null) data.SetInfo(row); // 캐시 */
 
-        int maxDist = Mathf.Max(0, row.use_distance);
+        ThrowableItemDataExtension throwableData = data.Extensions[ThrowableItemDataExtension.Name.Throwable] as ThrowableItemDataExtension;
+
+        int maxDist = Mathf.Max(0, throwableData.Distance);
 
         // 사거리 0이면 즉시사용(조준 생략)
         if (maxDist == 0)
@@ -100,8 +103,8 @@ public class ThrowItemManager : MonoBehaviour
             var go = new GameObject("ThrowNoiseManager");
             go.AddComponent<ThrowNoiseManager>();
         }
-        if (row.sound_range > 0f)
-            ThrowNoiseManager.Instance.RegisterNoise(aim.target, row.sound_range, 3f);
+        if (throwableData.SoundRange > 0f)
+            ThrowNoiseManager.Instance.RegisterNoise(aim.target, throwableData.SoundRange, 3f);
 
 
         // === TODO: 실제 투척/스폰/대미지/사운드 처리 ===

@@ -25,11 +25,11 @@ public class TitanSpinAttackSO : AttackBehaviourSO
     {
         // 준비
         ctx.SafeStopAgent();
-        ctx.anim.Play("SpinPrep");
+        ctx.animationHub?.SetTag(MonsterStateTag.PreSpinAttack, ctx);
         yield return new WaitForSeconds(windup);
 
         // 시전
-        ctx.anim.Play("Spin");
+        ctx.animationHub?.SetTag(MonsterStateTag.SpinAttack, ctx);
         float t = 0f;
         bool hitOnce = false;
         while (t < spinTime)
@@ -59,7 +59,7 @@ public class TitanSpinAttackSO : AttackBehaviourSO
             ctx.nextBehaviourIndex = 2;
             yield break;
         }
-
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         // 20% 재스핀, 80% 이동(Approach)
         int atkCount = ctx.data.combatAttackBehaviours?.Length ?? 0; // = 3(Spin,Dash,Rest)
         int approachComboIdx = atkCount + 0; // 이동배열 0번 = Approach → 연속인덱스 3

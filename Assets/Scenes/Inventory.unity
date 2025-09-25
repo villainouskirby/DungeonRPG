@@ -1044,7 +1044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -46.558, y: -152}
+  m_AnchoredPosition: {x: -242, y: -447}
   m_SizeDelta: {x: 206.4297, y: 123.8689}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &734564382
@@ -1143,6 +1143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isResetOnRealease: 1
   _isSetSizeToSprite: 0
+  _innerSpriteHandler: {fileID: 0}
   _defaultSprite: {fileID: 0}
   _pressedSprite: {fileID: 0}
   _disabledSprite: {fileID: 0}
@@ -5865,6 +5866,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7712636273096581708, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -603
+      objectReference: {fileID: 0}
+    - target: {fileID: 7712636273096581708, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 58
       objectReference: {fileID: 0}
     - target: {fileID: 7718053417435750209, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}

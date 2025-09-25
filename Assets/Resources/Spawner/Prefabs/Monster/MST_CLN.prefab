@@ -349,8 +349,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2.25
-  m_BaseOffset: 1.125
+  m_Height: 0.00001
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!95 &5842328666675466451
@@ -388,8 +388,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateIndicator: {fileID: 6668255599692595010}
   animationHub: {fileID: -8530405545515029964}
-  houndanimationPlayer: {fileID: 0}
-  cleaneranimationPlayer: {fileID: -8874125633282036351}
   alertSR: {fileID: 6927413861422287132}
   data: {fileID: 11400000, guid: 59039b0458b151b4a91bc43203ce801f, type: 2}
   spawner: {x: 0, y: 0, z: 0}

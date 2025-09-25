@@ -1,11 +1,12 @@
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class PotionItem : CountableItem, IUsableItem
 {
-    public PotionItemData PotionData { get; private set; }
+    public PotionItemData PotionData => Data as PotionItemData;
+
     public PotionItem(PotionItemData data, int amount = 1) : base(data, amount)
     {
-        PotionData = data;
     }
 
     public override Item Clone(int amount)

@@ -1,35 +1,38 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
+using ItemDataExtensions;
 
 [System.Serializable]
 public abstract class ItemData
 {
-    public string SID => _sid;
-    public string Name => _name;
-    public string Tooltip => _tooltip;
-    public float Weight => _weight;
+    public string SID => _info.id;
+    public string Type => _info.type;
+    public string Name => _info.name;
+    public int Rank => _info.rank;
+    public float Weight => _info.weight;
+    public int SellPrice => _info.sell_price;
+    public bool CanThrow => _info.throwable;
+    public bool CanUse => _info.usable;
+    public bool CanSetToPouch => _info.pouchable;
+    public bool CanSell => _info.sellable;
     public Sprite IconSprite => _iconSprite;
+
     public Item_Info_Item Info => _info;
+    public Dictionary<ItemDataExtension.Name, ItemDataExtension> Extensions => _extensions;
 
-    [SerializeField] private string _sid;
-    [SerializeField] private string _name;
-    [Multiline]
-    [SerializeField] private string _tooltip;
-    [SerializeField] private float _weight;
-    [NonSerialized] private Sprite _iconSprite;
-
-    [SerializeField]
-    private Item_Info_Item _info;
+    [SerializeReference] private Item_Info_Item _info;
+    [SerializeReference] private Sprite _iconSprite;
+    [SerializeReference] private Dictionary<ItemDataExtension.Name, ItemDataExtension> _extensions;
 
     public ItemData(Item_Info_Item info, Sprite sprite)
     {
         _info = info;
-        //_id = _info.Item_id;
-        _sid = _info.id;
-        _name = _info.name;
-        //_tooltip = _info.Item_
-        _weight = _info.weight;
-        _iconSprite = sprite;
+        _iconSprite = sprite; // TODO => info 내부의 sprite 정보로 sprite 가져와야함 -> 하위 클래스마다 다른 경로로 하여 끌고오는게 맞을수도
+
+        if (CanThrow)
+        {
+            _extensions[ItemDataExtension.Name.Throwable] = new ThrowableItemDataExtension(SID);
+        }
     }
 
     public ItemData()

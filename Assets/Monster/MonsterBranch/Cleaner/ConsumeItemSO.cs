@@ -9,7 +9,10 @@ public class ConsumeItemSO : SpecialBehaviourSO
     public override bool CanRun(MonsterContext ctx)
     {
         Transform t = ctx.CanSeeObject(consumeDist);
-        return t && ctx.agent.remainingDistance <= consumeDist + 0.05f;
+        if (!t) return false;
+
+        float d = Vector2.Distance(ctx.transform.position, t.position);
+        return d <= consumeDist + 0.05f;
     }
 
     public override IEnumerator Execute(MonsterContext ctx)

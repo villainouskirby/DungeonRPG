@@ -8,11 +8,6 @@ public class ResourceItemData : CountableItemData
     {
     }
 
-    public ResourceItemData()
-    {
-
-    }
-
     public override Item Createitem()
     {
         return new ResourceItem(this);

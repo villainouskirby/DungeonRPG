@@ -12,8 +12,4 @@ public  class Item_Info_SubWeapon
     /// 채집 레벨
     /// </summary>
     public int count;
-    /// <summary>
-    /// 설명
-    /// </summary>
-    public string Explanation;
 }

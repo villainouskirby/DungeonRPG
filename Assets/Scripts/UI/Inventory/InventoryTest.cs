@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using ItemUtility;
 
 public class InventoryTest : MonoBehaviour
 {
@@ -33,10 +34,7 @@ public class InventoryTest : MonoBehaviour
 
     public void AddInventory()
     {
-        Item_Info_Item info = new Item_Info_Item();
-        info.max_amount = 99;
-        info.id = "";
-        ItemData data = new TestItemData(info, null);
+        ItemData data = ItemDataConstructor.GetItemData("HER_CGR_LEA");
         AddInventory(data);
     }
     public Dictionary<string, Item_Info_Item> ItemDic;

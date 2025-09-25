@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using UnityEditor.Rendering;
 using UnityEngine;
@@ -175,11 +177,11 @@ public sealed class MonsterContext
         if (ok) LastHeardPos = noisePos; // 추후 디버그/전환 로직에 활용 가능
         return ok;
     }
-    public void SetForward(Vector2 dir)
+    public async UniTask SetForward(Vector2 dir)
     {
         if (dir.sqrMagnitude > 0.001f)
             _lastForward = dir.normalized;
-
+        await UniTask.WaitForSeconds(1f);
         // 애니메이터 파라미터도 갱신 가능
         anim.SetFloat("DirX", _lastForward.x);
         anim.SetFloat("DirY", _lastForward.y);

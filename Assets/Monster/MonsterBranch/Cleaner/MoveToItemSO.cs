@@ -25,6 +25,9 @@ public class MoveToItemSO : SpecialBehaviourSO
         while (target && Vector2.Distance(ctx.transform.position, target.position) > stopDist)
             yield return null;
 
+        ctx.SafeStopAgent();
+        yield return null;
+
         if (target)                      // 이동 성공 시 방향 기록
             ctx.lastItemDir = (target.position - ctx.transform.position).normalized;
     }

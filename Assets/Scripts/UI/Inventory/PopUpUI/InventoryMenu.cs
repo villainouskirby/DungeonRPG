@@ -76,7 +76,6 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             _removePopUpUI.SetItemData(index);
             CloseUI();
         });
-
     }
 
     private void CloseUI()
@@ -85,5 +84,11 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         _useButton.onClick.RemoveAllListeners();
         _removeButton.onClick.RemoveAllListeners();
         gameObject.SetActive(false);
+    }
+
+    public void CloseAll()
+    {
+        CloseUI();
+        _removePopUpUI.Close();
     }
 }

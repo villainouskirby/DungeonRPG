@@ -1793,7 +1793,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 00f4d04ea428acf41bffd198020195e9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6f046c72b8a5864428078cd7c6250c5d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7898,7 +7898,13 @@ MonoBehaviour:
   _inventory: {fileID: 1302917273968783864}
   _inventoryPopUpUI: {fileID: 2889334627942084739}
   _itemGetPopUpUI: {fileID: 0}
-  _inventoryContent: {fileID: 5861478063954166594}
+  _tabHandler: {fileID: 2891120586105300812}
+  _allContents:
+  - {fileID: 5861478063954166594}
+  - {fileID: 739043446006841720}
+  - {fileID: 8416287086112797949}
+  - {fileID: 5090000779852407554}
+  - {fileID: 6722104212895777788}
   _itemSlotPrefab: {fileID: 8141647746602083382, guid: 3fc3a4463a22ca74a880fbbc6ed01063,
     type: 3}
   _currentWeightText: {fileID: 1845892590053838392}

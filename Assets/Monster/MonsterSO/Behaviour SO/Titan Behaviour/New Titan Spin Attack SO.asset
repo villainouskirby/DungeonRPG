@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba4e1a36e0059f046a503974d5f06fca, type: 3}
   m_Name: New Titan Spin Attack SO
   m_EditorClassIdentifier: 
-  windup: 0.25
-  activeTime: 0.5
-  recover: 0.35
   radius: 2.5
   damage: 25
+  windup: 0.5
+  spinTime: 0.7
+  recover: 0.5
+  repeatSpinPercent: 20

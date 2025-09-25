@@ -5,8 +5,8 @@ using UnityEngine;
 public static class Item_Info
 {
     public static Item_Info_Item[] Item;
-    public static Item_Info_ThrowItem[] ThrowItem;
-    public static Item_Info_DropItem[] DropItem;
+    public static Item_Info_MiscItem[] MiscItem;
+    public static Item_Info_ThrowableItem[] ThrowableItem;
     public static Item_Info_Weapon[] Weapon;
     public static Item_Info_Armor[] Armor;
     public static Item_Info_Backpack[] Backpack;

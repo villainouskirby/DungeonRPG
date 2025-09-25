@@ -39,7 +39,7 @@ public class PotionManager : MonoBehaviour
         PotionItemData pi = data as PotionItemData;
         if (pi == null) { isDrinking = false; return false; }
 
-        string dt = pi.Info.PAR_DT;         // 예: "PAR_POT_001"
+        string dt = pi.SID;         // 예: "PAR_POT_001"
         if (string.IsNullOrEmpty(dt) || !_potionById.TryGetValue(dt, out var row))
         {
             Debug.LogError($"Potion DT not found: {dt}");
@@ -63,7 +63,7 @@ public class PotionManager : MonoBehaviour
                     foreach (var kind in ParseKinds(row.buff))
                     {
                         int buffId = MapBuffId(kind);     // strong1→1, strong2→2, strong3→3 …
-                        float duration = pi.Duration > 0 ? pi.Duration : 10f;
+                        float duration = pi.EffectDuration > 0 ? pi.EffectDuration : 10f;
                         CreateBuff(buffId, row.effect, duration, pi.IconSprite);
                     }
                     break;

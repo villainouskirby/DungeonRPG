@@ -11,7 +11,7 @@ public class ItemInfo : MonoBehaviour
     public void SetInfo(ItemData data)
     {
         nameText.text = data.Name;
-        tooltipText.text = data.Tooltip;
+        //tooltipText.text = data.Tooltip;
         icon.sprite = data.IconSprite;
     }
 }
