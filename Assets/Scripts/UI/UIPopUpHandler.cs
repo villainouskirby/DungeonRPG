@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Core;
+using UnityEngine.EventSystems;
 
 public class UIPopUpHandler : Singleton<UIPopUpHandler>
 {

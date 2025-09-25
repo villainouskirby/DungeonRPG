@@ -72,7 +72,7 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
         if (_pointedSlot != null)
         {
             // 더블클릭 확인
-            if (Input.GetMouseButtonUp(0))
+            if (eventData.button == PointerEventData.InputButton.Left)
             {
                 OnLeftClick();
                 if (Time.time - clickTime < 0.3f)
@@ -87,7 +87,7 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
                 }
             }
             // 우클릭 확인
-            else if (Input.GetMouseButtonUp(1))
+            else if (eventData.button == PointerEventData.InputButton.Right)
             {
                 OnRightClick();
             }
