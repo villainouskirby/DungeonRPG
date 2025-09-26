@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Core;
-using UnityEngine.EventSystems;
 
 public class UIPopUpHandler : Singleton<UIPopUpHandler>
 {
@@ -41,7 +40,8 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
     {
         _uiDict[typeof(T)] = ui;
     }
-
+    
+    /// <returns> 해당 UI 클래스 </returns>
     public T GetUI<T>() where T : UIBase
     {
         if (!_uiDict.TryGetValue(typeof(T), out var ui)) return null;
@@ -49,15 +49,22 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
         return ui as T;
     }
 
-    public void OpenUI<T>() where T : UIBase
+    /// <summary>
+    /// UI 활성화
+    /// <para/> 한번에 하나만 띄우게 함
+    /// </summary>
+    /// <returns> 해당 UI 클래스 </returns>
+    public T OpenUI<T>() where T : UIBase
     {
         UIBase ui;
 
-        if (_openUI != null && _openUI.ActiveSelf) return;
-        if ((ui = GetUI<T>()) == null) return;
+        if (_openUI != null && _openUI.ActiveSelf) return null;
+        if ((ui = GetUI<T>()) == null) return null;
 
         ui.SetActive(true);
         _openUI = ui;
+
+        return ui as T;
     }
 
     public void CloseUI()

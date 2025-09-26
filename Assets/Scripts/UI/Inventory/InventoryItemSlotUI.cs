@@ -28,7 +28,7 @@ public class InventoryItemSlotUI : ItemSlotUI
     private float _viewportWidth;
     private float _viewportHeight;
 
-    private CancellationTokenSource cts;
+    private CancellationTokenSource _cts;
 
     private void Start()
     {
@@ -83,8 +83,8 @@ public class InventoryItemSlotUI : ItemSlotUI
     [ContextMenu("Slide")]
     public void ToggleDetail()
     {
-        cts?.Cancel();
-        cts?.Dispose();
+        _cts?.Cancel();
+        _cts?.Dispose();
 
         if (!_isDetailOn)
         {
@@ -98,7 +98,7 @@ public class InventoryItemSlotUI : ItemSlotUI
 
     private async UniTaskVoid SlideDetail(bool isOn)
     {
-        cts = new CancellationTokenSource();
+        _cts = new CancellationTokenSource();
 
         float speed;
         float targetHeight;
@@ -123,7 +123,7 @@ public class InventoryItemSlotUI : ItemSlotUI
                 float height = _viewport.sizeDelta.y;
                 if (height < 0 || height > _viewportHeight) break;
 
-                await UniTask.WaitForSeconds(_slideInterval ,cancellationToken: cts.Token);
+                await UniTask.WaitForSeconds(_slideInterval ,cancellationToken: _cts.Token);
             }
 
             _viewport.sizeDelta = new Vector2(_viewportWidth, targetHeight);
