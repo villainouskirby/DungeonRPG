@@ -91,7 +91,7 @@ public class PotionManager : MonoBehaviour
         if (player == null) return false;
 
         player.LockState();
-        PlayerData.instance.StartPotionGauge(DRINK_DURATION);
+        //PlayerData.instance.StartPotionGauge(DRINK_DURATION);
 
         float endTime = Time.time + DRINK_DURATION;
 
@@ -102,7 +102,7 @@ public class PotionManager : MonoBehaviour
         }
         // 잠금해제
 
-        PlayerData.instance.EndPotionGauge();
+        //PlayerData.instance.EndPotionGauge();
         player.UnlockState();
 
         return true;

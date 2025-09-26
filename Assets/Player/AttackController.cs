@@ -84,7 +84,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private void Update()
     {
         HandleAttackInput();
-        HandleHeavyChargeUI();
+        //HandleHeavyChargeUI();
     }
     #region 애니메이션 재생 로직
     private int DirFromMouse()
@@ -330,11 +330,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
 
     // UI 실시간 갱신
-    private void HandleHeavyChargeUI()
-    {
-        if (isAttackCharging)
-            chargeUI.SetAttackRatio(Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime));
-    }
+    //private void HandleHeavyChargeUI()
+    //{
+    //    if (isAttackCharging)
+    //        chargeUI.SetAttackRatio(Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime));
+    //}
 
     // 히트박스 계산
     private static Vector2 FacingVector(int dir) => dir switch

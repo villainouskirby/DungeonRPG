@@ -196,24 +196,24 @@ public class PlayerData : MonoBehaviour
     #endregion
     #region 포션
     // 포션 게이지 UI
-    public void StartPotionGauge(float durationSec)
-    {
-        potionDuration = durationSec;
-        potionChargeStart = Time.time;
-        isPotionCharging = true;
+    //public void StartPotionGauge(float durationSec)
+    //{
+    //    potionDuration = durationSec;
+    //    potionChargeStart = Time.time;
+    //    isPotionCharging = true;
 
-        chargeUI.ShowPotionGauge();
-    }
-    public void CancelPotionGauge()
-    {
-        isPotionCharging = false;
-        chargeUI.HideAll();
-    }
-    public void EndPotionGauge()
-    {
-        isPotionCharging = false;
-        chargeUI.HideAll();
-    }
+    //    chargeUI.ShowPotionGauge();
+    //}
+    //public void CancelPotionGauge()
+    //{
+    //    isPotionCharging = false;
+    //    chargeUI.HideAll();
+    //}
+    //public void EndPotionGauge()
+    //{
+    //    isPotionCharging = false;
+    //    chargeUI.HideAll();
+    //}
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
     {
