@@ -77,12 +77,23 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         for (int i = 0; i < Tilemap.Count; i++)
         {
             Tilemap decoMap = null;
-            if (Tilemap[i].transform.childCount > 0)
-                decoMap = Tilemap[i].transform.GetChild(0).GetComponent<Tilemap>();
             Tilemap heightMap = null;
-            if (Tilemap[i].transform.childCount > 1)
-                heightMap = Tilemap[i].transform.GetChild(1).GetComponent<Tilemap>();
+            for (int j = 0; j < Tilemap[i].transform.childCount; j++)
+            {
+                if (!Tilemap[i].transform.GetChild(j).gameObject.activeSelf)
+                    continue;
+                string type = Tilemap[i].transform.GetChild(j).name.Split("_")[1];
 
+                switch (type)
+                {
+                    case "Height":
+                        heightMap = Tilemap[i].transform.GetChild(j).GetComponent<Tilemap>();
+                        break;
+                    case "Deco":
+                        decoMap = Tilemap[i].transform.GetChild(j).GetComponent<Tilemap>();
+                        break;
+                }
+            }
 
             TileMapLayerData layerData = ExtractLayer2TileMapData(Tilemap[i], size, chunkSize, decoMap);
             mapData.All.TileMapLayerInfo[i] = new();
@@ -134,6 +145,8 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
     public void ExtractLayerHeightData(TileMapData mapData, Tilemap heightMap, int layer, Vector2Int size, int mapChunkWidth)
     {
+        if (heightMap == null)
+            return;
         heightMap.CompressBounds();
         BoundsInt bounds = heightMap.cellBounds;
         Vector3Int startPos = bounds.position;

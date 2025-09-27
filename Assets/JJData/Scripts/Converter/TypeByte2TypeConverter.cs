@@ -6,9 +6,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using UnityEngine;
 using System.Runtime.Serialization;
+using System.Text;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+using UnityEngine;
 
 public partial class TypeByte2TypeConverter
 {
@@ -16,7 +17,10 @@ public partial class TypeByte2TypeConverter
 
     public static string ConvertTypeByte2string(ReadOnlySpan<byte> bytes)
     {
-        return Encoding.UTF8.GetString(bytes);
+        string result = Encoding.UTF8.GetString(bytes);
+        if (result == null) result = "";
+        if (result == "\"\"") result = "";
+        return result;
     }
     public static int ConvertTypeByte2int(ReadOnlySpan<byte> bytes)
     {

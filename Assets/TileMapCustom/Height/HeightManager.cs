@@ -5,20 +5,29 @@ using System.IO;
 using UnityEngine;
 using TM = TileMapMaster;
 
-public class HeightManager
+public class HeightManager : MonoBehaviour, ITileMapBase
 {
-    public Stream Stream;
+    public int PlayerHeight;
+    public int CurrentLayer = 0;
 
-    public void SetStream(MapEnum mapType)
+    public int Prime => (int)TileMapBasePrimeEnum.HeightManager;
+
+    public void Init()
     {
-        string path = JJSave.GetSavePath($"{mapType.ToString()}_Height", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
+    }
 
-        Stream?.Close();
-        Stream = new FileStream(
-            path,
-            FileMode.Open,
-            FileAccess.ReadWrite,
-            FileShare.ReadWrite
-        );
+    public void InitMap(MapEnum mapType)
+    {
+    }
+
+    public void StartMap(MapEnum mapType)
+    {
+        PlayerMoveChecker.Instance.AddMoveAction(CheckPlayerHeight);
+    }
+
+    public void CheckPlayerHeight(Vector2Int playerPos)
+    {
+        PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
+        Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
     }
 }

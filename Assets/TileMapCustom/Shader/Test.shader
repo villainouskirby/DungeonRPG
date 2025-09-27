@@ -224,7 +224,7 @@ Shader "Tilemap/LitTilemap"
                 float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
                 
                 //fogedColor = _LayerIndex;
-                float4 resultColor = lerp(float4(fogedColor, main.a), lightedColor, clamp(1 - 0.1 * heightFog, 0, 1));
+                float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.2);
                 //return lerp(float4(0, 0, 0, 0), float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1), valid);
                 return lerp(_DefaultColor, resultColor, valid);
             }

@@ -113,6 +113,8 @@ public partial class String2TypeByteConverter
     #region Converter
     private byte[] Convert2stringByte(string value)
     {
+        if (value == null) value = "";
+        if (string.Equals(@"""", value)) value = "";
         Span<byte> stringByte = Encoding.UTF8.GetBytes(value);
         int length = stringByte.Length;
         Span<byte> lengthByte = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref length, 1));

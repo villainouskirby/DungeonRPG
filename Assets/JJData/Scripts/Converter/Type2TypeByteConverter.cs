@@ -120,7 +120,7 @@ public static class Type2TypeByteConverter
     public static byte[] Convertstring2Byte(string value)
     {
         if (value == null) value = "";
-        if (value == @"""") value = "";
+        if (string.Equals(@"""", value)) value = "";
         Span<byte> stringByte = Encoding.UTF8.GetBytes(value);
         int length = stringByte.Length;
         Span<byte> lengthByte = stackalloc byte[4];

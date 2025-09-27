@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 using DL = DataLoader;
 using TM = TileMapMaster;
 
@@ -305,6 +306,19 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         {
             return LoadTileFromCached(tilePos, layerIndex);
         }
+    }
+
+    public int GetHeight(Vector2Int tilePos, int layerIndex)
+    {
+        Vector2Int localTilePos = GetLocalTilePos(tilePos);
+        Vector2Int localChunkPos = GetChunkPos(tilePos);
+        int mappingIndex = LoadedChunkIndex[localChunkPos];
+        int localIndex = GetChunkStartPos(mappingIndex, DL.Instance.All.ChunkSize)
+            + Pos2ArrayIndex(localTilePos, DL.Instance.All.ChunkSize);
+
+        int shift = layerIndex * 4;
+        int mask = 0b1111 << shift;
+        return (LoadedChunkHeightData[localIndex] & mask) >> shift;
     }
 
     private int LoadTileFromCached(Vector2Int playerTilePos, int layerIndex)
