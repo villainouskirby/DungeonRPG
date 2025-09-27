@@ -2504,7 +2504,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 666769085}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddInventory1
+        m_MethodName: AddInventory2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6964,6 +6964,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SortingOrder
       value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 3412233725337407733, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.0997835
       objectReference: {fileID: 0}
     - target: {fileID: 4276587350243989628, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
