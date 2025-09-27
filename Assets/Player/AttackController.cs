@@ -227,14 +227,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private IEnumerator PerformAttack(int step)
     {
         if (PlayerData.instance.IsExhausted) yield break;
-        if (step == 1)
-        {
-            PlayerData.instance.ConsumeActionStamina(combo1cost, allowDebt: true);
-        }
-        else
-        {
-            PlayerData.instance.ConsumeActionStamina(combo2cost, allowDebt: true);
-        }
+        
         
         isAttacking = true;
 
@@ -278,6 +271,14 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float remain = Mathf.Max(0f, totalCast - activeTime);
         if (remain > 0f) yield return new WaitForSeconds(remain);
 
+        if (step == 1)
+        {
+            PlayerData.instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
+        }
+        else
+        {
+            PlayerData.instance.ConsumeComboAttackStamina(combo2cost, allowDebt: true);
+        }
         anim.SetFloat(HashAttackSpeed, 1f);
 
         if (step == 1 && comboQueued && Time.time <= nextAttackReady + comboInputTime)
@@ -287,7 +288,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             DoQuickComboAttack();
             yield break;
         }
-
+        
         isAttacking = false;
         comboStep = (step == 2) ? 0 : comboStep;
         pc.ChangeState(new IdleState(pc));
