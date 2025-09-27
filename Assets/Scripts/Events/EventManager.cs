@@ -5,7 +5,7 @@ namespace Events
 {
     public class EventManager : Singleton<EventManager>, IManager
     {
-        
+        public PriorityEvent<MonsterKilledEventArgs> MonsterKilledEvent = new();
 
         public void Initialize()
         {
