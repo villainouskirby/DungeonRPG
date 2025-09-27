@@ -239,7 +239,6 @@ public sealed class PotionConsumeState : IPlayerState
 
     public void Enter()
     {
-        if (pc) pc.rb.velocity = Vector2.zero;
 
         startTime = Time.time;
         finished = false;
@@ -253,9 +252,12 @@ public sealed class PotionConsumeState : IPlayerState
 
     public void Update()
     {
-        // ★ 혹시 모를 미세 관성 제거
-        if (pc) pc.rb.velocity = Vector2.zero;
-
+        if (Input.GetKeyDown(KeyCode.Space)) // 회피 시 포션 사용 취소
+        { 
+            owner.ChangeState(new EscapeState(owner));
+            pm.RequestCancelDrink();
+            return;
+        }
         // 안전망: 이벤트 못 받아도 시간 경과 시 종료
         if (!finished && Time.time - startTime >= duration)
         {
@@ -290,6 +292,47 @@ public sealed class PotionConsumeState : IPlayerState
             pm.RequestCancelDrink();   // 아래 3) 참조
     }
 }
+public sealed class StunState : IPlayerState
+{
+    private readonly PlayerController pc;
+    private float remain;
+    private bool finished;
+    public StunState(PlayerController controller, float duration)
+    {
+        pc = controller;
+        remain = duration;
+    }
+    public void Enter()
+    {
+        finished = false;
+        if (pc)
+        {
+            pc.rb.velocity = Vector2.zero;
+            pc.anim.Play("Stun"); // 스턴 전용 애니메이션 클립 있으면 여기
+        }
+    }
+    public void Update()
+    {
+        if (finished) return;
+
+        remain -= Time.deltaTime;
+        if (remain <= 0f)
+        {
+            finished = true;
+            pc.ChangeState(new IdleState(pc));
+        }
+        else
+        {
+            // 매 프레임 이동 강제 정지
+            if (pc) pc.rb.velocity = Vector2.zero;
+        }
+    }
+    public void Exit()
+    {
+        // 스턴 해제 시 추가 처리 필요하다면 작성
+    }
+    public override string ToString() => "Stun";
+}
 public class ChargingState : IPlayerState
 {
     private readonly IPlayerChangeState player;
@@ -303,7 +346,7 @@ public class ChargingState : IPlayerState
     {
         player = p;
         pc = p as PlayerController;
-        if (pc) ac = pc.GetComponent<AttackController>();  
+        if (pc) ac = pc.GetComponent<AttackController>();
         else ac = (p as MonoBehaviour)?.GetComponent<AttackController>();
 
     }

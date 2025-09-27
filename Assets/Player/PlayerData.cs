@@ -15,6 +15,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private FloatVariableSO MaxHP;
     [SerializeField] private FloatVariableSO MaxStamina;
     public event System.Action<float, float> OnHPChanged;
+    public event System.Action<float> OnStunRequested;
     [Header("Current Stats (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentAtk;
     [SerializeField] private FloatVariableSO currentSpeed;
@@ -74,7 +75,10 @@ public class PlayerData : MonoBehaviour
         if (Mathf.Abs(currentHP.Value - old) > Mathf.Epsilon)
             OnHPChanged?.Invoke(old, currentHP.Value);
     }
-
+    public void PlayerStun(float stunDuration)
+    {
+        OnStunRequested?.Invoke(stunDuration);
+    }
     #region 스태미나
     public void StaminaValueChange(float value)
     {
