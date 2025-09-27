@@ -75,7 +75,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     public bool IsInAttackAnimation => isAttacking;
     private Animator anim;
     private SpriteRenderer sprite;
-
     public bool HeavyOnCooldown => heavyOnCooldown;
     // Unity 
     private void Awake()
@@ -146,8 +145,18 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     #endregion
     // 공격 입력
     private bool comboQueued = false;    // 후딜 중 눌린 입력 버퍼
+    private bool attackLocked = false;
+    public void LockAttack()
+    {
+        attackLocked = true;
+    }
+    public void UnLockAttack()
+    {
+        attackLocked = false;
+    }
     void HandleAttackInput()
     {
+        if (attackLocked) return;
         if (Input.GetMouseButtonDown(0))
         {
             pressTime = Time.time;

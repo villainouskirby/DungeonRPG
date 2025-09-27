@@ -374,7 +374,16 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #endregion
 
     #region 공통 메소드
-    public void ChangeState(IPlayerState s) { if (!stateLocked) stateMachine.ChangeState(s); }
+    public void ChangeState(IPlayerState s) 
+    { 
+        if (stateLocked)
+        {
+            if(s is IdleState || s is MoveState)
+                stateMachine.ChangeState(s);
+        }
+        else
+            stateMachine.ChangeState(s); 
+    }
     public IPlayerState GetCurrentState() => stateMachine.GetCurrentState();
     public void RestorePreviousState() => stateMachine.RestorePreviousState();
 
