@@ -112,21 +112,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                ? (v.x > 0 ? 3 : 2)   // Right / Left
                : (v.y > 0 ? 0 : 1);  // Up / Down
     }
-    private static string Suffix(int d) => d switch
-    {
-        0 => "Up",
-        1 => "Down",
-        2 => "Left",
-        _ => "Right"
-    };
+    
     // 공격 애니메이션 클립 값 반환기
     private static string AttackClipName(int step, int dir)
     {
         // dir: 0=Up, 1=Down, 2=Left, 3=Right
         string suffix = dir switch
         {
-            0 => "Up",
-            1 => "Down",
+            0 => "Back",
+            1 => "Front",
             _ => "Side"
         };
         return $"Attack{step}{suffix}";   // 예: Attack1Down, Attack2Side
@@ -136,8 +130,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         // dir: 0=Up, 1=Down, 2=Left, 3=Right
         string suffix = dir switch
         {
-            0 => "Up",
-            1 => "Down",
+            0 => "Back",
+            1 => "Front",
             _ => "Side"
         };
         return $"HeavyAttack{suffix}";   // 예: HeavyAttackUp, HeavyAttackSide, HeavyAttackDown
