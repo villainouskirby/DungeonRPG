@@ -229,7 +229,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         float targetSpeed = cur switch
         {
             IdleState or SneakState or NormalAttackState or GuardState => 0f,
-            SneakMoveState or ChargingState => 1f,
+            SneakMoveState or ChargingState or PotionConsumeState => 1f,
             MoveState => 3f,
             RunState => runspeed,
             _ => speed
@@ -374,7 +374,16 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #endregion
 
     #region 공통 메소드
-    public void ChangeState(IPlayerState s) { if (!stateLocked) stateMachine.ChangeState(s); }
+    public void ChangeState(IPlayerState s) 
+    { 
+        if (stateLocked)
+        {
+            if(s is IdleState || s is MoveState)
+                stateMachine.ChangeState(s);
+        }
+        else
+            stateMachine.ChangeState(s); 
+    }
     public IPlayerState GetCurrentState() => stateMachine.GetCurrentState();
     public void RestorePreviousState() => stateMachine.RestorePreviousState();
 

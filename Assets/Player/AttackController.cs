@@ -18,6 +18,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
     [SerializeField] private float comboBuffer = 0.5f;   // 콤보 버퍼시간
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
+    [SerializeField] private float combo1cost = 4f;
+    [SerializeField] private float combo2cost = 6f;
     [Header("평타 애니 재생 시간(1타/2타), 사실상 상수. 애니메이션 시간 달라지면 여기서 수정")]
     [SerializeField] private float[] baseAnimLength = { 1.0f, 1.3f };
     [Header("평타 공격 시전 시간(1타/2타) 값이 적을수록 공격이 빨라짐, 애니메이션도 빨라짐")]
@@ -75,7 +77,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     public bool IsInAttackAnimation => isAttacking;
     private Animator anim;
     private SpriteRenderer sprite;
-
     public bool HeavyOnCooldown => heavyOnCooldown;
     // Unity 
     private void Awake()
@@ -146,8 +147,18 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     #endregion
     // 공격 입력
     private bool comboQueued = false;    // 후딜 중 눌린 입력 버퍼
+    private bool attackLocked = false;
+    public void LockAttack()
+    {
+        attackLocked = true;
+    }
+    public void UnLockAttack()
+    {
+        attackLocked = false;
+    }
     void HandleAttackInput()
     {
+        if (attackLocked) return;
         if (Input.GetMouseButtonDown(0))
         {
             pressTime = Time.time;
@@ -159,7 +170,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         // 0.3초보다 길게 누르면 차징 시작
         if (!isAttackCharging &&                // 아직 차징 아님
             Input.GetMouseButton(0) &&          // 계속 누르고 있고
-            Time.time - pressTime >= chargeThreshold)
+            Time.time - pressTime >= chargeThreshold &&
+            !isAttacking)
         {
             // 상태 머신 진입 (속도 1f 유지용)
             pc.ChangeState(new ChargingState(pc));
@@ -214,6 +226,16 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 평타 코루틴 
     private IEnumerator PerformAttack(int step)
     {
+        if (PlayerData.instance.IsExhausted) yield break;
+        if (step == 1)
+        {
+            PlayerData.instance.ConsumeActionStamina(combo1cost, allowDebt: true);
+        }
+        else
+        {
+            PlayerData.instance.ConsumeActionStamina(combo2cost, allowDebt: true);
+        }
+        
         isAttacking = true;
 
         float totalCast = Mathf.Max(0.05f, afterDelay[step - 1]); // 총 시전시간(=애니 길이)
@@ -274,7 +296,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
-        if (!PlayerData.instance || PlayerData.instance.currentStamina.Value <= 0f)
+        if (!PlayerData.instance || !PlayerData.instance.TryConsumeChargeThisFrame(Time.deltaTime))
         {
             Debug.Log("스테미너 부족");
             return false;
