@@ -162,7 +162,26 @@ public class PlayerData : MonoBehaviour
 
         return false;
     }
+    public bool ConsumeComboAttackStamina(float cost, bool allowDebt = true)
+    {
+        if (IsExhausted) return false;                 // 무방비면 액션 자체가 불가
 
+        if (currentStamina.Value >= cost)
+        {
+            currentStamina.Value -= cost;              // 정상 차감
+            BlockStaminaRegen(1.5f);
+            return true;
+        }
+
+        if (allowDebt)                                  // 빚 허용: 0으로 만들고 무방비
+        {
+            currentStamina.Value = 0f;
+            EnterExhaust();                             // 2초 무방비 + 리젠금지
+            return true;                                // 모션은 이미 끝났으므로 true
+        }
+
+        return false;
+    }
     // 달리기 “지속 소모” (RunState에서 매 프레임 호출)
     public bool TryConsumeSprintThisFrame(float dt)
     {
