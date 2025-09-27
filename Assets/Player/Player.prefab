@@ -487,7 +487,7 @@ MonoBehaviour:
   currentSpeed: {fileID: 11400000, guid: 1908df05f23267a4695fbd5ca1dbc9c4, type: 2}
   currentHP: {fileID: 11400000, guid: e25990f3ef3e20a4e85bcbcdbf249453, type: 2}
   currentStamina: {fileID: 11400000, guid: 70fa28d0b71b2794e972a597db4337aa, type: 2}
-  StaminaSpeed: 5
+  StaminaSpeed: 3
   exhaustedDuration: 2
   runCostPerSec: 20
   chargeCostPerSec: 15
@@ -521,7 +521,7 @@ MonoBehaviour:
   - 1.3
   afterDelay:
   - 1
-  - 1.5
+  - 1.3
   comboInputTime: 0.35
   hitboxActiveTime: 0.12
   slash1Width: 2
