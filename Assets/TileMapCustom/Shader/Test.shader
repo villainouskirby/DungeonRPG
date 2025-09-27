@@ -235,7 +235,7 @@ Shader "Tilemap/LitTilemap"
                 UNITY_BRANCH
                 if (_HeightWallActive == 0)
                 {
-                    isWall = false;
+                    isWall = 0;
                     tileHeight = 1;
                 }
                     
@@ -247,6 +247,7 @@ Shader "Tilemap/LitTilemap"
                 float wallHeight = lerp(wallData.x + 0.3, wallData.y - 0.3, (i.tilePos.y - wallData.w) / wallData.z);
                 //return lerp(float4(0, 0, 0, 0), float4(wallHeight * 0.1, wallHeight * 0.1, 0, 1), isWall);
                 float height = lerp(tileHeight, wallHeight, isWall);
+                //return float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1);
                 //return float4(height * 0.1, height * 0.1, 0, 1);
 
                  // Fog Logic
@@ -270,7 +271,9 @@ Shader "Tilemap/LitTilemap"
                 
                 //fogedColor = _LayerIndex;
                 float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.3);
-                
+                //return lightedColor;
+                //return float4(heightFog * 0.1, heightFog * 0.1, 0, 1);
+                //return lerp(float4(0, 0, 0, 0), float4(heightFog * 0.1, heightFog * 0.1, 0, 1), valid);
                 //return lerp(float4(0, 0, 0, 0), float4(height * 0.1, height * 0.1, 0, 1), valid);
                 return lerp(_DefaultColor, resultColor, valid);
             }

@@ -159,18 +159,18 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
 
     public void ExtractLayerHeightData(TileMapData mapData, Tilemap heightMap, int layer, Vector2Int size, int mapChunkWidth)
     {
+        for (int y = 0; y < size.y; y++)
+        {
+            for (int x = 0; x < size.x; x++)
+                mapData.HeightData[x + y * size.x] = SetIntSliceValue4Bit(mapData.HeightData[x + y * size.x], layer, EM.Instance.LayerDefaultHeight[layer]);
+        }
+
         if (heightMap == null)
             return;
         heightMap.CompressBounds();
         BoundsInt bounds = heightMap.cellBounds;
         Vector3Int startPos = bounds.position;
         TileBase[] tiles = heightMap.GetTilesBlock(bounds);
-
-        for (int y = 0; y < size.y; y++)
-        {
-            for (int x = 0; x < size.x; x++)
-                mapData.HeightData[x + y * size.x] = SetIntSliceValue4Bit(mapData.HeightData[x + y * size.x], layer, EM.Instance.LayerDefaultHeight[layer]);
-        }
 
         for (int y = 0; y < bounds.size.y; y++)
         {
