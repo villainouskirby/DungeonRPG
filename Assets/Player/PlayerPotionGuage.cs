@@ -32,6 +32,7 @@ public class PlayerPotionGuage : MonoBehaviour
     // 내부 상태
     float _ratio = 0f;          // 0~1
     bool _visible = false;
+    bool _subscribed = false;
 
     void Reset()
     {
@@ -50,6 +51,7 @@ public class PlayerPotionGuage : MonoBehaviour
 
     void OnEnable()
     {
+        _subscribed = false;
         // PotionManager 등록
         TrySubscribe();
         UpdateTransform();
@@ -64,7 +66,8 @@ public class PlayerPotionGuage : MonoBehaviour
     {
         EnsureTarget();
         UpdateTransform();
-
+        if (!_subscribed && PotionManager.instance != null)
+            TrySubscribeAndSync();
 #if UNITY_EDITOR
         if (!Application.isPlaying)
         {
@@ -93,12 +96,39 @@ public class PlayerPotionGuage : MonoBehaviour
         PotionManager.instance.OnGaugeEnd += HandleGaugeEnd;
     }
 
+    void TrySubscribeAndSync()
+    {
+        var pm = PotionManager.instance;
+        if (pm == null) return;
+
+        // 중복 방지
+        TryUnsubscribe();
+
+        pm.OnGaugeStart += HandleGaugeStart;
+        pm.OnGaugeProgress += HandleGaugeProgress;
+        pm.OnGaugeEnd += HandleGaugeEnd;
+        _subscribed = true;
+
+        // 진행 중이면 즉시 동기화해서 화면에 표시 (시작 이벤트를 놓쳤어도 뜨게)
+        if (pm.IsDrinking)
+        {
+            float duration = Mathf.Max(0.01f, pm.CurrentDrinkDuration);
+            float elapsed = Mathf.Clamp(Time.time - pm.CurrentDrinkStart, 0f, duration);
+            float ratio = Mathf.Clamp01(elapsed / duration);
+
+            HandleGaugeStart(duration);                  // 보장
+            HandleGaugeProgress(elapsed, duration, ratio);
+        }
+    }
     void TryUnsubscribe()
     {
-        if (PotionManager.instance == null) return;
-        PotionManager.instance.OnGaugeStart -= HandleGaugeStart;
-        PotionManager.instance.OnGaugeProgress -= HandleGaugeProgress;
-        PotionManager.instance.OnGaugeEnd -= HandleGaugeEnd;
+        var pm = PotionManager.instance;
+        if (!_subscribed || pm == null) { _subscribed = false; return; }
+
+        pm.OnGaugeStart -= HandleGaugeStart;
+        pm.OnGaugeProgress -= HandleGaugeProgress;
+        pm.OnGaugeEnd -= HandleGaugeEnd;
+        _subscribed = false;
     }
 
     // ===== Potion Events =====

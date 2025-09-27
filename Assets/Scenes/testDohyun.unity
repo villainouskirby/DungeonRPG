@@ -2504,7 +2504,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 666769085}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddPotion1
+        m_MethodName: AddInventory1
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6950,6 +6950,21 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3148947481537620502, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 1.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3148947481537620502, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3148947481537620502, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 120
+      objectReference: {fileID: 0}
     - target: {fileID: 4276587350243989628, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -6959,6 +6974,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4802730644538782846, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4802730644538782846, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 121
       objectReference: {fileID: 0}
     - target: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}

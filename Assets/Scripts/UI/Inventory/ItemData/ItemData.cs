@@ -13,7 +13,7 @@ public abstract class ItemData
     public Dictionary<ItemDataExtension.Name, ItemDataExtension> Extensions => _extensions;
 
     [SerializeReference] private Item_Info_Item _info;
-    [SerializeReference] private Dictionary<ItemDataExtension.Name, ItemDataExtension> _extensions;
+    [SerializeReference] private Dictionary<ItemDataExtension.Name, ItemDataExtension> _extensions = new();
 
     [SerializeField] private Sprite _iconSprite;
 

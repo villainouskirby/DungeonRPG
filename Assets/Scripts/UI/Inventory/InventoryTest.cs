@@ -37,6 +37,16 @@ public class InventoryTest : MonoBehaviour
         ItemData data = ItemDataConstructor.GetItemData("HER_CGR_LEA");
         AddInventory(data);
     }
+    public void AddInventory1()
+    {
+        ItemData data = ItemDataConstructor.GetItemData("MIN_CPR");
+        AddInventory(data);
+    }
+    public void AddInventory2()
+    {
+        ItemData data = ItemDataConstructor.GetItemData("POT_002");
+        AddInventory(data);
+    }
     public Dictionary<string, Item_Info_Item> ItemDic;
     public void AddPotion1()
     {
@@ -64,7 +74,7 @@ public class InventoryTest : MonoBehaviour
     }
     public void AddInventory(ItemData data)
     {
-        int rest = inventory.AddItem(data, amount);
+        int rest = UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(data, amount);
         if (rest > 0) Debug.Log("들어가지 못한 아이템 개수 : " + rest);
     }
     

@@ -19,6 +19,9 @@ public class PotionManager : MonoBehaviour
     public event Action<float> OnGaugeStart;                  // duration
     public event Action<float, float, float> OnGaugeProgress; // elapsed, duration, ratio
     public event Action OnGaugeEnd;
+    public bool IsDrinking { get; private set; } = false;
+    public float CurrentDrinkDuration { get; private set; } = 0f;
+    public float CurrentDrinkStart { get; private set; } = 0f;
     private void Awake()
     {
         instance = this;
@@ -96,11 +99,13 @@ public class PotionManager : MonoBehaviour
         if (player == null) return false;
 
         player.LockState();
-        //PlayerData.instance.StartPotionGauge(DRINK_DURATION);
 
         float duration = DRINK_DURATION;
         float start = Time.time;
         float endTime = start + duration;
+        IsDrinking = true;
+        CurrentDrinkDuration = duration;
+        CurrentDrinkStart = start;
 
         // 게이지 시작 알림
         OnGaugeStart?.Invoke(duration);
@@ -121,7 +126,9 @@ public class PotionManager : MonoBehaviour
         // 잠금해제
 
         OnGaugeEnd?.Invoke();
-        //PlayerData.instance.EndPotionGauge();
+        IsDrinking = false;
+        CurrentDrinkDuration = 0f;
+        CurrentDrinkStart = 0f;
         player.UnlockState();
 
         return true;
