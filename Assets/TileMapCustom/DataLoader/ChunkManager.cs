@@ -17,8 +17,12 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public FileStream MapStream;
     public FileStream HeightStream;
+    public FileStream Wall03Stream;
+    public FileStream Wall47Stream;
     public int[] LoadedChunkMapData;
     public int[] LoadedChunkHeightData;
+    public int[] LoadedChunkWall03Data;
+    public int[] LoadedChunkWall47Data;
     public Dictionary<Vector2Int, int> LoadedChunkIndex;
     public Dictionary<Vector3Int, ChunkGen> CachedChunk;
 
@@ -53,6 +57,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         MapStream.Close();
         HeightStream.Close();
+        Wall03Stream.Close();
+        Wall47Stream.Close();
     }
 
 
@@ -97,6 +103,26 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
             FileShare.ReadWrite
         );
 
+        string wall03Path = JJSave.GetSavePath($"{mapType.ToString()}_Wall03", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
+
+        Wall03Stream?.Close();
+        Wall03Stream = new FileStream(
+            wall03Path,
+            FileMode.Open,
+            FileAccess.ReadWrite,
+            FileShare.ReadWrite
+        );
+
+        string wall47Path = JJSave.GetSavePath($"{mapType.ToString()}_Wall47", $"JJSave/SaveFile/{TM.Instance.SaveSlotIndex}/{mapType.ToString()}/");
+
+        Wall47Stream?.Close();
+        Wall47Stream = new FileStream(
+            wall47Path,
+            FileMode.Open,
+            FileAccess.ReadWrite,
+            FileShare.ReadWrite
+        );
+
 
         PlayerMoveChecker.Instance.AddMoveAction(CheckChunkMove);
     }
@@ -105,7 +131,6 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         // 맵 시작시 전체 청크 로딩
         UpdateAllChunk(LastChunkPos);
-        Debug.Log("a");
     }
 
     public void SaveMapData()
@@ -141,6 +166,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         SetViewChunkSize(TM.Instance.ViewBoxSize);
         LoadedChunkMapData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize * DL.Instance.All.LayerCount];
         LoadedChunkHeightData = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
+        LoadedChunkWall03Data = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
+        LoadedChunkWall47Data = new int[DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize * _viewChunkSize * _viewChunkSize];
         Vector2Int[] allChunk = GetAllChunkIndexInViewBox(_viewChunkSize);
 
         for (int i = 0; i < allChunk.Length; i++)
@@ -154,6 +181,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
                 LoadChunkFromStream(allChunk[i], j).CopyTo(LoadedChunkMapData.AsSpan(offset));
             }
             LoadChunkFromHeight(allChunk[i]).CopyTo(LoadedChunkHeightData.AsSpan(LoadedChunkIndex[allChunk[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
+            LoadChunkFromWall03(allChunk[i]).CopyTo(LoadedChunkWall03Data.AsSpan(LoadedChunkIndex[allChunk[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
+            LoadChunkFromWall47(allChunk[i]).CopyTo(LoadedChunkWall47Data.AsSpan(LoadedChunkIndex[allChunk[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
         }
     }
 
@@ -180,6 +209,8 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
                 LoadChunkFromStream(added[i], j).CopyTo(LoadedChunkMapData.AsSpan(offset));
             }
             LoadChunkFromHeight(added[i]).CopyTo(LoadedChunkHeightData.AsSpan(LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
+            LoadChunkFromWall03(added[i]).CopyTo(LoadedChunkWall03Data.AsSpan(LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
+            LoadChunkFromWall47(added[i]).CopyTo(LoadedChunkWall47Data.AsSpan(LoadedChunkIndex[removed[i]] * DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize));
 
             LoadedChunkIndex.Remove(removed[i]);
             ChunkUnloadAction?.Invoke(removed[i]);
@@ -290,7 +321,59 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         return result;
     }
 
+    public int[] LoadChunkFromWall03(Vector2Int chunkPos)
+    {
 
+        int tileCount = DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
+
+        if (chunkPos.x < 0 || chunkPos.x >= DL.Instance.All.Width || chunkPos.y < 0 || chunkPos.y >= DL.Instance.All.Height)
+        {
+            int[] empty = new int[tileCount];
+            Array.Fill(empty, -1);
+
+            return empty;
+        }
+
+        int offset = 4; // Array Data는 앞에 4의 Header를 가지고 있음, 일단 Layer 시작 지점을 가져옴
+        int chunkIndex = Pos2ArrayIndex(chunkPos, DL.Instance.All.Width);
+        offset += GetChunkStartPos(chunkIndex, DL.Instance.All.ChunkSize) * 4;
+
+        Array.Copy(BitConverter.GetBytes(tileCount), 0, _heightBuffer, 0, 4);
+        // Byte로 데이터를 읽어오기에 tileCount * 4로 읽어줘야함. Int32 기준
+        Wall03Stream.Seek(offset, SeekOrigin.Begin);
+        Wall03Stream.Read(_heightBuffer, 4, tileCount * 4);
+
+        int[] result = TypeByte2TypeConverter.Convert<int[]>(_heightBuffer);
+
+        return result;
+    }
+
+    public int[] LoadChunkFromWall47(Vector2Int chunkPos)
+    {
+
+        int tileCount = DL.Instance.All.ChunkSize * DL.Instance.All.ChunkSize;
+
+        if (chunkPos.x < 0 || chunkPos.x >= DL.Instance.All.Width || chunkPos.y < 0 || chunkPos.y >= DL.Instance.All.Height)
+        {
+            int[] empty = new int[tileCount];
+            Array.Fill(empty, -1);
+
+            return empty;
+        }
+
+        int offset = 4; // Array Data는 앞에 4의 Header를 가지고 있음, 일단 Layer 시작 지점을 가져옴
+        int chunkIndex = Pos2ArrayIndex(chunkPos, DL.Instance.All.Width);
+        offset += GetChunkStartPos(chunkIndex, DL.Instance.All.ChunkSize) * 4;
+
+        Array.Copy(BitConverter.GetBytes(tileCount), 0, _heightBuffer, 0, 4);
+        // Byte로 데이터를 읽어오기에 tileCount * 4로 읽어줘야함. Int32 기준
+        Wall47Stream.Seek(offset, SeekOrigin.Begin);
+        Wall47Stream.Read(_heightBuffer, 4, tileCount * 4);
+
+        int[] result = TypeByte2TypeConverter.Convert<int[]>(_heightBuffer);
+
+        return result;
+    }
 
     // 원하는 TilePos와 LayerIndex를 넘겨주면 해당하는 Tile값을 넘겨줌
     // 외부에서는 그저 호출만 하면 됨

@@ -73,6 +73,9 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         mapData.LayerData = new TileMapLayerData[Tilemap.Count];
         mapData.All.TileMapLayerInfo = new TileMapLayerInfo[Tilemap.Count];
         mapData.HeightData = new int[size.x * size.y];
+        mapData.Wall03Data = new int[size.x * size.y];
+        mapData.Wall47Data = new int[size.x * size.y];
+        mapData.All.WallDataPool = new();
 
         for (int i = 0; i < Tilemap.Count; i++)
         {
@@ -124,22 +127,27 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         EM.Instance.ShadowSpriteIndex = ConvertSprite2Int(EM.Instance.ShadowType.Sprites);
     }
 
-    public int GetIntSliceValue(int source, int index)
-    {
-        int shift = index * 4;
-        int mask = 0b1111 << shift;
-        return (source & mask) >> shift;
-    }
-
     /// <summary>
     /// int32를 4bit 단위로 쪼갰을 때, 특정 index(0~7) 위치에 값을 넣는다.
     /// </summary>
-    public int SetIntSliceValue(int source, int index, int value)
+    public int SetIntSliceValue4Bit(int source, int index, int value)
     {
         int shift = index * 4;
         int mask = 0b1111 << shift;
         source &= ~mask;
         source |= (value << shift);
+        return source;
+    }
+
+    /// <summary>
+    /// 32bit 정수(int)에서 8bit 단위 슬롯(index)에 value를 저장.
+    /// </summary>
+    public int SetIntSliceValue8Bit(int source, int index, int value)
+    {
+        int shift = index * 8;
+        int mask = 0xFF << shift;
+        source &= ~mask;
+        source |= (value & 0xFF) << shift;
         return source;
     }
 
@@ -155,7 +163,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         for (int y = 0; y < size.y; y++)
         {
             for (int x = 0; x < size.x; x++)
-                mapData.HeightData[x + y * size.x] = SetIntSliceValue(mapData.HeightData[x + y * size.x], layer, EM.Instance.LayerDefaultHeight[layer]);
+                mapData.HeightData[x + y * size.x] = SetIntSliceValue4Bit(mapData.HeightData[x + y * size.x], layer, EM.Instance.LayerDefaultHeight[layer]);
         }
 
         for (int y = 0; y < bounds.size.y; y++)
@@ -178,7 +186,108 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                     height = tile.sprite;
 
                 if (height != null)
-                    mapData.HeightData[index] = SetIntSliceValue(mapData.HeightData[index], layer, int.Parse(height.name));
+                {
+                    if (height.name == "W")
+                    {
+                        mapData.HeightData[index] = SetIntSliceValue4Bit(mapData.HeightData[index], layer, 15);
+                    }
+                    else
+                        mapData.HeightData[index] = SetIntSliceValue4Bit(mapData.HeightData[index], layer, int.Parse(height.name));
+                }
+            }
+        }
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                Vector2Int chunkIndex = new(x / EM.ChunkSize, y / EM.ChunkSize);
+                Vector2Int localIndex = new(x % EM.ChunkSize, y % EM.ChunkSize);
+
+                int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapChunkWidth;
+                int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+                int correctIndex;
+
+                if (mapData.HeightData[index] == 15)
+                {
+                    WallData wallData = new();
+
+                    int endY = y;
+                    int startY = y;
+                    while (endY < size.y - 1)
+                    {
+                        endY++;
+                        chunkIndex = new(x / EM.ChunkSize, endY / EM.ChunkSize);
+                        localIndex = new(x % EM.ChunkSize, endY % EM.ChunkSize);
+                        chunkStartIndex = chunkIndex.x + chunkIndex.y * mapChunkWidth;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        correctIndex = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                        if (mapData.HeightData[correctIndex] != 15)
+                        { 
+                            wallData.EndHeight = mapData.HeightData[correctIndex];
+                            break;
+                        }
+
+                        if (endY == size.y - 1)
+                        {
+                            wallData.EndHeight = EM.Instance.LayerDefaultHeight[layer];
+                            break;
+                        }
+                    }
+                    while (startY > 0)
+                    {
+                        startY--;
+                        chunkIndex = new(x / EM.ChunkSize, startY / EM.ChunkSize);
+                        localIndex = new(x % EM.ChunkSize, startY % EM.ChunkSize);
+                        chunkStartIndex = chunkIndex.x + chunkIndex.y * mapChunkWidth;
+                        localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        correctIndex = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                        if (mapData.HeightData[correctIndex] != 15)
+                        {
+                            wallData.StartHeight = mapData.HeightData[correctIndex];
+                            break;
+                        }
+
+                        if (startY == 0)
+                        {
+                            wallData.StartHeight = EM.Instance.LayerDefaultHeight[layer];
+                            break;
+                        }
+                    }
+                    wallData.Length = endY - startY - 1;
+                    wallData.StartY = startY + 1;
+                    
+                    bool isExist = false;
+                    int wallIndex = 0;
+                    for (int i = 0; i < mapData.All.WallDataPool.Count; i++)
+                    {
+                        if (mapData.All.WallDataPool[i].Length == wallData.Length &&
+                            mapData.All.WallDataPool[i].StartY == wallData.StartY &&
+                            mapData.All.WallDataPool[i].EndHeight == wallData.EndHeight &&
+                            mapData.All.WallDataPool[i].StartHeight == wallData.StartHeight
+                            ) { isExist = true; wallIndex = i; break; }
+                    }
+
+                    if (isExist)
+                    {
+                        if (layer < 4)
+                            mapData.Wall03Data[index] = SetIntSliceValue8Bit(mapData.Wall03Data[index], layer, wallIndex);
+                        else
+                            mapData.Wall47Data[index] = SetIntSliceValue8Bit(mapData.Wall47Data[index], layer - 4, wallIndex);
+                    }
+                    else
+                    {
+                        wallIndex = mapData.All.WallDataPool.Count;
+                        mapData.All.WallDataPool.Add(wallData);
+                        if (layer < 4)
+                            mapData.Wall03Data[index] = SetIntSliceValue8Bit(mapData.Wall03Data[index], layer, wallIndex);
+                        else
+                            mapData.Wall47Data[index] = SetIntSliceValue8Bit(mapData.Wall47Data[index], layer - 4, wallIndex);
+                    }
+                }
             }
         }
     }

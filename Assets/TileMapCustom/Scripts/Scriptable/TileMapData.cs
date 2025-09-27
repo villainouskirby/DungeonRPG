@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 
@@ -13,6 +14,8 @@ public class TileMapData
     // 각 Layer 타일 정보
     public TileMapLayerData[] LayerData;
     public int[] HeightData;
+    public int[] Wall03Data;
+    public int[] Wall47Data;
 }
 
 [System.Serializable]
@@ -47,7 +50,20 @@ public class TileMapDataAll
     public InteractionObjData InteractionObjData;
     // 플레이어가 시작하는 위치
     public Vector2Int PlayerSpawnTilePos;
+    // 벽 데이터 풀
+    public List<WallData> WallDataPool;
 }
+
+[System.Serializable]
+[StructLayout(LayoutKind.Sequential)]
+public struct WallData
+{
+    public float StartHeight;
+    public float EndHeight;
+    public float Length;
+    public float StartY;
+}
+
 [System.Serializable]
 public class TileMapDataStream
 {

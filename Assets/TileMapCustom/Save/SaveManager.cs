@@ -118,6 +118,8 @@ public static class SaveManager
 
             JJSave.LSave(mapData.ToArray(), $"{((MapEnum)i).ToString()}_Stream", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
             JJSave.LSave(oriData.HeightData, $"{((MapEnum)i).ToString()}_Height", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
+            JJSave.LSave(oriData.Wall03Data, $"{((MapEnum)i).ToString()}_Wall03", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
+            JJSave.LSave(oriData.Wall47Data, $"{((MapEnum)i).ToString()}_Wall47", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/", false);
         }
 
         LoadSaveFileData();

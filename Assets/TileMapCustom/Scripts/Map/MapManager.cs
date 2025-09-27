@@ -10,7 +10,6 @@ using CM = ChunkManager;
 using static MapBufferChanger;
 using System.Linq;
 using Unity.VisualScripting;
-using Unity.Mathematics;
 
 public class MapManager : MonoBehaviour, ITileMapBase
 {
@@ -40,6 +39,16 @@ public class MapManager : MonoBehaviour, ITileMapBase
             for (int i = 0; i < _layerBuffer.Length; i++)
                 _layerBuffer[i].Dispose();
         }
+
+        if (_heightMapBuffer != null)
+            _heightMapBuffer.Dispose();
+        if (_wall03MapBuffer != null)
+            _wall03MapBuffer.Dispose();
+        if (_wall47MapBuffer != null)
+            _wall47MapBuffer.Dispose();
+
+        if (_wallDataPoolBuffer != null)
+            _wallDataPoolBuffer.Dispose();
     }
 
     public void ChangeMapping()
@@ -55,6 +64,8 @@ public class MapManager : MonoBehaviour, ITileMapBase
     public void ChangeHeightData()
     {
         ChangeHeightDataBuffer(_heightMapBuffer);
+        ChangeWall03DataBuffer(_wall03MapBuffer);
+        ChangeWall47DataBuffer(_wall47MapBuffer);
     }
 
 
@@ -75,6 +86,9 @@ public class MapManager : MonoBehaviour, ITileMapBase
             _controller[i].transform.position = new(0, 0, DL.Instance.All.TileMapLayerInfo[i].Z);
         }
         SetHeightBuffer(ref _heightMapBuffer);
+        SetWall03Buffer(ref _wall03MapBuffer);
+        SetWall47Buffer(ref _wall47MapBuffer);
+        SetWallDataPoolBuffer(DL.Instance.All.WallDataPool.ToArray(), ref _wallDataPoolBuffer);
 
         SetMappingDataBuffer(CM.Instance.GetMappingArray(), ref _mappingBuffer);
         SetGlobal();
@@ -90,6 +104,9 @@ public class MapManager : MonoBehaviour, ITileMapBase
     private GraphicsBuffer _visitedMapDataBufferColumn;
     private GraphicsBuffer _mappingBuffer;
     private GraphicsBuffer _heightMapBuffer;
+    private GraphicsBuffer _wall03MapBuffer;
+    private GraphicsBuffer _wall47MapBuffer;
+    private GraphicsBuffer _wallDataPoolBuffer;
 
     private GraphicsBuffer[] _layerBuffer;
     private TileMapController[] _controller;
@@ -127,7 +144,10 @@ public class MapManager : MonoBehaviour, ITileMapBase
         Shader.SetGlobalInt("_CenterChunkX", CM.Instance.LastChunkPos.x);
         Shader.SetGlobalInt("_CenterChunkY", CM.Instance.LastChunkPos.y);
         Shader.SetGlobalBuffer("_HeightBuffer", _heightMapBuffer);
+        Shader.SetGlobalBuffer("_Wall03Buffer", _wall03MapBuffer);
+        Shader.SetGlobalBuffer("_Wall47Buffer", _wall47MapBuffer);
         Shader.SetGlobalFloat("_PlayerHeight", 0);
+        Shader.SetGlobalBuffer("_WallDataPoolBuffer", _wallDataPoolBuffer);
     }
 
     public Texture2DArray CreateTexture2DArray(Texture2D[] tileTexture)
@@ -175,5 +195,15 @@ public class MapManager : MonoBehaviour, ITileMapBase
     private void SetHeightBuffer(ref GraphicsBuffer buffer)
     {
         SetHeightDataBuffer(ref buffer);
+    }
+
+    private void SetWall03Buffer(ref GraphicsBuffer buffer)
+    {
+        SetWall03DataBuffer(ref buffer);
+    }
+
+    private void SetWall47Buffer(ref GraphicsBuffer buffer)
+    {
+        SetWall47DataBuffer(ref buffer);
     }
 }

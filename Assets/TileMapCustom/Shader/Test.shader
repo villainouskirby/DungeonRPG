@@ -14,6 +14,7 @@ Shader "Tilemap/LitTilemap"
         _DistanceCorrect    ("Dist Fog Correct",   Float) = 5
         _ExtHeightFactor("Height Num", Float) = 0
         _HeightStrength ("Height Mix", Range(0,1)) = 0
+        _HeightWallActive ("Height Wall Active", Float) = 1
 
         [HideInInspector] _Color("Tint", Color) = (1,1,1,1)
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
@@ -85,6 +86,7 @@ Shader "Tilemap/LitTilemap"
             float _FogActive;
             float _HeightStrength;
             float _LayerIndex;
+            float _HeightWallActive;
 
             /// TileMap
             // Global
@@ -113,6 +115,10 @@ Shader "Tilemap/LitTilemap"
 
             // HeightMap
             StructuredBuffer<int> _HeightBuffer;
+            StructuredBuffer<int> _Wall03Buffer;
+            StructuredBuffer<int> _Wall47Buffer;
+
+            StructuredBuffer<float4> _WallDataPoolBuffer;
 
             #if USE_SHAPE_LIGHT_TYPE_0
             SHAPE_LIGHT(0)
@@ -188,6 +194,14 @@ Shader "Tilemap/LitTilemap"
 
                 int index = localChunkOffset * _ChunkSize * _ChunkSize + PosToIndex(localTileIndex, _ChunkSize);
                 int tileHeight = _HeightBuffer[index];
+
+                int wallIndex = -1;
+                UNITY_BRANCH
+                if (_LayerIndex < 4) // uniform
+                    wallIndex = _Wall03Buffer[index];
+                else
+                    wallIndex = _Wall47Buffer[index];
+
                 index = validCoord * index;
 
                 int tileType = _MapDataBuffer[index];
@@ -204,12 +218,43 @@ Shader "Tilemap/LitTilemap"
 
                 int shift = _LayerIndex * 4;
                 tileHeight = (tileHeight >> shift) & 0xF;
+                //return lerp(float4(0, 0, 0, 0), float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1), valid);
+                UNITY_BRANCH
+                if (_LayerIndex < 4)
+                {
+                    shift = _LayerIndex * 4;
+                    wallIndex = (wallIndex >> shift) & 0xFF;
+                }
+                else
+                {
+                    shift = (_LayerIndex - 4) * 4;
+                    wallIndex = (wallIndex >> shift) & 0xFF;
+                }
+
+                float isWall = step(14.5, tileHeight);
+                UNITY_BRANCH
+                if (_HeightWallActive == 0)
+                {
+                    isWall = false;
+                    tileHeight = 1;
+                }
+                    
+                //return lerp(float4(0, 0, 0, 0), float4(isWall, isWall, 0, 1), valid);
+                float4 wallData = _WallDataPoolBuffer[wallIndex];
+                //return lerp(float4(0, 0, 0, 0), float4(wallIndex, wallIndex, 0, 1), isWall * valid);
+                //return lerp(float4(0, 0, 0, 0), float4(i.tilePos.y * 0.1, i.tilePos.y * 0.1, 0, 1), valid);
+                //return lerp(float4(0, 0, 0, 0), float4((i.tilePos.y - wallData.w) * 0.2, (i.tilePos.y - wallData.w) * 0.2, 0, 1), isWall * valid);
+                float wallHeight = lerp(wallData.x + 0.3, wallData.y - 0.3, (i.tilePos.y - wallData.w) / wallData.z);
+                //return lerp(float4(0, 0, 0, 0), float4(wallHeight * 0.1, wallHeight * 0.1, 0, 1), isWall);
+                float height = lerp(tileHeight, wallHeight, isWall);
+                //return float4(height * 0.1, height * 0.1, 0, 1);
+
                  // Fog Logic
                 float  distXY  = length(_PlayerPos.xy - i.worldPos.xy);
                 distXY += _DistanceCorrect;
                 float  distFog = clamp(distXY, _DistanceStart, _DistanceEnd) / _DistanceEnd;
 
-                float  heightFog = abs(tileHeight - _PlayerHeight);
+                float  heightFog = abs(height - _PlayerHeight);
                 float  fogFactor = lerp(distFog, heightFog, _HeightStrength);
                 fogFactor = distFog;
                 float3 fogedColor = lerp(main.rgb, _FogColor.rgb, fogFactor);
@@ -224,8 +269,9 @@ Shader "Tilemap/LitTilemap"
                 float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
                 
                 //fogedColor = _LayerIndex;
-                float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.2);
-                //return lerp(float4(0, 0, 0, 0), float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1), valid);
+                float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.3);
+                
+                //return lerp(float4(0, 0, 0, 0), float4(height * 0.1, height * 0.1, 0, 1), valid);
                 return lerp(_DefaultColor, resultColor, valid);
             }
             ENDHLSL

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
@@ -31,6 +32,16 @@ public static class MapBufferChanger
         buffer.SetData(data);
     }
 
+    public static void SetWallDataPoolBuffer(WallData[] data, ref GraphicsBuffer buffer)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = data.Length;
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, Marshal.SizeOf(typeof(WallData)));
+        buffer.SetData(data);
+    }
+
     public static void SetMapDataBuffer(ref GraphicsBuffer buffer, int layer)
     {
         buffer?.Dispose();
@@ -51,6 +62,26 @@ public static class MapBufferChanger
         buffer.SetData(ChunkManager.Instance.LoadedChunkHeightData);
     }
 
+    public static void SetWall03DataBuffer(ref GraphicsBuffer buffer)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = ChunkManager.Instance.GetViewBoxSize();
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
+        buffer.SetData(ChunkManager.Instance.LoadedChunkWall03Data);
+    }
+
+    public static void SetWall47DataBuffer(ref GraphicsBuffer buffer)
+    {
+        buffer?.Dispose();
+
+        int bufferSize = ChunkManager.Instance.GetViewBoxSize();
+
+        buffer = new(GraphicsBuffer.Target.Structured, bufferSize, sizeof(int));
+        buffer.SetData(ChunkManager.Instance.LoadedChunkWall47Data);
+    }
+
     public static void ChangeMappingDataBuffer(int[] data, GraphicsBuffer buffer)
     {
         buffer.SetData(data);
@@ -64,6 +95,16 @@ public static class MapBufferChanger
     public static void ChangeHeightDataBuffer(GraphicsBuffer buffer)
     {
         buffer.SetData(ChunkManager.Instance.LoadedChunkHeightData);
+    }
+
+    public static void ChangeWall03DataBuffer(GraphicsBuffer buffer)
+    {
+        buffer.SetData(ChunkManager.Instance.LoadedChunkWall03Data);
+    }
+
+    public static void ChangeWall47DataBuffer(GraphicsBuffer buffer)
+    {
+        buffer.SetData(ChunkManager.Instance.LoadedChunkWall47Data);
     }
 
     /*
