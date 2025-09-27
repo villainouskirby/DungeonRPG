@@ -15,7 +15,7 @@ public class PotionManager : MonoBehaviour
     public float DRINK_DURATION = 2f;
 
     PlayerController player;
-
+    AttackController attackController;
     public event Action<float> OnGaugeStart;                  // duration
     public event Action<float, float, float> OnGaugeProgress; // elapsed, duration, ratio
     public event Action OnGaugeEnd;
@@ -26,7 +26,11 @@ public class PotionManager : MonoBehaviour
     {
         instance = this;
     }
-    void Start() => player = FindObjectOfType<PlayerController>();
+    void Start() 
+    {
+        player = FindObjectOfType<PlayerController>();
+        attackController = FindObjectOfType<AttackController>();
+    }
 
     private bool isDrinking = false;
 
@@ -90,29 +94,35 @@ public class PotionManager : MonoBehaviour
         isDrinking = false;
         return success;
     }
-    private void Update()
+    private bool _cancelRequested = false;
+    public void RequestCancelDrink()
     {
-
+        _cancelRequested = true;
     }
     private async UniTask<bool> Drink()
     {
-        if (player == null) return false;
+        if (player == null && attackController == null) return false;
 
-        player.LockState();
+        attackController.LockAttack();
 
         float duration = DRINK_DURATION;
         float start = Time.time;
         float endTime = start + duration;
-        IsDrinking = true;
-        CurrentDrinkDuration = duration;
-        CurrentDrinkStart = start;
 
+        _cancelRequested = false;
+
+        player.ChangeState(new PotionConsumeState(player, duration));
         // 게이지 시작 알림
         OnGaugeStart?.Invoke(duration);
 
 
         while (Time.time < endTime)
         {
+            if (_cancelRequested)
+            {
+                OnGaugeEnd?.Invoke();  // 게이지 닫기
+                return false;          // 취소: 효과 미적용
+            }
             float elapsed = Time.time - start;
             float ratio = Mathf.Clamp01(elapsed / duration);
 
@@ -129,8 +139,7 @@ public class PotionManager : MonoBehaviour
         IsDrinking = false;
         CurrentDrinkDuration = 0f;
         CurrentDrinkStart = 0f;
-        player.UnlockState();
-
+        attackController.UnLockAttack();
         return true;
     }
     IEnumerable<string> ParseKinds(string buff)

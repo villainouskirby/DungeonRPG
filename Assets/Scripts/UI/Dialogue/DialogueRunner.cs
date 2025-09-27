@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -10,9 +11,11 @@ public class DialogueRunner : UIBase
     [SerializeField] private TextMeshProUGUI _lineText;
     [SerializeField] private TextPrinter _printer;
 
+    private Dictionary<DialogueEndEvent.KeyName, Action<string>> _eventDict = new();
+
     private AsyncOperationHandle<DialogueSO> _handle;
     private Queue<DialogueLineStatement> _dialogueLines;
-    private string _endEventKey;
+    private DialogueEndEvent[] _endEvent;
 
     private bool _isDialogueRunning = false;
 
@@ -20,6 +23,8 @@ public class DialogueRunner : UIBase
     {
         UIPopUpHandler.Instance.RegisterUI(this);
         _printer.InitTMP(_lineText);
+
+        _eventDict[DialogueEndEvent.KeyName.Dialogue] = Init;
     }
 
     public void Init(string dialogueName)
@@ -28,9 +33,11 @@ public class DialogueRunner : UIBase
         var dialogue = _handle.WaitForCompletion();
 
         _dialogueLines = new Queue<DialogueLineStatement>(dialogue.Lines);
-        _endEventKey = dialogue.EndEventKey;
+        _endEvent = dialogue.EndEvent;
 
         _isDialogueRunning = true;
+
+        gameObject.SetActive(true);
 
         TryPrint();
     }
@@ -63,13 +70,24 @@ public class DialogueRunner : UIBase
     {
         _isDialogueRunning = false;
 
-        if (!string.IsNullOrEmpty(_endEventKey))
+        if (_endEvent.Length > 0)
         {
-            // end 이벤트 실행
+            foreach (var endEvent in _endEvent)
+            {
+                if (_eventDict.TryGetValue(endEvent.Key, out var action))
+                {
+                    action?.Invoke(endEvent.Value);
+                }
+            }
         }
 
         Addressables.Release(_handle);
 
         _handle = default;
+
+        if (!_isDialogueRunning)
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

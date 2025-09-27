@@ -99,7 +99,7 @@ public class InventoryUI : SlotInteractHandler
 
         if ((slotUI = newSlot.GetComponent<InventoryItemSlotUI>()) == null) slotUI = newSlot.AddComponent<InventoryItemSlotUI>();
 
-        _itemSlotsDict[type].Insert(index, slotUI);
+        _itemSlotsDict[type].Insert(_inventory.GetIndexFromTypeList(index, type), slotUI);
 
         // 복제하여 전체 리스트에도 추가
         slotUI = Instantiate(slotUI, _contentsDict[TabType.All]);
@@ -184,7 +184,7 @@ public class InventoryUI : SlotInteractHandler
         _itemSlotsDict[TabType.All].RemoveAt(index);
 
         TabType itemType = _inventory.GetItemTypeByIndex(index);
-        index = _inventory.GetIndexFromTypeList(index, itemType); // 이거 제거 팝업 뜰때 안돌아가게 해야되나
+        index = _inventory.GetIndexFromTypeList(index, itemType);
         Destroy(_itemSlotsDict[itemType][index].gameObject);
         _itemSlotsDict[itemType].RemoveAt(index);
     }

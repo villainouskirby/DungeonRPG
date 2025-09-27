@@ -117,6 +117,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         attackController = GetComponent<AttackController>();
         stateMachine = new PlayerStateMachine();
         stateMachine.ChangeState(new IdleState(this));
+
+        if (PlayerData.instance != null)
+            PlayerData.instance.OnStunRequested += HandleStun;
     }
 
     private void Update()
@@ -138,6 +141,14 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void FixedUpdate()
     {
+        Vector2 raw = ReadMoveRaw();
+
+        if (stateMachine.GetCurrentState() is PotionConsumeState && raw == Vector2.zero)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
+        
         if (_moveFreezeUntil > 0f && Time.time < _moveFreezeUntil)
         {
             rb.velocity = Vector2.zero;
@@ -145,7 +156,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         }
         if (EscapeActive) return;
 
-        // 입력 / 속도 계산
         float hx = Input.GetAxis("Horizontal");
         float hy = Input.GetAxis("Vertical");
         Vector2 dir = new(hx, hy);
@@ -228,8 +238,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         var cur = stateMachine.GetCurrentState();
         float targetSpeed = cur switch
         {
-            IdleState or SneakState or NormalAttackState or GuardState => 0f,
+            IdleState or SneakState or NormalAttackState or GuardState or StunState => 0f,
             SneakMoveState or ChargingState => 1f,
+            PotionConsumeState => 2f,
             MoveState => 3f,
             RunState => runspeed,
             _ => speed
@@ -261,7 +272,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         }
 
     }
-
+    // 스턴 로직
+    private void HandleStun(float duration)
+    {
+        ChangeState(new StunState(this, duration));
+    }
     #region 회피 기동 로직
     public bool TryBeginEscape()
     {
@@ -374,7 +389,16 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #endregion
 
     #region 공통 메소드
-    public void ChangeState(IPlayerState s) { if (!stateLocked) stateMachine.ChangeState(s); }
+    public void ChangeState(IPlayerState s) 
+    { 
+        if (stateLocked)
+        {
+            if(s is IdleState || s is MoveState)
+                stateMachine.ChangeState(s);
+        }
+        else
+            stateMachine.ChangeState(s); 
+    }
     public IPlayerState GetCurrentState() => stateMachine.GetCurrentState();
     public void RestorePreviousState() => stateMachine.RestorePreviousState();
 
@@ -398,4 +422,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     public void UnlockState() => stateLocked = false;
     #endregion
+    private void OnDestroy()
+    {
+        if (PlayerData.instance != null)
+            PlayerData.instance.OnStunRequested -= HandleStun;
+    }
 }

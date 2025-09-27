@@ -172,37 +172,7 @@ public class SneakState : IPlayerState
 
     public override string ToString() => "SneakState";
 }
-/*
-public class ForageState : IPlayerState
-{
-    private IPlayerChangeState player;
 
-    public ForageState(IPlayerChangeState player) { this.player = player; }
-
-    public void Enter()
-    {
-        Debug.Log("Forage 상태 시작");
-    }
-
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetKeyDown(KeyCode.E))
-        { player.ChangeState(new GuardState(player)); return; }
-        if (Input.GetMouseButtonDown(1))
-        { player.ChangeState(new ChargingState(player)); return; }
-
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
-        if (moveX != 0 || moveY != 0) player.ChangeState(new MoveState(player));
-        if (Input.GetKeyUp(KeyCode.F)) player.ChangeState(new IdleState(player));
-    }
-
-    public void Exit() { }// Debug.Log("Forage 상태 종료");
-    public override string ToString() => "Forage";
-}
-*/
 public class GuardState : IPlayerState
 {
     readonly PlayerController pc;
@@ -249,6 +219,120 @@ public class GuardState : IPlayerState
     public void Exit() => Debug.Log("Guard OFF");
     public override string ToString() => "Guard";
 }
+public sealed class PotionConsumeState : IPlayerState
+{
+    private readonly IPlayerChangeState owner;
+    private readonly PlayerController pc;
+    private readonly PotionManager pm;
+    private readonly float duration;
+
+    private float startTime;
+    private bool finished;
+
+    public PotionConsumeState(IPlayerChangeState p, float durationSec)
+    {
+        owner = p;
+        pc = p as PlayerController;
+        pm = PotionManager.instance;
+        duration = Mathf.Max(0.01f, durationSec);
+    }
+
+    public void Enter()
+    {
+
+        startTime = Time.time;
+        finished = false;
+
+        if (pm != null) pm.OnGaugeEnd += HandleGaugeEnd;
+
+        // ★ HP 변동 감지 → 섭취 취소
+        if (PlayerData.instance != null)
+            PlayerData.instance.OnHPChanged += HandleHpChanged;
+    }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space)) // 회피 시 포션 사용 취소
+        { 
+            owner.ChangeState(new EscapeState(owner));
+            pm.RequestCancelDrink();
+            return;
+        }
+        // 안전망: 이벤트 못 받아도 시간 경과 시 종료
+        if (!finished && Time.time - startTime >= duration)
+        {
+            finished = true;
+            owner.ChangeState(new IdleState(owner));
+        }
+    }
+
+    public void Exit()
+    {
+        if (pm != null) pm.OnGaugeEnd -= HandleGaugeEnd;
+        if (PlayerData.instance != null)
+            PlayerData.instance.OnHPChanged -= HandleHpChanged;
+    }
+
+    public override string ToString() => "PotionConsume";
+
+    private void HandleGaugeEnd()
+    {
+        if (!finished)
+        {
+            finished = true;
+            owner.ChangeState(new IdleState(owner));
+        }
+    }
+
+    private void HandleHpChanged(float oldHp, float newHp)
+    {
+        // 피격에만 반응하려면: if (newHp < oldHp) { ... }
+        // 여기선 HP 변동(증감 모두) 시 취소
+        if (!finished && pm != null)
+            pm.RequestCancelDrink();   // 아래 3) 참조
+    }
+}
+public sealed class StunState : IPlayerState
+{
+    private readonly PlayerController pc;
+    private float remain;
+    private bool finished;
+    public StunState(PlayerController controller, float duration)
+    {
+        pc = controller;
+        remain = duration;
+    }
+    public void Enter()
+    {
+        finished = false;
+        if (pc)
+        {
+            pc.rb.velocity = Vector2.zero;
+            pc.anim.Play("Stun"); // 스턴 전용 애니메이션 클립 있으면 여기
+        }
+    }
+    public void Update()
+    {
+        if (finished) return;
+
+        remain -= Time.deltaTime;
+        if (remain <= 0f)
+        {
+            finished = true;
+            pc.ChangeState(new IdleState(pc));
+        }
+        else
+        {
+            // 매 프레임 이동 강제 정지
+            if (pc) pc.rb.velocity = Vector2.zero;
+        }
+    }
+    public void Exit()
+    {
+        // 스턴 해제 시 추가 처리 필요하다면 작성
+    }
+    public override string ToString() => "Stun";
+}
 public class ChargingState : IPlayerState
 {
     private readonly IPlayerChangeState player;
@@ -262,7 +346,7 @@ public class ChargingState : IPlayerState
     {
         player = p;
         pc = p as PlayerController;
-        if (pc) ac = pc.GetComponent<AttackController>();  
+        if (pc) ac = pc.GetComponent<AttackController>();
         else ac = (p as MonoBehaviour)?.GetComponent<AttackController>();
 
     }

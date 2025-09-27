@@ -175,17 +175,20 @@ public class Inventory : UIBase, ISave
     {
         int startIndex;
         int endIndex;
+        ItemType type;
 
         switch (itemData.Createitem())
         {
             case EquipmentItem:
                 startIndex = _indexDict[ItemType.Equipment]();
                 endIndex = _indexDict[ItemType.Usable]();
+                type = ItemType.Equipment;
                 break;
 
             case PotionItem:
                 startIndex = _indexDict[ItemType.Potion]();
                 endIndex = _indexDict[ItemType.Others]();
+                type = ItemType.Potion;
                 break;
 
             case ResourceItem:
@@ -194,11 +197,13 @@ public class Inventory : UIBase, ISave
             case IUsableItem:
                 startIndex = _indexDict[ItemType.Usable]();
                 endIndex = _indexDict[ItemType.Potion]();
+                type = ItemType.Usable;
                 break;
 
             default:
                 startIndex = _indexDict[ItemType.Others]();
                 endIndex = _items.Count;
+                type = ItemType.Others;
                 break;
         }
 
@@ -245,6 +250,7 @@ public class Inventory : UIBase, ISave
 
                     // 슬롯에 추가
                     _items.Insert(startIndex, ci);
+                    _slotCountDict[type]++;
 
                     // 남은 개수 계산
                     amount = (amount > ciData.MaxAmount) ? (amount - ciData.MaxAmount) : 0;
@@ -263,6 +269,7 @@ public class Inventory : UIBase, ISave
             {
                 // 아이템 생성 및 슬롯에 추가
                 _items.Insert(startIndex, itemData.Createitem());
+                _slotCountDict[type]++;
 
                 UpdateSlot(startIndex, true);
                 OnInventoryChanged?.Invoke(startIndex, 1);
@@ -429,8 +436,8 @@ public class Inventory : UIBase, ISave
         {
             if (ci.IsEmpty)
             {
-                _items.RemoveAt(index);
                 _inventoryUI.RemoveSlot(index);
+                _items.RemoveAt(index);
             }
             else
             {

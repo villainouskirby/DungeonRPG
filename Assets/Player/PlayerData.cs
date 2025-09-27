@@ -14,7 +14,8 @@ public class PlayerData : MonoBehaviour
     [Header("Max Stats (스탯 최대 값)")]
     [SerializeField] private FloatVariableSO MaxHP;
     [SerializeField] private FloatVariableSO MaxStamina;
-
+    public event System.Action<float, float> OnHPChanged;
+    public event System.Action<float> OnStunRequested;
     [Header("Current Stats (게임 중 변동)")]
     [SerializeField] private FloatVariableSO currentAtk;
     [SerializeField] private FloatVariableSO currentSpeed;
@@ -30,6 +31,7 @@ public class PlayerData : MonoBehaviour
 
     [Header("Sprint")]
     [SerializeField] private float runCostPerSec = 5f;          // 달리기 1초당 소모
+    [SerializeField] private float chargeCostPerSec = 15f;
     [SerializeField] private float sprintResumeThreshold = 10f; // 재시작 가능 최소 스태미나
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
@@ -64,9 +66,19 @@ public class PlayerData : MonoBehaviour
     }
     public void HPValueChange(float value)
     {
+        float old = currentHP.Value;
         currentHP.Value += value;
-    }
 
+        if (currentHP.Value > MaxHP.Value) currentHP.Value = MaxHP.Value;
+        if (currentHP.Value < 0f) currentHP.Value = 0f;
+
+        if (Mathf.Abs(currentHP.Value - old) > Mathf.Epsilon)
+            OnHPChanged?.Invoke(old, currentHP.Value);
+    }
+    public void PlayerStun(float stunDuration)
+    {
+        OnStunRequested?.Invoke(stunDuration);
+    }
     #region 스태미나
     public void StaminaValueChange(float value)
     {
@@ -157,6 +169,23 @@ public class PlayerData : MonoBehaviour
         if (IsExhausted || SprintLocked) return false;
 
         float need = runCostPerSec * dt;
+        if (currentStamina.Value <= need)
+        {
+            currentStamina.Value = 0f;
+            EnterExhaust();                             // 0 → 무방비 진입
+            return false;                               // 더 이상 달릴 수 없음
+        }
+
+        currentStamina.Value -= need;
+        BlockStaminaRegen(1f);
+        return true;
+    }
+    // 차징 어택 스테미나 소모
+    public bool TryConsumeChargeThisFrame(float dt)
+    {
+        if (IsExhausted || SprintLocked) return false;
+
+        float need = chargeCostPerSec * dt;
         if (currentStamina.Value <= need)
         {
             currentStamina.Value = 0f;
