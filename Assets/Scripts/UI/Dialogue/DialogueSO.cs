@@ -18,8 +18,8 @@ public struct DialogueEndEvent
         Dialogue,   // 다음 대사 출력
         Get,        // 아이템 획득
         Lose,       // 아이템 잃음
+        Quest,      // 퀘스트 부여
     }
-
 
     public KeyName Key;
     public string Value;

@@ -1685,7 +1685,6 @@ MonoBehaviour:
   runCostPerSec: 5
   sprintResumeThreshold: 10
   exhaustRegenBlockSec: 1.5
-  chargeUI: {fileID: 0}
 --- !u!4 &956276903 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6364988511274455817, guid: ccdbe8f60e63dde45aecbcdd76056e32,
@@ -5251,6 +5250,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.00025187392
       objectReference: {fileID: 0}
+    - target: {fileID: 3260643028353483657, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3293924940324820833, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
         type: 3}
       propertyPath: _equipment
@@ -5424,6 +5428,16 @@ PrefabInstance:
     - target: {fileID: 7874793063281035942, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7904266335330099143, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7904266335330099143, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
+        type: 3}
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8050435153945670782, guid: 39f13eabc5d94544e9e1d4daf1029eb8,
