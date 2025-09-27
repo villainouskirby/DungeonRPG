@@ -490,6 +490,7 @@ MonoBehaviour:
   StaminaSpeed: 5
   exhaustedDuration: 2
   runCostPerSec: 20
+  chargeCostPerSec: 15
   sprintResumeThreshold: 10
   exhaustRegenBlockSec: 1.5
 --- !u!114 &6620938914345478364
@@ -513,11 +514,13 @@ MonoBehaviour:
   comboRate:
   - 0.7
   - 1.3
+  combo1cost: 4
+  combo2cost: 6
   baseAnimLength:
   - 1
   - 1.3
   afterDelay:
-  - 1.5
+  - 1
   - 1.5
   comboInputTime: 0.35
   hitboxActiveTime: 0.12
