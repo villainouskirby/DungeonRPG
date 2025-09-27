@@ -23,7 +23,7 @@ public class FollowPlayerSmooth : MonoBehaviour
         CameraAreaData = new();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         Vector3 targetPosition;
 

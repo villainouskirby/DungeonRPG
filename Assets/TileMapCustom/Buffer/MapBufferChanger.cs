@@ -37,6 +37,8 @@ public static class MapBufferChanger
         buffer?.Dispose();
 
         int bufferSize = data.Length;
+        if (data.Length == 0)
+            return;
 
         buffer = new(GraphicsBuffer.Target.Structured, bufferSize, Marshal.SizeOf(typeof(WallData)));
         buffer.SetData(data);
