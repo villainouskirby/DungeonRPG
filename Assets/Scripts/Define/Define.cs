@@ -1,13 +1,4 @@
 
-
-public enum QuestType
-{
-    gathering,
-    mining,
-    hunting,
-    researching
-}
-
 public enum Attribute
 {
     None,

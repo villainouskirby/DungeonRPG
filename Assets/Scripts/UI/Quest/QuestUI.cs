@@ -54,7 +54,7 @@ public class QuestUI : SlotInteractHandler
         }
 
         Mission firstMission = info.Missions[0];
-        _questSlots[index].SetItemInfo(firstMission.Sprite, firstMission.Type, firstMission.Progress, firstMission.MaxProgress, info.IsMainQuest);
+        //_questSlots[index].SetItemInfo(firstMission.Sprite, firstMission.Type, firstMission.Progress, firstMission.MaxProgress, info.IsMainQuest);
     }
 
     public void RemoveSlot(int index)
@@ -80,9 +80,10 @@ public class QuestUI : SlotInteractHandler
                 continue;
             }
 
+            /*
             _missionTexts[i].text = mission.Content;
             if (mission.Type != QuestType.researching)
-                _missionTexts[i].text += $"({mission.Progress}/{mission.MaxProgress})";
+                _missionTexts[i].text += $"({mission.Progress}/{mission.MaxProgress})";*/
         }
 
         // 퀘스트 내용 표시

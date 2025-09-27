@@ -6,6 +6,8 @@ public class QuestSlotUI : SlotUI
     [SerializeField] private TextMeshProUGUI _progressText;
     [SerializeField] private GameObject _mainQuestMark;
 
+
+    /*
     public void SetItemInfo(Sprite sprite, QuestType type, int progress, int maxProgress, bool isMainQuest)
     {
         SetItemInfo(sprite);
@@ -28,4 +30,5 @@ public class QuestSlotUI : SlotUI
             _mainQuestMark.SetActive(false);
         }
     }
+    */
 }

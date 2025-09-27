@@ -102,6 +102,7 @@ public class InventoryTest : MonoBehaviour
         shop.ResetShop();
     }
 
+    /*
     public void AddQuest()
     {
         Mission mission = new Mission();
@@ -118,6 +119,7 @@ public class InventoryTest : MonoBehaviour
         info.Rewards = new Item[3] { testItemData.Createitem(), testItemData.Createitem(), testItemData.Createitem() };
         quest.AddQuest(info);
     }
+    */
 
     public void AddSmithData()
     {

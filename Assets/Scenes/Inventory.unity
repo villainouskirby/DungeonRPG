@@ -1683,6 +1683,7 @@ MonoBehaviour:
   StaminaSpeed: 2
   exhaustedDuration: 2
   runCostPerSec: 5
+  chargeCostPerSec: 15
   sprintResumeThreshold: 10
   exhaustRegenBlockSec: 1.5
 --- !u!4 &956276903 stripped
@@ -4628,7 +4629,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1979232881}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddInventory
+        m_MethodName: AddInventory2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

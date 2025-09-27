@@ -9,6 +9,10 @@ public  class Quest_Info_Hunting
     /// </summary>
     public string id;
     /// <summary>
+    /// 대상 오브젝트 id
+    /// </summary>
+    public string object_id;
+    /// <summary>
     /// 목표 개수
     /// </summary>
     public int count;
