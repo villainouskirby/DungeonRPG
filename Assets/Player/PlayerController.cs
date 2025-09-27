@@ -229,7 +229,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         float targetSpeed = cur switch
         {
             IdleState or SneakState or NormalAttackState or GuardState => 0f,
-            SneakMoveState or ChargingState => 1f,
+            SneakMoveState or ChargingState or PotionConsumeState => 1f,
             MoveState => 3f,
             RunState => runspeed,
             _ => speed
