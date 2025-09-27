@@ -1,6 +1,8 @@
 using TMPro;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using System.Threading;
+using System;
 
 public class TextPrinter : MonoBehaviour
 {
@@ -11,15 +13,12 @@ public class TextPrinter : MonoBehaviour
     private TextMeshProUGUI _targetTMP;
     private bool _isPrintingText;
 
-    /// <summary> 지정한 텍스트 출력하기 </summary>
-    public void PrintText(TextMeshProUGUI targetTMP, string text)
+    private CancellationTokenSource _cts;
+
+    public void InitTMP(TextMeshProUGUI targetTMP)
     {
-        _isPrintingText = true;
-        _text = text;
         _targetTMP = targetTMP;
         _targetTMP.text = "";
-
-        Print();
     }
 
     /// <summary>
@@ -28,6 +27,9 @@ public class TextPrinter : MonoBehaviour
     /// </summary>
     public bool CheckIsPrinting()
     {
+        _cts?.Cancel();
+        _cts?.Dispose();
+
         if (_isPrintingText)
         {
             _targetTMP.text = _text;
@@ -38,14 +40,24 @@ public class TextPrinter : MonoBehaviour
         return false;
     }
 
-    private async void Print()
+    public async UniTaskVoid Print(string text)
     {
+        _cts = new CancellationTokenSource();
+        _text = text;
+
         _isPrintingText = true;
 
-        for (int i = 0; i < _text.Length; i++)
+        try
         {
-            _targetTMP.text += _text[i];
-            await UniTask.Delay(_delayTime);
+            for (int i = 0; i < _text.Length; i++)
+            {
+                _targetTMP.text += _text[i];
+                await UniTask.Delay(_delayTime);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+
         }
 
         _isPrintingText = false;

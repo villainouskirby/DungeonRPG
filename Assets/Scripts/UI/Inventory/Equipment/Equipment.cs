@@ -1,8 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Equipment : MonoBehaviour, ISave
+public class Equipment : UIBase, ISave
 {
+    public enum EquipmentType
+    {
+        Weapon,
+        SubWeapon,
+        Armor,
+        Backpack
+    }
+
     [SerializeField] private EquipmentUI _equipmentUI;
     [SerializeField] private Inventory _inventory;
 
@@ -10,15 +19,22 @@ public class Equipment : MonoBehaviour, ISave
 
     private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
 
-    public void Equip(EquipmentItemData equipmentItemData)
+    protected override void InitBase()
     {
-        EquipmentType type = equipmentItemData.EquipmentType;
+        UIPopUpHandler.Instance.RegisterUI(this);
+    }
+
+    public void Equip(EquipmentItem equipmentItem)
+    {
+        EquipmentType type = equipmentItem.EquipmentData.EquipmentType;
         if (_playerEquipments.ContainsKey(type))
         {
             UnEquip(type);
         }
 
-        _playerEquipments[type] = equipmentItemData.Createitem() as EquipmentItem;
+        _playerEquipments[type] = equipmentItem;
+        equipmentItem.IsEquipped = true;
+
         UpdateSlot(type);
         UpdateEquipmentEffect(type);
     }
@@ -28,6 +44,7 @@ public class Equipment : MonoBehaviour, ISave
         EquipmentItem ei;
         if (!_playerEquipments.TryGetValue(type, out ei)) return;
 
+        ei.IsEquipped = false;
         UpdateEquipmentEffect(type, false);
         _playerEquipments.Remove(type);
         UpdateSlot(type);
@@ -39,7 +56,7 @@ public class Equipment : MonoBehaviour, ISave
     /// </summary>
     private void UpdateEquipmentEffect(EquipmentType type, bool isPlus = true) // 문제는 없을텐데 기존 스탯에서 장착한 장비들의 추가값 더하는 식으로 바꿔야할듯
     {
-        if (type == EquipmentType.tool) return;
+        if (type == EquipmentType.Backpack) return;
 
         BattleEquipmentItemData beiData = _playerEquipments[type].Data as BattleEquipmentItemData;
         int sign = isPlus ? 1 : -1;

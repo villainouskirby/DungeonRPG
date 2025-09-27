@@ -114,8 +114,12 @@ public class InventoryUI : SlotInteractHandler
         CreateSlot(index, type);
 
         // 기본 정보 등록
-        _itemSlotsDict[TabType.All][index].SetItemInfo(data.IconSprite, data.Name, data.Weight);
-        _itemSlotsDict[type][_inventory.GetIndexFromTypeList(index, type)].SetItemInfo(data.IconSprite, data.Name, data.Weight);
+        _itemSlotsDict[TabType.All][index].SetItemInfo(data.IconSprite, data.Name, data.Info.weight);
+        _itemSlotsDict[TabType.All][index].SetItemDetail(data);
+
+        index = _inventory.GetIndexFromTypeList(index, type);
+        _itemSlotsDict[type][index].SetItemInfo(data.IconSprite, data.Name, data.Info.weight);
+        _itemSlotsDict[type][index].SetItemDetail(data);
     }
 
     /// <summary> 아이템 수량 텍스트 수정 </summary>

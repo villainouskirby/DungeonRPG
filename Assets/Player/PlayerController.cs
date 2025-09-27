@@ -197,6 +197,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         if (attackController && attackController.IsInAttackAnimation) { return; }
 
+        var cur = stateMachine.GetCurrentState();
         string clip = moving
             ? facingDir switch
             {
@@ -210,6 +211,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 1 => "Idle_front",
                 _ => "Idle_side"
             };
+        if (cur is RunState)
+        {
+            clip = facingDir switch
+            {
+                0 => "Run_back",
+                1 => "Run_front",
+                _ => "Run_side"
+            };
+        }
         anim.Play(clip);
     }
     
@@ -229,7 +239,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         {
             // 0이면 그대로 1로, 아닐 때는 비율로 조절
             targetAnimSpeed = targetSpeed > 0.01f
-            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 2.0f)
+            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 1f)
             : 1f; // Idle은 1배속                                           // Idle은 1배속
         }
         else

@@ -1,9 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ExcessPopUpUI : MonoBehaviour
+public class ExcessPopUpUI : UIBase
 {
     [SerializeField] private Button _closeButton;
+
+    protected override void InitBase()
+    {
+        UIPopUpHandler.Instance.RegisterUI(this);
+    }
 
     void Start()
     {

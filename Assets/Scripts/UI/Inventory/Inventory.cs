@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using ItemType = InventoryUI.TabType;
 
-public class Inventory : MonoBehaviour, ISave
+public class Inventory : UIBase, ISave
 {
     public event Action<int, int> OnInventoryChanged;
 
@@ -96,10 +97,17 @@ public class Inventory : MonoBehaviour, ISave
 
     // -------------
 
-    private void Awake()
+    private void OnDisable()
     {
+        _quickSlot.gameObject.SetActive(false);
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
-        
+
         _indexDict[ItemType.All] = GetAllItemIndex;
         _indexDict[ItemType.Equipment] = GetEquipmentItemIndex;
         _indexDict[ItemType.Usable] = GetUsableItemIndex;
@@ -125,6 +133,11 @@ public class Inventory : MonoBehaviour, ISave
     public void OpenQuickSlotPanel() => _quickSlot.gameObject.SetActive(true);
 
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
+
+    protected override void InitBase()
+    {
+        UIPopUpHandler.Instance.RegisterUI(this);
+    }
 
     /// <summary> 인벤 초기화 </summary>
     public void InitInventory() // 창고 닫을때 인벤 초기화 하도록 호출해줘야함 // TODO => 창고도 OnInventoryChanged로 로직 바꿔야 할듯 // 냅다 다 빼고 넣는거보다 슬롯 각각 업데이트 하는식으로 바꾸는것도 나쁘지 않을듯
@@ -192,7 +205,7 @@ public class Inventory : MonoBehaviour, ISave
         startIndex--;
         bool isAddable = FindSlotIndex(itemData, ref startIndex, endIndex);
 
-        CalculateRestWeight(itemData.Weight, -amount);
+        CalculateRestWeight(itemData.Info.weight, -amount);
 
         if (_maxCapacity > 0 && RestCapacity <= 0 && isGetItem)
         {
@@ -320,11 +333,11 @@ public class Inventory : MonoBehaviour, ISave
                 if (item is EquipmentItem ei)
                 {
                     // 해당 슬롯 UI 업데이트
-                    _equipment.Equip(ei.Data as EquipmentItemData);
+                    _equipment.Equip(ei);
                 }
                 else
                 {
-                    CalculateRestWeight(item.Data.Weight);
+                    CalculateRestWeight(item.Data.Info.weight);
                     Debug.Log(item.Data.Name + "사용");
                     UpdateSlot(index);
                 }
@@ -358,7 +371,7 @@ public class Inventory : MonoBehaviour, ISave
 
             ci.SetAmount(ci.Amount - amount);
 
-            CalculateRestWeight(GetItemData(index).Weight, amount - restAmount);
+            CalculateRestWeight(GetItemData(index).Info.weight, amount - restAmount);
             UpdateSlot(index);
             OnInventoryChanged?.Invoke(index, ci.Amount);
 
@@ -375,7 +388,7 @@ public class Inventory : MonoBehaviour, ISave
     /// <summary> 해당 슬롯의 모든 아이템 제거 </summary>
     public void RemoveItem(int index)
     {
-        CalculateRestWeight(GetItemData(index).Weight, GetItemAmount(index));
+        CalculateRestWeight(GetItemData(index).Info.weight, GetItemAmount(index));
         _items.RemoveAt(index);
         UpdateWeightText();
         OnInventoryChanged?.Invoke(index, 0);

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Smith : MonoBehaviour
+public class Smith : UIBase
 {
     [Header("Smith UI")]
     [SerializeField] private SmithUI _smithUI;
@@ -19,9 +19,9 @@ public class Smith : MonoBehaviour
     {
         List<SmithData> list = _smithUI.Category switch
         {
-            EquipmentType.bodyArmor => _armors,
-            EquipmentType.weapon => _weapons,
-            EquipmentType.tool => _tools,
+            Equipment.EquipmentType.Armor => _armors,
+            Equipment.EquipmentType.Weapon => _weapons,
+            Equipment.EquipmentType.Backpack => _tools,
             _ => _armors
         };
 
@@ -32,8 +32,10 @@ public class Smith : MonoBehaviour
     [SerializeField] private Inventory _invenory;
     [SerializeField] private Storage _storage;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         InitSmith();
     }
 
@@ -77,6 +79,11 @@ public class Smith : MonoBehaviour
     public void EquipItem()
     {
         _invenory.UseItem();
+    }
+
+    protected override void InitBase()
+    {
+        UIPopUpHandler.Instance.RegisterUI(this);
     }
 
     public void InitSmith()

@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 
 
@@ -14,6 +15,13 @@ public class PotionManager : MonoBehaviour
     public float DRINK_DURATION = 2f;
 
     PlayerController player;
+
+    public event Action<float> OnGaugeStart;                  // duration
+    public event Action<float, float, float> OnGaugeProgress; // elapsed, duration, ratio
+    public event Action OnGaugeEnd;
+    public bool IsDrinking { get; private set; } = false;
+    public float CurrentDrinkDuration { get; private set; } = 0f;
+    public float CurrentDrinkStart { get; private set; } = 0f;
     private void Awake()
     {
         instance = this;
@@ -91,18 +99,36 @@ public class PotionManager : MonoBehaviour
         if (player == null) return false;
 
         player.LockState();
-        PlayerData.instance.StartPotionGauge(DRINK_DURATION);
 
-        float endTime = Time.time + DRINK_DURATION;
+        float duration = DRINK_DURATION;
+        float start = Time.time;
+        float endTime = start + duration;
+        IsDrinking = true;
+        CurrentDrinkDuration = duration;
+        CurrentDrinkStart = start;
+
+        // 게이지 시작 알림
+        OnGaugeStart?.Invoke(duration);
+
 
         while (Time.time < endTime)
         {
-            // 피격감지 => 피격시 false 반환
+            float elapsed = Time.time - start;
+            float ratio = Mathf.Clamp01(elapsed / duration);
+
+            // 진행 알림
+            OnGaugeProgress?.Invoke(elapsed, duration, ratio);
+
+            // 피격 등으로 취소 로직이 있다면 여기서 검사 후 break/return
             await UniTask.NextFrame();
         }
+
         // 잠금해제
 
-        PlayerData.instance.EndPotionGauge();
+        OnGaugeEnd?.Invoke();
+        IsDrinking = false;
+        CurrentDrinkDuration = 0f;
+        CurrentDrinkStart = 0f;
         player.UnlockState();
 
         return true;

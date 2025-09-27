@@ -40,14 +40,6 @@ public class PlayerData : MonoBehaviour
     void AddRegenBlock() { regenBlockCount++; }
     void RemoveRegenBlock() { regenBlockCount = Mathf.Max(0, regenBlockCount - 1); }
 
-    [Header("포션 UI")]
-    [SerializeField] private ChargeUIController chargeUI;
-    private bool isPotionCharging = false;
-    private float potionChargeStart;
-    private float potionDuration = 2f;   // 기본값, StartPotionGauge 때 갱신
-
-    public float PotionChargeRatio =>
-        isPotionCharging ? Mathf.Clamp01((Time.time - potionChargeStart) / 2f) : 0f;
     private void Awake()
     {
         instance = this;
@@ -56,7 +48,6 @@ public class PlayerData : MonoBehaviour
     private void Start()
     {
         StartCoroutine(StaminaRegen());
-        if (chargeUI) chargeUI.HideAll();
     }
 
     private void Update()
@@ -70,8 +61,6 @@ public class PlayerData : MonoBehaviour
             currentStamina.Value = currentStamina.Value;
         }
         TryUnlockSprint();
-        if (isPotionCharging)
-            chargeUI.SetPotionRatio(PotionChargeRatio);
     }
     public void HPValueChange(float value)
     {
@@ -196,24 +185,24 @@ public class PlayerData : MonoBehaviour
     #endregion
     #region 포션
     // 포션 게이지 UI
-    public void StartPotionGauge(float durationSec)
-    {
-        potionDuration = durationSec;
-        potionChargeStart = Time.time;
-        isPotionCharging = true;
+    //public void StartPotionGauge(float durationSec)
+    //{
+    //    potionDuration = durationSec;
+    //    potionChargeStart = Time.time;
+    //    isPotionCharging = true;
 
-        chargeUI.ShowPotionGauge();
-    }
-    public void CancelPotionGauge()
-    {
-        isPotionCharging = false;
-        chargeUI.HideAll();
-    }
-    public void EndPotionGauge()
-    {
-        isPotionCharging = false;
-        chargeUI.HideAll();
-    }
+    //    chargeUI.ShowPotionGauge();
+    //}
+    //public void CancelPotionGauge()
+    //{
+    //    isPotionCharging = false;
+    //    chargeUI.HideAll();
+    //}
+    //public void EndPotionGauge()
+    //{
+    //    isPotionCharging = false;
+    //    chargeUI.HideAll();
+    //}
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
     {

@@ -1,12 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Quest : MonoBehaviour
+public class Quest : UIBase
 {
     [SerializeField] private QuestUI _questUI;
     [SerializeField] private Inventory _inventory;
 
     private List<QuestInfo> _questInfos = new List<QuestInfo>();
+
+    protected override void InitBase()
+    {
+        UIPopUpHandler.Instance.RegisterUI(this);
+    }
 
     public void AddQuest(QuestInfo info)
     {

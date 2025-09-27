@@ -11,8 +11,9 @@ public class PlayerUIManager : MonoBehaviour
 
     private void Start()
     {
+        /*
         _inventoryButton.onClick.AddListener(UIPopUpHandler.Instance.OpenInventory);
         //_mapButton.onClick.AddListener(UIPopUpHandler.Instance.open); // 맵 코드 가져와야함
-        _questButton.onClick.AddListener(UIPopUpHandler.Instance.OpenQuest);
+        _questButton.onClick.AddListener(UIPopUpHandler.Instance.OpenQuest);*/
     }
 }

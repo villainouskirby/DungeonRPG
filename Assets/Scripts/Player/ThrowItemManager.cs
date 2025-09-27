@@ -36,11 +36,11 @@ public class ThrowItemManager : MonoBehaviour
         if (!aimUI) aimUI = FindObjectOfType<ThrowAimUI>(includeInactive: true);
     }
 
-    void EnsureTable()
-    {
-        if (_useById == null)
-            _useById = SheetDataUtil.DicByKey(Item_Info.ThrowableItem, r => r.id); // "PAR_MIN_ROC" 등
-    }
+    //void EnsureTable()
+    //{
+    //    if (_useById == null)
+    //        _useById = SheetDataUtil.DicByKey(Item_Info.ThrowableItem, r => r.id); // "PAR_MIN_ROC" 등
+    //}
 
     public async UniTask<bool> UseThrowItem(ItemData data)
     {
@@ -53,7 +53,6 @@ public class ThrowItemManager : MonoBehaviour
         if (!aimUI) aimUI = FindObjectOfType<ThrowAimUI>(includeInactive: true);
         if (!aimUI) { Debug.LogError("ThrowItemManager: ThrowAimUI not found"); return false; }
 
-        EnsureTable();
 
         /* // 키 결정: 우선 data.Info?.id, 없으면 ITM의 PAR_DT 사용
         string dt = data.Info != null ? data.Info.id : data.PAR_DT;

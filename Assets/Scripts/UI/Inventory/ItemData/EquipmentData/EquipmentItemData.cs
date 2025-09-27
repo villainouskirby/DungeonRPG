@@ -3,9 +3,10 @@ using UnityEngine;
 /// <summary> 장비 데이터 </summary>
 public abstract class EquipmentItemData : ItemData
 {
-    public EquipmentType EquipmentType => _equipmentType;
+    public Equipment.EquipmentType EquipmentType => _equipmentType;
 
-    [SerializeField] protected EquipmentType _equipmentType;
+    [SerializeField] protected Equipment.EquipmentType _equipmentType;
+    [SerializeField] private bool _isEquipped;
 
     protected EquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {

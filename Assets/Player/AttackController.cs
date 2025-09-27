@@ -4,13 +4,13 @@ using UnityEditor;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent(typeof(Animator), typeof(SpriteRenderer))]
 public class AttackController : MonoBehaviour, IPlayerChangeState
 {
     /* ---------- 외부 연결 ---------- */
     [SerializeField] private PlayerController pc;           // 이동·방향 담당
-    [SerializeField] private ChargeUIController chargeUI;   // 공격 차징 UI
     private static readonly int HashAttackSpeed = Animator.StringToHash("AttackSpeed");
     [Header("공격 판정(2D) - LayerMask")]
     [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
@@ -43,6 +43,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     public bool IsInAttack => isAttacking || isAttackCharging;
     [Header("약공격 -> 강공격 전환 시간")]
     [SerializeField] private float chargeThreshold = 0.30f;   // 0.3초보다 더 누르면 차징 공격 시작
+
+    // 차징 UI 표시용 게이지 이벤트
+    // duration = maxChargeTime, elapsed, ratio(0~1)
+    public event Action<float> OnChargeStart;                         // duration
+    public event Action<float, float, float> OnChargeProgress;        // elapsed, duration, ratio
+    public event Action OnChargeEnd;
+    private float chargeStart;
+    public bool IsCharging => isAttackCharging;
+
     [Header("강공격 설정")]
     [SerializeField] public float maxChargeTime = 1f; // 완충 시간 Tmax
     [SerializeField] private float heavyMultiplier = 1f; // 배율 k
@@ -60,11 +69,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private bool isAttackCharging = false;
     private int comboStep = 0;
     private float nextAttackReady = 0f;
-    private float chargeStart;
     private bool heavyOnCooldown = false;
     float pressTime;
     bool pressActive;
-    public bool IsCharging => isAttackCharging;
     public bool IsInAttackAnimation => isAttacking;
     private Animator anim;
     private SpriteRenderer sprite;
@@ -79,12 +86,18 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     private void Start()
     {
-        if (chargeUI) chargeUI.HideAll();
     }
     private void Update()
     {
         HandleAttackInput();
-        HandleHeavyChargeUI();
+
+        if (isAttackCharging)
+        {
+            float duration = Mathf.Max(0.01f, maxChargeTime);
+            float elapsed = Mathf.Max(0f, Time.time - chargeStart);
+            float ratio = Mathf.Clamp01(elapsed / duration);
+            OnChargeProgress?.Invoke(elapsed, duration, ratio);
+        }
     }
     #region 애니메이션 재생 로직
     private int DirFromMouse()
@@ -99,21 +112,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                ? (v.x > 0 ? 3 : 2)   // Right / Left
                : (v.y > 0 ? 0 : 1);  // Up / Down
     }
-    private static string Suffix(int d) => d switch
-    {
-        0 => "Up",
-        1 => "Down",
-        2 => "Left",
-        _ => "Right"
-    };
+    
     // 공격 애니메이션 클립 값 반환기
     private static string AttackClipName(int step, int dir)
     {
         // dir: 0=Up, 1=Down, 2=Left, 3=Right
         string suffix = dir switch
         {
-            0 => "Up",
-            1 => "Down",
+            0 => "Back",
+            1 => "Front",
             _ => "Side"
         };
         return $"Attack{step}{suffix}";   // 예: Attack1Down, Attack2Side
@@ -123,8 +130,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         // dir: 0=Up, 1=Down, 2=Left, 3=Right
         string suffix = dir switch
         {
-            0 => "Up",
-            1 => "Down",
+            0 => "Back",
+            1 => "Front",
             _ => "Side"
         };
         return $"HeavyAttack{suffix}";   // 예: HeavyAttackUp, HeavyAttackSide, HeavyAttackDown
@@ -276,7 +283,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         isAttackCharging = true;
         chargeStart = Time.time;
-        chargeUI.ShowAttackGauge();
+        OnChargeStart?.Invoke(Mathf.Max(0.01f, maxChargeTime));
         //anim.SetTrigger("ChargeStart");
         return true;
     }
@@ -285,7 +292,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     {
         if (!isAttackCharging) return;
         isAttackCharging = false;
-        chargeUI.HideAll();
+        OnChargeEnd?.Invoke();
+
         //anim.SetTrigger("ChargeCancel");
     }
     public void ReleaseCharging()
@@ -293,6 +301,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         
         if (!isAttackCharging) return;
         isAttackCharging = false;
+
+        OnChargeEnd?.Invoke();
+
         float ratio = Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime);
         int damage = Mathf.RoundToInt(baseDamage * (1f + heavyMultiplier * ratio));
 
@@ -320,7 +331,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         //pc.ChangeState(new NormalAttackState(pc, after));
         StartCoroutine(HeavyCooldown());
         anim.SetFloat(HashAttackSpeed, 1f);
-        chargeUI.HideAll();
     }
     private IEnumerator HeavyCooldown()
     {
@@ -330,11 +340,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
 
     // UI 실시간 갱신
-    private void HandleHeavyChargeUI()
-    {
-        if (isAttackCharging)
-            chargeUI.SetAttackRatio(Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime));
-    }
+    //private void HandleHeavyChargeUI()
+    //{
+    //    if (isAttackCharging)
+    //        chargeUI.SetAttackRatio(Mathf.Clamp01((Time.time - chargeStart) / maxChargeTime));
+    //}
 
     // 히트박스 계산
     private static Vector2 FacingVector(int dir) => dir switch

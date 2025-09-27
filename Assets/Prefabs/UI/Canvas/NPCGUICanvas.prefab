@@ -60,7 +60,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -218,11 +218,31 @@ PrefabInstance:
       propertyPath: m_Name
       value: StorageInventory
       objectReference: {fileID: 0}
+    - target: {fileID: 3484137329445623723, guid: 91acb2dd03a78fe458179d01279d5142,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4489600772427229519, guid: 91acb2dd03a78fe458179d01279d5142,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5945202125872635048, guid: 91acb2dd03a78fe458179d01279d5142,
         type: 3}
       propertyPath: _excessPopUpUI
       value: 
       objectReference: {fileID: 8280083351261066151}
+    - target: {fileID: 9173749993540367530, guid: 91acb2dd03a78fe458179d01279d5142,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9173749993540367530, guid: 91acb2dd03a78fe458179d01279d5142,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -359,6 +379,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExcessPopUp
       objectReference: {fileID: 0}
+    - target: {fileID: 6410101172865031950, guid: 5d27b67375731c64390c4b5fd213295e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -490,10 +515,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4287696412882925961, guid: 8642c3988f3e8a54dabbf6f8c609e8d7,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5161401272410671146, guid: 8642c3988f3e8a54dabbf6f8c609e8d7,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5161401272410671146, guid: 8642c3988f3e8a54dabbf6f8c609e8d7,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8047571983716053202, guid: 8642c3988f3e8a54dabbf6f8c609e8d7,
         type: 3}
       propertyPath: m_Name
       value: Shop
+      objectReference: {fileID: 0}
+    - target: {fileID: 8047571983716053202, guid: 8642c3988f3e8a54dabbf6f8c609e8d7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -518,6 +563,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Smith
+      objectReference: {fileID: 0}
+    - target: {fileID: 226354483964441531, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 972357961169042286, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
         type: 3}
@@ -619,11 +669,71 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1150535238681004430, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1150535238681004430, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2024422191400161355, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2024422191400161355, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2322712670589805959, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
         type: 3}
       propertyPath: _storage
       value: 
       objectReference: {fileID: 3293924940324820833}
+    - target: {fileID: 2940672083432865370, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940672083432865370, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3236428723873525152, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3236428723873525152, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8213774606243685706, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8213774606243685706, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8213774606243685706, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8213774606243685706, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8974507139405934402, guid: 9f0ee2576ce3d284f8b3f1c06e8d30cb,
         type: 3}
       propertyPath: _excessPopUp

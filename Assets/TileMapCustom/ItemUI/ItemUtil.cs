@@ -17,7 +17,7 @@ public static class ItemUtil
             case "WEAPON":
                 return new WeaponItemData(data, null);
             case "ARMOR":
-                return new BodyArmorItemData(data, null);
+                return new ArmorItemData(data, null);
             case "BACKPACK":
                 return null;
             case "SUBWEAPON":
