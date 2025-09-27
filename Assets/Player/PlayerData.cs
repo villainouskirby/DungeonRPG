@@ -40,14 +40,6 @@ public class PlayerData : MonoBehaviour
     void AddRegenBlock() { regenBlockCount++; }
     void RemoveRegenBlock() { regenBlockCount = Mathf.Max(0, regenBlockCount - 1); }
 
-    [Header("포션 UI")]
-    [SerializeField] private ChargeUIController chargeUI;
-    private bool isPotionCharging = false;
-    private float potionChargeStart;
-    private float potionDuration = 2f;   // 기본값, StartPotionGauge 때 갱신
-
-    public float PotionChargeRatio =>
-        isPotionCharging ? Mathf.Clamp01((Time.time - potionChargeStart) / 2f) : 0f;
     private void Awake()
     {
         instance = this;
@@ -56,7 +48,6 @@ public class PlayerData : MonoBehaviour
     private void Start()
     {
         StartCoroutine(StaminaRegen());
-        if (chargeUI) chargeUI.HideAll();
     }
 
     private void Update()
@@ -70,8 +61,6 @@ public class PlayerData : MonoBehaviour
             currentStamina.Value = currentStamina.Value;
         }
         TryUnlockSprint();
-        if (isPotionCharging)
-            chargeUI.SetPotionRatio(PotionChargeRatio);
     }
     public void HPValueChange(float value)
     {
