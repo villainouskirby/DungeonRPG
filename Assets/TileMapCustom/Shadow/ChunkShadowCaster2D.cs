@@ -23,7 +23,7 @@ public class ChunkShadowCaster2D : MonoBehaviour
         LoadFieldAndMethod();
         _caster.useRendererSilhouette = false;
         _caster.castsShadows = true;
-        _caster.selfShadows = true;
+        //_caster.selfShadows = true;
     }
 
     private void LoadFieldAndMethod()

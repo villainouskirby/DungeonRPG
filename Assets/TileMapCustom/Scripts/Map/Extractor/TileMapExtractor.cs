@@ -139,6 +139,12 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         return source;
     }
 
+    public int GetIntSliceValue4Bit(int source, int index)
+    {
+        int shift = index * 4;
+        return (source >> shift) & 0xF;
+    }
+
     /// <summary>
     /// 32bit 정수(int)에서 8bit 단위 슬롯(index)에 value를 저장.
     /// </summary>
@@ -209,7 +215,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                 int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
                 int correctIndex;
 
-                if (mapData.HeightData[index] == 15)
+                if (GetIntSliceValue4Bit(mapData.HeightData[index], layer) == 15)
                 {
                     WallData wallData = new();
 
@@ -224,9 +230,9 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                         localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
                         correctIndex = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
 
-                        if (mapData.HeightData[correctIndex] != 15)
+                        if (GetIntSliceValue4Bit(mapData.HeightData[correctIndex], layer) != 15)
                         { 
-                            wallData.EndHeight = mapData.HeightData[correctIndex];
+                            wallData.EndHeight = GetIntSliceValue4Bit(mapData.HeightData[correctIndex], layer);
                             break;
                         }
 
@@ -245,9 +251,9 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                         localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
                         correctIndex = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
 
-                        if (mapData.HeightData[correctIndex] != 15)
+                        if (GetIntSliceValue4Bit(mapData.HeightData[correctIndex], layer) != 15)
                         {
-                            wallData.StartHeight = mapData.HeightData[correctIndex];
+                            wallData.StartHeight = GetIntSliceValue4Bit(mapData.HeightData[correctIndex], layer);
                             break;
                         }
 
