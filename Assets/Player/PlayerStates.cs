@@ -194,6 +194,7 @@ public class GuardState : IPlayerState
 
     public void Update()
     {
+        PlayerData.instance?.BlockStaminaRegen(1f);
         // 공격키 → 가드 해제 & 공격 전환
         if (Input.GetMouseButtonDown(0))
         {

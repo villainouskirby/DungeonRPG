@@ -25,8 +25,7 @@ public class PlayerDefense : MonoBehaviour
             guardCooldown -= Time.deltaTime;
 
         // 우클릭 'Down' 기록 (가드 판정용)
-        if (Input.GetMouseButtonDown(1))
-            lastGuardPress = Time.time;
+        if (Input.GetMouseButtonDown(1)) { lastGuardPress = Time.time; }
     }
 
     public int ResolveGuard(int incomingDamage)

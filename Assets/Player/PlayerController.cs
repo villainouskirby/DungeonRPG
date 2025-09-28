@@ -234,13 +234,22 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 _ => "Run_side"
             };
         }
-        else if (cur is SneakMoveState) 
+        if (cur is SneakMoveState) 
         {
             clip = facingDir switch
             {
                 0 => "SneakMove_back",
                 1 => "SneakMove_front",
                 _ => "SneakMove_side"
+            };
+        }
+        if (cur is SneakState)
+        {
+            clip = facingDir switch
+            {
+                0 => "Sneak_back",
+                1 => "Sneak_front",
+                _ => "Sneak_side"
             };
         }
         anim.Play(clip);
@@ -307,10 +316,23 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
         rb.velocity = escDir.normalized * slideForce;
+
+        var clip = EscapeClipName(facingDir);
+        anim.CrossFade(clip, 0.05f);
         anim.SetTrigger("Dive");
         return true;
     }
-
+    private static string EscapeClipName(int dir)
+    {
+        // dir: 0=Up, 1=Down(Front), 2=Left, 3=Right
+        string suffix = dir switch
+        {
+            0 => "back",
+            1 => "front",
+            _ => "side"
+        };
+        return $"Escape_{suffix}";
+    }
     // Escape 진행 업데이트 
     void UpdateEscape()
     {
