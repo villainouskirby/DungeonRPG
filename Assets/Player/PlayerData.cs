@@ -36,6 +36,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
 
+
     //스테미나 필드
     int regenBlockCount = 0;
     public bool isStaminaBlocked => regenBlockCount > 0;
@@ -200,19 +201,45 @@ public class PlayerData : MonoBehaviour
         return true;
     }
     // 차징 어택 스테미나 소모
+    private float _chargeSpendCap = 19f;   // 최대 20
+    private float _chargeSpentAccum = 0f;    // 이번 차징 세션 누적치
+    private bool _chargeCapActive = false; // 차징 중(상한 적용 여부)
+    public void BeginChargeSpendCap(float cap = 19f)
+    {
+        _chargeSpendCap = Mathf.Max(0f, cap);
+        _chargeSpentAccum = 0f;
+        _chargeCapActive = true;
+    }
+    public void EndChargeSpendCap()
+    {
+        _chargeCapActive = false;
+        _chargeSpentAccum = 0f;
+    }
     public bool TryConsumeChargeThisFrame(float dt)
     {
         if (IsExhausted || SprintLocked) return false;
 
-        float need = chargeCostPerSec * dt;
-        if (currentStamina.Value <= need)
+        float need = chargeCostPerSec * dt;  // 이번 프레임 청구량
+
+        if (_chargeCapActive)
         {
-            currentStamina.Value = 0f;
-            EnterExhaust();                             // 0 → 무방비 진입
-            return false;                               // 더 이상 달릴 수 없음
+            float remainCap = Mathf.Max(0f, _chargeSpendCap - _chargeSpentAccum);
+
+            need = Mathf.Min(need, remainCap);
+        }
+        if (need > 0f)
+        {
+            if (currentStamina.Value <= need)
+            {
+                currentStamina.Value = 0f;
+                EnterExhaust();               // 0 → 무방비
+                return false;                 // 더 이상 지불 불가
+            }
+
+            currentStamina.Value -= need;
+            if (_chargeCapActive) _chargeSpentAccum += need;
         }
 
-        currentStamina.Value -= need;
         BlockStaminaRegen(1f);
         return true;
     }

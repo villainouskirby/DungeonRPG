@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
     public float runspeed = 5f;
 
+    [Header("웅크리면서 이동하기 속도 설정")]
+    public float sneakmovespeed = 1f;
+    [Header("차징 공격시 이동 속도 설정")]
+    public float chargemovespeed = 2f;
     [Header("가속도 값")]
     [Tooltip("프레임당 속도 변화량 (값이 클수록 반응이 빠르고 작을수록 묵직함)")]
     public float accel = 10f;
@@ -248,7 +252,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         float targetSpeed = cur switch
         {
             IdleState or SneakState or NormalAttackState or GuardState or StunState => 0f,
-            SneakMoveState or ChargingState => 1f,
+            SneakMoveState => sneakmovespeed,
+            ChargingState => chargemovespeed,
             PotionConsumeState => 2f,
             MoveState => 3f,
             RunState => runspeed,

@@ -338,7 +338,6 @@ public class ChargingState : IPlayerState
     private readonly AttackController ac;
 
     float startTime;
-    private float timer;
     private bool released;
     public ChargingState(IPlayerChangeState p)
     {
@@ -351,14 +350,23 @@ public class ChargingState : IPlayerState
 
     public void Enter()
     {
-        if (ac == null || ac.HeavyOnCooldown)          // 쿨타임이면 진입 거부
-        { player.ChangeState(new IdleState(player)); return; }
+        if (ac == null || ac.HeavyOnCooldown)
+        {
+            player.ChangeState(new IdleState(player));
+            return;
+        }
 
-        timer = ac.maxChargeTime;    // 최대 충전 시간
+        // 차징 시도
+        if (!ac.TryStartCharging())
+        {
+            player.ChangeState(new IdleState(player));
+            return;
+        }
 
-        if (!ac.TryStartCharging())      // 충전에 실패하면 즉시 Idle
-        { player.ChangeState(new IdleState(player)); return; }
-        timer = ac.maxChargeTime;
+        // 이번 차징 세션 누적 소모 상한 20 시작
+        if (PlayerData.instance != null)
+            PlayerData.instance.BeginChargeSpendCap(19f);
+
         released = false;
         startTime = Time.time;
         Debug.Log("Charging…");
@@ -370,36 +378,44 @@ public class ChargingState : IPlayerState
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ac.CancelCharging();
+            if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap();
             player.ChangeState(new EscapeState(player));
             return;
         }
-        float consume = ac.heavyChargeStaminaPerSec * Time.deltaTime; // 게터 사용
+        bool ok = PlayerData.instance != null
+                 ? PlayerData.instance.TryConsumeChargeThisFrame(Time.deltaTime)
+                 : true;
 
-        if (!PlayerData.instance.SpendStamina(consume))
+        // Exhaust(실제 고갈) 되면 차징 중단
+        if (!ok)
         {
-            // 부족 → 바로 0으로, 무방비 진입, 차징 취소
-            PlayerData.instance.ForceExhaustToZero();
             ac.CancelCharging();
+            if (PlayerData.instance != null) PlayerData.instance.ForceExhaustToZero();
+            if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap();
             player.ChangeState(new IdleState(player));
             return;
         }
-        // 우클릭을 떼면 공격 발사
+
+        // 마우스 좌클릭을 떼면 발사
         if (!released && Input.GetMouseButtonUp(0))
         {
             ac.ReleaseCharging();
             released = true;
-            Debug.Log("차징 공격 발사");
+
+            // 차징 종료 정리
+            if (PlayerData.instance != null)
+            {
+                PlayerData.instance.BlockStaminaRegen(1f);
+                PlayerData.instance.EndChargeSpendCap();
+            }
+
             player.ChangeState(new IdleState(player));
-            PlayerData.instance.BlockStaminaRegen(1f);
             return;
         }
-
-        float held = Time.time - startTime;
-        if (held > ac.maxChargeTime)
-            held = ac.maxChargeTime;
+        float held = Mathf.Min(Time.time - startTime, ac.maxChargeTime);
     }
 
-    public void Exit() { }
+    public void Exit() { if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap(); }
     public override string ToString() => "Charging";
 }
 public class NormalAttackState : IPlayerState

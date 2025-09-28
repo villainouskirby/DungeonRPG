@@ -16,20 +16,26 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
-    [SerializeField] private float comboBuffer = 0.5f;   // 콤보 버퍼시간
+    private float comboBuffer = 0.5f;   // 콤보 버퍼시간
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [SerializeField] private float combo1cost = 4f;
     [SerializeField] private float combo2cost = 6f;
-    [Header("평타 본체 재생 비율(클립의 몇 %만 재생할지)")]
-    [SerializeField, Range(0.1f, 1f)] private float swingPlayRatio = 0.9f;
-    [Header("히트, 스테미나 소비 소비 타이밍(초)")]
-    [SerializeField] private float[] hitActivateTime = { 0.6f, 0.8f };
+    private float swingPlayRatio = 1f;
+    //[Header("히트, 스테미나 소비 소비 타이밍(초)")]
+    private float[] hitActivateTime = { 0.41f, 0.64f };
     [Header("평타 후딜(1타/2타)")]
     [SerializeField] private float[] afterDelay = { 0.2f, 0.4f };
 
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
 
+
+    private float frontLiftY = 0.2f; // 밑에 바라볼 때 히트박스 올리기
+    private Vector2 HitboxLiftForDir(int dir)
+    {
+        if (dir == 1) return new Vector2(0f, frontLiftY); // 아래를 볼 때만 위로 올림
+        return Vector2.zero;
+    }
     [Header("1타 슬래시(직사각형)")]
     [SerializeField, Min(0.01f)] private float slash1Width = 2.0f;  // 좌우 폭
     [SerializeField, Min(0.01f)] private float slash1Length = 1.2f;  // 전방 길이
@@ -46,8 +52,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
     private int comboLockedDir = -1; // 1타 때 방향 ‑> 2타까지 유지
     public bool IsInAttack => isAttacking || isAttackCharging;
-    [Header("약공격 -> 강공격 전환 시간")]
-    [SerializeField] private float chargeThreshold = 0.30f;   // 0.3초보다 더 누르면 차징 공격 시작
+
+    //[Header("약공격 -> 강공격 전환 시간")]
+    private float chargeThreshold = 0.30f;   // 0.3초보다 더 누르면 차징 공격 시작
 
     // 차징 UI 표시용 게이지 이벤트
     // duration = maxChargeTime, elapsed, ratio(0~1)
@@ -58,10 +65,16 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     public bool IsCharging => isAttackCharging;
 
     [Header("강공격 설정")]
-    [SerializeField] public float maxChargeTime = 1f; // 완충 시간 Tmax
+    public float maxChargeTime = 1f; // 완충 시간 Tmax
     [SerializeField] private float heavyMultiplier = 1f; // 배율 k
     [SerializeField] private float heavyRadius = 2.5f; // 범위 반경 r
-    [SerializeField] private float heavyAfterDelay = 0.7f; // 후딜
+    [SerializeField] private float heavyCost = 30f;
+    private float heavyAfterDelay = 0.7f; // 강공격 후딜
+
+    [Header("강공격 범위 (직사각형)")]
+    [SerializeField, Min(0.01f)] private float heavyWidth = 1.4f;
+    [SerializeField, Min(0.01f)] private float heavyLength = 2.0f;
+    [SerializeField, Range(-0.5f, 0.5f)] private float heavyCenterOffset = 0.0f;
 
     [Header("강공격 차징 소모")]
     [SerializeField] public float heavyChargeStaminaPerSec = 25f;
@@ -69,7 +82,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [Header("Gizmo 색상 커스터마이즈")]
     [SerializeField] private Color gizmoSlash1Color = new Color(1f, 0f, 0f, 0.25f);
     [SerializeField] private Color gizmoSlash2Color = new Color(1f, 0f, 1f, 0.25f);
-    [SerializeField] private Color gizmoHeavyColor = new Color(1f, 1f, 0f, 0.15f);
+    [SerializeField] private Color gizmoheavyColor = new Color(1f, 1f, 0f, 0.15f);
     private bool isAttacking = false;
     private bool isAttackCharging = false;
     private int comboStep = 0;
@@ -244,6 +257,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         if (PlayerData.instance.IsExhausted) yield break;
         isAttacking = true;
 
+        PlayerData.instance.BlockStaminaRegen(1f);
+
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
 
@@ -267,12 +282,13 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         // 히트 + 스태미나 소모 (히트 시점에 맞춤)
         Vector2 forward = FacingVector(dir);
+        Vector2 lift = HitboxLiftForDir(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
 
         if (step == 1)
-            DoSlashBox(dmg, transform.position, forward, slash1Width, slash1Length, slash1CenterOffset, stunLight1);
+            DoSlashBox(dmg, transform.position, forward, slash1Width, slash1Length, slash1CenterOffset, stunLight1, lift);
         else
-            DoSlashBox(dmg, transform.position, forward, slash2Width, slash2Length, slash2CenterOffset, stunLight2);
+            DoSlashBox(dmg, transform.position, forward, slash2Width, slash2Length, slash2CenterOffset, stunLight2, lift);
 
         // 여기서 바로 스태미나 차감 (히트 타이밍에 소비)
         if (step == 1)
@@ -315,9 +331,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
-        if (!PlayerData.instance || !PlayerData.instance.TryConsumeChargeThisFrame(Time.deltaTime))
+        if (!PlayerData.instance)
         {
-            Debug.Log("스테미너 부족");
             return false;
         }
         if (isAttacking || heavyOnCooldown) return false;
@@ -325,6 +340,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         isAttackCharging = true;
         chargeStart = Time.time;
         OnChargeStart?.Invoke(Mathf.Max(0.01f, maxChargeTime));
+        PlayerData.instance.BeginChargeSpendCap(20f);
         //anim.SetTrigger("ChargeStart");
         return true;
     }
@@ -339,7 +355,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     public void ReleaseCharging()
     {
-        
         if (!isAttackCharging) return;
         isAttackCharging = false;
 
@@ -351,27 +366,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
 
-        string clip = HeavyAttackClipName(dir);
-        var c = FindClip(clip);
-        float baseLen = (c != null && c.length > 0f) ? c.length : 1f;
-        float speedMul = baseLen / Mathf.Max(0.01f, heavyAfterDelay);
-
-        anim.SetFloat(HashAttackSpeed, speedMul);
-
-        anim.Play(clip, 0, 0f);
-
-        isAttacking = true;
-
-        pc.FreezeMoveFor(heavyAfterDelay);
-
-        pc.rb.velocity = Vector2.zero;
-        pc.ChangeState(new NormalAttackState(pc, heavyAfterDelay));
-
-        DoHeavyCircle(damage, transform.position, heavyRadius);
-        heavyOnCooldown = true;
-        //pc.ChangeState(new NormalAttackState(pc, after));
-        StartCoroutine(HeavyCooldown());
-        anim.SetFloat(HashAttackSpeed, 1f);
+        StartCoroutine(PerformHeavySlash(dir, damage));
     }
     private IEnumerator HeavyCooldown()
     {
@@ -404,14 +399,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         return Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
     }
     private void DoSlashBox(int dmg, Vector2 origin, Vector2 dir,
-                        float width, float length, float centerOffset01, float stunSec = 0f)
+                        float width, float length, float centerOffset01, float stunSec = 0f
+                        , Vector2 worldOffset = default)
     {
         if (dir.sqrMagnitude < 1e-6f) dir = Vector2.right;
         dir.Normalize();
 
         // 중심 위치 = 캐릭터 앞쪽으로 (길이의 절반) + 오프셋(비율 * 길이)
         float forward = (length * 0.5f) + (centerOffset01 * length);
-        Vector2 center = origin + dir * forward;
+        Vector2 center = origin + dir * forward + worldOffset;
         float angleDeg = AngleDegFromDir(dir);
         Vector2 size = new Vector2(width, length);
 
@@ -429,13 +425,63 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 f.Damage(dmg);
         }
     }
-    private void DoHeavyCircle(int dmg, Vector2 origin, float r)
+    private IEnumerator PerformHeavySlash(int dir, int damage)
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, r);
-        HashSet<MonsterController> done = new();
-        foreach (var h in hits)
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
-                m.TakeDamage(dmg, stunHeavy);
+        isAttacking = true;
+
+        string clip = HeavyAttackClipName(dir);
+        var c = FindClip(clip);
+        float clipLen = (c != null && c.length > 0f) ? c.length : 1f;
+
+        float playLen = Mathf.Max(0.01f, clipLen * Mathf.Clamp01(swingPlayRatio));
+
+        // 2타와 동일한 히트 타임 = 0.64
+        float wantHitTime = (hitActivateTime != null && hitActivateTime.Length >= 2)
+                            ? Mathf.Max(0f, hitActivateTime[1])   // 0.64f
+                            : 0.64f;
+        float hitMoment = Mathf.Min(wantHitTime, playLen);
+
+        // 총 시전시간 = 본체 + 강공 후딜
+        float totalCast = playLen + Mathf.Max(0f, heavyAfterDelay);
+
+        pc.ChangeState(new NormalAttackState(pc, totalCast));
+        anim.Play(clip, 0, 0f);
+
+        pc.FreezeMoveFor(totalCast);
+        pc.rb.velocity = Vector2.zero;
+
+        // 히트 지점까지 대기
+        if (hitMoment > 0f) yield return new WaitForSeconds(hitMoment);
+
+        // 사각형 히트(2타와 동일 범위) + 스태미나 로직(필요 시 여기서)
+        Vector2 forward = FacingVector(dir);
+        Vector2 lift = HitboxLiftForDir(dir);
+        DoSlashBox(damage, transform.position, forward,
+                   heavyWidth, heavyLength, heavyCenterOffset, stunHeavy, lift);
+
+        // 스테미나 소모
+        PlayerData.instance.ConsumeComboAttackStamina(heavyCost, allowDebt: true);
+
+        // 히트 유지(본체 안)
+        float activeAfterHit = Mathf.Min(hitboxActiveTime, Mathf.Max(0f, playLen - hitMoment));
+        if (activeAfterHit > 0f) yield return new WaitForSeconds(activeAfterHit);
+
+        // 본체 잔여
+        float remainedPlay = Mathf.Max(0f, playLen - hitMoment - activeAfterHit);
+        if (remainedPlay > 0f) yield return new WaitForSeconds(remainedPlay);
+
+        // Idle로 전환 후 후딜
+        string idleClip = IdleClipName(dir);
+        if (!string.IsNullOrEmpty(idleClip))
+            anim.CrossFade(idleClip, 0.05f);
+
+        float postDelay = Mathf.Max(0f, heavyAfterDelay);
+        nextAttackReady = Time.time + postDelay;
+        if (postDelay > 0f) yield return new WaitForSeconds(postDelay);
+
+        // 종료/콤보 처리 (강공 이후엔 콤보 없음)
+        isAttacking = false;
+        pc.ChangeState(new IdleState(pc));
     }
 
     public void ChangeState(IPlayerState s) => pc.ChangeState(s);
@@ -460,16 +506,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                                                            : Mathf.Clamp(previewDir, 0, 3);
         Vector2 dir = FacingVector(dirInt);
         float angleDeg = AngleDegFromDir(dir);
-
+        Vector2 lift = HitboxLiftForDir(dirInt);
         // 1타 박스
-        DrawBoxGizmo(origin, dir, angleDeg, slash1Width, slash1Length, slash1CenterOffset, gizmoSlash1Color);
+        DrawBoxGizmo(origin + lift, dir, angleDeg, slash1Width, slash1Length, slash1CenterOffset, gizmoSlash1Color);
 
         // 2타
-        DrawBoxGizmo(origin, dir, angleDeg, slash2Width, slash2Length, slash2CenterOffset, gizmoSlash2Color);
+        DrawBoxGizmo(origin + lift, dir, angleDeg, slash2Width, slash2Length, slash2CenterOffset, gizmoSlash2Color);
 
-        // Heavy 원형
-        Gizmos.color = gizmoHeavyColor;
-        Gizmos.DrawSphere(origin, heavyRadius);
+        // 강공격 박스
+        DrawBoxGizmo(origin + lift, dir, angleDeg, heavyWidth, heavyLength, heavyCenterOffset, gizmoheavyColor);
     }
 
     private void DrawBoxGizmo(Vector2 origin, Vector2 dir, float angleDeg,
