@@ -12,17 +12,27 @@ public class GatheringMission : Mission
         ID = questID;
 
         _gatheringInfo = Array.Find(Quest_Info.Gathering, info => info.id == questID);
+
+        MaxProgress = _gatheringInfo.count;
     }
 
     public override void RegisterProcess()
     {
+        EventManager.Instance.InventoryChangedEvent.AddListener(UpdateProgress);
     }
 
-    public override void UnregisterProcess()
+    public override void UnRegisterProcess()
     {
+        EventManager.Instance.InventoryChangedEvent.RemoveListener(UpdateProgress);
     }
 
-    public override void UpdateProgress(EventArgs args)
+    public override void UpdateProgress(EventArgs eventArgs)
     {
+        var args = eventArgs as InventoryChangedEventArgs;
+
+        if (args.ItemData.SID == _gatheringInfo.object_id)
+        {
+            Progress += args.Amount;
+        }
     }
 }

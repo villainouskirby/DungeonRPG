@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Events;
 using UnityEngine;
 using ItemType = InventoryUI.TabType;
 
@@ -173,6 +173,14 @@ public class Inventory : UIBase, ISave
     /// <summary> 아이템 강제로 넣기(중량제한 없이 강제로 넣음) </summary>
     public int AddItemForce(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
+        using (InventoryChangedEventArgs args = InventoryChangedEventArgs.Get())
+        {
+            args.Init(itemData, amount);
+            EventManager.Instance.InventoryChangedEvent.Invoke(args);
+            args.Clear();
+            args.Release();
+        }
+
         int startIndex;
         int endIndex;
         ItemType type;

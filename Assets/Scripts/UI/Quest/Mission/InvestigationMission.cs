@@ -18,11 +18,11 @@ public class InvestigationMission : Mission
     {
     }
 
-    public override void UnregisterProcess()
+    public override void UnRegisterProcess()
     {
     }
 
-    public override void UpdateProgress(EventArgs args)
+    public override void UpdateProgress(EventArgs eventArgs)
     {
     }
 }

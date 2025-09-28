@@ -22,14 +22,14 @@ public class HuntingMission : Mission
         EventManager.Instance.MonsterKilledEvent.AddListener(UpdateProgress);
     }
 
-    public override void UnregisterProcess()
+    public override void UnRegisterProcess()
     {
         EventManager.Instance.MonsterKilledEvent.RemoveListener(UpdateProgress);
     }
 
-    public override void UpdateProgress(EventArgs args)
+    public override void UpdateProgress(EventArgs eventArgs)
     {
-        if ((args as MonsterKilledEventArgs).MonsterID == _huntingInfo.object_id)
+        if ((eventArgs as MonsterKilledEventArgs).MonsterID == _huntingInfo.object_id)
         {
             Progress++;
         }

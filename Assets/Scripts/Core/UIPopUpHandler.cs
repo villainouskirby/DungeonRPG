@@ -40,6 +40,11 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
     {
         _uiDict[typeof(T)] = ui;
     }
+
+    public void UnRegisterUI<T>(T ui) where T : UIBase
+    {
+        _uiDict.Remove(typeof(T));
+    }
     
     /// <returns> 해당 UI 클래스 </returns>
     public T GetUI<T>() where T : UIBase
