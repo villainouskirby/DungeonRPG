@@ -59,7 +59,7 @@ public class DropItem : MonoBehaviour
     public void Get()
     {
         StopAllCoroutines();
-        UIPopUpHandler.Instance.GetUI<Inventory>()?.AddItem(_itemData, _amount);
+        UIPopUpHandler.Instance.GetScript<Inventory>()?.AddItem(_itemData, _amount);
         DropItemPool.Instance.Return(this);
     }
 

@@ -17,6 +17,11 @@ public class HuntingMission : Mission
         Progress = 0;
     }
 
+    public override string GetExplanation()
+    {
+        return "";
+    }
+
     public override void RegisterProcess()
     {
         EventManager.Instance.MonsterKilledEvent.AddListener(UpdateProgress);

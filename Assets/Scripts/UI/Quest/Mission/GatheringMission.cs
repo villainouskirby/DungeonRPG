@@ -16,6 +16,11 @@ public class GatheringMission : Mission
         MaxProgress = _gatheringInfo.count;
     }
 
+    public override string GetExplanation()
+    {
+        return "";
+    }
+
     public override void RegisterProcess()
     {
         EventManager.Instance.InventoryChangedEvent.AddListener(UpdateProgress);

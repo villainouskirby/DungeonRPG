@@ -1,7 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
-using ItemUtility;
+using DBUtility;
 
 public class InventoryTest : MonoBehaviour
 {
@@ -52,29 +52,29 @@ public class InventoryTest : MonoBehaviour
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         PotionItemData itemData = new(ItemDic["ITM_POT_001"], tempPotion1);
-        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
     public void AddPotion2()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         PotionItemData itemData = new(ItemDic["ITM_POT_002"], tempPotion2);
-        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
     public void AddStoneItem()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock, "PAR_MIN_ROC");
-        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
 
     public void AddDropItem()
     {
         var a = DropTableUtil.GetDropItemFromTable("ITM_MIN_CPR/100/2/3");
-        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(a.data, a.amount);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(a.data, a.amount);
     }
     public void AddInventory(ItemData data)
     {
-        int rest = UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(data, amount);
+        int rest = UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(data, amount);
         if (rest > 0) Debug.Log("들어가지 못한 아이템 개수 : " + rest);
     }
     

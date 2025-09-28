@@ -23,4 +23,5 @@ public struct DialogueEndEvent
 
     public KeyName Key;
     public string Value;
+    public int Amount;
 }

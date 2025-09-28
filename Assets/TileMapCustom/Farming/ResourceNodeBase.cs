@@ -195,13 +195,13 @@ public class ResourceNodeBase : MonoBehaviour
                 if (i == Info.Gathering_count - 1)
                 {
                     var item = DropTableUtil.GetDropItemFromTable(Info.DT_lastInteraction);
-                    UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(item.data, item.amount);
+                    UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(item.data, item.amount);
                     farmEnd.Invoke();
                 }
                 else
                 {
                     var item = DropTableUtil.GetDropItemFromTable(Info.DT_interaction);
-                    UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(item.data, item.amount);
+                    UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(item.data, item.amount);
                 }
 
                 break;

@@ -17,6 +17,11 @@ public class QuestUI : SlotInteractHandler
     [SerializeField] private Button _acceptButton;
     [SerializeField] private TextMeshProUGUI _acceptButtonText;
 
+    [Header("Sprites")]
+    [SerializeField] private Sprite _huntingSprite;
+    [SerializeField] private Sprite _gatheringSprite;
+    [SerializeField] private Sprite _investigationSprite;
+
     private List<QuestSlotUI> _questSlots = new List<QuestSlotUI>();
     private int _currentSelectedIndex;
 
@@ -54,7 +59,15 @@ public class QuestUI : SlotInteractHandler
         }
 
         Mission firstMission = info.Missions[0];
-        //_questSlots[index].SetItemInfo(firstMission.Sprite, firstMission.Type, firstMission.Progress, firstMission.MaxProgress, info.IsMainQuest);
+        Sprite sprite = firstMission switch
+        {
+            HuntingMission => _huntingSprite,
+            GatheringMission => _gatheringSprite,
+            InvestigationMission => _investigationSprite,
+            _ => _investigationSprite,
+        };
+
+        _questSlots[index].SetItemInfo(sprite, info.Info.name);
     }
 
     public void RemoveSlot(int index)
@@ -79,26 +92,31 @@ public class QuestUI : SlotInteractHandler
                 _missionTexts[i].text = "";
                 continue;
             }
-
-            /*
-            _missionTexts[i].text = mission.Content;
-            if (mission.Type != QuestType.researching)
+            
+            _missionTexts[i].text = mission.GetExplanation();
+            /*if (mission.Type != QuestType.researching)
                 _missionTexts[i].text += $"({mission.Progress}/{mission.MaxProgress})";*/
         }
 
         // 퀘스트 내용 표시
-        _questContentText.text = info.QuestDescription;
+        _questContentText.text = info.Info.explaination;
 
         // 보상 내용 표시
         for (int i = 0; i < info.Rewards.Length; i++)
         {
             if (info.Rewards[i] == null)
             {
-                _rewardImages[i].sprite = null; // 기본 비어있는 칸으로 하거나 투명하게 둬야할듯
+                Color color = _rewardImages[i].color;
+                color.a = 0;
+                _rewardImages[i].color = color;
+                //_rewardImages[i].sprite = null; // 기본 비어있는 칸으로 하거나 투명하게 둬야할듯
             }
             else
             {
                 _rewardImages[i].sprite = info.Rewards[i].Data.IconSprite;
+                Color color = _rewardImages[i].color;
+                color.a = 1;
+                _rewardImages[i].color = color;
             }
         }
 

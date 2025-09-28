@@ -14,6 +14,11 @@ public class InvestigationMission : Mission
         _investigationInfo = Array.Find(Quest_Info.Investigation, info => info.id == questID);
     }
 
+    public override string GetExplanation()
+    {
+        return "";
+    }
+
     public override void RegisterProcess()
     {
     }

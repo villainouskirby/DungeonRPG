@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using DBUtility;
 
 public class DialogueRunner : UIBase
 {
@@ -11,7 +12,7 @@ public class DialogueRunner : UIBase
     [SerializeField] private TextMeshProUGUI _lineText;
     [SerializeField] private TextPrinter _printer;
 
-    private Dictionary<DialogueEndEvent.KeyName, Action<string>> _eventDict = new();
+    private Dictionary<DialogueEndEvent.KeyName, Action<DialogueEndEvent>> _eventDict = new();
 
     private AsyncOperationHandle<DialogueSO> _handle;
     private Queue<DialogueLineStatement> _dialogueLines;
@@ -24,7 +25,10 @@ public class DialogueRunner : UIBase
         UIPopUpHandler.Instance.RegisterUI(this);
         _printer.InitTMP(_lineText);
 
-        _eventDict[DialogueEndEvent.KeyName.Dialogue] = Init;
+        _eventDict[DialogueEndEvent.KeyName.Dialogue] = ContinueDialogue;
+        _eventDict[DialogueEndEvent.KeyName.Get] = AddInventory;
+        _eventDict[DialogueEndEvent.KeyName.Lose] = RemoveInventory;
+        _eventDict[DialogueEndEvent.KeyName.Quest] = AddNewQuest;
     }
 
     public void Init(string dialogueName)
@@ -76,7 +80,7 @@ public class DialogueRunner : UIBase
             {
                 if (_eventDict.TryGetValue(endEvent.Key, out var action))
                 {
-                    action?.Invoke(endEvent.Value);
+                    action?.Invoke(endEvent);
                 }
             }
         }
@@ -89,5 +93,25 @@ public class DialogueRunner : UIBase
         {
             gameObject.SetActive(false);
         }
+    }
+
+    private void ContinueDialogue(DialogueEndEvent endEvent)
+    {
+        Init(endEvent.Value);
+    }
+
+    private void AddInventory(DialogueEndEvent endEvent)
+    {
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(ItemDataConstructor.GetItemData(endEvent.Value), endEvent.Amount);
+    }
+
+    private void RemoveInventory(DialogueEndEvent endEvent)
+    {
+        UIPopUpHandler.Instance.GetScript<Inventory>().RemoveItem(ItemDataConstructor.GetItemData(endEvent.Value), endEvent.Amount);
+    }
+
+    private void AddNewQuest(DialogueEndEvent endEvent)
+    {
+        
     }
 }

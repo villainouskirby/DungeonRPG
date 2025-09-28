@@ -1,8 +1,8 @@
 using System;
 
-namespace ItemUtility
+namespace DBUtility
 {
-    public class ItemDataConstructor
+    public static class ItemDataConstructor
     {
         public static ItemData GetItemData(Item_Info_Item rawData)
         {

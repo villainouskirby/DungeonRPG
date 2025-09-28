@@ -47,7 +47,7 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
     }
     
     /// <returns> 해당 UI 클래스 </returns>
-    public T GetUI<T>() where T : UIBase
+    public T GetScript<T>() where T : UIBase
     {
         if (!_uiDict.TryGetValue(typeof(T), out var ui)) return null;
 
@@ -64,7 +64,7 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
         UIBase ui;
 
         if (_openUI != null && _openUI.ActiveSelf) return null;
-        if ((ui = GetUI<T>()) == null) return null;
+        if ((ui = GetScript<T>()) == null) return null;
 
         ui.SetActive(true);
         _openUI = ui;

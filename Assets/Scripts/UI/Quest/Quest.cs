@@ -6,7 +6,7 @@ public class Quest : UIBase
     [SerializeField] private QuestUI _questUI;
     [SerializeField] private Inventory _inventory;
 
-    private List<QuestInfo> _questInfos = new List<QuestInfo>();
+    private List<QuestInfo> _questInfos = new();
 
     protected override void InitBase()
     {
@@ -56,16 +56,5 @@ public class Quest : UIBase
         }
 
         RemoveQuest(index);
-    }
-
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

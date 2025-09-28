@@ -22,6 +22,6 @@ public class ItemUtilTester : MonoBehaviour
     {
         var dic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
         ItemData itemData = ItemUtil.MakeItemData(dic[Dropdown.options[Dropdown.value].text]);
-        UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
 }

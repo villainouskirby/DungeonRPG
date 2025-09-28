@@ -52,7 +52,7 @@ public sealed class MonsterKilledState : IMonsterState
             for (int i = 0; i < d.count; i++)
             {
                 ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], sprite, "PAR_MIN_ROC");
-                UIPopUpHandler.Instance.GetUI<Inventory>().AddItem(itemData);
+                UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
             }
         }
 
