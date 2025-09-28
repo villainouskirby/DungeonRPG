@@ -230,6 +230,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 _ => "Run_side"
             };
         }
+        else if (cur is SneakMoveState) 
+        {
+            clip = facingDir switch
+            {
+                0 => "SneakMove_back",
+                1 => "SneakMove_front",
+                _ => "SneakMove_side"
+            };
+        }
         anim.Play(clip);
     }
     

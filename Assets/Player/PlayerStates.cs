@@ -245,7 +245,7 @@ public sealed class PotionConsumeState : IPlayerState
 
         if (pm != null) pm.OnGaugeEnd += HandleGaugeEnd;
 
-        // ★ HP 변동 감지 → 섭취 취소
+        // HP 변동 감지 → 섭취 취소
         if (PlayerData.instance != null)
             PlayerData.instance.OnHPChanged += HandleHpChanged;
     }
@@ -286,10 +286,8 @@ public sealed class PotionConsumeState : IPlayerState
 
     private void HandleHpChanged(float oldHp, float newHp)
     {
-        // 피격에만 반응하려면: if (newHp < oldHp) { ... }
-        // 여기선 HP 변동(증감 모두) 시 취소
-        if (!finished && pm != null)
-            pm.RequestCancelDrink();   // 아래 3) 참조
+        if (!finished && pm != null && newHp < oldHp)
+            pm.RequestCancelDrink();
     }
 }
 public sealed class StunState : IPlayerState
