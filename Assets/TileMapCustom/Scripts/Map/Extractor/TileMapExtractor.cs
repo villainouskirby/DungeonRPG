@@ -133,9 +133,9 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
     public int SetIntSliceValue4Bit(int source, int index, int value)
     {
         int shift = index * 4;
-        int mask = 0b1111 << shift;
+        int mask = 0xF << shift;
         source &= ~mask;
-        source |= (value << shift);
+        source |= (value & 0xF) << shift;
         return source;
     }
 
@@ -288,6 +288,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                     {
                         wallIndex = mapData.All.WallDataPool.Count;
                         mapData.All.WallDataPool.Add(wallData);
+                        Debug.Log(wallIndex);
                         if (layer < 4)
                             mapData.Wall03Data[index] = SetIntSliceValue8Bit(mapData.Wall03Data[index], layer, wallIndex);
                         else

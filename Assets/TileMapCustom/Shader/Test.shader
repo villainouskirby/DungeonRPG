@@ -222,12 +222,12 @@ Shader "Tilemap/LitTilemap"
                 UNITY_BRANCH
                 if (_LayerIndex < 4)
                 {
-                    shift = _LayerIndex * 4;
+                    shift = _LayerIndex * 8;
                     wallIndex = (wallIndex >> shift) & 0xFF;
                 }
                 else
                 {
-                    shift = (_LayerIndex - 4) * 4;
+                    shift = (_LayerIndex - 4) * 8;
                     wallIndex = (wallIndex >> shift) & 0xFF;
                 }
 
@@ -243,7 +243,8 @@ Shader "Tilemap/LitTilemap"
                 float4 wallData = _WallDataPoolBuffer[wallIndex];
                 //return lerp(float4(0, 0, 0, 0), float4(wallIndex, wallIndex, 0, 1), isWall * valid);
                 //return lerp(float4(0, 0, 0, 0), float4(i.tilePos.y * 0.1, i.tilePos.y * 0.1, 0, 1), valid);
-                //return lerp(float4(0, 0, 0, 0), float4((i.tilePos.y - wallData.w) * 0.2, (i.tilePos.y - wallData.w) * 0.2, 0, 1), isWall * valid);
+                //return lerp(float4(0, 0, 0, 0), float4(wallData.w / 60, wallData.w / 60, 0, 1), isWall * valid);
+                //return lerp(float4(0, 0, 0, 0), float4((i.tilePos.y - wallData.w) * 0.1, (i.tilePos.y - wallData.w) * 0.1, 0, 1), isWall * valid);
                 float wallHeight = lerp(wallData.x + 0.3, wallData.y - 0.3, (i.tilePos.y - wallData.w) / wallData.z);
                 //return lerp(float4(0, 0, 0, 0), float4(wallHeight * 0.1, wallHeight * 0.1, 0, 1), isWall);
                 float height = lerp(tileHeight, wallHeight, isWall);

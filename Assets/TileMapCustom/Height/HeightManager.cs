@@ -28,6 +28,6 @@ public class HeightManager : MonoBehaviour, ITileMapBase
     public void CheckPlayerHeight(Vector2Int playerPos)
     {
         PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
-        Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
+        Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight + 1);
     }
 }
