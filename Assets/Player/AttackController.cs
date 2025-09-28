@@ -20,10 +20,13 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [SerializeField] private float combo1cost = 4f;
     [SerializeField] private float combo2cost = 6f;
-    [Header("평타 애니 재생 시간(1타/2타), 사실상 상수. 애니메이션 시간 달라지면 여기서 수정")]
-    [SerializeField] private float[] baseAnimLength = { 1.0f, 1.3f };
-    [Header("평타 공격 시전 시간(1타/2타) 값이 적을수록 공격이 빨라짐, 애니메이션도 빨라짐")]
-    [SerializeField] private float[] afterDelay = { 0.3f, 0.5f }; // 1 타, 2 타 후딜
+    [Header("평타 본체 재생 비율(클립의 몇 %만 재생할지)")]
+    [SerializeField, Range(0.1f, 1f)] private float swingPlayRatio = 0.9f;
+    [Header("히트, 스테미나 소비 소비 타이밍(초)")]
+    [SerializeField] private float[] hitActivateTime = { 0.6f, 0.8f };
+    [Header("평타 후딜(1타/2타)")]
+    [SerializeField] private float[] afterDelay = { 0.2f, 0.4f };
+
     [SerializeField] private float comboInputTime = 0.10f;  // 후딜 끝~다음 입력 허용
     [SerializeField] private float hitboxActiveTime = 0.12f;  // 히트박스 유지 시간
 
@@ -144,8 +147,20 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             if (c && c.name == clipName) return c;
         return null;
     }
+    private static string IdleClipName(int dir)
+    {
+        // dir: 0=Up, 1=Down, 2=Left, 3=Right
+        string suffix = dir switch
+        {
+            0 => "back",
+            1 => "front",
+            _ => "side"
+        };
+        return $"Idle_{suffix}";
+    }
+
     #endregion
-    // 공격 입력
+        // 공격 입력
     private bool comboQueued = false;    // 후딜 중 눌린 입력 버퍼
     private bool attackLocked = false;
     public void LockAttack()
@@ -227,58 +242,61 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private IEnumerator PerformAttack(int step)
     {
         if (PlayerData.instance.IsExhausted) yield break;
-        
-        
         isAttacking = true;
-
-        float totalCast = Mathf.Max(0.05f, afterDelay[step - 1]); // 총 시전시간(=애니 길이)
-        pc.ChangeState(new NormalAttackState(pc, totalCast));
 
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
 
         string clip = AttackClipName(step, dir);
-
         var c = FindClip(clip);
-        float baseLen = baseAnimLength[Mathf.Clamp(step - 1, 0, baseAnimLength.Length - 1)];
-        float speedMul = baseLen / Mathf.Max(0.01f, totalCast);
 
-        anim.SetFloat(HashAttackSpeed, speedMul);
+        float clipLen = (c != null && c.length > 0f) ? c.length : 1f;
+        float playLen = Mathf.Max(0.01f, clipLen * Mathf.Clamp01(swingPlayRatio));
+        float postDelay = Mathf.Max(0f, afterDelay[Mathf.Clamp(step - 1, 0, afterDelay.Length - 1)]);
+        float totalCast = playLen + postDelay;
 
-        // 재생
+        pc.ChangeState(new NormalAttackState(pc, totalCast));
         anim.Play(clip, 0, 0f);
 
-        // 히트 타이밍: 필요하면 비율로 스케일
-        float activeTime = Mathf.Min(hitboxActiveTime, totalCast);
+        // 히트 타이밍까지 대기
+        float wantHitTime = (hitActivateTime != null && hitActivateTime.Length >= step)
+                       ? Mathf.Max(0f, hitActivateTime[step - 1])
+                       : 0f;
+        float hitMoment = Mathf.Min(wantHitTime, playLen);
+        if (hitMoment > 0f) yield return new WaitForSeconds(hitMoment);
+
+        // 히트 + 스태미나 소모 (히트 시점에 맞춤)
         Vector2 forward = FacingVector(dir);
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
 
         if (step == 1)
-        {
-            DoSlashBox(dmg, transform.position, forward,
-                       slash1Width, slash1Length, slash1CenterOffset, stunLight1);
-        }
-        else // step == 2
-        {
-            DoSlashBox(dmg, transform.position, forward,
-                       slash2Width, slash2Length, slash2CenterOffset, stunLight2);
-        }
-
-
-        yield return new WaitForSeconds(activeTime);
-
-        nextAttackReady = Time.time + Mathf.Max(0f, totalCast - activeTime);
-        float remain = Mathf.Max(0f, totalCast - activeTime);
-        if (remain > 0f) yield return new WaitForSeconds(remain);
-
-        if (step == 1)
-        {
-            PlayerData.instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
-        }
+            DoSlashBox(dmg, transform.position, forward, slash1Width, slash1Length, slash1CenterOffset, stunLight1);
         else
-        {
+            DoSlashBox(dmg, transform.position, forward, slash2Width, slash2Length, slash2CenterOffset, stunLight2);
+
+        // 여기서 바로 스태미나 차감 (히트 타이밍에 소비)
+        if (step == 1)
+            PlayerData.instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
+        else
             PlayerData.instance.ConsumeComboAttackStamina(combo2cost, allowDebt: true);
-        }
+
+        // 본체 잔여
+        // 히트 유지 시간(본체 안에서만)
+        float activeAfterHit = Mathf.Min(hitboxActiveTime, Mathf.Max(0f, playLen - hitMoment));
+        if (activeAfterHit > 0f) yield return new WaitForSeconds(activeAfterHit);
+
+        // 본체 잔여 대기
+        float remainedPlay = Mathf.Max(0f, playLen - hitMoment - activeAfterHit);
+        if (remainedPlay > 0f) yield return new WaitForSeconds(remainedPlay);
+
+        string idleClip = IdleClipName(dir);
+        if (!string.IsNullOrEmpty(idleClip))
+            anim.CrossFade(idleClip, 0.05f);
+
+        nextAttackReady = Time.time + postDelay;
+        if (postDelay > 0f) yield return new WaitForSeconds(postDelay);
+
+        
         anim.SetFloat(HashAttackSpeed, 1f);
 
         if (step == 1 && comboQueued && Time.time <= nextAttackReady + comboInputTime)
