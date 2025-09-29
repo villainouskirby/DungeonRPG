@@ -12,7 +12,9 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using static UnityEditor.Experimental.GraphView.GraphView;
 using EM = ExtractorMaster;
 
 public class Wallxtractor : MonoBehaviour, IExtractorLate
@@ -52,60 +54,120 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
             new[] { typeof(BundledAssetGroupSchema) }
         );
 
+        int childCount = EM.Instance.LayerRoot.transform.childCount;
+        List<Tilemap> tilemap = new();
+        for (int i = 0; i < childCount; i++)
+            if (EM.Instance.LayerRoot.transform.GetChild(i).gameObject.activeSelf && EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
+                tilemap.Add(layerMap);
 
-        for (int w = 0; w < mapData.All.Width; w++)
+        for (int i = 0; i < tilemap.Count; i++)
         {
-            for (int h = 0; h < mapData.All.Height; h++)
+            Tilemap wallMap = null;
+            for (int j = 0; j < tilemap[i].transform.childCount; j++)
             {
-                int chunkStartIndex = w + h * mapData.All.Width;
-                int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                if (!tilemap[i].transform.GetChild(j).gameObject.activeSelf)
+                    continue;
+                string type = tilemap[i].transform.GetChild(j).name.Split("_")[1];
 
-                for (int x = 0; x < EM.ChunkSize; x++)
+                switch (type)
                 {
-                    for (int y = 0; y < EM.ChunkSize; y++)
+                    case "Wall":
+                        wallMap = tilemap[i].transform.GetChild(j).GetComponent<Tilemap>();
+                        break;
+                }
+            }
+
+            bool[] allMap = new bool[mapData.All.Width * mapData.All.Height * EM.ChunkSize * EM.ChunkSize];
+            Array.Fill(allMap, false);
+
+            if (wallMap != null)
+            {
+                BoundsInt bounds = wallMap.cellBounds;
+                Vector3Int startPos = bounds.position;
+                TileBase[] tiles = wallMap.GetTilesBlock(bounds);
+                for (int y = 0; y < bounds.size.y; y++)
+                {
+                    for (int x = 0; x < bounds.size.x; x++)
                     {
-                        int index = x + y * EM.ChunkSize + localStartIndex;
-                        bool isWall = false;
+                        int correctX = x + startPos.x - EM.Instance.StartPos.x;
+                        int correctY = y + startPos.y - EM.Instance.StartPos.y;
 
-                        for (int i = 0; i < mapData.All.LayerCount; i++)
-                        {
-                            if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
-                            {
-                                isWall = true;
-                                break;
-                            }
-                        }
+                        Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
+                        Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
 
-                        chunkData[x, y] = isWall;
+                        int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapData.All.Width;
+                        int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                        TileBase tileBase = tiles[x + y * bounds.size.x];
+                        Sprite height = null;
+                        if (tileBase is Tile tile)
+                            height = tile.sprite;
+
+                        if (height != null)
+                            allMap[index] = true;
                     }
                 }
-
-                GenerateFromGrid(chunkData);
-                yield return StartCoroutine(MakeChunkWall(mapType, w, h));
-                DeleteAllChild(transform);
             }
-        }
 
-        yield return null;
 
-        for (int w = 0; w < mapData.All.Width; w++)
-        {
-            for (int h = 0; h < mapData.All.Height; h++)
+            for (int w = 0; w < mapData.All.Width; w++)
             {
-                string assetPath = $"Assets/MapMeshData/WallMesh/{mapType.ToString()}/WallMesh_{w}_{h}.bytes";
-                RegisterAddressable(group, $"{mapType.ToString()}_WallMesh_{w}_{h}", assetPath);
+                for (int h = 0; h < mapData.All.Height; h++)
+                {
+                    if (wallMap == null)
+                    {
+                        for (int x = 0; x < EM.ChunkSize; x++)
+                        {
+                            for (int y = 0; y < EM.ChunkSize; y++)
+                            {
+                                chunkData[x, y] = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int chunkStartIndex = w + h * mapData.All.Width;
+                        int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+
+                        for (int x = 0; x < EM.ChunkSize; x++)
+                        {
+                            for (int y = 0; y < EM.ChunkSize; y++)
+                            {
+
+                                int index = x + y * EM.ChunkSize + localStartIndex;
+                                chunkData[x, y] = allMap[index];
+                            }
+                        }
+                    }
+
+                    GenerateFromGrid(chunkData);
+                    yield return StartCoroutine(MakeChunkWall(mapType, w, h, i));
+                    DeleteAllChild(transform);
+                }
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            for (int w = 0; w < mapData.All.Width; w++)
+            {
+                for (int h = 0; h < mapData.All.Height; h++)
+                {
+                    string assetPath = $"Assets/MapMeshData/WallMesh/{mapType.ToString()}/layer{i}/layer{i}_WallMesh_{w}_{h}.bytes";
+                    RegisterAddressable(group, $"{mapType.ToString()}_layer{i}_WallMesh_{w}_{h}", assetPath);
+                }
             }
         }
 
         AssetDatabase.SaveAssets();
     }
 
-    private IEnumerator MakeChunkWall(MapEnum mapType, int w, int h)
+    private IEnumerator MakeChunkWall(MapEnum mapType, int w, int h, int layer)
     {
         yield return null;
         _composite.GenerateGeometry();
         PolygonColliderData data = new(_composite);
-        JJSave.ASave(data, $"WallMesh_{w}_{h}", $"MapMeshData/WallMesh/{mapType.ToString()}/", false);
+        JJSave.ASave(data, $"layer{layer}_WallMesh_{w}_{h}", $"MapMeshData/WallMesh/{mapType.ToString()}/layer{layer}/", false);
         yield return null;
     }
 

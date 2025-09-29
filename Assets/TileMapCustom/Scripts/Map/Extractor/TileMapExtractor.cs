@@ -20,7 +20,7 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         _mergeSprite = new();
         int childCount = EM.Instance.LayerRoot.transform.childCount;
         for (int i = 0; i < childCount; i++)
-            if (EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
+            if (EM.Instance.LayerRoot.transform.GetChild(i).gameObject.activeSelf && EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
                 Tilemap.Add(layerMap);
         _sprites = new();
 
@@ -288,7 +288,6 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
                     {
                         wallIndex = mapData.All.WallDataPool.Count;
                         mapData.All.WallDataPool.Add(wallData);
-                        Debug.Log(wallIndex);
                         if (layer < 4)
                             mapData.Wall03Data[index] = SetIntSliceValue8Bit(mapData.Wall03Data[index], layer, wallIndex);
                         else

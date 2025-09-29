@@ -7,6 +7,9 @@ using TM = TileMapMaster;
 
 public class HeightManager : MonoBehaviour, ITileMapBase
 {
+    public static HeightManager Instance { get { return _instance; } }
+    private static HeightManager _instance;
+
     public int PlayerHeight;
     public int CurrentLayer = 0;
 
@@ -14,6 +17,7 @@ public class HeightManager : MonoBehaviour, ITileMapBase
 
     public void Init()
     {
+        _instance = this;
     }
 
     public void InitMap(MapEnum mapType)
@@ -28,6 +32,6 @@ public class HeightManager : MonoBehaviour, ITileMapBase
     public void CheckPlayerHeight(Vector2Int playerPos)
     {
         PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
-        Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight + 1);
+        Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
     }
 }

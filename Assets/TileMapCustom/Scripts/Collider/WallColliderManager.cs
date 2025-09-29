@@ -44,6 +44,16 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
         InitWall();
     }
 
+    public void RefreshLayer()
+    {
+        List<Vector2Int> target = new();
+        foreach (var pair in ActiveWall)
+            target.Add(pair.Key);
+        for (int i = 0; i < target.Count; i++)
+            UnLoadWall(target[i]);
+        InitWall();
+    }
+
     public void InitWall()
     {
         foreach (var key in CM.Instance.LoadedChunkIndex.Keys)
@@ -57,7 +67,7 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
-        _handleDic[chunkPos] = Addressables.LoadAssetAsync<TextAsset>($"{_currentMapType.ToString()}_WallMesh_{chunkPos.x}_{chunkPos.y}");
+        _handleDic[chunkPos] = Addressables.LoadAssetAsync<TextAsset>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_WallMesh_{chunkPos.x}_{chunkPos.y}");
 
         _handleDic[chunkPos].Completed += op =>
         {
