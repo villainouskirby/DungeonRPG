@@ -1,3 +1,4 @@
+using Events;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,6 +38,8 @@ public class Quest : UIBase
 
     public void QuestClear(int index)
     {
+        if (index < 0 || index >= _questInfos.Count) return;
+
         QuestInfo info = _questInfos[index];
         for (int i = 0; i < info.Rewards.Length; i++)
         {
@@ -56,5 +59,10 @@ public class Quest : UIBase
         }
 
         RemoveQuest(index);
+    }
+    
+    public void QuestClear(string id)
+    {
+        QuestClear(_questInfos.FindIndex(info => info.Info.id == id));
     }
 }

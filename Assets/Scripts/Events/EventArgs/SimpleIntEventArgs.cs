@@ -1,5 +1,3 @@
-
-
 namespace Events
 {
     public class SimpleIntEventArgs : EventArgs<SimpleIntEventArgs>

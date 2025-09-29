@@ -29,5 +29,10 @@ public class InvestigationMission : Mission
 
     public override void UpdateProgress(EventArgs eventArgs)
     {
+
+        if (CheckIsMissionCleared())
+        {
+            UnRegisterProcess();
+        }
     }
 }

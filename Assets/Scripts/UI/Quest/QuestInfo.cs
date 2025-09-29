@@ -1,4 +1,4 @@
-using UnityEngine;
+using Events;
 
 [System.Serializable]
 public class QuestInfo
@@ -10,7 +10,7 @@ public class QuestInfo
 
     public Item[] Rewards = new Item[3];
 
-    public bool IsQuestCleared => Missions[0].IsMissionCleared && Missions[1].IsMissionCleared && Missions[2].IsMissionCleared;
+    public bool IsQuestCleared = false;
 
     public QuestInfo(Quest_Info_Quest info)
     {
@@ -19,9 +19,26 @@ public class QuestInfo
 
     ~QuestInfo()
     {
-        foreach (var mission  in Missions)
+        foreach (var mission in Missions)
         {
             mission.UnRegisterProcess();
+        }
+    }
+
+    public void CheckQuestClear()
+    {
+        bool isClear = Missions[0].IsMissionCleared && Missions[1].IsMissionCleared && Missions[2].IsMissionCleared;
+
+        if (isClear != IsQuestCleared)
+        {
+            IsQuestCleared = isClear;
+
+            using (var args = QuestClearEventArgs.Get())
+            {
+                args.Init(_info.id, isClear);
+                EventManager.Instance.QuestClearEvent.Invoke(args);
+                args.Release();
+            }
         }
     }
 }
