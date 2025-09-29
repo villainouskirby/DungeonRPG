@@ -12,6 +12,7 @@ using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
+using static Antlr4.Runtime.Atn.SemanticContext;
 using EM = ExtractorMaster;
 
 public class NavMeshExtractor : MonoBehaviour, IExtractorLate
@@ -187,7 +188,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                                 for (int i = 0; i < mapData.All.LayerCount; i++)
                                 {
-                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    if (allMap[index])
                                     {
                                         isWall = true;
                                         break;
@@ -225,7 +226,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                                 for (int i = 0; i < mapData.All.LayerCount; i++)
                                 {
-                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    if (allMap[index])
                                     {
                                         isWall = true;
                                         break;
@@ -263,7 +264,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                                 for (int i = 0; i < mapData.All.LayerCount; i++)
                                 {
-                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    if (allMap[index])
                                     {
                                         isWall = true;
                                         break;
@@ -301,7 +302,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                                 for (int i = 0; i < mapData.All.LayerCount; i++)
                                 {
-                                    if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                                    if (allMap[index])
                                     {
                                         isWall = true;
                                         break;
@@ -327,7 +328,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                     for (int i = 0; i < mapData.All.LayerCount; i++)
                     {
-                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        if (allMap[index])
                         {
                             isWall = true;
                             break;
@@ -350,7 +351,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                     for (int i = 0; i < mapData.All.LayerCount; i++)
                     {
-                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        if (allMap[index])
                         {
                             isWall = true;
                             break;
@@ -373,7 +374,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                     for (int i = 0; i < mapData.All.LayerCount; i++)
                     {
-                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        if (allMap[index])
                         {
                             isWall = true;
                             break;
@@ -396,7 +397,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                     for (int i = 0; i < mapData.All.LayerCount; i++)
                     {
-                        if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                        if (allMap[index])
                         {
                             isWall = true;
                             break;

@@ -8,6 +8,7 @@ public class IT_EntryFunc : MonoBehaviour
 {
     private BoxCollider2D _collider;
     private MapEnum _mapType;
+    public int _layer;
     private bool _isActive;
     public SpriteRenderer SR;
 
@@ -15,6 +16,7 @@ public class IT_EntryFunc : MonoBehaviour
     {
         _collider = GetComponent<BoxCollider2D>();
         _mapType = entryObj.MapType;
+        _layer = entryObj.Layer;
         _isActive = false;
         SR.sortingLayerName = entryObj.LayerName;
         SR.sortingOrder = entryObj.LayerIndex;
@@ -44,6 +46,6 @@ public class IT_EntryFunc : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.O))
-            TileMapMaster.Instance.StartTileMap(_mapType);
+            { HeightManager.Instance.ChangeLayer(_layer); TileMapMaster.Instance.StartTileMap(_mapType); }
     }
 }

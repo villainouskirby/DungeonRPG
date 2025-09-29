@@ -70,8 +70,9 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
 
         for (int i = 0; i < tilemap.Count; i++)
         {
-            AssetDatabase.CreateFolder($"Assets/MapMeshData/ChunkShadowMesh/{mapType.ToString()}", $"layer{i}");
-            yield return null;
+            string folder = $"{DataPath}{mapType.ToString()}/";
+            Directory.CreateDirectory($"{folder}layer{i}/");
+            yield return new WaitForSeconds(0.1f);
             Tilemap wallMap = null;
             for (int j = 0; j < tilemap[i].transform.childCount; j++)
             {
@@ -164,7 +165,7 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
                 for (int h = 0; h < mapData.All.Height; h++)
                 {
                     string assetPath = $"Assets/MapMeshData/ChunkShadowMesh/{mapType.ToString()}/layer{i}/layer{i}_ChunkShadowMesh_{w}_{h}.asset";
-                    RegisterAddressable(group, $"{mapType.ToString()}_ChunkShadowMesh_{w}_{h}", assetPath);
+                    RegisterAddressable(group, $"{mapType.ToString()}_layer{i}_ChunkShadowMesh_{w}_{h}", assetPath);
                 }
             }
         }

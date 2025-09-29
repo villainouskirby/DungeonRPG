@@ -35,6 +35,8 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
 
         CM.Instance.ChunkLoadAction += LoadWall;
         CM.Instance.ChunkUnloadAction += UnLoadWall;
+        CM.Instance.ChunkRefreshAction += UnLoadWall;
+        CM.Instance.ChunkRefreshAction += LoadWall;
 
         _currentMapType = mapType;
     }

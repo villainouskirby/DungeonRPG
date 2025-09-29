@@ -36,6 +36,8 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
 
         CM.Instance.ChunkLoadAction += LoadShadow;
         CM.Instance.ChunkUnloadAction += UnLoadShadow;
+        CM.Instance.ChunkRefreshAction += UnLoadShadow;
+        CM.Instance.ChunkRefreshAction += LoadShadow;
 
         _currentMapType = mapType;
     }
@@ -58,7 +60,7 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
-        _handleDic[chunkPos] = Addressables.LoadAssetAsync<Mesh>($"{_currentMapType.ToString()}_ChunkShadowMesh_{chunkPos.x}_{chunkPos.y}");
+        _handleDic[chunkPos] = Addressables.LoadAssetAsync<Mesh>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_ChunkShadowMesh_{chunkPos.x}_{chunkPos.y}");
 
         _handleDic[chunkPos].Completed += op =>
         {

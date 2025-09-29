@@ -5,6 +5,7 @@ public enum TileMapOptionEnum
     SpawnerManager = 2,
     MapVisitedChecker = 3,
     CameraAreaManager = 4,
+    EventAreaManager = 5,
     End,
 }
 
@@ -14,6 +15,7 @@ public enum TileMapOptionPrimeEnum
     SpawnerManager = 2,
     MapVisitedChecker = 1,
     CameraAreaManager = 4,
+    EventAreaManager = 5,
 }
 
 public enum TileMapBasePrimeEnum
