@@ -66,7 +66,7 @@ public class PlayerPotionGuage : MonoBehaviour
     {
         EnsureTarget();
         UpdateTransform();
-        if (!_subscribed && PotionManager.instance != null)
+        if (!_subscribed && PotionManager.Instance != null)
             TrySubscribeAndSync();
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -90,15 +90,15 @@ public class PlayerPotionGuage : MonoBehaviour
 
     void TrySubscribe()
     {
-        if (PotionManager.instance == null) return;
-        PotionManager.instance.OnGaugeStart += HandleGaugeStart;
-        PotionManager.instance.OnGaugeProgress += HandleGaugeProgress;
-        PotionManager.instance.OnGaugeEnd += HandleGaugeEnd;
+        if (PotionManager.Instance == null) return;
+        PotionManager.Instance.OnGaugeStart += HandleGaugeStart;
+        PotionManager.Instance.OnGaugeProgress += HandleGaugeProgress;
+        PotionManager.Instance.OnGaugeEnd += HandleGaugeEnd;
     }
 
     void TrySubscribeAndSync()
     {
-        var pm = PotionManager.instance;
+        var pm = PotionManager.Instance;
         if (pm == null) return;
 
         // 중복 방지
@@ -122,7 +122,7 @@ public class PlayerPotionGuage : MonoBehaviour
     }
     void TryUnsubscribe()
     {
-        var pm = PotionManager.instance;
+        var pm = PotionManager.Instance;
         if (!_subscribed || pm == null) { _subscribed = false; return; }
 
         pm.OnGaugeStart -= HandleGaugeStart;

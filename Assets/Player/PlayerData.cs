@@ -1,12 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 
 
-public class PlayerData : MonoBehaviour
+public class PlayerData : Singleton<PlayerData>
 {
-    public static PlayerData instance;
-
     [Header("Base Stats (기본 스탯 값)")]
     [SerializeField] private float baseAttack = 10f;
     [SerializeField] private float baseSpeed = 10f;
@@ -43,9 +42,8 @@ public class PlayerData : MonoBehaviour
     void AddRegenBlock() { regenBlockCount++; }
     void RemoveRegenBlock() { regenBlockCount = Mathf.Max(0, regenBlockCount - 1); }
 
-    private void Awake()
+    protected override void AfterAwake()
     {
-        instance = this;
         if (!pc) pc = GetComponent<PlayerController>();
     }
 
@@ -261,25 +259,6 @@ public class PlayerData : MonoBehaviour
     }
     #endregion
     #region 포션
-    // 포션 게이지 UI
-    //public void StartPotionGauge(float durationSec)
-    //{
-    //    potionDuration = durationSec;
-    //    potionChargeStart = Time.time;
-    //    isPotionCharging = true;
-
-    //    chargeUI.ShowPotionGauge();
-    //}
-    //public void CancelPotionGauge()
-    //{
-    //    isPotionCharging = false;
-    //    chargeUI.HideAll();
-    //}
-    //public void EndPotionGauge()
-    //{
-    //    isPotionCharging = false;
-    //    chargeUI.HideAll();
-    //}
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
     {
