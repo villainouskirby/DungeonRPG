@@ -35,7 +35,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private float sprintResumeThreshold = 10f; // 재시작 가능 최소 스태미나
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
-
+    PlayerController pc;
 
     //스테미나 필드
     int regenBlockCount = 0;
@@ -46,6 +46,7 @@ public class PlayerData : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        if (!pc) pc = GetComponent<PlayerController>();
     }
 
     private void Start()
@@ -68,6 +69,7 @@ public class PlayerData : MonoBehaviour
     public void HPValueChange(float value)
     {
         float old = currentHP.Value;
+        if (pc.isInvincible) { return; } // 무적일 때 로직 다 제외
         currentHP.Value += value;
 
         if (currentHP.Value > MaxHP.Value) currentHP.Value = MaxHP.Value;

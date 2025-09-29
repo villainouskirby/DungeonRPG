@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     EscapePhase escPhase = EscapePhase.None;
     float phaseT = 0f;          // 현재 페이즈 남은 시간
     Vector2 escDir = Vector2.zero;
-    bool isInvincible = false;
+    public bool isInvincible = false;
     Vector2 EscapeTargetVelocity()
     {
         return escPhase switch

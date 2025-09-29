@@ -190,7 +190,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     void HandleAttackInput()
     {
-        if (pc != null && pc.EscapeActive)
+        if (pc != null && (pc.EscapeActive || pc.GetCurrentState() is PotionConsumeState))
         {
             pressActive = false;      // 누르고 있던 프레스도 취소
             comboQueued = false;      // 콤보 버퍼도 취소

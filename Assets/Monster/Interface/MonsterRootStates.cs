@@ -321,7 +321,7 @@ public sealed class MonsterDetectState : IMonsterState
         ctx.alert.gameObject.SetActive(true);
 
         // 잠깐(0.5초) 보여주고 유지하거나, Combat 쪽에서 관리해도 됨
-        await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: token);
+        await UniTask.Delay(TimeSpan.FromSeconds(0f), cancellationToken: token);
     }
 }
 public sealed class MonsterSearchWanderState : IMonsterState
