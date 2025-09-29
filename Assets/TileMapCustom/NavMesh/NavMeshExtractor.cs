@@ -11,6 +11,7 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Tilemaps;
 using EM = ExtractorMaster;
 
 public class NavMeshExtractor : MonoBehaviour, IExtractorLate
@@ -67,6 +68,62 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
             new[] { typeof(BundledAssetGroupSchema) }
         );
 
+        int childCount = EM.Instance.LayerRoot.transform.childCount;
+        List<Tilemap> tilemap = new();
+        for (int i = 0; i < childCount; i++)
+            if (EM.Instance.LayerRoot.transform.GetChild(i).gameObject.activeSelf && EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
+                tilemap.Add(layerMap);
+
+        Tilemap wallMap = null;
+        bool[] allMap = new bool[mapData.All.Width * mapData.All.Height * EM.ChunkSize * EM.ChunkSize];
+        Array.Fill(allMap, false);
+
+        for (int i = 0; i < tilemap.Count; i++)
+        {
+            for (int j = 0; j < tilemap[i].transform.childCount; j++)
+            {
+                if (!tilemap[i].transform.GetChild(j).gameObject.activeSelf)
+                    continue;
+                string type = tilemap[i].transform.GetChild(j).name.Split("_")[1];
+
+                switch (type)
+                {
+                    case "Wall":
+                        wallMap = tilemap[i].transform.GetChild(j).GetComponent<Tilemap>();
+                        break;
+                }
+            }
+
+            if (wallMap != null)
+            {
+                BoundsInt bounds = wallMap.cellBounds;
+                Vector3Int startPos = bounds.position;
+                TileBase[] tiles = wallMap.GetTilesBlock(bounds);
+                for (int y = 0; y < bounds.size.y; y++)
+                {
+                    for (int x = 0; x < bounds.size.x; x++)
+                    {
+                        int correctX = x + startPos.x - EM.Instance.StartPos.x;
+                        int correctY = y + startPos.y - EM.Instance.StartPos.y;
+
+                        Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
+                        Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
+
+                        int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapData.All.Width;
+                        int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                        TileBase tileBase = tiles[x + y * bounds.size.x];
+                        Sprite wall = null;
+                        if (tileBase is Tile tile)
+                            wall = tile.sprite;
+
+                        if (wall != null)
+                            allMap[index] = true;
+                    }
+                }
+            }
+        }
 
         for (int w = 0; w < mapData.All.Width; w++)
         {
@@ -90,7 +147,7 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
                         for (int i = 0; i < mapData.All.LayerCount; i++)
                         {
-                            if (EM.Instance.WallSpriteIndex.Contains(mapData.LayerData[i].Tile[index]))
+                            if (allMap[index])
                             {
                                 isWall = true;
                                 break;

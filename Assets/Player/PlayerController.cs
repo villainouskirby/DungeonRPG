@@ -319,7 +319,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         var clip = EscapeClipName(facingDir);
         anim.CrossFade(clip, 0.05f);
-        anim.SetTrigger("Dive");
         return true;
     }
     private static string EscapeClipName(int dir)
@@ -382,7 +381,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         escPhase = EscapePhase.Down;
         phaseT = proneTime;
         rb.velocity = Vector2.zero;
-        anim.SetTrigger("Down");
     }
 
     void StartGetUp()
@@ -413,7 +411,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         }
 
         rb.velocity = escDir * getUpBoost;
-        anim.SetTrigger("GetUp");
     }
 
     void EndEscape()
