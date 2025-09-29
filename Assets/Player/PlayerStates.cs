@@ -409,8 +409,7 @@ public class ChargingState : IPlayerState
                 PlayerData.instance.BlockStaminaRegen(1f);
                 PlayerData.instance.EndChargeSpendCap();
             }
-
-            player.ChangeState(new IdleState(player));
+            
             return;
         }
         float held = Mathf.Min(Time.time - startTime, ac.maxChargeTime);
