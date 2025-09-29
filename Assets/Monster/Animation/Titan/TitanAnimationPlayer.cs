@@ -64,13 +64,13 @@ public sealed class TitanAnimationPlayer : AnimationPlayerBase
         if (motion == null) return;
 
         // run 미보유 → walk 대체
-        if (!HasState(S(motion)) && motion == runKey)
+        if (!HasState(SetString(motion)) && motion == runKey)
             motion = walkKey;
 
         string stateName;
         if (!useDirectionOn)
         {
-            stateName = S(motion);                 // Cleaner_idle / Cleaner_walk / Cleaner_run
+            stateName = SetString(motion);                 // Cleaner_idle / Cleaner_walk / Cleaner_run
         }
         else
         {
@@ -80,7 +80,7 @@ public sealed class TitanAnimationPlayer : AnimationPlayerBase
 
             stateName = $"{prefix}{dir}_{motion}"; // Cleanerfront_walk
             if (!HasState(stateName))
-                stateName = S(motion);             // 방향 클립 없으면 무시
+                stateName = SetString(motion);             // 방향 클립 없으면 무시
         }
 
         if (_currentStateName == stateName) return;
@@ -123,7 +123,7 @@ public sealed class TitanAnimationPlayer : AnimationPlayerBase
         return (fwd.y > 0f) ? backKey : frontKey;
     }
 
-    string S(string motion) => $"{prefix}_{motion}";
+    string SetString(string motion) => $"{prefix}_{motion}";
 
     bool HasState(string stateName)
     {

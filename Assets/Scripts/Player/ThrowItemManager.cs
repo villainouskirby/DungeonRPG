@@ -1,12 +1,11 @@
 using System.Collections.Generic;
+using Core;
 using Cysharp.Threading.Tasks;
 using ItemDataExtensions;
 using UnityEngine;
 
-public class ThrowItemManager : MonoBehaviour
+public class ThrowItemManager : Singleton<ThrowItemManager>
 {
-    public static ThrowItemManager instance;
-
     [Header("조준 UI(옵션)")]
     [SerializeField] private ThrowAimUI aimUI;   // 없으면 런타임에 찾음
     [Header("에이밍시 플레이어 잠금 여부")]
@@ -24,11 +23,6 @@ public class ThrowItemManager : MonoBehaviour
     // (선택) 시트 테이블 캐시가 필요하다면 여기서
     static Dictionary<string, Item_Info_ThrowableItem> _useById;
 
-    void Awake()
-    {
-        if (instance && instance != this) { Destroy(gameObject); return; }
-        instance = this;
-    }
 
     void Start()
     {

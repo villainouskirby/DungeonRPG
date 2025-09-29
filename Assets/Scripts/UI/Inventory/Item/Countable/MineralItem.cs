@@ -19,7 +19,7 @@ public class MineralItem : ResourceItem, IUsableItem
         if (Amount <= 0) return false;
 
         // 포션과 동일한 싱글톤 호출 방식
-        if (Data.Info.throwable && !await ThrowItemManager.instance.UseThrowItem(Data))
+        if (Data.Info.throwable && !await ThrowItemManager.Instance.UseThrowItem(Data))
             return false;
 
         Amount--;

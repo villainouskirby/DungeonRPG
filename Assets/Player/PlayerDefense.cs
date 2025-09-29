@@ -34,14 +34,14 @@ public class PlayerDefense : MonoBehaviour
         bool holding = Input.GetMouseButton(1);
         if (!holding || guardCooldown > 0f) return incomingDamage;
 
-        if (!PlayerData.instance) return incomingDamage;
+        if (!PlayerData.Instance) return incomingDamage;
 
         // 저스트 여부 
         bool isJust = Time.time - lastGuardPress <= justGuardWindow;
 
         // 스태미너 확인·차감 
         int cost = isJust ? justGuardCost : normalGuardCost;
-        if (!PlayerData.instance.SpendStamina(cost))      // 부족 → 가드 실패
+        if (!PlayerData.Instance.SpendStamina(cost))      // 부족 → 가드 실패
             return incomingDamage;
 
         // 감쇄 비율·쿨타임 적용

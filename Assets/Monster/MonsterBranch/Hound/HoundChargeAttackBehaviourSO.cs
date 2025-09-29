@@ -104,13 +104,13 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
     }
     static void ApplyDamageToPlayer(int rawDamage)
     {
-        if (!PlayerData.instance) return;
+        if (!PlayerData.Instance) return;
 
         int finalDamage = rawDamage;
 
-        var defense = PlayerData.instance.GetComponent<PlayerDefense>();
+        var defense = PlayerData.Instance.GetComponent<PlayerDefense>();
         if (defense) finalDamage = defense.ResolveGuard(rawDamage);
 
-        PlayerData.instance.HPValueChange(-finalDamage);
+        PlayerData.Instance.HPValueChange(-finalDamage);
     }
 }

@@ -19,7 +19,7 @@ public class PotionItem : CountableItem, IUsableItem
         if (Amount > 0)
         {
             Amount--;
-            if (!await PotionManager.instance.GetPotionID(Data)) return false;
+            if (!await PotionManager.Instance.GetPotionID(Data)) return false;
             return true;
         }
         else return false;
