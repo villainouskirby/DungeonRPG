@@ -304,6 +304,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public bool TryBeginEscape()
     {
         if (PlayerData.instance.IsExhausted) return false;
+        if (PlayerData.instance.currentStamina.Value < 0.999f) return false;
         PlayerData.instance.ConsumeActionStamina(dodgeCost, allowDebt: true);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
@@ -316,6 +317,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
         rb.velocity = escDir.normalized * slideForce;
+
+        attackController?.CancelAttackBufferOnEscape();
 
         var clip = EscapeClipName(facingDir);
         anim.CrossFade(clip, 0.05f);

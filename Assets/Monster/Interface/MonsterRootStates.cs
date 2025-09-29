@@ -279,8 +279,12 @@ public sealed class MonsterDetectState : IMonsterState
 
         if (token.IsCancellationRequested || !ok) return;
 
+        Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
+        ctx.agent.isStopped = true;
+        await ctx.SetForward(dir);
+        ctx.agent.isStopped = false;
 
         float delay = Mathf.Max(0f, ctx.data.preTransitionDelay);
         if (delay > 0f)
