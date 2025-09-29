@@ -3371,6 +3371,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 845121378}
+  - component: {fileID: 845121379}
   m_Layer: 0
   m_Name: '@ChunkShadowRoot'
   m_TagString: Untagged
@@ -3393,6 +3394,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1727831846}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &845121379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845121377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38f48a8d66b2adc46887f23a3a88ac01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
 --- !u!1 &870978086
 GameObject:
   m_ObjectHideFlags: 0
@@ -6510,6 +6524,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ChunkShadowPrefab: {fileID: 3202890802108734690, guid: f75b242450d260342bd3626dd702525a,
     type: 3}
+  ChunkRoot: {fileID: 845121378}
 --- !u!1 &1948763849
 GameObject:
   m_ObjectHideFlags: 0

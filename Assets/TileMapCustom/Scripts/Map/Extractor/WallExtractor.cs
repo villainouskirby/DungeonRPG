@@ -100,11 +100,11 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
                         int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
 
                         TileBase tileBase = tiles[x + y * bounds.size.x];
-                        Sprite height = null;
+                        Sprite wall = null;
                         if (tileBase is Tile tile)
-                            height = tile.sprite;
+                            wall = tile.sprite;
 
-                        if (height != null)
+                        if (wall != null)
                             allMap[index] = true;
                     }
                 }
@@ -199,7 +199,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
         var settings = AddressableAssetSettingsDefaultObject.Settings;
 
         string guid = AssetDatabase.AssetPathToGUID(assetPath);
-
+        Debug.Log(keyName);
         var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
         entry.address = keyName;
 
