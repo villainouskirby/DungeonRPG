@@ -84,11 +84,13 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         AddLink(chunkPos);
     }
 
+    private void UnLoadAll()
+    {
+
+    }
+
     private void UnLoadNav(Vector2Int navPos)
     {
-        if (!(navPos.x >= 0 && navPos.x < DL.Instance.All.Width && navPos.y >= 0 && navPos.y < DL.Instance.All.Height))
-            return;
-
         if (ActiveNav.ContainsKey(navPos))
         {
             NavMesh.RemoveNavMeshData(ActiveNav[navPos]);

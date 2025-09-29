@@ -7,6 +7,7 @@ public class ShadowPool : MonoBehaviour
     [Header("Chunkhadow Prefab")]
     public GameObject ChunkShadowPrefab;
 
+    public Transform ChunkRoot;
     private Queue<ChunkShadowCaster2D> _pool;
 
     public void Init(int viewChunkSize)
@@ -44,6 +45,7 @@ public class ShadowPool : MonoBehaviour
         obj.transform.position = new(chunkPos.x * 16, chunkPos.y * 16, 0);
         obj.ApplyChunkShadow(mesh);
         obj.gameObject.SetActive(true);
+        obj.transform.SetParent(ChunkRoot);
 
         return obj;
     }
@@ -51,6 +53,7 @@ public class ShadowPool : MonoBehaviour
     public void Return(ChunkShadowCaster2D obj)
     {
         obj.gameObject.SetActive(false);
+        obj.transform.SetParent(transform);
         _pool.Enqueue(obj);
     }
 }
