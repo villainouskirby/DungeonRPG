@@ -140,6 +140,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
                     }
 
                     GenerateFromGrid(chunkData);
+                    yield return new WaitForSeconds(0.1f);
                     yield return StartCoroutine(MakeChunkWall(mapType, w, h, i));
                     DeleteAllChild(transform);
                 }
