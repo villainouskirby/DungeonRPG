@@ -110,6 +110,7 @@ public class MapManager : MonoBehaviour, ITileMapBase
 
     private GraphicsBuffer[] _layerBuffer;
     private TileMapController[] _controller;
+    public GameObject GetLayerObj(int layerIndex) => _controller[layerIndex].gameObject;
 
     [Header("TileMap Prefab")]
     public GameObject TileMapPrefab;

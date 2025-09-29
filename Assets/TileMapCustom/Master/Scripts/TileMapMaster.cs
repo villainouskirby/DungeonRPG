@@ -235,6 +235,7 @@ public class TileMapMaster : MonoBehaviour
     }
 }
 
+
 [System.Serializable]
 public class MapSettings
 {

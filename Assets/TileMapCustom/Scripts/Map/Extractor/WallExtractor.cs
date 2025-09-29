@@ -9,12 +9,7 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
-using UnityEngine.U2D;
-using static UnityEditor.Experimental.GraphView.GraphView;
 using EM = ExtractorMaster;
 
 public class Wallxtractor : MonoBehaviour, IExtractorLate
@@ -58,10 +53,13 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
         List<Tilemap> tilemap = new();
         for (int i = 0; i < childCount; i++)
             if (EM.Instance.LayerRoot.transform.GetChild(i).gameObject.activeSelf && EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
-                tilemap.Add(layerMap);
+                {tilemap.Add(layerMap);}
 
         for (int i = 0; i < tilemap.Count; i++)
         {
+            string folder = $"{DataPath}{mapType.ToString()}/";
+            Directory.CreateDirectory($"{folder}layer{i}/");
+            yield return new WaitForSeconds(0.1f);
             Tilemap wallMap = null;
             for (int j = 0; j < tilemap[i].transform.childCount; j++)
             {
@@ -104,7 +102,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
                         if (tileBase is Tile tile)
                             wall = tile.sprite;
 
-                        if (wall != null)
+                        if (wall != null && wall.name == "WallTile")
                             allMap[index] = true;
                     }
                 }

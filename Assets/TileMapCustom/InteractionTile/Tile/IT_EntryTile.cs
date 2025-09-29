@@ -6,4 +6,5 @@ public class IT_EntryTile : InteractionTile
 {
     [Header("Scene Setings")]
     public MapEnum MapType;
+    public int Layer;
 }

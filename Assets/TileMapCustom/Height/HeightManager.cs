@@ -34,4 +34,10 @@ public class HeightManager : MonoBehaviour, ITileMapBase
         PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
         Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
     }
+
+    public void ChangeLayer(int layer)
+    {
+        CurrentLayer = layer;
+        ChunkManager.Instance.RefreshLayer(layer);
+    }
 }

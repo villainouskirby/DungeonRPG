@@ -5,6 +5,7 @@ using UnityEngine;
 public class IT_EntryObj : InteractionObj
 {
     public MapEnum MapType;
+    public int Layer;
 
     public IT_EntryObj(InteractionTile interactionTile) : base(interactionTile)
     {

@@ -37,6 +37,7 @@ public class TileMapDataAll
     public Dictionary<Vector2Int, List<DecoObjData>> decoObjData;
     // CameraArea 데이터
     public CameraAreaData[] CameraAreaData;
+    public EventAreaData[] EventAreaData;
 
     // Wall, LayerIndex 데이터
     public TileMapLayerInfo[] TileMapLayerInfo;

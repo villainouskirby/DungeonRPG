@@ -28,6 +28,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public Action<Vector2Int> ChunkLoadAction;
     public Action<Vector2Int> ChunkUnloadAction;
+    public Action<Vector2Int> ChunkRefreshAction;
 
     public int ViewChunkSize { get { return _viewChunkSize; } }
     private int _viewChunkSize;
@@ -73,6 +74,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         ChunkLoadAction = null;
         ChunkUnloadAction = null;
+        ChunkRefreshAction = null;
         LastChunkPos = GetChunkPos(PlayerMoveChecker.Instance.LastTilePos);
         LoadedChunkIndex.Clear();
         SetViewChunkSize(TM.Instance.ViewBoxSize);
@@ -131,6 +133,14 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
     {
         // 맵 시작시 전체 청크 로딩
         UpdateAllChunk(LastChunkPos);
+    }
+
+    public void RefreshLayer(int layer)
+    {
+        foreach (Vector2Int pos in GetAllChunkIndexInViewBox(_viewChunkSize))
+        {
+            ChunkRefreshAction?.Invoke(pos);
+        }
     }
 
     public void SaveMapData()
