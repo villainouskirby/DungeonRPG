@@ -186,6 +186,12 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     void HandleAttackInput()
     {
+        if (pc != null && pc.EscapeActive)
+        {
+            pressActive = false;      // 누르고 있던 프레스도 취소
+            comboQueued = false;      // 콤보 버퍼도 취소
+            return;
+        }
         if (attackLocked) return;
         if (Input.GetMouseButtonDown(0))
         {
@@ -250,7 +256,17 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         StartCoroutine(PerformAttack(comboStep));
     }
-
+    public void CancelAttackBufferOnEscape()
+    {
+        pressActive = false;
+        comboQueued = false;
+        // 차징 중이었다면 UI 종료만 보장 (공격 발사는 안 됨)
+        if (isAttackCharging)
+        {
+            isAttackCharging = false;
+            OnChargeEnd?.Invoke();
+        }
+    }
     // 평타 코루틴 
     private IEnumerator PerformAttack(int step)
     {

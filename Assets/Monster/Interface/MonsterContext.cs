@@ -189,6 +189,18 @@ public sealed class MonsterContext
         // flipX를 쓰는 경우
         sr.flipX = (_lastForward.x < 0);
     }
+    public async UniTask SetForwardDetect(Vector2 dir)
+    {
+        if (dir.sqrMagnitude > 0.001f)
+            _lastForward = dir.normalized;
+        await UniTask.WaitForSeconds(data.detecttoSeePlayerGateDelay);
+        // 애니메이터 파라미터도 갱신 가능
+        anim.SetFloat("DirX", _lastForward.x);
+        anim.SetFloat("DirY", _lastForward.y);
+
+        // flipX를 쓰는 경우
+        sr.flipX = (_lastForward.x < 0);
+    }
     #endregion
     #region 네브메쉬 안전로직
     public bool EnsureAgentReady(float sampleRadius = 3f)
