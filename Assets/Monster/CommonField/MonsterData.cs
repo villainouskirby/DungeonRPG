@@ -51,6 +51,8 @@ public class MonsterData : ScriptableObject
     [Header("상태 전이 지연(Inspector 조절)")]
     [Tooltip("플레이어 감지 후 Detect 상태로 들어가기 전에 요구되는 연속 유지 시간")]
     public float detectGateDelay = 0.25f;
+    [Tooltip("플레이어 감지 후 Detect -> 플레이어 파악 상태로 들어가기 전에 요구되는 연속 유지 시간")]
+    public float detecttoSeePlayerGateDelay = 0.5f;
 
     [Header("몬스터 피격 시 스턴 지속시간")]
     public float defaultHitStunSeconds = 0.3f;

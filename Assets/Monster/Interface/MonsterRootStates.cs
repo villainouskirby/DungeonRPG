@@ -283,12 +283,9 @@ public sealed class MonsterDetectState : IMonsterState
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
         ctx.agent.isStopped = true;
-        await ctx.SetForward(dir);
+        await ctx.SetForwardDetect(dir);
         ctx.agent.isStopped = false;
 
-        float delay = Mathf.Max(0f, ctx.data.preTransitionDelay);
-        if (delay > 0f)
-            await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
 
         if (token.IsCancellationRequested) return;
 
