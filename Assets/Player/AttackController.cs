@@ -36,6 +36,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         if (dir == 1) return new Vector2(0f, frontLiftY); // 아래를 볼 때만 위로 올림
         return Vector2.zero;
     }
+    private float AdjustWidthByDir(float baseWidth, int dir)
+    {
+        return (dir == 0) ? baseWidth + 1f : baseWidth;
+    }
     [Header("1타 슬래시(직사각형)")]
     [SerializeField, Min(0.01f)] private float slash1Width = 2.0f;  // 좌우 폭
     [SerializeField, Min(0.01f)] private float slash1Length = 1.2f;  // 전방 길이
@@ -299,12 +303,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         // 히트 + 스태미나 소모 (히트 시점에 맞춤)
         Vector2 forward = FacingVector(dir);
         Vector2 lift = HitboxLiftForDir(dir);
+        float w1 = AdjustWidthByDir(slash1Width, dir);
+        float w2 = AdjustWidthByDir(slash2Width, dir);
+
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
 
         if (step == 1)
-            DoSlashBox(dmg, transform.position, forward, slash1Width, slash1Length, slash1CenterOffset, stunLight1, lift);
+            DoSlashBox(dmg, transform.position, forward, w1, slash1Length, slash1CenterOffset, stunLight1, lift);
         else
-            DoSlashBox(dmg, transform.position, forward, slash2Width, slash2Length, slash2CenterOffset, stunLight2, lift);
+            DoSlashBox(dmg, transform.position, forward, w2, slash2Length, slash2CenterOffset, stunLight2, lift);
 
         // 여기서 바로 스태미나 차감 (히트 타이밍에 소비)
         if (step == 1)
@@ -470,8 +477,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         // 사각형 히트(2타와 동일 범위) + 스태미나 로직(필요 시 여기서)
         Vector2 forward = FacingVector(dir);
         Vector2 lift = HitboxLiftForDir(dir);
+        float wHeavy = AdjustWidthByDir(heavyWidth, dir);
         DoSlashBox(damage, transform.position, forward,
-                   heavyWidth, heavyLength, heavyCenterOffset, stunHeavy, lift);
+                   wHeavy, heavyLength, heavyCenterOffset, stunHeavy, lift);
 
         // 스테미나 소모
         PlayerData.instance.ConsumeComboAttackStamina(heavyCost, allowDebt: true);
@@ -520,14 +528,17 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         Vector2 dir = FacingVector(dirInt);
         float angleDeg = AngleDegFromDir(dir);
         Vector2 lift = HitboxLiftForDir(dirInt);
+        float w1 = AdjustWidthByDir(slash1Width, dirInt);
+        float w2 = AdjustWidthByDir(slash2Width, dirInt);
+        float wh = AdjustWidthByDir(heavyWidth, dirInt);
         // 1타 박스
-        DrawBoxGizmo(origin + lift, dir, angleDeg, slash1Width, slash1Length, slash1CenterOffset, gizmoSlash1Color);
+        DrawBoxGizmo(origin + lift, dir, angleDeg, w1, slash1Length, slash1CenterOffset, gizmoSlash1Color);
 
         // 2타
-        DrawBoxGizmo(origin + lift, dir, angleDeg, slash2Width, slash2Length, slash2CenterOffset, gizmoSlash2Color);
+        DrawBoxGizmo(origin + lift, dir, angleDeg, w2, slash2Length, slash2CenterOffset, gizmoSlash2Color);
 
         // 강공격 박스
-        DrawBoxGizmo(origin + lift, dir, angleDeg, heavyWidth, heavyLength, heavyCenterOffset, gizmoheavyColor);
+        DrawBoxGizmo(origin + lift, dir, angleDeg, wh, heavyLength, heavyCenterOffset, gizmoheavyColor);
     }
 
     private void DrawBoxGizmo(Vector2 origin, Vector2 dir, float angleDeg,
