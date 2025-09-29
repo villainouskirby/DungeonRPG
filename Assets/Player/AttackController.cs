@@ -324,8 +324,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         }
         
         isAttacking = false;
-        comboStep = (step == 2) ? 0 : comboStep;
-        pc.ChangeState(new IdleState(pc));
     }
 
     // 강공격 차징 
@@ -340,7 +338,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         isAttackCharging = true;
         chargeStart = Time.time;
         OnChargeStart?.Invoke(Mathf.Max(0.01f, maxChargeTime));
-        PlayerData.instance.BeginChargeSpendCap(20f);
+        PlayerData.instance.BeginChargeSpendCap(19f);
         //anim.SetTrigger("ChargeStart");
         return true;
     }
@@ -481,7 +479,6 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         // 종료/콤보 처리 (강공 이후엔 콤보 없음)
         isAttacking = false;
-        pc.ChangeState(new IdleState(pc));
     }
 
     public void ChangeState(IPlayerState s) => pc.ChangeState(s);

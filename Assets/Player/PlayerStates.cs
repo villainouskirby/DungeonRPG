@@ -423,6 +423,9 @@ public class NormalAttackState : IPlayerState
 {
     private readonly IPlayerChangeState owner;
     private float remain;        // 후딜이 끝날 때까지 유지
+    private const float BUFFER_WINDOW_SEC = 0.5f;
+    private enum NextIntent { None, Guard, Escape }
+    private NextIntent queued = NextIntent.None;
     public NormalAttackState(IPlayerChangeState p, float afterDelay)
     {
         owner = p;
@@ -432,9 +435,45 @@ public class NormalAttackState : IPlayerState
     public void Enter() { }
     public void Update()
     {
+        if (queued == NextIntent.None && remain <= BUFFER_WINDOW_SEC)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+                queued = NextIntent.Escape;
+            else if (Input.GetMouseButtonDown(1))
+                queued = NextIntent.Guard;
+        }
+
         remain -= Time.deltaTime;
         if (remain <= 0f)
-            owner.ChangeState(new IdleState(owner));  // 복귀
+        {
+            switch (queued)
+            {
+                case NextIntent.Escape:
+                    {
+                        // 회피 직전, 입력 방향으로 페이싱 보정
+                        var pc = owner as PlayerController;
+                        if (pc != null)
+                        {
+                            Vector2 mv = pc.ReadMoveRaw();
+                            if (mv != Vector2.zero)
+                            {
+                                if (Mathf.Abs(mv.x) > Mathf.Abs(mv.y))
+                                    pc.SetFacingDirection(mv.x < 0 ? 2 : 3); // Left/Right
+                                else
+                                    pc.SetFacingDirection(mv.y > 0 ? 0 : 1); // Up/Down
+                            }
+                        }
+                        owner.ChangeState(new EscapeState(owner));
+                        break;
+                    }
+                case NextIntent.Guard:
+                    owner.ChangeState(new GuardState(owner));
+                    break;
+                default:
+                    owner.ChangeState(new IdleState(owner));
+                    break;
+            }
+        }
     }
     public void Exit() { }
     public override string ToString() => "NormalAttack";
