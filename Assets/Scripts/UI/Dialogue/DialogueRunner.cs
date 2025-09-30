@@ -6,9 +6,15 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using DBUtility;
 using Events;
+using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class DialogueRunner : UIBase
 {
+    [SerializeField] private GameObject _buttons;
+    [SerializeField] private Button _openUIButton;
+    [SerializeField] private Button _talkButton;
+
     [SerializeField] private TextMeshProUGUI _speakerText;
     [SerializeField] private TextMeshProUGUI _lineText;
     [SerializeField] private TextPrinter _printer;
@@ -19,7 +25,15 @@ public class DialogueRunner : UIBase
     private Queue<DialogueLineStatement> _dialogueLines;
     private DialogueEndEvent[] _endEvent;
 
+    private Action _openUIAction;
+    private string _npcName = "";
+
     private bool _isDialogueRunning = false;
+
+    private void OnDisable()
+    {
+        _buttons.SetActive(false);
+    }
 
     protected override void InitBase()
     {
@@ -31,21 +45,57 @@ public class DialogueRunner : UIBase
         _eventDict[DialogueEndEvent.KeyName.Lose] = RemoveInventory;
         _eventDict[DialogueEndEvent.KeyName.AcceptQuest] = AddNewQuest;
         _eventDict[DialogueEndEvent.KeyName.UnlockQuest] = UnlockQuest;
+        _eventDict[DialogueEndEvent.KeyName.CloseDialogue] = (DialogueEndEvent endEvent) => gameObject.SetActive(false);
+
+        _openUIButton.onClick.AddListener(OpenUI);
+        _talkButton.onClick.AddListener(StartTalk);
     }
 
-    public void Init(string dialogueName)
+    public void Init(Action openAction, string npcName)
     {
+        _openUIAction = openAction;
+        _npcName = npcName;
+    }
+
+    private void OpenUI()
+    {
+        _openUIAction?.Invoke();
+    }
+
+    public async UniTaskVoid StartPrint(string dialogueName)
+    {
+        if (_isDialogueRunning) return;
+
+        if (_handle.IsValid())
+        {
+            Addressables.Release(_handle);
+            _handle = default;
+        }
+
+        _isDialogueRunning = true;
+
         _handle = Addressables.LoadAssetAsync<DialogueSO>("Dialogue/" + dialogueName);
-        var dialogue = _handle.WaitForCompletion();
+        var dialogue = await _handle.ToUniTask();
 
         _dialogueLines = new Queue<DialogueLineStatement>(dialogue.Lines);
         _endEvent = dialogue.EndEvent;
 
-        _isDialogueRunning = true;
-
         gameObject.SetActive(true);
 
         TryPrint();
+    }
+
+    public void StartTalk()
+    {
+        /*
+        if (string.IsNullOrEmpty(_questName))
+        {
+            StartPrint(_npcName); // 기본 대사 출력
+        }
+        else
+        {
+            StartPrint(_questName); // 퀘스트 대사 출력
+        }*/
     }
 
     private void Update()
@@ -87,19 +137,21 @@ public class DialogueRunner : UIBase
             }
         }
 
-        Addressables.Release(_handle);
-
-        _handle = default;
-
         if (!_isDialogueRunning)
         {
-            gameObject.SetActive(false);
+            Addressables.Release(_handle);
+            _handle = default;
+
+            if (gameObject.activeSelf)
+            {
+                _buttons.SetActive(true);
+            }
         }
     }
 
     private void ContinueDialogue(DialogueEndEvent endEvent)
     {
-        Init(endEvent.Value);
+        StartPrint(endEvent.Value).Forget();
     }
 
     private void AddInventory(DialogueEndEvent endEvent)

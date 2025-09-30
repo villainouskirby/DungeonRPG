@@ -17,11 +17,11 @@ public class QuestInfo
         _info = info;
     }
 
-    ~QuestInfo()
+    public void Dispose()
     {
         foreach (var mission in Missions)
         {
-            mission.UnRegisterProcess();
+            mission?.UnRegisterProcess();
         }
     }
 

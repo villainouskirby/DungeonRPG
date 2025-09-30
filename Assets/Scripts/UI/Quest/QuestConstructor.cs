@@ -14,7 +14,10 @@ namespace DBUtility
             
             for (int i = 0; i < 3; i++)
             {
-                info.Missions[i].OnMissionClearChanged = info.CheckQuestClear;
+                if (info.Missions[i] != null)
+                {
+                    info.Missions[i].OnMissionClearChanged = info.CheckQuestClear;
+                }
             }
 
             // 보상 아이템 추가

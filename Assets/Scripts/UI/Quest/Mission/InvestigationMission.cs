@@ -12,6 +12,9 @@ public class InvestigationMission : Mission
         ID = questID;
 
         _investigationInfo = Array.Find(Quest_Info.Investigation, info => info.id == questID);
+
+        Progress = 0;
+        MaxProgress = 1;
     }
 
     public override string GetExplanation()
@@ -21,14 +24,27 @@ public class InvestigationMission : Mission
 
     public override void RegisterProcess()
     {
+        switch (_investigationInfo.type)
+        {
+            case "Conversation":
+                EventManager.Instance.NPCConversationEvent.AddListener(UpdateProgress);
+                break;
+        }
     }
 
     public override void UnRegisterProcess()
     {
+        switch (_investigationInfo.type)
+        {
+            case "Conversation":
+                EventManager.Instance.NPCConversationEvent.RemoveListener(UpdateProgress);
+                break;
+        }
     }
 
     public override void UpdateProgress(EventArgs eventArgs)
     {
+        Progress++;
 
         if (CheckIsMissionCleared())
         {

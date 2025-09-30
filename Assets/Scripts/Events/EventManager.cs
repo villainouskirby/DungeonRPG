@@ -9,6 +9,7 @@ namespace Events
         public PriorityEvent<InventoryChangedEventArgs> InventoryChangedEvent = new();
         public PriorityEvent<QuestClearEventArgs> QuestClearEvent = new();
         public PriorityEvent<QuestUnlockedEventArgs> QuestUnlockedEvent = new();
+        public PriorityEvent<NPCConversationEventArgs> NPCConversationEvent = new();
 
         public void Initialize()
         {

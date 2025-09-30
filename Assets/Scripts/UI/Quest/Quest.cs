@@ -32,15 +32,20 @@ public class Quest : UIBase
 
     public void RemoveQuest(int index)
     {
+        QuestInfo info = GetQuestInfo(index);
+        if (info == null) return;
+
+        info.Dispose();
+
         _questInfos.RemoveAt(index);
         _questUI.RemoveSlot(index);
     }
 
     public void QuestClear(int index)
     {
-        if (index < 0 || index >= _questInfos.Count) return;
+        QuestInfo info = GetQuestInfo(index);
+        if (info == null) return;
 
-        QuestInfo info = _questInfos[index];
         for (int i = 0; i < info.Rewards.Length; i++)
         {
             if (info.Rewards[i] != null)

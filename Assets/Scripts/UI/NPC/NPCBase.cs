@@ -1,37 +1,59 @@
 using UnityEngine;
-using UnityEngine.UI;
 using Events;
+using System.Collections.Generic;
 
-public abstract class NPCBase<T> : UIBase where T : UIBase
+public class NPCBase<T> : UIBase, ISave where T : UIBase
 {
-    [SerializeField] private Button _talkButton;
+    [SerializeField] protected string _npcName = "";
 
-    protected string _npcName = "";
-    protected string _questID = "";
-    protected bool _isQuestAccepted = false;
+    protected Queue<string> _questID = new(); // 우선순위 큐로 수정해야함
+
+    public void OpenUI() => UIPopUpHandler.Instance.OpenUI<T>();
 
     protected override void InitBase()
     {
-        _talkButton.onClick.AddListener(StartTalk);
         EventManager.Instance.QuestUnlockedEvent.AddListener(UnlockQuest);
+        
     }
 
-    private void StartTalk()
+    public void StartTalk()
     {
-        UIPopUpHandler.Instance.GetScript<DialogueRunner>().Init(_questID); // 이름 정형화 필요
+        using (var args = NPCConversationEventArgs.Get())
+        {
+            args.Init(_npcName);
+            EventManager.Instance.NPCConversationEvent.Invoke(args);
+            args.Release();
+        }
+
+        DialogueRunner runner = UIPopUpHandler.Instance.GetScript<DialogueRunner>();
+        runner.Init(OpenUI, _npcName);
+
+        if (_questID.TryPeek(out var id))
+        {
+            runner.StartPrint(id).Forget();
+        }
     }
 
     public void UnlockQuest(QuestUnlockedEventArgs args)
     {
         if (args.NPCName == _npcName)
         {
-            _questID = args.QuestID;
+            _questID.Enqueue(args.QuestID);
         }
     }
 
     public void CompleteQuest()
     {
-        UIPopUpHandler.Instance.GetScript<Quest>().QuestClear(_questID);
-        _questID = _npcName;
+        UIPopUpHandler.Instance.GetScript<Quest>().QuestClear(_questID.Dequeue());
+    }
+
+    public void Load(SaveData saveData)
+    {
+
+    }
+
+    public void Save(SaveData saveData)
+    {
+
     }
 }

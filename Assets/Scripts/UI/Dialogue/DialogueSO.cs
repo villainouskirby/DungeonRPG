@@ -20,6 +20,7 @@ public struct DialogueEndEvent
         Lose,               // 아이템 잃음
         AcceptQuest,        // 퀘스트 수주
         UnlockQuest,        // 퀘스트 해금
+        CloseDialogue       // 대화 종료
     }
 
     public KeyName Key;
