@@ -20,6 +20,12 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
     public string backKey = "back";
     public string sideKey = "side";
 
+    [Header("Flip Options")]
+    [Tooltip("useDirectionOn=false일 때도 이동 방향(X)으로 flipX를 갱신합니다.")]
+    public bool flipByForwardX = true;
+    [Tooltip("flipX 판정에 사용할 최소 X속도(정지 떨림 방지).")]
+    public float flipXEps = 0.01f;
+
     MonsterStateTag _tag = MonsterStateTag.None;
     MonsterContext _ctx;
     string _currentStateName;
@@ -67,6 +73,7 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
         if (!useDirectionOn)
         {
             stateName = SetString(motion);                 // Cleaner_idle / Cleaner_walk / Cleaner_run
+            ApplyFlipByForwardX();
         }
         else
         {
@@ -77,6 +84,7 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
             stateName = $"{prefix}{dir}_{motion}"; // Cleanerfront_walk
             if (!HasState(stateName))
                 stateName = SetString(motion);             // 방향 클립 없으면 무시
+            ApplyFlipByForwardX();
         }
 
         if (_currentStateName == stateName) return;
@@ -100,7 +108,14 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
             default: return null;
         }
     }
+    void ApplyFlipByForwardX()
+    {
+        if (!spriteRenderer || _ctx == null || !flipByForwardX) return;
 
+        Vector2 fwd = _ctx.GetForward();
+        if (Mathf.Abs(fwd.x) > flipXEps)
+            spriteRenderer.flipX = (fwd.x > 0f);
+    }
     string ResolveDirectionKey(MonsterContext ctx, out int sideSignX)
     {
         sideSignX = 0;
