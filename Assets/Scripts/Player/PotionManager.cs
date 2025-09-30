@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using Core;
 
 
-public class PotionManager : MonoBehaviour
+public class PotionManager : Singleton<PotionManager>
 {
-    public static PotionManager instance;
 
     [Header("버프 아이콘 프리팹")]
     public GameObject buffPrefab;
@@ -24,10 +24,6 @@ public class PotionManager : MonoBehaviour
     public bool IsDrinking { get; private set; } = false;
     public float CurrentDrinkDuration { get; private set; } = 0f;
     public float CurrentDrinkStart { get; private set; } = 0f;
-    private void Awake()
-    {
-        instance = this;
-    }
     void Start() 
     {
         player = FindObjectOfType<PlayerController>();
@@ -192,7 +188,7 @@ public class PotionManager : MonoBehaviour
             float delta = ratePerSec * Time.deltaTime;
 
             // 다음 틱으로 넘어가며 MaxHP 클램프는 PlayerData.HPValueChange에서 처리된다고 가정
-            PlayerData.instance.HPValueChange(delta);
+            PlayerData.Instance.HPValueChange(delta);
             applied += delta;
 
             await UniTask.NextFrame();
@@ -201,7 +197,7 @@ public class PotionManager : MonoBehaviour
         // 루프 종료(정상 완료): 반올림 오차 보정
         float remainder = Mathf.Max(0f, totalAmount - applied);
         if (remainder > 0f)
-            PlayerData.instance.HPValueChange(remainder);
+            PlayerData.Instance.HPValueChange(remainder);
 
         OnGaugeEnd?.Invoke();
         return true;

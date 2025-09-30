@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using DBUtility;
+using Events;
 
 public class DialogueRunner : UIBase
 {
@@ -28,7 +29,8 @@ public class DialogueRunner : UIBase
         _eventDict[DialogueEndEvent.KeyName.Dialogue] = ContinueDialogue;
         _eventDict[DialogueEndEvent.KeyName.Get] = AddInventory;
         _eventDict[DialogueEndEvent.KeyName.Lose] = RemoveInventory;
-        _eventDict[DialogueEndEvent.KeyName.Quest] = AddNewQuest;
+        _eventDict[DialogueEndEvent.KeyName.AcceptQuest] = AddNewQuest;
+        _eventDict[DialogueEndEvent.KeyName.UnlockQuest] = UnlockQuest;
     }
 
     public void Init(string dialogueName)
@@ -112,6 +114,17 @@ public class DialogueRunner : UIBase
 
     private void AddNewQuest(DialogueEndEvent endEvent)
     {
-        
+        UIPopUpHandler.Instance.GetScript<Quest>().AddQuest(QuestConstructor.GetQuestInfo(endEvent.Value));
+    }
+
+    private void UnlockQuest(DialogueEndEvent endEvent)
+    {
+        using (var args = QuestUnlockedEventArgs.Get())
+        {
+            var info = Array.Find(Quest_Info.Quest, quest => quest.id == endEvent.Value);
+            args.Init(info.name, info.id);
+            EventManager.Instance.QuestUnlockedEvent.Invoke(args);
+            args.Release();
+        }
     }
 }

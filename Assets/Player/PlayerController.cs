@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     EscapePhase escPhase = EscapePhase.None;
     float phaseT = 0f;          // 현재 페이즈 남은 시간
     Vector2 escDir = Vector2.zero;
-    bool isInvincible = false;
+    public bool isInvincible = false;
     Vector2 EscapeTargetVelocity()
     {
         return escPhase switch
@@ -122,8 +122,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         stateMachine = new PlayerStateMachine();
         stateMachine.ChangeState(new IdleState(this));
 
-        if (PlayerData.instance != null)
-            PlayerData.instance.OnStunRequested += HandleStun;
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnStunRequested += HandleStun;
     }
 
     private void Update()
@@ -305,9 +305,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #region 회피 기동 로직
     public bool TryBeginEscape()
     {
-        if (PlayerData.instance.IsExhausted) return false;
-        if (PlayerData.instance.currentStamina.Value < 0.999f) return false;
-        PlayerData.instance.ConsumeActionStamina(dodgeCost, allowDebt: true);
+        if (PlayerData.Instance.IsExhausted) return false;
+        if (PlayerData.Instance.currentStamina.Value < 0.999f) return false;
+        PlayerData.Instance.ConsumeActionStamina(dodgeCost, allowDebt: true);
         escPhase = EscapePhase.Dive;
         phaseT = diveTime;
         isInvincible = true;
@@ -477,7 +477,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #endregion
     private void OnDestroy()
     {
-        if (PlayerData.instance != null)
-            PlayerData.instance.OnStunRequested -= HandleStun;
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnStunRequested -= HandleStun;
     }
 }

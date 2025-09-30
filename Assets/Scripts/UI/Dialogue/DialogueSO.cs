@@ -14,11 +14,12 @@ public struct DialogueEndEvent
 {
     public enum KeyName
     {
-        None,       // 이벤트 없음
-        Dialogue,   // 다음 대사 출력
-        Get,        // 아이템 획득
-        Lose,       // 아이템 잃음
-        Quest,      // 퀘스트 부여
+        None,               // 이벤트 없음
+        Dialogue,           // 다음 대사 출력
+        Get,                // 아이템 획득
+        Lose,               // 아이템 잃음
+        AcceptQuest,        // 퀘스트 수주
+        UnlockQuest,        // 퀘스트 해금
     }
 
     public KeyName Key;

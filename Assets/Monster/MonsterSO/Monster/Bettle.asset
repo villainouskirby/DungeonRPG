@@ -13,22 +13,22 @@ MonoBehaviour:
   m_Name: Bettle
   m_EditorClassIdentifier: 
   monsterName: Normal
-  maxHp: 50
+  maxHp: 15
   attackPower: 2
   attackCooldown: 1.5
   attackRange: 1.2
   canMove: 1
   hearRange: 3
-  sightDistance: 6
-  sightAngle: 90
+  sightDistance: 4
+  sightAngle: 120
   lostDistance: 5
   wanderRadius: 4
   detectSpeed: 1
-  combatSpeed: 3
-  fleeSpeed: 3.5
+  combatSpeed: 1
+  fleeSpeed: 1.5
   stoppingDistance: 1
   soundObstaclePenalty: 4
-  aggroHoldSeconds: 0.5
+  aggroHoldSeconds: 0
   disengageHoldSeconds: 2
   preTransitionDelay: 0.3
   istracing: 0
@@ -36,7 +36,8 @@ MonoBehaviour:
   traceDesiredDistance: 4
   traceNearDistance: 2.5
   traceFarDistance: 5.5
-  detectGateDelay: 0.25
+  detectGateDelay: 0
+  detecttoSeePlayerGateDelay: 0.5
   defaultHitStunSeconds: 0.3
   returnGateDelay: 0.75
   fleeTargetRadius: 15
@@ -67,10 +68,14 @@ MonoBehaviour:
   maxSpawnerDist: 15
   nearSpawnerDist: 1
   isaggressive: 0
-  canHearNoise: 0
+  canHearNoise: 1
   hearToCombat: 0
   category: 3
-  attackBehaviours: []
+  attackEnterDistance: 2.2
+  attackExitDistance: 3
+  combatMoveBehaviours: []
+  combatAttackBehaviours: []
+  moveWeights: []
   fleeBehaviours: []
   specialBehaviours: []
   interestTags: []

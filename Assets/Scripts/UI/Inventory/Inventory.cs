@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
+using static UnityEditor.Progress;
 using ItemType = InventoryUI.TabType;
 
 public class Inventory : UIBase, ISave
@@ -352,6 +353,12 @@ public class Inventory : UIBase, ISave
                 }
                 else
                 {
+                    using (var args = InventoryChangedEventArgs.Get())
+                    {
+                        args.Init(item.Data, -1);
+                        EventManager.Instance.InventoryChangedEvent.Invoke(args);
+                        args.Release();
+                    }
                     CalculateRestWeight(item.Data.Info.weight);
                     Debug.Log(item.Data.Name + "사용");
                     UpdateSlot(index);
@@ -380,6 +387,14 @@ public class Inventory : UIBase, ISave
     public int RemoveItem(int index, int amount)
     {
         Item item = _items[index];
+
+        using (var args = InventoryChangedEventArgs.Get())
+        {
+            args.Init(item.Data, -amount);
+            EventManager.Instance.InventoryChangedEvent.Invoke(args);
+            args.Release();
+        }
+
         if (item is CountableItem ci)
         {
             int restAmount = Math.Max(amount - ci.Amount, 0);
@@ -403,9 +418,19 @@ public class Inventory : UIBase, ISave
     /// <summary> 해당 슬롯의 모든 아이템 제거 </summary>
     public void RemoveItem(int index)
     {
-        CalculateRestWeight(GetItemData(index).Info.weight, GetItemAmount(index));
+        var data = GetItemData(index);
+        int amount = GetItemAmount(index);
+
+        CalculateRestWeight(data.Info.weight, amount);
         _items.RemoveAt(index);
         UpdateWeightText();
+
+        using (var args = InventoryChangedEventArgs.Get())
+        {
+            args.Init(data, -amount);
+            EventManager.Instance.InventoryChangedEvent.Invoke(args);
+            args.Release();
+        }
         OnInventoryChanged?.Invoke(index, 0);
     }
 
@@ -414,9 +439,17 @@ public class Inventory : UIBase, ISave
     {
         int index = _items.Count - 1;
 
+        using (var args = InventoryChangedEventArgs.Get())
+        {
+            args.Init(itemData, -amount);
+            EventManager.Instance.InventoryChangedEvent.Invoke(args);
+            args.Release();
+        }
+
         while (amount == 0 || index >= 0)
         {
             Item targetItem = _items[index];
+
             if (targetItem.Data.SID == itemData.SID)
             {
                 amount = RemoveItem(index, amount);

@@ -190,7 +190,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     void HandleAttackInput()
     {
-        if (pc != null && pc.EscapeActive)
+        if (pc != null && (pc.EscapeActive || pc.GetCurrentState() is PotionConsumeState))
         {
             pressActive = false;      // 누르고 있던 프레스도 취소
             comboQueued = false;      // 콤보 버퍼도 취소
@@ -274,10 +274,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 평타 코루틴 
     private IEnumerator PerformAttack(int step)
     {
-        if (PlayerData.instance.IsExhausted) yield break;
+        if (PlayerData.Instance.IsExhausted) yield break;
         isAttacking = true;
 
-        PlayerData.instance.BlockStaminaRegen(1f);
+        PlayerData.Instance.BlockStaminaRegen(1f);
 
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
@@ -315,9 +315,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         // 여기서 바로 스태미나 차감 (히트 타이밍에 소비)
         if (step == 1)
-            PlayerData.instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
+            PlayerData.Instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
         else
-            PlayerData.instance.ConsumeComboAttackStamina(combo2cost, allowDebt: true);
+            PlayerData.Instance.ConsumeComboAttackStamina(combo2cost, allowDebt: true);
 
         // 본체 잔여
         // 히트 유지 시간(본체 안에서만)
@@ -352,7 +352,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
-        if (!PlayerData.instance)
+        if (!PlayerData.Instance)
         {
             return false;
         }
@@ -361,7 +361,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         isAttackCharging = true;
         chargeStart = Time.time;
         OnChargeStart?.Invoke(Mathf.Max(0.01f, maxChargeTime));
-        PlayerData.instance.BeginChargeSpendCap(19f);
+        PlayerData.Instance.BeginChargeSpendCap(19f);
         //anim.SetTrigger("ChargeStart");
         return true;
     }
@@ -482,7 +482,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                    wHeavy, heavyLength, heavyCenterOffset, stunHeavy, lift);
 
         // 스테미나 소모
-        PlayerData.instance.ConsumeComboAttackStamina(heavyCost, allowDebt: true);
+        PlayerData.Instance.ConsumeComboAttackStamina(heavyCost, allowDebt: true);
 
         // 히트 유지(본체 안)
         float activeAfterHit = Mathf.Min(hitboxActiveTime, Mathf.Max(0f, playLen - hitMoment));

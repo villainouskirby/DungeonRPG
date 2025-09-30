@@ -7,6 +7,8 @@ namespace Events
     {
         public PriorityEvent<MonsterKilledEventArgs> MonsterKilledEvent = new();
         public PriorityEvent<InventoryChangedEventArgs> InventoryChangedEvent = new();
+        public PriorityEvent<QuestClearEventArgs> QuestClearEvent = new();
+        public PriorityEvent<QuestUnlockedEventArgs> QuestUnlockedEvent = new();
 
         public void Initialize()
         {

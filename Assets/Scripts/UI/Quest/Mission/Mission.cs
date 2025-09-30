@@ -1,13 +1,16 @@
 using Events;
+using System;
+using EventArgs = Events.EventArgs;
 
 [System.Serializable]
 public abstract class Mission
 {
+    public Action OnMissionClearChanged;
+
     public string ID;
     public int MaxProgress;
     public int Progress;
-
-    public bool IsMissionCleared => Progress >= MaxProgress;
+    public bool IsMissionCleared = false;
 
     public abstract void Init(string questID);
     public abstract string GetExplanation();
@@ -20,4 +23,16 @@ public abstract class Mission
 
     /// <summary> 진행상황 업데이트 </summary>
     public abstract void UpdateProgress(EventArgs eventArgs);
+    public virtual bool CheckIsMissionCleared()
+    {
+        bool isClear = Progress >= MaxProgress;
+
+        if (isClear != IsMissionCleared)
+        {
+            IsMissionCleared = isClear;
+            OnMissionClearChanged?.Invoke();
+        }
+
+        return isClear;
+    }
 }

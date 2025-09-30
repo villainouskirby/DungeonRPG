@@ -53,7 +53,7 @@ public class MoveState : IPlayerState
        
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
-        if (Input.GetKey(KeyCode.LeftShift) && PlayerData.instance.CanStartSprint()) player.ChangeState(new RunState(player));
+        if (Input.GetKey(KeyCode.LeftShift) && PlayerData.Instance.CanStartSprint()) player.ChangeState(new RunState(player));
     }
 
     public void Exit()
@@ -86,7 +86,7 @@ public class RunState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.instance.TryConsumeSprintThisFrame(Time.deltaTime))
+        if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.Instance.TryConsumeSprintThisFrame(Time.deltaTime))
         { 
             player.ChangeState(new MoveState(player));
             return;
@@ -194,7 +194,7 @@ public class GuardState : IPlayerState
 
     public void Update()
     {
-        PlayerData.instance?.BlockStaminaRegen(1f);
+        PlayerData.Instance?.BlockStaminaRegen(1f);
         // 공격키 → 가드 해제 & 공격 전환
         if (Input.GetMouseButtonDown(0))
         {
@@ -234,7 +234,7 @@ public sealed class PotionConsumeState : IPlayerState
     {
         owner = p;
         pc = p as PlayerController;
-        pm = PotionManager.instance;
+        pm = PotionManager.Instance;
         duration = Mathf.Max(0.01f, durationSec);
     }
 
@@ -247,8 +247,8 @@ public sealed class PotionConsumeState : IPlayerState
         if (pm != null) pm.OnGaugeEnd += HandleGaugeEnd;
 
         // HP 변동 감지 → 섭취 취소
-        if (PlayerData.instance != null)
-            PlayerData.instance.OnHPChanged += HandleHpChanged;
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnHPChanged += HandleHpChanged;
     }
 
     public void Update()
@@ -270,8 +270,8 @@ public sealed class PotionConsumeState : IPlayerState
     public void Exit()
     {
         if (pm != null) pm.OnGaugeEnd -= HandleGaugeEnd;
-        if (PlayerData.instance != null)
-            PlayerData.instance.OnHPChanged -= HandleHpChanged;
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnHPChanged -= HandleHpChanged;
     }
 
     public override string ToString() => "PotionConsume";
@@ -365,8 +365,8 @@ public class ChargingState : IPlayerState
         }
 
         // 이번 차징 세션 누적 소모 상한 20 시작
-        if (PlayerData.instance != null)
-            PlayerData.instance.BeginChargeSpendCap(19f);
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.BeginChargeSpendCap(19f);
 
         released = false;
         startTime = Time.time;
@@ -379,20 +379,20 @@ public class ChargingState : IPlayerState
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ac.CancelCharging();
-            if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap();
+            if (PlayerData.Instance != null) PlayerData.Instance.EndChargeSpendCap();
             player.ChangeState(new EscapeState(player));
             return;
         }
-        bool ok = PlayerData.instance != null
-                 ? PlayerData.instance.TryConsumeChargeThisFrame(Time.deltaTime)
+        bool ok = PlayerData.Instance != null
+                 ? PlayerData.Instance.TryConsumeChargeThisFrame(Time.deltaTime)
                  : true;
 
         // Exhaust(실제 고갈) 되면 차징 중단
         if (!ok)
         {
             ac.CancelCharging();
-            if (PlayerData.instance != null) PlayerData.instance.ForceExhaustToZero();
-            if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap();
+            if (PlayerData.Instance != null) PlayerData.Instance.ForceExhaustToZero();
+            if (PlayerData.Instance != null) PlayerData.Instance.EndChargeSpendCap();
             player.ChangeState(new IdleState(player));
             return;
         }
@@ -404,19 +404,18 @@ public class ChargingState : IPlayerState
             released = true;
 
             // 차징 종료 정리
-            if (PlayerData.instance != null)
+            if (PlayerData.Instance != null)
             {
-                PlayerData.instance.BlockStaminaRegen(1f);
-                PlayerData.instance.EndChargeSpendCap();
+                PlayerData.Instance.BlockStaminaRegen(1f);
+                PlayerData.Instance.EndChargeSpendCap();
             }
-
-            player.ChangeState(new IdleState(player));
+            
             return;
         }
         float held = Mathf.Min(Time.time - startTime, ac.maxChargeTime);
     }
 
-    public void Exit() { if (PlayerData.instance != null) PlayerData.instance.EndChargeSpendCap(); }
+    public void Exit() { if (PlayerData.Instance != null) PlayerData.Instance.EndChargeSpendCap(); }
     public override string ToString() => "Charging";
 }
 public class NormalAttackState : IPlayerState

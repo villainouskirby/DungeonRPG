@@ -1,12 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Core;
 
 
-public class PlayerData : MonoBehaviour
+public class PlayerData : Singleton<PlayerData>
 {
-    public static PlayerData instance;
-
     [Header("Base Stats (기본 스탯 값)")]
     [SerializeField] private float baseAttack = 10f;
     [SerializeField] private float baseSpeed = 10f;
@@ -35,7 +34,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private float sprintResumeThreshold = 10f; // 재시작 가능 최소 스태미나
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
-
+    PlayerController pc;
 
     //스테미나 필드
     int regenBlockCount = 0;
@@ -43,9 +42,9 @@ public class PlayerData : MonoBehaviour
     void AddRegenBlock() { regenBlockCount++; }
     void RemoveRegenBlock() { regenBlockCount = Mathf.Max(0, regenBlockCount - 1); }
 
-    private void Awake()
+    protected override void AfterAwake()
     {
-        instance = this;
+        if (!pc) pc = GetComponent<PlayerController>();
     }
 
     private void Start()
@@ -68,6 +67,7 @@ public class PlayerData : MonoBehaviour
     public void HPValueChange(float value)
     {
         float old = currentHP.Value;
+        if (pc.isInvincible) { return; } // 무적일 때 로직 다 제외
         currentHP.Value += value;
 
         if (currentHP.Value > MaxHP.Value) currentHP.Value = MaxHP.Value;
@@ -259,25 +259,6 @@ public class PlayerData : MonoBehaviour
     }
     #endregion
     #region 포션
-    // 포션 게이지 UI
-    //public void StartPotionGauge(float durationSec)
-    //{
-    //    potionDuration = durationSec;
-    //    potionChargeStart = Time.time;
-    //    isPotionCharging = true;
-
-    //    chargeUI.ShowPotionGauge();
-    //}
-    //public void CancelPotionGauge()
-    //{
-    //    isPotionCharging = false;
-    //    chargeUI.HideAll();
-    //}
-    //public void EndPotionGauge()
-    //{
-    //    isPotionCharging = false;
-    //    chargeUI.HideAll();
-    //}
     // 버프가 생길 때 호출: 플레이어의 현재 스탯을 바로 변경
     public void ApplyBuff(BuffType type, float percentage)
     {

@@ -50,6 +50,11 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
     public T GetScript<T>() where T : UIBase
     {
         if (!_uiDict.TryGetValue(typeof(T), out var ui)) return null;
+        if (ui == null)
+        {
+            _uiDict.Remove(typeof(T));
+            return null;
+        }
 
         return ui as T;
     }
@@ -79,32 +84,4 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
         _openUI.SetActive(false);
         _openUI = null;
     }
-
-    /*
-    /// <summary> 인벤토리 열기 </summary>
-    public void OpenInventory() // TODO => 매번 호출할때마다 초기화시키는건 비효율적인데 뭔가 개선방안이 필요할듯
-    {
-        _inventoryScript.InitInventory();
-        OpenUI(_inventory);
-    }
-
-    /// <summary> 상점 열기 </summary>
-    public void OpenShop()
-    {
-        _shopScript.InitInvenToShop();
-        OpenUI(_shop);
-    }
-
-    /// <summary> 창고 열기 </summary>
-    public void OpenStorage()
-    {
-        _storageScript.InitInventory();
-        OpenUI(_storage);
-    }
-
-    /// <summary> 퀘스트 게시판 열기 </summary>
-    public void OpenQuest() => OpenUI(_quest);
-
-    /// <summary> 대장장이 UI 열기</summary>
-    public void OpenSmith() => OpenUI(_smith); */
 }

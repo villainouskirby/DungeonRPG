@@ -11,6 +11,11 @@ namespace DBUtility
             info.Missions[0] = GetMission(info.Info.con_id1);
             info.Missions[1] = GetMission(info.Info.con_id2);
             info.Missions[2] = GetMission(info.Info.con_id3);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                info.Missions[i].OnMissionClearChanged = info.CheckQuestClear;
+            }
 
             // 보상 아이템 추가
 

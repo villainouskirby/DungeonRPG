@@ -13,6 +13,7 @@ public class GatheringMission : Mission
 
         _gatheringInfo = Array.Find(Quest_Info.Gathering, info => info.id == questID);
 
+        Progress = UIPopUpHandler.Instance.GetScript<Inventory>().GetItemAmountSum(_gatheringInfo.object_id);
         MaxProgress = _gatheringInfo.count;
     }
 
@@ -39,5 +40,7 @@ public class GatheringMission : Mission
         {
             Progress += args.Amount;
         }
+
+        CheckIsMissionCleared();
     }
 }

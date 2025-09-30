@@ -13,8 +13,8 @@ public class HuntingMission : Mission
 
         _huntingInfo = Array.Find(Quest_Info.Hunting, info => info.id == questID);
 
-        MaxProgress = _huntingInfo.count;
         Progress = 0;
+        MaxProgress = _huntingInfo.count;
     }
 
     public override string GetExplanation()
@@ -37,6 +37,11 @@ public class HuntingMission : Mission
         if ((eventArgs as MonsterKilledEventArgs).MonsterID == _huntingInfo.object_id)
         {
             Progress++;
+
+            if (CheckIsMissionCleared())
+            {
+                UnRegisterProcess();
+            }
         }
     }
 }

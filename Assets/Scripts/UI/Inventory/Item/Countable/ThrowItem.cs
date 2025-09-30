@@ -16,7 +16,7 @@ public class ThrowItem : CountableItem, IUsableItem
         if (Amount <= 0) return false;
 
         // 포션과 동일한 싱글톤 호출 방식
-        if (!await ThrowItemManager.instance.UseThrowItem(ThrowData))
+        if (!await ThrowItemManager.Instance.UseThrowItem(ThrowData))
             return false;
 
         Amount--;
