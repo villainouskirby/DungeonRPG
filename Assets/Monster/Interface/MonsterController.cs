@@ -119,7 +119,7 @@ public class MonsterController : MonoBehaviour
             StateMachine.ChangeState(new MonsterKilledState(ctx, StateMachine, gameObject, this));
             return;
         }
-
+        if (data.isaggressive) { return; } // 적대몹이면 스턴 X
         // 스턴 적용
         if (stunSec > 0f)
         {

@@ -159,6 +159,8 @@ GameObject:
   - component: {fileID: 5943831726345952343}
   - component: {fileID: 8946492151150093642}
   - component: {fileID: 4472472690463083339}
+  - component: {fileID: 6875650410097945477}
+  - component: {fileID: -6531687833949541397}
   m_Layer: 20
   m_Name: MST_BTL
   m_TagString: Monster
@@ -359,7 +361,7 @@ Animator:
   m_GameObject: {fileID: 1272526528818684848}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 951d1560e6d54564eb9dbe2e78071892, type: 2}
+  m_Controller: {fileID: 9100000, guid: 47e2df35b967d52448125eacc1cf7fc5, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -383,7 +385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateIndicator: {fileID: 4472472690463083339}
-  animationHub: {fileID: 0}
+  animationHub: {fileID: 6875650410097945477}
   alertSR: {fileID: 6927413861422287132}
   data: {fileID: 11400000, guid: ef1386b878d0a014bb165f3b3b017123, type: 2}
   spawner: {x: 0, y: 0, z: 0}
@@ -444,6 +446,44 @@ MonoBehaviour:
   popOnChange: 1
   popScale: 1.15
   popTime: 0.08
+--- !u!114 &6875650410097945477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272526528818684848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9b2acfa05d2a744ca27de7b261c6c72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  players:
+  - {fileID: -6531687833949541397}
+--- !u!114 &-6531687833949541397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272526528818684848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c7d5aecbfcc65444abb5c8358452fb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 5842328666675466451}
+  spriteRenderer: {fileID: 5904840683069927165}
+  useDirectionOn: 0
+  prefix: bettle
+  idleKey: idle
+  walkKey: walk
+  runKey: run
+  frontKey: front
+  backKey: back
+  sideKey: side
+  flipByForwardX: 1
+  flipXEps: 0.01
 --- !u!1 &3398163645843324330
 GameObject:
   m_ObjectHideFlags: 0
