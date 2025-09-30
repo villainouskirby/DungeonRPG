@@ -93,14 +93,23 @@ public sealed class HoundAnimationPlayer : AnimationPlayerBase
         if (fwd.sqrMagnitude < 0.0001f)
             return sideKey;
 
-        if (Mathf.Abs(fwd.x) > Mathf.Abs(fwd.y))
-        {
-            sideSignX = (fwd.x >= 0f) ? +1 : -1;
-            return sideKey; // 좌우는 flipX로만
-        }
-        else
-        {
-            return (fwd.y > 0f) ? backKey : frontKey;
-        }
+        float angleFromUp = Mathf.Atan2(fwd.x, fwd.y) * Mathf.Rad2Deg;
+        if (angleFromUp < 0f) angleFromUp += 360f;
+
+        const float UP_HALF = 20f;      // 위쪽 40° 구간(±20°)
+        const float DOWN_CTR = 180f;    // 아래 중심
+        const float DOWN_HALF = 20f;    // 아래 40° 구간(±20°)
+
+        bool isUp =
+            (angleFromUp <= UP_HALF) || (angleFromUp >= 360f - UP_HALF); // [-20°,20°]에 해당
+        bool isDown =
+            (Mathf.Abs(Mathf.DeltaAngle(angleFromUp, DOWN_CTR)) <= DOWN_HALF); // [160°,200°]
+
+        if (isUp)
+            return backKey;
+        if (isDown)
+            return frontKey;
+        sideSignX = (fwd.x >= 0f) ? +1 : -1;
+        return sideKey;
     }
 }

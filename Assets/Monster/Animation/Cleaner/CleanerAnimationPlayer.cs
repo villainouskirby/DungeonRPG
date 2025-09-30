@@ -114,7 +114,7 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
 
         Vector2 fwd = _ctx.GetForward();
         if (Mathf.Abs(fwd.x) > flipXEps)
-            spriteRenderer.flipX = (fwd.x > 0f);
+            spriteRenderer.flipX = (fwd.x < 0f);
     }
     string ResolveDirectionKey(MonsterContext ctx, out int sideSignX)
     {
