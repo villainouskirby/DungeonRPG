@@ -171,6 +171,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             float nextSpeed = Mathf.MoveTowards(curSpeed, finalSpeed, accel * Time.fixedDeltaTime);
 
             Vector2 nextVel = dir.normalized * nextSpeed;
+            if(_isMoveCorrect)
+                nextVel = new((nextVel.x + nextVel.y * _moveCorrect.y) * _correctSpeed, (nextVel.y + nextVel.x * _moveCorrect.x) * _correctSpeed);
 
             rb.velocity = nextVel;
         }
@@ -455,6 +457,21 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (Mathf.Abs(hx) < inputDeadZone) hx = 0f;
         if (Mathf.Abs(hy) < inputDeadZone) hy = 0f;
         return new Vector2(hx, hy);
+    }
+    bool _isMoveCorrect = false;
+    Vector2 _moveCorrect = Vector2.zero;
+    float _correctSpeed = 1f;
+    public void StartMoveCorrect(Vector2 moveCorrect, float speed)
+    {
+        _isMoveCorrect = true;
+        _moveCorrect = moveCorrect;
+        _correctSpeed = speed;
+    }
+    public void EndMoveCorrect()
+    {
+        _isMoveCorrect = false;
+        _moveCorrect = Vector2.zero;
+        _correctSpeed = 1f;
     }
     public void UnlockState() => stateLocked = false;
     #endregion

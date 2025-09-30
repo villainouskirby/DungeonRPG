@@ -52,7 +52,7 @@ public class EventAreaEditor : Editor
         return type switch
         {
             EventAreaType.ChangeLayer => "없음",
-            EventAreaType.ShowText => "없음",
+            EventAreaType.ShowText => "Param1 : 종류 Wasd Click Dodge Crouch Sprint",
             EventAreaType.OnOffLayer => "없음",
             _ => "",
         };

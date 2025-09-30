@@ -52,7 +52,7 @@ namespace Tutorial
             gameObject.SetActive(true);
         }
 
-        public void CloseTutorial(GuideType type)
+        public void CloseTutorial()
         {
             gameObject.SetActive(false);
         }

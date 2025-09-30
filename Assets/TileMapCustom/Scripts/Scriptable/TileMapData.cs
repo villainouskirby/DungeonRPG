@@ -53,6 +53,8 @@ public class TileMapDataAll
     public Vector2Int PlayerSpawnTilePos;
     // 벽 데이터 풀
     public List<WallData> WallDataPool;
+    // 계단 데이터
+    public StairData[] StairData;
 }
 
 [System.Serializable]

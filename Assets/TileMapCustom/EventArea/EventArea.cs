@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Tutorial;
 using UnityEngine;
 
 [System.Serializable]
@@ -96,10 +98,14 @@ public class EventArea : MonoBehaviour
 
     private void ShowText_In()
     {
+        string text = Data.param1;
+        KeyGuideUI.GuideType type = (KeyGuideUI.GuideType)Enum.Parse(typeof(KeyGuideUI.GuideType), text);
+        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(type);
     }
 
     private void ShowText_Out()
     {
+        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().CloseTutorial();
     }
 }
 

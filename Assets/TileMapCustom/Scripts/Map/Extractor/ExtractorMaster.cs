@@ -88,6 +88,8 @@ public class ExtractorMaster : MonoBehaviour
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.CameraAreaManager].Active = false;
         if (mapData.All.EventAreaData == null || mapData.All.EventAreaData.Length == 0)
             mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.EventAreaManager].Active = false;
+        if (mapData.All.StairData == null || mapData.All.StairData.Length == 0)
+            mapData.All.Setting.OptionsActive[(int)TileMapOptionEnum.StairManager].Active = false;
 
         mapData.All.Setting.Init();
 

@@ -199,6 +199,8 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
         string guid = AssetDatabase.AssetPathToGUID(assetPath);
         Debug.Log(keyName);
         var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
+        if (entry == null)
+            return;
         entry.address = keyName;
 
         settings.SetDirty(

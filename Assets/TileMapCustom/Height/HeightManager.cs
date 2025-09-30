@@ -10,8 +10,9 @@ public class HeightManager : MonoBehaviour, ITileMapBase
     public static HeightManager Instance { get { return _instance; } }
     private static HeightManager _instance;
 
-    public int PlayerHeight;
+    public float PlayerHeight;
     public int CurrentLayer = 0;
+    public bool AutoHeight = true;
 
     public int Prime => (int)TileMapBasePrimeEnum.HeightManager;
 
@@ -31,7 +32,16 @@ public class HeightManager : MonoBehaviour, ITileMapBase
 
     public void CheckPlayerHeight(Vector2Int playerPos)
     {
-        PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
+        if (AutoHeight)
+        {
+            PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
+            Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
+        }
+    }
+
+    public void SetPlayerHeight(float height)
+    {
+        PlayerHeight = height;
         Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
     }
 

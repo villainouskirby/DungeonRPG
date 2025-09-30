@@ -2865,6 +2865,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 715166446}
   m_CullTransparentMesh: 1
+--- !u!1 &725551472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 725551473}
+  - component: {fileID: 725551474}
+  m_Layer: 0
+  m_Name: '@StairManager'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &725551473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725551472}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2082541861}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &725551474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725551472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3651b7a219a3a904a9588d16ca7bd6e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AllActiveStair: []
+  StairPrefab: {fileID: 7342994533937536093, guid: 4fe2eb048ffcb6342b5865fb8c1b14a3,
+    type: 3}
 --- !u!1 &750105136
 GameObject:
   m_ObjectHideFlags: 0
@@ -3557,6 +3604,7 @@ MonoBehaviour:
       GroupInfo: []
     PlayerSpawnTilePos: {x: 0, y: 0}
     WallDataPool: []
+    StairData: []
 --- !u!1 &877942068
 GameObject:
   m_ObjectHideFlags: 0
@@ -7355,6 +7403,7 @@ Transform:
   - {fileID: 750859760}
   - {fileID: 245067764}
   - {fileID: 307906781}
+  - {fileID: 725551473}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2134721746
