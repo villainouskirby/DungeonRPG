@@ -25,7 +25,8 @@ MonoBehaviour:
   wanderRadius: 4
   detectSpeed: 1
   combatSpeed: 1
-  fleeSpeed: 1.5
+  fleeSpeed: 2
+  fleeDashSpeed: 3
   stoppingDistance: 1
   soundObstaclePenalty: 4
   aggroHoldSeconds: 0
@@ -47,20 +48,7 @@ MonoBehaviour:
   fleeStuckMoveEps: 0.05
   fleeSamplePositionRadius: 2
   fleeAngularSamples: 16
-  fleeCornerDashSeconds: 2
-  fleeCornerDashStep: 3
-  fleeDespawnSeconds: 10
-  fleeKeepTargetTime: 0.8
-  fleeKeepTargetDist: 0.5
-  fleeMultiRingCount: 3
-  fleePanicDistance: 2.5
-  fleeW_Dist: 1
-  fleeW_Len: -0.25
-  fleeW_Away: 0.35
-  fleeW_LOS: 0.2
-  fleeW_Inertia: 0.3
-  fleeVanishPauseSeconds: 1
-  fleeOutwardGrowPerSec: 0
+  fleeNearDistance: 15
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}
   questionStartColor: {r: 1, g: 1, b: 1, a: 1}
