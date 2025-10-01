@@ -172,7 +172,29 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
             Vector2 nextVel = dir.normalized * nextSpeed;
             if(_isMoveCorrect)
-                nextVel = new((nextVel.x + nextVel.y * _moveCorrect.y) * _correctSpeed, (nextVel.y + nextVel.x * _moveCorrect.x) * _correctSpeed);
+            {
+                switch (_type)
+                {
+                    case StairType.LeftRight:
+                        float yVel;
+                        float correctYVel = (nextVel.y + nextVel.x * _moveCorrect.x);
+                        if (correctYVel < 0)
+                            yVel = Mathf.Max((nextVel.y + nextVel.x * _moveCorrect.x), -nextSpeed);
+                        else
+                            yVel = Mathf.Min((nextVel.y + nextVel.x * _moveCorrect.x), nextSpeed);
+                        nextVel = new((nextVel.x) * _correctSpeed, yVel * _correctSpeed);
+                        break;
+                    case StairType.UpDown:
+                        float xVel;
+                        float correctXVel = (nextVel.x + nextVel.y * _moveCorrect.y);
+                        if (correctXVel < 0)
+                            xVel = Mathf.Max((nextVel.x + nextVel.y * _moveCorrect.y), -nextSpeed);
+                        else
+                            xVel = Mathf.Min((nextVel.x + nextVel.y * _moveCorrect.y), nextSpeed);
+                        nextVel = new(xVel * _correctSpeed, (nextVel.y) * _correctSpeed);
+                        break;
+                }
+            }
 
             rb.velocity = nextVel;
         }
@@ -460,12 +482,14 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     bool _isMoveCorrect = false;
     Vector2 _moveCorrect = Vector2.zero;
+    StairType _type = StairType.LeftRight;
     float _correctSpeed = 1f;
-    public void StartMoveCorrect(Vector2 moveCorrect, float speed)
+    public void StartMoveCorrect(Vector2 moveCorrect, float speed, StairType type)
     {
         _isMoveCorrect = true;
         _moveCorrect = moveCorrect;
         _correctSpeed = speed;
+        _type = type;
     }
     public void EndMoveCorrect()
     {

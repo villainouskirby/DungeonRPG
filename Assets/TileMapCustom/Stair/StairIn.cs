@@ -14,7 +14,7 @@ public class StairIn : MonoBehaviour
             return;
         Stair.IsIn = true;
         HeightManager.Instance.AutoHeight = false;
-        TileMapMaster.Instance.Player.GetComponent<PlayerController>().StartMoveCorrect(Stair.MoveCorrect, Stair.Speed);
+        TileMapMaster.Instance.Player.GetComponent<PlayerController>().StartMoveCorrect(Stair.MoveCorrect, Stair.Speed, Stair.StairType);
     }
 
     private void OnTriggerExit2D(Collider2D other)
