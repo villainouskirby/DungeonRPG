@@ -93,7 +93,7 @@ public class MonsterData : ScriptableObject
     [Header("접근/ 이동 행동 리프 각각 구분해서 넣기")]
     public AttackBehaviourSO[] combatMoveBehaviours;   // 접근/오빗 등
     public AttackBehaviourSO[] combatAttackBehaviours; // 차지/근접공격 등
-
+    public float[] moveWeights = { 60, 25, 15 }; // 이거 지우면 안됨
 
     [Tooltip("도망(또는 특수) 패턴들")]
     public FleeBehaviourSO[] fleeBehaviours;
