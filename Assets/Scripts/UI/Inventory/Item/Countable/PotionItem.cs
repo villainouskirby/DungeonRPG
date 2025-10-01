@@ -18,8 +18,8 @@ public class PotionItem : CountableItem, IUsableItem
     {
         if (Amount > 0)
         {
-            Amount--;
             if (!await PotionManager.Instance.GetPotionID(Data)) return false;
+            Amount--;
             return true;
         }
         else return false;

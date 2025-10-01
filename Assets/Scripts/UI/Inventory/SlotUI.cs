@@ -15,4 +15,11 @@ public class SlotUI : MonoBehaviour
     {
         _image.sprite = imageSprite;
     }
+
+    public void ChangeAlpha(float a)
+    {
+        Color color = _image.color;
+        color.a = a;
+        _image.color = color;
+    }
 }

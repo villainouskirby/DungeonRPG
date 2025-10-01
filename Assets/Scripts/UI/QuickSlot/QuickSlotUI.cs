@@ -6,12 +6,13 @@ using UnityEngine.UI;
 public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private QuickSlot _quickSlot;
-    [SerializeField] private QuickSlotInGameUI _quickSlotInGameUI;
 
     [SerializeField] private Transform _slotsParent;
     [SerializeField] private Button _confirmButton;
 
-    private List<SlotUI> _quickSlots = new List<SlotUI>();
+    private List<Transform> _slotTransforms = new();
+    private List<SlotUI> _quickSlots = new();
+    private List<GameObject> _lockPanels = new();
 
     private int _selectedIndex = -1;
     private Transform _selectedSlot;
@@ -21,26 +22,52 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
     {
         foreach (Transform child in _slotsParent)
         {
-            _quickSlots.Add(child.GetComponent<SlotUI>());
+            _slotTransforms.Add(child);
+            _quickSlots.Add(child.GetChild(0).GetComponent<SlotUI>());
+            _lockPanels.Add(child.GetChild(1).gameObject);
+        }
+
+        for (int i = 0; i < _quickSlots.Count; i++)
+        {
+            SetSlotImage(i);
         }
 
         _confirmButton.onClick.AddListener(SetQuickSlot);
+        _confirmButton.onClick.AddListener(() => gameObject.SetActive(false));
+    }
+
+    public void InitLockPanels(int slotCounts)
+    {
+        for (int i = 0; i < _lockPanels.Count; i++)
+        {
+            _lockPanels[i].SetActive(i >= slotCounts);
+        }
     }
 
     public void SetQuickSlot()
     {
-        _quickSlotInGameUI.SetQuickSlotUI();
-        gameObject.SetActive(false);
+        UIPopUpHandler.Instance.GetScript<QuickSlotInGameUI>().SetQuickSlotUI();
     }
 
     public void SetSlotImage(int index)
     {
-        _quickSlots[index].SetItemInfo(_quickSlot.GetItemSprite(index));
+        Sprite sprite = _quickSlot.GetItemSprite(index);
+
+        if (_quickSlot.GetItem(index) != null)
+        {
+            _quickSlots[index].SetItemInfo(sprite);
+            _quickSlots[index].ChangeAlpha(1);
+
+        }
+        else
+        {
+            _quickSlots[index].ChangeAlpha(0);
+        }
     }
 
     public void RemoveSlot(int index)
     {
-        _quickSlots[index].SetItemInfo(null);
+        _quickSlots[index].ChangeAlpha(0);
         _quickSlot.RemoveSlot(index);
     }
 
@@ -62,12 +89,13 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
 
         _selectedIndex = GetItemSlotIndex(_pointedSlot);
 
-        if (_quickSlot.GetItemSprite(_selectedIndex) == null)
+        if (_quickSlot.GetItem(_selectedIndex) == null)
         {
             _selectedIndex = -1;
             return;
         }
 
+        _slotTransforms[_selectedIndex].SetAsLastSibling();
         _selectedSlot = _pointedSlot.transform;
         _selectedSlotPosition = _selectedSlot.position;
         _selectedSlot.GetComponent<Image>().raycastTarget = false;
@@ -89,7 +117,7 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
         _selectedSlot.GetComponent<Image>().raycastTarget = true;
 
         int droppedSlotIndex = GetItemSlotIndex(_pointedSlot);
-        if (droppedSlotIndex == -1) return;
+        if (droppedSlotIndex == -1 || droppedSlotIndex >= _quickSlot.SlotCount) return;
 
         _quickSlot.SwapSlots(_selectedIndex, droppedSlotIndex);
 
@@ -101,7 +129,7 @@ public class QuickSlotUI : SlotInteractHandler, IBeginDragHandler, IDragHandler,
 
     public override void OnRightClick()
     {
-
+        _quickSlot.UnRegisterSlot(GetItemSlotIndex(_pointedSlot));
     }
 
     public override void OnLeftClick()

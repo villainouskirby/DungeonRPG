@@ -1,44 +1,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QuickSlot : MonoBehaviour
+public class QuickSlot : UIBase
 {
     [SerializeField] private QuickSlotUI _quickSlotUI;
-    public int Count => _quickSlot.Count;
-    private List<Item> _quickSlot = new();
+    public int SlotCount => _slotCount;
+    private int _slotCount = 5;
 
-    private void Awake()
+    private Item[] _quickSlot = new Item[0];
+
+    protected override void InitBase()
     {
-        InitQuickSlot();
+        UIPopUpHandler.Instance.RegisterUI(this);
+        _quickSlotUI.InitQuickSlotUI();
     }
 
     public void InitQuickSlot()
     {
-        if (_quickSlot.Count == 0) _quickSlot = new List<Item>(new Item[5]);
-        _quickSlotUI.InitQuickSlotUI();
+        /*_slotCount = (UIPopUpHandler.Instance.GetScript<Equipment>().GetItemData(Equipment.EquipmentType.Backpack)
+            as BackpackItemData).BackpackInfo.speed;*/ // 슬롯 수 가져오기
+
+        if (_quickSlot.Length != _slotCount)
+        {
+            var newSlot = new Item[_slotCount];
+
+            int idx = 0;
+
+            for (int i = 0; i < _quickSlot.Length; i++)
+            {
+                if (_quickSlot[i] != null)
+                {
+                    if (i < _slotCount)
+                    {
+                        newSlot[idx++] = _quickSlot[i];
+                    }
+                    else
+                    {
+                        UnRegisterSlot(i);
+                    }
+                }
+            }
+
+            _quickSlot = newSlot;
+            _quickSlotUI.InitLockPanels(SlotCount);
+        }
     }
+
     public Item GetItem(int index)
     {
-        return (index >= 0 && index < _quickSlot.Count) ? _quickSlot[index] : null;
+        return (index >= 0 && index < _quickSlot.Length) ? _quickSlot[index] : null;
     }
 
     private void OnEnable()
     {
-        for (int i = 0; i < _quickSlot.Count; i++)
+        /*
+        for (int i = 0; i < _quickSlot.Length; i++)
         {
             _quickSlotUI.SetSlotImage(i);
-        }
+        }*/
+    }
+
+    private void OnDisable()
+    {
+        gameObject.SetActive(false);
     }
 
     public bool AddToSlot(Item item)
     {
-        for (int i = 0; i < _quickSlot.Count; i++)
+        for (int i = 0; i < _quickSlot.Length; i++)
         {
             if (_quickSlot[i] == null)
             {
                 _quickSlot[i] = item;
                 _quickSlotUI.SetSlotImage(i);
-                _quickSlotUI.SetQuickSlot();
+                UIPopUpHandler.Instance.GetScript<QuickSlotInGameUI>().SetQuickSlotUI();
 
                 return true;
             }
@@ -48,6 +83,14 @@ public class QuickSlot : MonoBehaviour
         return false;
     }
 
+    public void UnRegisterSlot(int index)
+    {
+        if (GetItem(index) == null) return;
+
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItemForce(_quickSlot[index].Data);
+        _quickSlotUI.RemoveSlot(index);
+    }
+
     public void RemoveSlot(int index)
     {
         _quickSlot[index] = null;
@@ -55,7 +98,7 @@ public class QuickSlot : MonoBehaviour
 
     public Sprite GetItemSprite(int index)
     {
-        return (_quickSlot.Count > index && index >= 0 && _quickSlot[index] != null) ? _quickSlot[index].Data.IconSprite : null;
+        return (_quickSlot.Length > index && index >= 0 && _quickSlot[index] != null) ? _quickSlot[index].Data.IconSprite : null;
     }
 
     public void SwapSlots(int idx1, int idx2)

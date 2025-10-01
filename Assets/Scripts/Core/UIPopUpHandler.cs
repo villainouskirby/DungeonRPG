@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Core;
 
-public class UIPopUpHandler : Singleton<UIPopUpHandler>
+public class UIPopUpHandler
+    : Singleton<UIPopUpHandler>, IManager
 {
     private Dictionary<Type, UIBase> _uiDict = new(); // 등록된 UI들 inspector에서 참조말고 여기서 불러오는 식으로 다 바꿔야 할듯
     private UIBase _openUI;
@@ -83,5 +84,9 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>
 
         _openUI.SetActive(false);
         _openUI = null;
+    }
+
+    public void Initialize()
+    {
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Events;
 using UnityEngine;
-using static UnityEditor.Progress;
 using ItemType = InventoryUI.TabType;
 
 public class Inventory : UIBase, ISave
@@ -17,7 +16,6 @@ public class Inventory : UIBase, ISave
 
     [SerializeField] private InventoryUI _inventoryUI;
     [SerializeField] private Equipment _equipment;
-    [SerializeField] private QuickSlot _quickSlot;
     [SerializeField] private IntVariableSO _gold;
 
 
@@ -98,11 +96,6 @@ public class Inventory : UIBase, ISave
 
     // -------------
 
-    private void OnDisable()
-    {
-        _quickSlot.gameObject.SetActive(false);
-    }
-
     protected override void Awake()
     {
         base.Awake();
@@ -122,6 +115,11 @@ public class Inventory : UIBase, ISave
         InitInventory();
     }
 
+    private void Start()
+    {
+        UIPopUpHandler.Instance.GetScript<QuickSlot>().InitQuickSlot();
+    }
+
     /// <summary> 인벤토리 열기 </summary>
     public void OpenInventory()
     {
@@ -131,7 +129,7 @@ public class Inventory : UIBase, ISave
     /// <summary> 인벤토리 닫기 </summary>
     public void CloseInventory() => gameObject.SetActive(false);
 
-    public void OpenQuickSlotPanel() => _quickSlot.gameObject.SetActive(true);
+    public void OpenQuickSlotPanel() => UIPopUpHandler.Instance.GetScript<QuickSlot>().gameObject.SetActive(true);
 
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
@@ -163,11 +161,6 @@ public class Inventory : UIBase, ISave
             {
                 AddItem(item.Data, 1, false);
             }
-        }
-
-        if (_quickSlot)
-        {
-            _quickSlot.InitQuickSlot();
         }
     }
 
@@ -376,7 +369,7 @@ public class Inventory : UIBase, ISave
             return;
         }
 
-        if (_quickSlot.AddToSlot(item.Clone()))
+        if (UIPopUpHandler.Instance.GetScript<QuickSlot>().AddToSlot(item.Clone()))
         {
             RemoveItem(index, 1);
         }
@@ -403,12 +396,12 @@ public class Inventory : UIBase, ISave
 
             CalculateRestWeight(GetItemData(index).Info.weight, amount - restAmount);
             UpdateSlot(index);
-            OnInventoryChanged?.Invoke(index, ci.Amount);
 
             return restAmount;
         }
         else
         {
+            _slotCountDict[GetItemTypeByIndex(index)]--;
             _inventoryUI.RemoveItem(index);
 
             return amount - 1;
@@ -421,6 +414,7 @@ public class Inventory : UIBase, ISave
         var data = GetItemData(index);
         int amount = GetItemAmount(index);
 
+        _slotCountDict[GetItemTypeByIndex(index)]--;
         CalculateRestWeight(data.Info.weight, amount);
         _items.RemoveAt(index);
         UpdateWeightText();
@@ -477,8 +471,7 @@ public class Inventory : UIBase, ISave
         {
             if (ci.IsEmpty)
             {
-                _inventoryUI.RemoveSlot(index);
-                _items.RemoveAt(index);
+                _inventoryUI.RemoveItem(index);
             }
             else
             {
