@@ -102,6 +102,11 @@ public sealed class MonsterTraceState : IMonsterState
             {
                 ctx.agent.isStopped = true;
                 ctx.agent.velocity = Vector3.zero;
+                if (ctx.player)
+                {
+                    Vector2 toP = (ctx.player.position - ctx.transform.position).normalized;
+                    ctx.SetForward(toP);
+                }
             }
             // 바라보는 방향만 유지하고 끝
         }
@@ -133,6 +138,11 @@ public sealed class MonsterTraceState : IMonsterState
         // 과도한 호출 방지 + 변화 있을 때만 SetTag
         if (desired != _lastAnimTag && _animCooldown <= 0f)
         {
+            if (desired == MonsterStateTag.Idle && ctx.player)
+            {
+                Vector2 toPlayer = (ctx.player.position - ctx.transform.position).normalized;
+                ctx.SetForward(toPlayer);
+            }
             ctx.animationHub?.SetTag(desired, ctx);
             _lastAnimTag = desired;
             _animCooldown = ANIM_UPDATE_COOLD; // 스팸 방지

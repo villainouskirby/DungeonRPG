@@ -22,6 +22,8 @@ public sealed class MonsterFleeState : IMonsterState
     bool _isReleased;  // 릴리즈 처리 여부
     float _elapsed;    // 도망 경과 시간
 
+    bool cleanerMode;
+    float cleanerWaitTimer;
     public MonsterFleeState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
     public void Enter()
@@ -33,6 +35,14 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.agent.speed = spd;
         ctx.agent.isStopped = false;
 
+        cleanerMode = (ctx.data.category == MonsterData.MonsterCategory.Cleaner);
+        if (cleanerMode)
+        {
+            cleanerWaitTimer = 0f;
+            ctx.TrySetDestinationSafe(ctx.spawner, 3f);
+            return;                                    // 일반 도망 로직 생략
+        }
+
         _prevPos = ctx.transform.position;
         _stillAccum = 0f;
         _animCooldown = 0f;
@@ -43,6 +53,26 @@ public sealed class MonsterFleeState : IMonsterState
 
     public void Tick()
     {
+        if (cleanerMode)
+        {
+            // 스포너로 계속 목적지 업데이트
+            ctx.TrySetDestinationSafe(ctx.spawner, 3f);
+            float dist = Vector2.Distance(ctx.transform.position, ctx.spawner);
+            if (dist <= ctx.data.nearSpawnerDist + 0.05f)
+            {
+                // 도착 후 대기
+                ctx.SafeStopAgent();
+                ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
+                cleanerWaitTimer += Time.deltaTime;
+                if (cleanerWaitTimer >= 1f)
+                {
+                    // 여기서 사라지는 애니 후 지연을 추가하면 될듯
+                    SpawnerPool.Instance.MonsterPool.Release(ctx.id, ctx.mono.gameObject);
+                    return;
+                }
+            }
+            return;  // Cleaner 이외에는 일반 도망 로직 건드리지 않음
+        }
         if (_isReleased) return; // 이미 풀 반환된 경우 안전 가드
         if (_isDashing) return;  // 돌진 중에는 다른 로직 무시
 
