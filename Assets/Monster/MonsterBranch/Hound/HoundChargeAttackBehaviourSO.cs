@@ -44,40 +44,53 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
 
         float travelled = 0f;
         bool hitApplied = false;
+        bool stopOnHit = false;
 
-        while (travelled < chargeDistance)
+        while (travelled < chargeDistance && !stopOnHit)
         {
-            // 플레이어 사라지면 돌진만 마저 수행 (데미지는 더 안 줌)
             float step = dashSpeed * Time.deltaTime;
             Vector2 prevPos = ctx.transform.position;
             Vector2 nextPos = prevPos + dir * step;
 
-            // 직선 스윕으로 충돌 체크(한 번만 데미지 적용)
-            if (!hitApplied)
-            {
-                Vector2 delta = nextPos - prevPos;
-                float dist = delta.magnitude;
+            // 직선 스윕으로 충돌 체크
+            Vector2 delta = nextPos - prevPos;
+            float dist = delta.magnitude;
 
-                if (dist > 1e-4f)
+            if (dist > 1e-4f)
+            {
+                var hits = Physics2D.CircleCastAll(prevPos, sweepRadius, delta.normalized, dist);
+                for (int i = 0; i < hits.Length; i++)
                 {
-                    var hits = Physics2D.CircleCastAll(prevPos, sweepRadius, delta.normalized, dist);
-                    for (int i = 0; i < hits.Length; i++)
+                    var h = hits[i];
+                    if (h.collider && h.collider.CompareTag(playerTag))
                     {
-                        var h = hits[i];
-                        if (h.collider && h.collider.CompareTag(playerTag))
+                        // 플레이어 무적 여부 확인
+                        var pc = h.collider.GetComponent<PlayerController>();
+                        bool invincible = pc && pc.isInvincible;
+
+                        if (!invincible && !hitApplied)
                         {
-                            ApplyDamageToPlayer(damage);
+                            ApplyDamageToPlayer(damage); // 가드 반영 포함
                             hitApplied = true;
-                            break;
+
+                            // 그 자리에서 멈춤
+                            ctx.transform.position = nextPos; // 충돌 지점에 위치 고정
+                            stopOnHit = true;                 // 루프 탈출
                         }
+
+                        // 무적이면 그냥 통과(아무 것도 안 함)
+                        break;
                     }
                 }
             }
 
-            // 이동 적용
-            ctx.transform.position = nextPos;
-            travelled += step;
-            yield return null;
+            if (!stopOnHit)
+            {
+                // 이동 지속
+                ctx.transform.position = nextPos;
+                travelled += step;
+                yield return null;
+            }
         }
 
         /* 4) 후딜레이 */

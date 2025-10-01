@@ -14,6 +14,10 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private static readonly int HashAttackSpeed = Animator.StringToHash("AttackSpeed");
     [Header("공격 판정(2D) - LayerMask")]
     [SerializeField] private LayerMask hitMask = ~0;    // Monster, Farm 등 맞을 레이어 지정
+    [SerializeField] private bool hitTriggersOnly = true;
+    // Overlap 결과 재사용 버퍼(필요시 늘려도 됨)
+    static readonly Collider2D[] _overlapHits = new Collider2D[64];
+
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
     private float comboBuffer = 0.5f;   // 콤보 버퍼시간
@@ -432,18 +436,35 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float angleDeg = AngleDegFromDir(dir);
         Vector2 size = new Vector2(width, length);
 
+        int hitCount = Physics2D.OverlapBoxNonAlloc(center, size, angleDeg, _overlapHits, hitMask);
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg, hitMask);
         HashSet<MonsterController> done = new();
 
-        foreach (var h in hits)
+        for (int i = 0; i < hitCount; i++)
         {
-            if (!h || !h.enabled) continue;
+            var col = _overlapHits[i];
+            if (!col || !col.enabled) continue;
 
-            if (h.CompareTag("Monster") && h.TryGetComponent(out MonsterController m) && done.Add(m))
-                m.TakeDamage(dmg, stunSec);
+            // 트리거만 때리기 옵션
+            if (hitTriggersOnly && !col.isTrigger) continue;
 
-            if (h.CompareTag("Farm") && h.TryGetComponent(out ResourceNodeBase f))
+            // 자기 자신/플레이어의 콜라이더 무시
+            if (col.transform == transform) continue;
+            if (pc && col.attachedRigidbody == pc.rb) continue;
+
+            // 몬스터 타격
+            if (col.CompareTag("Monster") && col.TryGetComponent(out MonsterController m))
+            {
+                if (done.Add(m))
+                    m.TakeDamage(dmg, stunSec);
+                continue;
+            }
+
+            // 파밍 오브젝트(필요시 트리거도 허용)
+            if (col.CompareTag("Farm") && col.TryGetComponent(out ResourceNodeBase f))
+            {
                 f.Damage(dmg);
+            }
         }
     }
     private IEnumerator PerformHeavySlash(int dir, int damage)
