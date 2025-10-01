@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using TM = TileMapMaster;
-using MM = MapManager;
 using DL = DataLoader;
+using MM = MapManager;
+using TM = TileMapMaster;
+using Random = UnityEngine.Random;
 
 public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
 {
@@ -41,7 +42,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
     public void StartMap(MapEnum mapType)
     {
         if (!_isLoad)
-            SetSpawner();
+            { SetSpawner(); SetMonsterChunkNav(); }
 
         CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
 
@@ -56,6 +57,24 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
                 AllResourceNodeSpawner[i].ForceSpawn();
             }
         }
+    }
+
+    public void SetMonsterChunkNav()
+    {
+        List<Vector2Int> targetChunk = new();
+        for (int i = 0; i < AllMonsterSpawner.Count; i++)
+        {
+            Vector2Int chunkPos = ChunkManager.Instance.GetChunkPos(AllMonsterSpawner[i].TilePos);
+            for (int x = -1; x <= 1; x++)
+                for (int y = -1; y <= 1; y++)
+                {
+                    Vector2Int correctPos = new(chunkPos.x + x, chunkPos.y + y);
+                    if (correctPos.x >= 0 && correctPos.x < DL.Instance.All.Width && correctPos.y >= 0 && correctPos.y < DL.Instance.All.Height)
+                        targetChunk.Add(correctPos);
+                }
+
+        }
+        NavMeshManager.Instance.SetMonsterChunkNav(targetChunk);
     }
 
     public void OnOption()

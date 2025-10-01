@@ -245,7 +245,7 @@ Shader "Tilemap/LitTilemap"
                 //return lerp(float4(0, 0, 0, 0), float4(i.tilePos.y * 0.1, i.tilePos.y * 0.1, 0, 1), valid);
                 //return lerp(float4(0, 0, 0, 0), float4(wallData.w / 60, wallData.w / 60, 0, 1), isWall * valid);
                 //return lerp(float4(0, 0, 0, 0), float4((i.tilePos.y - wallData.w) * 0.1, (i.tilePos.y - wallData.w) * 0.1, 0, 1), isWall * valid);
-                float wallHeight = lerp(wallData.x + 0.3, wallData.y - 0.3, (i.tilePos.y - wallData.w) / wallData.z);
+                float wallHeight = lerp(wallData.x + 0.2, wallData.y - 0.2, (i.tilePos.y - wallData.w) / wallData.z);
                 //return lerp(float4(0, 0, 0, 0), float4(wallHeight * 0.1, wallHeight * 0.1, 0, 1), isWall);
                 float height = lerp(tileHeight, wallHeight, isWall);
                 //return float4(tileHeight * 0.1, tileHeight * 0.1, 0, 1);
@@ -272,6 +272,13 @@ Shader "Tilemap/LitTilemap"
                 
                 //fogedColor = _LayerIndex;
                 float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.3);
+
+                float wallStartDistance = _PlayerPos.y - wallData.w;
+                wallStartDistance = wallStartDistance * 0.5f;
+                float wallAble = clamp(wallStartDistance, 0, 1);
+                wallAble = wallAble * isWall;
+                resultColor = lerp(resultColor, float4(0, 0, 0, 1), wallAble);
+
                 //return lightedColor;
                 //return float4(heightFog * 0.1, heightFog * 0.1, 0, 1);
                 //return lerp(float4(0, 0, 0, 0), float4(heightFog * 0.1, heightFog * 0.1, 0, 1), valid);

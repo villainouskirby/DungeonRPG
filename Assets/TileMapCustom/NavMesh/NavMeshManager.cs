@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
@@ -12,7 +13,11 @@ using DL = DataLoader;
 
 public class NavMeshManager : MonoBehaviour, ITileMapBase
 {
+    public static NavMeshManager Instance { get {  return _instance; } }
+    private static NavMeshManager _instance;
+
     public Dictionary<Vector2Int, NavMeshDataInstance> ActiveNav;
+    public HashSet<Vector2Int> DontUnLoadChunk;
     private Dictionary<Vector2Int, AsyncOperationHandle> _handleDic;
     private MapEnum _currentMapType;
     private AsyncOperationHandle _linkHandle;
@@ -21,10 +26,12 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     public void Init()
     {
+        _instance = this;
         _handleDic = new();
         ActiveNav = new();
         _chunkLinkInstance = new();
         _chunkLink = new();
+        DontUnLoadChunk = new();
     }
 
     public void InitMap(MapEnum mapType)
@@ -63,6 +70,21 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         }
     }
 
+    public void SetMonsterChunkNav(List<Vector2Int> chunks)
+    {
+        List<Vector2Int> remainMonsterChunk = DontUnLoadChunk.ToList();
+        DontUnLoadChunk.Clear();
+        for (int i = 0; i < remainMonsterChunk.Count; i++)
+            UnLoadNav(remainMonsterChunk[i]);
+
+        for (int i = 0; i < chunks.Count; i++)
+            if (!DontUnLoadChunk.Contains(chunks[i]))
+            {
+                DontUnLoadChunk.Add(chunks[i]);
+                LoadNav(chunks[i]);
+            }
+    }
+
     private void LoadNav(Vector2Int chunkPos)
     {
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
@@ -91,6 +113,8 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void UnLoadNav(Vector2Int navPos)
     {
+        if (DontUnLoadChunk.Contains(navPos))
+            return;
         if (ActiveNav.ContainsKey(navPos))
         {
             NavMesh.RemoveNavMeshData(ActiveNav[navPos]);

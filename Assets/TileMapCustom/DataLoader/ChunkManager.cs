@@ -540,7 +540,7 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         return ((chunkLocalPos.x >= 0 && chunkLocalPos.x < _viewChunkSize) && (chunkLocalPos.y >= 0 && chunkLocalPos.y < _viewChunkSize));
     }
 
-    private Vector2Int GetChunkPos(Vector2Int playerTilePos)
+    public Vector2Int GetChunkPos(Vector2Int playerTilePos)
     {
         int chunkSize = DL.Instance.All.ChunkSize;
 
