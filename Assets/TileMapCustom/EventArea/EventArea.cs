@@ -37,6 +37,7 @@ public class EventArea : MonoBehaviour
     {
         Data = data;
         _collider.size = Data.Size;
+        _collider.offset = Data.Offset;
         transform.position = new(Data.Pos.x, Data.Pos.y, 0);
     }
 
@@ -116,6 +117,8 @@ public class EventAreaData
     public Vector2 Pos;
     [HideInInspector]
     public Vector2 Size;
+    [HideInInspector]
+    public Vector2 Offset;
     public EventAreaType Type;
     public string param1;
     public string param2;

@@ -23,6 +23,7 @@ public class Stair : MonoBehaviour
 
     public void Set(StairData data)
     {
+        transform.position = data.Pos;
         StairType = (StairType)data.Type;
         MoveCorrect = data.MoveCorrect;
         Speed = data.Speed;
@@ -101,6 +102,7 @@ public class PolygonData
 [System.Serializable]
 public class StairData
 {
+    public Vector2 Pos;
     public BoxData StairEntry1;
     public BoxData StairEntry2;
     public EdgeData StairOutLine1;

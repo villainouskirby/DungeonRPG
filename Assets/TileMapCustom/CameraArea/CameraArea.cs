@@ -35,6 +35,7 @@ public class CameraArea : MonoBehaviour
     {
         Data = data;
         _collider.size = Data.Size;
+        _collider.offset = Data.Offset;
         transform.position = new(Data.Pos.x, Data.Pos.y, 0);
     }
 
@@ -56,6 +57,8 @@ public class CameraAreaData
     public Vector2 Pos;
     [HideInInspector]
     public Vector2 Size;
+    [HideInInspector]
+    public Vector2 Offset;
     public bool IsFixed;
     [HideInInspector]
     public Vector3 FixPos;

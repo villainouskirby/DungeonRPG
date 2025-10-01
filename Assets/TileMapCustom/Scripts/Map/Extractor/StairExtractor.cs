@@ -35,6 +35,7 @@ public class StairExtractor : MonoBehaviour, IExtractor
                 data.MoveCorrect = Vector2.zero;
             }
 
+            data.Pos = child.transform.position;
             data.Type = (int)stair.StairType;
             data.StairEntry1 = new BoxData { Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry1.offset), Size = stair.StairEntry1.size };
             data.StairEntry2 = new BoxData { Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry2.offset), Size = stair.StairEntry2.size };

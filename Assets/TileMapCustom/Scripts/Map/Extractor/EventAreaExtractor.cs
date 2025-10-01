@@ -21,8 +21,8 @@ public class EventAreaExtractor : MonoBehaviour, IExtractor
             BoxCollider2D collider = child.GetComponent<BoxCollider2D>();
 
             data = eventArea.Data;
-            data.Pos = child.position;
-            data.Pos = ExtractorMaster.Instance.CorrectPos(data.Pos);
+            data.Pos = ExtractorMaster.Instance.CorrectPos(child.position);
+            data.Offset = collider.offset;
             data.Size = collider.size;
 
             mapData.All.EventAreaData[count] = data;
