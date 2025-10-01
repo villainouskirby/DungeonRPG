@@ -25,8 +25,8 @@ MonoBehaviour:
   wanderRadius: 4
   detectSpeed: 1
   combatSpeed: 1
-  fleeSpeed: 2
-  fleeDashSpeed: 3
+  fleeSpeed: 1.5
+  fleeDashSpeed: 2
   stoppingDistance: 1
   soundObstaclePenalty: 4
   aggroHoldSeconds: 0
@@ -39,15 +39,8 @@ MonoBehaviour:
   traceFarDistance: 5.5
   detectGateDelay: 0
   detecttoSeePlayerGateDelay: 0.5
-  defaultHitStunSeconds: 0.3
+  defaultHitStunSeconds: 0.5
   returnGateDelay: 0.75
-  fleeTargetRadius: 15
-  fleeRingStep: 1.5
-  fleeResampleCycle: 0.75
-  fleeStuckCheckTime: 0.3
-  fleeStuckMoveEps: 0.05
-  fleeSamplePositionRadius: 2
-  fleeAngularSamples: 16
   fleeNearDistance: 15
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}
@@ -68,4 +61,3 @@ MonoBehaviour:
   specialBehaviours: []
   interestTags: []
   animator: {fileID: 0}
-  expReward: 10
