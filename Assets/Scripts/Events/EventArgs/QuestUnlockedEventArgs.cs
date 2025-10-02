@@ -6,9 +6,9 @@ namespace Events
         public string NPCName { get; private set; }
         public string QuestID { get; private set; }
 
-        public void Init(string name, string id)
+        public void Init(string npcName, string id)
         {
-            NPCName = name;
+            NPCName = npcName;
             QuestID = id;
         }
 

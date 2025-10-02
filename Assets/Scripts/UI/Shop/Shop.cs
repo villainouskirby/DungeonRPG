@@ -40,8 +40,10 @@ public class Shop : NPCBase<Shop>
 
     protected override void InitBase()
     {
+        base.InitBase();
+
         UIPopUpHandler.Instance.RegisterUI(this);
-        _npcName = "Shop";
+        _npcName = "merchant";
 
         _questID.Enqueue("merchant_001");
     }

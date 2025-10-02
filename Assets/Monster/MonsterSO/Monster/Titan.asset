@@ -21,14 +21,15 @@ MonoBehaviour:
   hearRange: 3
   sightDistance: 6
   sightAngle: 90
-  lostDistance: 8
+  lostDistance: 20
   wanderRadius: 4
   detectSpeed: 1.5
   combatSpeed: 3
   fleeSpeed: 3.5
+  fleeDashSpeed: 4
   stoppingDistance: 1
   soundObstaclePenalty: 2
-  aggroHoldSeconds: 2
+  aggroHoldSeconds: 0
   disengageHoldSeconds: 2
   preTransitionDelay: 0.3
   istracing: 0
@@ -37,38 +38,19 @@ MonoBehaviour:
   traceNearDistance: 2.5
   traceFarDistance: 5.5
   detectGateDelay: 0.25
+  detecttoSeePlayerGateDelay: 0
   defaultHitStunSeconds: 0.3
   returnGateDelay: 0.75
-  fleeTargetRadius: 6
-  fleeRingStep: 1.5
-  fleeResampleCycle: 0.75
-  fleeStuckCheckTime: 0.3
-  fleeStuckMoveEps: 0.05
-  fleeSamplePositionRadius: 2
-  fleeAngularSamples: 16
-  fleeCornerDashSeconds: 2
-  fleeCornerDashStep: 3
-  fleeDespawnSeconds: 5
-  fleeKeepTargetTime: 0.8
-  fleeKeepTargetDist: 0.5
-  fleeMultiRingCount: 3
-  fleePanicDistance: 2.5
-  fleeW_Dist: 1
-  fleeW_Len: -0.25
-  fleeW_Away: 0.35
-  fleeW_LOS: 0.2
-  fleeW_Inertia: 0.3
-  fleeVanishPauseSeconds: 1
-  fleeOutwardGrowPerSec: 0
+  fleeNearDistance: 15
   questionSprite: {fileID: 21300000, guid: 684311661a3133d44924e8c89b498f09, type: 3}
   exclamationSprite: {fileID: 21300000, guid: 3d14f2e24019156489092d20a51083aa, type: 3}
   questionStartColor: {r: 1, g: 1, b: 1, a: 1}
   questionEndColor: {r: 1, g: 0, b: 0, a: 1}
-  maxSpawnerDist: 15
+  maxSpawnerDist: 20
   nearSpawnerDist: 2
   isaggressive: 1
   canHearNoise: 1
-  hearToCombat: 0
+  hearToCombat: 1
   category: 5
   attackEnterDistance: 2.2
   attackExitDistance: 3
@@ -86,4 +68,3 @@ MonoBehaviour:
   specialBehaviours: []
   interestTags: []
   animator: {fileID: 0}
-  expReward: 10

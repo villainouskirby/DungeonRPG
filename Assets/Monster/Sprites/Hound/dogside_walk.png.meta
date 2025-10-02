@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: bf47426f09dc9394ab132aca53145d67
+guid: 8770b654f8fc4c942962d8858889504f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -21,7 +21,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -106,19 +106,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -126,10 +113,10 @@ TextureImporter:
       name: dogside_walk_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 4
-        width: 20
-        height: 12
+        x: 0
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,8 +124,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f555324774abc174dab171256057a55f
-      internalID: 1876039955
+      spriteID: 559e7373505a266488c89d0aff6d2794
+      internalID: 2136369187
       vertices: []
       indices: 
       edges: []
@@ -147,10 +134,10 @@ TextureImporter:
       name: dogside_walk_1
       rect:
         serializedVersion: 2
-        x: 26
-        y: 4
-        width: 21
-        height: 13
+        x: 30
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,8 +145,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e158cf0e440eb2140a85faa2e1721202
-      internalID: -1969115348
+      spriteID: d9807a93e00a55648adece67aecc62f7
+      internalID: 594822317
       vertices: []
       indices: 
       edges: []
@@ -168,10 +155,10 @@ TextureImporter:
       name: dogside_walk_2
       rect:
         serializedVersion: 2
-        x: 50
-        y: 4
-        width: 21
-        height: 13
+        x: 60
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1ccb6da125b3dc34c950a2338a4b75d5
-      internalID: 514303595
+      spriteID: 7b2504bd0ff759f4d84ffb98e3868626
+      internalID: -1731447692
       vertices: []
       indices: 
       edges: []
@@ -189,10 +176,10 @@ TextureImporter:
       name: dogside_walk_3
       rect:
         serializedVersion: 2
-        x: 74
-        y: 3
-        width: 21
-        height: 15
+        x: 90
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,8 +187,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 987bcd5582c06e84c812e5a0aaeb9316
-      internalID: -2136000485
+      spriteID: 608fa5854b0d63f45b7b0df4b64a56f6
+      internalID: 1553543600
       vertices: []
       indices: 
       edges: []
@@ -210,10 +197,10 @@ TextureImporter:
       name: dogside_walk_4
       rect:
         serializedVersion: 2
-        x: 99
-        y: 3
-        width: 20
-        height: 15
+        x: 120
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,8 +208,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eaa8817d70165ea43a1a39abf402a044
-      internalID: 1531954665
+      spriteID: cdf0ed6ac891e8c43bd99c209f16cfda
+      internalID: 1455487502
       vertices: []
       indices: 
       edges: []
@@ -231,10 +218,10 @@ TextureImporter:
       name: dogside_walk_5
       rect:
         serializedVersion: 2
-        x: 124
-        y: 4
-        width: 19
-        height: 13
+        x: 150
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -242,8 +229,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c56a36c0ddf6604a93d4e45d0cc4317
-      internalID: -1123259638
+      spriteID: 447874bbfb9133a42a6440381e8bbcd2
+      internalID: 883221224
       vertices: []
       indices: 
       edges: []
@@ -259,12 +246,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      dogside_walk_0: 1876039955
-      dogside_walk_1: -1969115348
-      dogside_walk_2: 514303595
-      dogside_walk_3: -2136000485
-      dogside_walk_4: 1531954665
-      dogside_walk_5: -1123259638
+      dogside_walk_0: 2136369187
+      dogside_walk_1: 594822317
+      dogside_walk_2: -1731447692
+      dogside_walk_3: 1553543600
+      dogside_walk_4: 1455487502
+      dogside_walk_5: 883221224
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

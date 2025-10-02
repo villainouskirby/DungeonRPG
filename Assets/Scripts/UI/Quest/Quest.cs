@@ -1,4 +1,5 @@
 using Events;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,6 +51,17 @@ public class Quest : UIBase
     {
         QuestInfo info = GetQuestInfo(index);
         if (info == null) return;
+
+        using (var args = QuestUnlockedEventArgs.Get())
+        {
+            var newInfo = Array.Find(Quest_Info.Quest, quest => quest.id == info.Info.unlock_id);
+
+            if (newInfo == null) return;
+
+            args.Init(newInfo.npc, newInfo.id);
+            EventManager.Instance.QuestUnlockedEvent.Invoke(args);
+            args.Release();
+        }
 
         for (int i = 0; i < info.Rewards.Length; i++)
         {

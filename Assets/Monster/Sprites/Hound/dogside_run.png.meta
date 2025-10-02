@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 78b36b7148f84fd40a51b85a0fd85e86
+guid: c3dc1d843f87c4d459013865ffd1eac0
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -21,7 +21,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -106,19 +106,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -127,9 +114,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 2
-        width: 24
-        height: 12
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,8 +124,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9c45d29ec8bad9c4696964ca393d478a
-      internalID: 1006439748
+      spriteID: 1326803652a494644b7e4151beebde6a
+      internalID: -430846665
       vertices: []
       indices: 
       edges: []
@@ -147,10 +134,10 @@ TextureImporter:
       name: dogside_run_1
       rect:
         serializedVersion: 2
-        x: 26
-        y: 1
-        width: 21
-        height: 12
+        x: 30
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,8 +145,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b04015f4a9a80a249ac7d4bbeb3a6ee1
-      internalID: -1976821530
+      spriteID: 5e36a26755f51684a9130d23b4f716de
+      internalID: 2130701101
       vertices: []
       indices: 
       edges: []
@@ -168,10 +155,10 @@ TextureImporter:
       name: dogside_run_2
       rect:
         serializedVersion: 2
-        x: 52
-        y: 1
-        width: 18
-        height: 12
+        x: 60
+        y: 0
+        width: 30
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: da3f8712e14a8ba4c96ce36410f2d0f2
-      internalID: 1144282250
+      spriteID: cabece5841ae52242bcfc93cb5464365
+      internalID: 1669550249
       vertices: []
       indices: 
       edges: []
@@ -196,9 +183,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      dogside_run_0: 1006439748
-      dogside_run_1: -1976821530
-      dogside_run_2: 1144282250
+      dogside_run_0: -430846665
+      dogside_run_1: 2130701101
+      dogside_run_2: 1669550249
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -27,6 +27,7 @@ public class DialogueRunner : UIBase
 
     private Action _openUIAction;
     private string _npcName = "";
+    private string _questID = "";
 
     private bool _isDialogueRunning = false;
 
@@ -62,6 +63,12 @@ public class DialogueRunner : UIBase
         _openUIAction?.Invoke();
     }
 
+    public void StartQuest(string dialogueName, string questID)
+    {
+        _questID = questID;
+        StartPrint(dialogueName).Forget();
+    }
+
     public async UniTaskVoid StartPrint(string dialogueName)
     {
         if (_isDialogueRunning) return;
@@ -75,8 +82,15 @@ public class DialogueRunner : UIBase
         _isDialogueRunning = true;
 
         _handle = Addressables.LoadAssetAsync<DialogueSO>("Dialogue/" + dialogueName);
-        var dialogue = await _handle.ToUniTask();
+        await _handle.ToUniTask();
 
+        if (_handle.Status == AsyncOperationStatus.Failed)
+        {
+            Debug.LogError("해당 대사 스크립트 없음. Name : Dialogue/" + dialogueName);
+            return;
+        }
+
+        var dialogue = _handle.Result;
         _dialogueLines = new Queue<DialogueLineStatement>(dialogue.Lines);
         _endEvent = dialogue.EndEvent;
 
@@ -166,11 +180,18 @@ public class DialogueRunner : UIBase
 
     private void AddNewQuest(DialogueEndEvent endEvent)
     {
-        var info = QuestConstructor.GetQuestInfo(endEvent.Value);
+        if (string.IsNullOrEmpty(_questID))
+        {
+            _questID = endEvent.Value;
+        }
+
+        var info = QuestConstructor.GetQuestInfo(_questID);
 
         if (info == null) return;
 
         UIPopUpHandler.Instance.GetScript<Quest>().AddQuest(info);
+
+        _questID = "";
     }
 
     private void UnlockQuest(DialogueEndEvent endEvent)

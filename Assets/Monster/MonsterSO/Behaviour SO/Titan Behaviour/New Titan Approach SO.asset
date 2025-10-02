@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcca3d4504426544f9b4f8210741f51e, type: 3}
   m_Name: New Titan Approach SO
   m_EditorClassIdentifier: 
-  desiredDistance: 2.5
-  repathInterval: 0.15
+  hopCount: 2
+  hopDistance: 1
+  interHopDelay: 0.5
+  arriveThreshold: 0.25
+  hopTimeout: 4
+  sampleRadius: 0.6
+  meleeDistanceOverride: -1
