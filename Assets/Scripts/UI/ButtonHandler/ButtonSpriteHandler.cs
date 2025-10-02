@@ -21,27 +21,40 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 
     private Image _image;
     private RectTransform _rect;
+
     private bool _isFixed = false;
     private bool _isPressed = false;
 
     private void Awake()
     {
-        _image = GetComponent<Image>();
-        _image.sprite = _defaultSprite;
-
-        _rect = GetComponent<RectTransform>();
-
         Init();
     }
 
     public void Init()
     {
+        if (_image == null)
+        {
+            _image = GetComponent<Image>();
+        }
+
+        _image.sprite = _defaultSprite;
+
+        if (_rect == null)
+        {
+            _rect = GetComponent<RectTransform>();
+        }
+
         Sprite defaultSprite = GetComponent<Sprite>();
 
         if (_defaultSprite == null)
         {
             _defaultSprite = defaultSprite;
         }
+    }
+
+    public void SetIsFixed(bool isFixed)
+    {
+        _isFixed = isFixed;
     }
 
     public void SetNormalSprite()
@@ -148,7 +161,7 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_isPressed || !_isResetOnExit) return;
+        if (_isFixed || _isPressed || !_isResetOnExit) return;
 
         SetNormalSprite();
     }

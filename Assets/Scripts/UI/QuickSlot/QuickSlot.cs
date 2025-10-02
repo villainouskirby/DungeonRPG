@@ -17,8 +17,17 @@ public class QuickSlot : UIBase
 
     public void InitQuickSlot()
     {
-        /*_slotCount = (UIPopUpHandler.Instance.GetScript<Equipment>().GetItemData(Equipment.EquipmentType.Backpack)
-            as BackpackItemData).BackpackInfo.speed;*/ // 슬롯 수 가져오기
+        var data = UIPopUpHandler.Instance.GetScript<Equipment>().GetItemData(Equipment.EquipmentType.Backpack);
+        
+        if (data == null)
+        {
+            _slotCount = 0;
+        }
+        else
+        {
+            _slotCount = (data as BackpackItemData).BackpackInfo.pouch_count;
+        }
+
 
         if (_quickSlot.Length != _slotCount)
         {

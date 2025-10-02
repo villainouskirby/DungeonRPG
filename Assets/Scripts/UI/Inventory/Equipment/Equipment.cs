@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,13 +14,22 @@ public class Equipment : UIBase, ISave
     [SerializeField] private EquipmentUI _equipmentUI;
     [SerializeField] private Inventory _inventory;
 
-    [SerializeField] private EquipmentEffectSO _equipmentEffectSO;
+    [SerializeField] private FloatVariableSO _hpSO;
+    [SerializeField] private FloatVariableSO _staminaSO;
+    [SerializeField] private FloatVariableSO _attackSO;
+    [SerializeField] private FloatVariableSO _speedSO;
 
     private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
+
+    protected override void OnDisable()
+    {
+        
+    }
 
     protected override void InitBase()
     {
         UIPopUpHandler.Instance.RegisterUI(this);
+        _isActvieOnStart = true;
     }
 
     public void Equip(EquipmentItem equipmentItem)
@@ -37,6 +45,11 @@ public class Equipment : UIBase, ISave
 
         UpdateSlot(type);
         UpdateEquipmentEffect(type);
+
+        if (type == EquipmentType.Backpack)
+        {
+            UIPopUpHandler.Instance.GetScript<QuickSlot>().InitQuickSlot();
+        }
     }
 
     public void UnEquip(EquipmentType type)
@@ -56,17 +69,31 @@ public class Equipment : UIBase, ISave
     /// </summary>
     private void UpdateEquipmentEffect(EquipmentType type, bool isPlus = true) // 문제는 없을텐데 기존 스탯에서 장착한 장비들의 추가값 더하는 식으로 바꿔야할듯
     {
-        if (type == EquipmentType.Backpack) return;
-
-        BattleEquipmentItemData beiData = _playerEquipments[type].Data as BattleEquipmentItemData;
         int sign = isPlus ? 1 : -1;
-        /*
-        _equipmentEffectSO.Damage += beiData.Atk * sign;
-        _equipmentEffectSO.Hp += beiData.Durability * sign;
-        _equipmentEffectSO.Stamina += beiData.Stamina * sign;
+        var data = _playerEquipments[type].Data;
 
-        if (isPlus) _equipmentEffectSO.AdditionalEffects.Add(beiData.AdditionalEffect);
-        else _equipmentEffectSO.AdditionalEffects.Remove(beiData.AdditionalEffect);*/
+        switch (type)
+        {
+            case EquipmentType.Weapon:
+                _attackSO.Value = sign * (data as WeaponItemData).WeaponInfo.atk;
+                break;
+
+            case EquipmentType.SubWeapon:
+                break;
+
+            case EquipmentType.Armor:
+                Item_Info_Armor armorInfo = (data as ArmorItemData).ArmorInfo;
+                _hpSO.Value = sign * armorInfo.hp;
+                _staminaSO.Value = sign * armorInfo.stamina;
+                _speedSO.Value = sign * armorInfo.speed;
+                break;
+
+            case EquipmentType.Backpack:
+                Item_Info_Backpack backpackInfo = (data as BackpackItemData).BackpackInfo;
+                _inventory.ChangeMaxCapacity(backpackInfo.max_weight);
+                _speedSO.Value *= backpackInfo.speed;
+                break;
+        }
 
         _equipmentUI.SetEquipmentEffect();
     }
