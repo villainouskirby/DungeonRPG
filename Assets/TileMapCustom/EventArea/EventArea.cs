@@ -130,8 +130,6 @@ public class EventArea : MonoBehaviour
         UIPopUpHandler.Instance.GetScript<KeyGuideUI>().CloseTutorial();
     }
 
-    public string DirectionString = "Up";
-
     [Range(0, 1f)] public float process;   // 0~1 진행도(실시간)
     Transform _target;
     Coroutine _loop;
@@ -140,7 +138,19 @@ public class EventArea : MonoBehaviour
 
     public void OnOffSmoothLayer_In(Collider2D other)
     {
-        Transform _target = other.transform;
+        string[] targetLayers = Data.param1.Split('/');
+        List<SpriteRenderer> layers = new();
+        _target = TileMapMaster.Instance.Player.transform;
+
+        foreach (string targetLayer in targetLayers)
+        {
+            if (targetLayer != "")
+            {
+                SpriteRenderer layer = MapManager.Instance.GetLayerObj(int.Parse(targetLayer.Trim())).GetComponent<SpriteRenderer>();
+                layers.Add(layer);
+                layer.gameObject.SetActive(true);
+            }
+        }
 
         string d = Data.param2;
         if (d.Equals("Up", StringComparison.OrdinalIgnoreCase)) { _vertical = true; _forward = true; }
@@ -154,7 +164,7 @@ public class EventArea : MonoBehaviour
         // --- 로컬 코루틴: 트리거 안에 있는 동안 매 프레임 진행도 계산 ---
         IEnumerator Loop()
         {
-            var myCol = GetComponent<Collider2D>();
+            var myCol = GetComponent<BoxCollider2D>();
             if (myCol == null) yield break;
 
             while (_target != null)
@@ -177,6 +187,12 @@ public class EventArea : MonoBehaviour
                                    : Mathf.InverseLerp(z, a, v);
 
                 process = Mathf.Clamp01(t);
+                for (int i = 0; i < layers.Count; i++)
+                {
+                    Color oriColor = layers[i].color;
+                    oriColor.a = process;
+                    layers[i].color = oriColor;
+                }
 
                 yield return null; // 프레임마다 갱신
             }
@@ -194,6 +210,42 @@ public class EventArea : MonoBehaviour
         {
             if (_loop != null) { StopCoroutine(_loop); _loop = null; }
             _target = null;
+            bool isOne = process >= 0.5f;
+            process = isOne ? 1f : 0f;
+
+            string[] targetLayers = Data.param1.Split('/');
+            List<SpriteRenderer> layers = new();
+
+            foreach (string targetLayer in targetLayers)
+            {
+                if (targetLayer != "")
+                {
+                    SpriteRenderer layer = MapManager.Instance.GetLayerObj(int.Parse(targetLayer.Trim())).GetComponent<SpriteRenderer>();
+                    layers.Add(layer);
+                    layer.gameObject.SetActive(true);
+                }
+            }
+
+            if (isOne)
+            {
+                for (int i = 0; i < layers.Count; i++)
+                {
+                    layers[i].gameObject.SetActive(true);
+                    Color oriColor = layers[i].color;
+                    oriColor.a = 1;
+                    layers[i].color = oriColor;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < layers.Count; i++)
+                {
+                    layers[i].gameObject.SetActive(false);
+                    Color oriColor = layers[i].color;
+                    oriColor.a = 0;
+                    layers[i].color = oriColor;
+                }
+            }
         }
     }
 
