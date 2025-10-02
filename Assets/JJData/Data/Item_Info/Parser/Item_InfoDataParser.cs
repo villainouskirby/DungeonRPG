@@ -182,6 +182,8 @@ public static class Item_InfoDataParser
             offset += stringLength;
             sheetRowData.max_weight = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
+            sheetRowData.pouch_count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
             sheetRowData.speed = TypeByte2TypeConverter.ConvertTypeByte2float(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.judge = TypeByte2TypeConverter.ConvertTypeByte2bool(buffer.Slice(offset, 1));

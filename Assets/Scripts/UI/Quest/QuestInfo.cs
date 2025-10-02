@@ -27,7 +27,16 @@ public class QuestInfo
 
     public void CheckQuestClear()
     {
-        bool isClear = Missions[0].IsMissionCleared && Missions[1].IsMissionCleared && Missions[2].IsMissionCleared;
+        bool isClear = true;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (Missions[i] != null || Missions[i].IsMissionCleared)
+            {
+                isClear = false;
+                break;
+            }
+        }
 
         if (isClear != IsQuestCleared)
         {

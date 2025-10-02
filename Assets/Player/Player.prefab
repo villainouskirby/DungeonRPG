@@ -305,6 +305,7 @@ MonoBehaviour:
   slideDecel: 40
   getUpAccel: 50
   getUpDecel: 35
+  isInvincible: 0
 --- !u!114 &4262740636599311042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -511,7 +512,12 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  hitTriggersOnly: 1
+  comboWindowBefore: 0.5
+  comboWindowAfter: 0.1
+  useStrictComboWindow: 1
   baseDamage: 5
+  comboBuffer: 0.5
   comboRate:
   - 0.7
   - 1.3

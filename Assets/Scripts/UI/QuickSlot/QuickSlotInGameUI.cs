@@ -81,8 +81,7 @@ public class QuickSlotInGameUI : UIBase
 
         if (item is not IUsableItem usable) return;
 
-        bool ok = await usable.Use();
-        if (!ok) return;
+        await usable.Use();
 
         if (item is CountableItem ci && ci.IsEmpty)
         {

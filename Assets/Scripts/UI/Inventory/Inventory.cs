@@ -129,7 +129,7 @@ public class Inventory : UIBase, ISave
     /// <summary> 인벤토리 닫기 </summary>
     public void CloseInventory() => gameObject.SetActive(false);
 
-    public void OpenQuickSlotPanel() => UIPopUpHandler.Instance.GetScript<QuickSlot>().gameObject.SetActive(true);
+    public void OpenQuickSlotPanel() => UIPopUpHandler.Instance.OpenUI<QuickSlot>();
 
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 
@@ -343,6 +343,13 @@ public class Inventory : UIBase, ISave
                 {
                     // 해당 슬롯 UI 업데이트
                     _equipment.Equip(ei);
+
+                    using (var args = InventoryBehaviorEventArgs.Get())
+                    {
+                        args.Init(InventoryBehaviorEventArgs.Behavior.Equip, ei.Data.SID);
+                        EventManager.Instance.InventoryBehaviorEvent.Invoke(args);
+                        args.Release();
+                    }
                 }
                 else
                 {
@@ -371,6 +378,13 @@ public class Inventory : UIBase, ISave
 
         if (UIPopUpHandler.Instance.GetScript<QuickSlot>().AddToSlot(item.Clone()))
         {
+            using (var args = InventoryBehaviorEventArgs.Get())
+            {
+                args.Init(InventoryBehaviorEventArgs.Behavior.Register, item.Data.SID);
+                EventManager.Instance.InventoryBehaviorEvent.Invoke(args);
+                args.Release();
+            }
+
             RemoveItem(index, 1);
         }
     }

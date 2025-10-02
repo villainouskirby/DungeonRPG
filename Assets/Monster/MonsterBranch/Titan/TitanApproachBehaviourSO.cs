@@ -8,6 +8,8 @@ public class TitanApproachSO : AttackBehaviourSO
     public float desiredDistance = 2.2f; // 근접 거리(인스펙터 조절)
     public float moveSpeed = 3.5f;
 
+    [Range(0, 100)] public int dashPercent = 50;
+
     public override bool CanRun(MonsterContext ctx)
     {
         if (!ctx.player) return false;
@@ -16,6 +18,13 @@ public class TitanApproachSO : AttackBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        if (!ctx.player) yield break;
+        
+        if (Random.Range(0, 100) < dashPercent)
+        {
+            ctx.nextBehaviourIndex = 1; // Dash
+            yield break;
+        }
         ctx.agent.speed = moveSpeed;
         ctx.anim.Play("Walk");
 

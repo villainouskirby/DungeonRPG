@@ -3,37 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using Core;
 
-public class UIPopUpHandler
-    : Singleton<UIPopUpHandler>, IManager
+public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
 {
     private Dictionary<Type, UIBase> _uiDict = new(); // 등록된 UI들 inspector에서 참조말고 여기서 불러오는 식으로 다 바꿔야 할듯
-    private UIBase _openUI;
+    private List<UIBase> _openUIs = new();
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            OpenUI<Inventory>();
+            ToggleUI<Inventory>();
         }
 
-        if (Input.GetKey(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            OpenUI<Quest>();
+            ToggleUI<Quest>();
         }
 
-        if (Input.GetKey(KeyCode.Alpha2))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             // OpenUI<Map>();
         }
 
-        if (Input.GetKey(KeyCode.Alpha3))
+        if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             // OpenUI<Document>();
         }
 
-        if (Input.GetKey(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            CloseUI();
+            CloseLastUI();
         }
     }
 
@@ -61,7 +60,28 @@ public class UIPopUpHandler
     }
 
     /// <summary>
-    /// UI 활성화
+    /// UI 토글
+    /// <para/> 한번에 하나만 띄우게 함
+    /// </summary>
+    /// <returns> 해당 UI 클래스 </returns>
+    public T ToggleUI<T>() where T : UIBase
+    {
+        foreach (var ui in _openUIs) // 본인이 열려 있으면 닫기
+        {
+            if (ui.GetType() == typeof(T))
+            {
+                CloseUI(ui);
+                return ui as T;
+            }
+        }
+
+        if (_openUIs.Count > 0) return null; // 본인이 열려 있지 않으나 다른 UI 켜져 있으면 miss
+
+        return OpenUI<T>();
+    }
+
+    /// <summary>
+    /// UI 열기
     /// <para/> 한번에 하나만 띄우게 함
     /// </summary>
     /// <returns> 해당 UI 클래스 </returns>
@@ -69,21 +89,26 @@ public class UIPopUpHandler
     {
         UIBase ui;
 
-        if (_openUI != null && _openUI.ActiveSelf) return null;
-        if ((ui = GetScript<T>()) == null) return null;
+        if ((ui = GetScript<T>()) == null || ui.ActiveSelf) return null;
 
         ui.SetActive(true);
-        _openUI = ui;
+        _openUIs.Add(ui);
 
         return ui as T;
     }
 
-    public void CloseUI()
+    public void CloseUI<T>(T ui) where T : UIBase
     {
-        if (_openUI == null) return;
+        ui.SetActive(false);
+        _openUIs.Remove(ui);
+    }
 
-        _openUI.SetActive(false);
-        _openUI = null;
+    public void CloseLastUI()
+    {
+        if (_openUIs.Count == 0) return;
+
+        int idx = _openUIs.Count - 1;
+        _openUIs[idx].SetActive(false);
     }
 
     public void Initialize()

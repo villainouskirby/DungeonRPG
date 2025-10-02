@@ -13,6 +13,10 @@ public  class Item_Info_Backpack
     /// </summary>
     public float max_weight;
     /// <summary>
+    /// 아이템 파우치 개수
+    /// </summary>
+    public int pouch_count;
+    /// <summary>
     /// 이동속도
     /// </summary>
     public float speed;

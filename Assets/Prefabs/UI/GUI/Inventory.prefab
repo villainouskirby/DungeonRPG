@@ -2927,7 +2927,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5fea6c8e67811ee469f440be045038c7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d459ba2014a4b7f47bb66abfecf1afb5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2959,10 +2959,10 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -2996,8 +2996,8 @@ MonoBehaviour:
   _isResetOnRealease: 1
   _isSetSizeToSprite: 0
   _innerSpriteHandler: {fileID: 0}
-  _defaultSprite: {fileID: 21300000, guid: 5fea6c8e67811ee469f440be045038c7, type: 3}
-  _pressedSprite: {fileID: 21300000, guid: d459ba2014a4b7f47bb66abfecf1afb5, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: d459ba2014a4b7f47bb66abfecf1afb5, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 5fea6c8e67811ee469f440be045038c7, type: 3}
   _disabledSprite: {fileID: 0}
 --- !u!1 &2392447392715987310
 GameObject:
@@ -10940,6 +10940,7 @@ GameObject:
   - component: {fileID: 164558597686388931}
   - component: {fileID: 5425697901024253018}
   - component: {fileID: 6243262952760897524}
+  - component: {fileID: 3578966234695561039}
   m_Layer: 5
   m_Name: QuickSlotButton
   m_TagString: Untagged
@@ -11026,9 +11027,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -11060,6 +11061,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3578966234695561039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8645285582108510551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6754b4acbd7faab4e93ba79511be027a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isResetOnRealease: 1
+  _isSetSizeToSprite: 0
+  _innerSpriteHandler: {fileID: 0}
+  _defaultSprite: {fileID: 21300000, guid: 3e3304fe0783c8145a8703e92af1b964, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 6dfd1815df56d5d45a1c3d1789ecafd3, type: 3}
+  _disabledSprite: {fileID: 0}
 --- !u!1 &8705655541641131474
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,6 +24,11 @@ public class Quest : UIBase
     {
         _questUI.SetQuestSlot(index, _questInfos[index]);
     }
+    
+    public QuestInfo GetQuestInfo(string id)
+    {
+        return _questInfos.Find(info => info.Info.id == id);
+    }
 
     public QuestInfo GetQuestInfo(int index)
     {

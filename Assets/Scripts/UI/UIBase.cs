@@ -14,6 +14,11 @@ public abstract class UIBase : MonoBehaviour
         gameObject.SetActive(_isActvieOnStart);
     }
 
+    protected virtual void OnDisable()
+    {
+        UIPopUpHandler.Instance.CloseUI(this);
+    }
+
     /// <summary> UIName 초기화 </summary>
     protected virtual void InitBase() { }
     

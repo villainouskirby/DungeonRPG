@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Events;
 using UnityEngine;
 
 public class PotionItem : CountableItem, IUsableItem
@@ -16,10 +17,17 @@ public class PotionItem : CountableItem, IUsableItem
 
     public async UniTask<bool> Use()
     {
+        using (var args = InventoryBehaviorEventArgs.Get())
+        {
+            args.Init(InventoryBehaviorEventArgs.Behavior.Drink, Data.SID);
+            EventManager.Instance.InventoryBehaviorEvent.Invoke(args);
+            args.Release();
+        }
+
         if (Amount > 0)
         {
-            if (!await PotionManager.Instance.GetPotionID(Data)) return false;
             Amount--;
+            if (!await PotionManager.Instance.GetPotionID(Data)) return false;
             return true;
         }
         else return false;

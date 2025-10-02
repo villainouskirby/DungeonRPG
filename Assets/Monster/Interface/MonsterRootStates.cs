@@ -13,7 +13,7 @@ public sealed class MonsterIdleState : IMonsterState
     float restTimer;
     float detectGate;   // Detect 전 대기 누적
     float returnGate;   // Return 전 대기 누적
-
+    bool bettleMode;
     public MonsterIdleState(MonsterContext c, MonsterStateMachine m)
     { ctx = c; machine = m; }
 
@@ -21,6 +21,11 @@ public sealed class MonsterIdleState : IMonsterState
     {
         ctx.indicator?.Show(MonsterStateTag.Idle);
         ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
+        bettleMode = (ctx.data.category == MonsterData.MonsterCategory.Beetle);
+        if (bettleMode) // 딱정벌레면은 그냥 가만히
+        {
+            ctx.agent.isStopped = true;
+        }
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
         ctx.anim.Play("Idle");
@@ -54,17 +59,23 @@ public sealed class MonsterIdleState : IMonsterState
         {
             case Route.Return:
                 ctx.IsFastReturn = ctx.hub.IsFastReturnRequested;
-                machine.ChangeState(new MonsterReturnState(ctx, machine)); return true;
+                machine.ChangeState(new MonsterReturnState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
             case Route.Detect:
-                machine.ChangeState(new MonsterDetectState(ctx, machine)); return true;
+                machine.ChangeState(new MonsterDetectState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
             case Route.Special:
-                machine.ChangeState(new MonsterSpecialState(ctx, machine)); return true;
+                machine.ChangeState(new MonsterSpecialState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
             case Route.Attack:
-                machine.ChangeState(new CombatSuperState(ctx, machine)); return true;
+                machine.ChangeState(new CombatSuperState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
             case Route.Trace:
-                machine.ChangeState(new MonsterTraceState(ctx, machine)); return true;
+                machine.ChangeState(new MonsterTraceState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
             case Route.Flee:
-                machine.ChangeState(new MonsterFleeState(ctx, machine)); return true;
+                machine.ChangeState(new MonsterFleeState(ctx, machine));
+                { ctx.agent.isStopped = false; return true; }
         }
         return false; // None
     }
@@ -282,9 +293,6 @@ public sealed class MonsterDetectState : IMonsterState
         Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
-        ctx.agent.isStopped = true;
-        await ctx.SetForwardDetect(dir);
-        ctx.agent.isStopped = false;
 
 
         if (token.IsCancellationRequested) return;
@@ -298,15 +306,25 @@ public sealed class MonsterDetectState : IMonsterState
         {
             if (ctx.isaggressive)
             {
+                ctx.agent.isStopped = true;
+                await ctx.SetForwardDetect(dir);
+                ctx.agent.isStopped = false;
                 ctx.isCombat = true;
                 machine.ChangeState(new CombatSuperState(ctx, machine));
             }
             else if (ctx.data.istracing)
             {
+                ctx.agent.isStopped = true;
+                await ctx.SetForwardDetect(dir);
+                ctx.agent.isStopped = false;
                 machine.ChangeState(new MonsterTraceState(ctx, machine));
             }
             else
             {
+                ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
+                ctx.agent.isStopped = true;
+                await ctx.SetForwardDetect(dir);
+                ctx.agent.isStopped = false;
                 machine.ChangeState(new MonsterFleeState(ctx, machine));
             }
         }
