@@ -52,7 +52,7 @@ public class TabHandler : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < transform.childCount; i++)
+        for (int i = 1; i < transform.childCount; i++)
         {
             _buttons[i].ClosePanelForce();
             _spriteHandlers[i].SetNormalSprite();
@@ -61,6 +61,7 @@ public class TabHandler : MonoBehaviour
         _currentIndex = 0;
         _buttons[0].OpenPanelForce();
         _spriteHandlers[0].SetPressedSprite();
+        _spriteHandlers[0].SetIsFixed(true);
     }
 
     private void CloseCurrentActivePanel(ObjectActiveHandler objectHandler)

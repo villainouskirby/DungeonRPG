@@ -21,6 +21,7 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 
     private Image _image;
     private RectTransform _rect;
+
     private bool _isFixed = false;
     private bool _isPressed = false;
 
@@ -49,6 +50,11 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         {
             _defaultSprite = defaultSprite;
         }
+    }
+
+    public void SetIsFixed(bool isFixed)
+    {
+        _isFixed = isFixed;
     }
 
     public void SetNormalSprite()
