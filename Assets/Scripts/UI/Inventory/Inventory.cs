@@ -518,6 +518,13 @@ public class Inventory : UIBase, ISave
         }
     }
 
+    public void ChangeMaxCapacity(float weight)
+    {
+        RestCapacity += weight - _maxCapacity;
+        _maxCapacity = weight;
+        UpdateWeightText();
+    }
+
     private void UpdateWeightText()
     {
         _inventoryUI.UpdateWeightText(_maxCapacity - RestCapacity, _maxCapacity);

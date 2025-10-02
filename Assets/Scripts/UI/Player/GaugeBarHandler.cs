@@ -15,7 +15,7 @@ public class GaugeBarHandler : MonoBehaviour
     [SerializeField] private Image _guageImage;
     [SerializeField] private TextMeshProUGUI _guageText;
 
-    private float MaxValue => _maxValue != null ? _maxValue.Value : 100;
+    private float MaxValue => _maxValue != null ? _maxValue.Value : 2000;
 
     private void OnEnable()
     {
