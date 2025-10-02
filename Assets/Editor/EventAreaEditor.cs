@@ -60,8 +60,8 @@ public class EventAreaEditor : Editor
             EventAreaType.ChangeLayer => "없음",
             EventAreaType.ShowText => "Param1 : 종류 Wasd Click Dodge Crouch Sprint",
             EventAreaType.OnOffLayer => "없음",
-            EventAreaType.OnOffSmoothLayer => "없음",
-            EventAreaType.ChangeGroundLayer => "param2 : Up이라면 위에서 부터 아래를 0~1이라고 하고 이는 해당 레이어의 투명도이다. 즉 Up은 진입 시점이 0이고 나오는 시점이 1이다!",
+            EventAreaType.OnOffSmoothLayer => "param2 : Up이라면 위에서 부터 아래를 0~1이라고 하고 이는 해당 레이어의 투명도이다. 즉 Up은 진입 시점이 0이고 나오는 시점이 1이다!",
+            EventAreaType.ChangeGroundLayer => "없음",
             EventAreaType.ChangePlayerLight => "없음",
             _ => "",
         };
