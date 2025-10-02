@@ -1,11 +1,15 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public Action<ButtonSpriteHandler> OnEnter;
+
     [SerializeField] private bool _isResetOnRealease = true;
+    [SerializeField] private bool _isResetOnExit = true;
     [SerializeField] private bool _isSetSizeToSprite = true;
     [SerializeField] private ButtonSpriteHandler _innerSpriteHandler;
 
@@ -13,10 +17,12 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     [SerializeField] private Sprite _defaultSprite;
     [SerializeField] private Sprite _pressedSprite;
     [SerializeField] private Sprite _disabledSprite;
+    [SerializeField] private Sprite _enterSprite;
 
     private Image _image;
     private RectTransform _rect;
     private bool _isFixed = false;
+    private bool _isPressed = false;
 
     private void Awake()
     {
@@ -35,38 +41,6 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         if (_defaultSprite == null)
         {
             _defaultSprite = defaultSprite;
-        }
-
-        if (_pressedSprite == null)
-        {
-            _pressedSprite = defaultSprite;
-        }
-
-        if (_disabledSprite == null)
-        {
-            _disabledSprite = defaultSprite;
-        }
-    }
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        if (_isFixed) return;
-
-        SetPressedSprite();
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        if (_isFixed) return;
-
-        if (_isResetOnRealease ||
-            eventData.pointerCurrentRaycast.gameObject != gameObject)
-        {
-            SetNormalSprite();
-        }
-        else
-        {
-            _isFixed = true;
         }
     }
 
@@ -117,11 +91,66 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
         _innerSpriteHandler?.SetDisabledSprite();
     }
 
+    public void SetEnterSprite()
+    {
+        if (_enterSprite == null) return;
+
+        if (_image == null)
+        {
+            _image = GetComponent<Image>();
+        }
+
+        _image.sprite = _enterSprite;
+        ChangeSize(_enterSprite);
+
+        _innerSpriteHandler?.SetEnterSprite();
+    }
+
     private void ChangeSize(Sprite sprite)
     {
         if (!_isSetSizeToSprite) return;
 
         _rect.sizeDelta = sprite.bounds.size * 100;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        _isPressed = true;
+
+        if (_isFixed) return;
+
+        SetPressedSprite();
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _isPressed = false;
+
+        if (_isFixed) return;
+
+        if (_isResetOnRealease ||
+            eventData.pointerCurrentRaycast.gameObject != gameObject &&
+            _isResetOnExit)
+        {
+            SetNormalSprite();
+        }
+        else
+        {
+            _isFixed = true;
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        SetEnterSprite();
+        OnEnter?.Invoke(this);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (_isPressed || !_isResetOnExit) return;
+
+        SetNormalSprite();
     }
 
     #region 이벤트 가로챔 방지

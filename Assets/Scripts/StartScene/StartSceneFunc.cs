@@ -24,12 +24,12 @@ public class StartSceneFunc : MonoBehaviour
         if (auto1SlotData.Exist)
         {
             ContinueBtn.interactable = true;
-            ContinueBtn.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.black;
+            //ContinueBtn.transform.GetChild(0).GetComponent<TMP_Text>().color = Color.black;
         }
         else
         {
             ContinueBtn.interactable = false;
-            ContinueBtn.transform.GetChild(0).GetComponent<TMP_Text>().color = BtnDisableColor;
+            //ContinueBtn.transform.GetChild(0).GetComponent<TMP_Text>().color = BtnDisableColor;
         }
     }
 

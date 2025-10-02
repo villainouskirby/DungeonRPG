@@ -13,18 +13,21 @@ public class ObjectActiveHandler : MonoBehaviour
 
     public void SetActive(bool active)
     {
-        if (_object == null) return;
-
-        _object.SetActive(active);
+        _object?.SetActive(active);
         InvokeEvents(active);
     }
 
     public void ToggleActive()
     {
-        if (_object == null) return;
-
-        _object.SetActive(!_object.activeSelf);
-        InvokeEvents(_object.activeSelf);
+        if (_object != null)
+        {
+            _object.SetActive(!_object.activeSelf);
+            InvokeEvents(_object.activeSelf);
+        }
+        else
+        {
+            InvokeEvents(true);
+        }
     }
 
     private void InvokeEvents(bool active)
@@ -43,15 +46,11 @@ public class ObjectActiveHandler : MonoBehaviour
 
     public void OpenPanelForce()
     {
-        if (_object == null) return;
-
-        _object.SetActive(true);
+        _object?.SetActive(true);
     }
 
     public void ClosePanelForce()
     {
-        if (_object == null) return;
-
-        _object.SetActive(false);
+        _object?.SetActive(false);
     }
 }

@@ -20,6 +20,7 @@ public class ItemGetPopUpUI : MonoBehaviour
         }
     };
 
+    [SerializeField] private float _interval = 120f;
     [SerializeField] private ItemGetPopUpSlotUI[] _popUpSlotArr;
     [SerializeField] private RectTransform _content;
 
@@ -80,7 +81,7 @@ public class ItemGetPopUpUI : MonoBehaviour
                 float dTime;
 
                 float startPosY = _content.anchoredPosition.y;
-                float destPosY = startPosY + 150;
+                float destPosY = startPosY + _interval;
 
                 while ((dTime = (Time.time - startTime) / 0.1f) < 1)
                 {
