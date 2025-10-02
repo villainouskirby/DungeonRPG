@@ -129,7 +129,7 @@ public class Inventory : UIBase, ISave
     /// <summary> 인벤토리 닫기 </summary>
     public void CloseInventory() => gameObject.SetActive(false);
 
-    public void OpenQuickSlotPanel() => UIPopUpHandler.Instance.GetScript<QuickSlot>().gameObject.SetActive(true);
+    public void OpenQuickSlotPanel() => UIPopUpHandler.Instance.OpenUI<QuickSlot>();
 
     private bool IsValidIndex(int index) => index >= 0 && index < _items.Count;
 

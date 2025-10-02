@@ -16,7 +16,7 @@ public abstract class UIBase : MonoBehaviour
 
     protected virtual void OnDisable()
     {
-        UIPopUpHandler.Instance.CloseUI();
+        UIPopUpHandler.Instance.CloseUI(this);
     }
 
     /// <summary> UIName 초기화 </summary>

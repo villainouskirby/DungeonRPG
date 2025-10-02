@@ -8,7 +8,7 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
 
     protected Queue<string> _questID = new(); // 우선순위 큐로 수정해야함
 
-    public void OpenUI() => UIPopUpHandler.Instance.OpenUI<T>();
+    public void OpenUI() => UIPopUpHandler.Instance.ToggleUI<T>();
 
     protected override void InitBase()
     {
