@@ -47,7 +47,7 @@ public class EventAreaEditor : Editor
             EventAreaType.ShowText => "없음",
             EventAreaType.OnOffLayer => "Off할 Layer Indexs (/ 로 구분 ex) 1/2 - 1번 2번 레이어 Off )",
             EventAreaType.OnOffSmoothLayer => "진행 방향 Up / Down / Right / Left",
-            EventAreaType.ChangeGroundLayer => "땅 레이어란 플레이의 높이에 영향을 주는 레이어라고 생각하자",
+            EventAreaType.ChangeGroundLayer => "param1 : 땅 레이어란 플레이의 높이에 영향을 주는 레이어라고 생각하자",
             EventAreaType.ChangePlayerLight => "빛의 쌔기 - 기본이 1.5이니까 알아서 참고해서 변경",
             _ => "",
         };
