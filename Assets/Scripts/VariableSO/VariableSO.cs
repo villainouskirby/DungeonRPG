@@ -21,6 +21,5 @@ public class VariableSO<T> : ScriptableObject
         }
     }
 
-
     public delegate void ValueChanged(T value);
 }

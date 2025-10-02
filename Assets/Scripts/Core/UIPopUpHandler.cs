@@ -5,6 +5,8 @@ using Core;
 
 public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
 {
+    public bool IsUIOpen => _openUIs.Count > 0;
+
     private Dictionary<Type, UIBase> _uiDict = new(); // 등록된 UI들 inspector에서 참조말고 여기서 불러오는 식으로 다 바꿔야 할듯
     private List<UIBase> _openUIs = new();
 
