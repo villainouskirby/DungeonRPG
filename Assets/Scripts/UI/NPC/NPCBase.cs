@@ -51,13 +51,14 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
             if (info == null)
             {
                 dialogueID = QuestConstructor.GetRawQuestInfo(id).start_text;
+                runner.StartQuest(dialogueID, id);
             }
             else
             {
                 dialogueID = info.Info.start_text + "-ing";
+                runner.StartPrint(dialogueID).Forget();
             }
 
-            runner.StartPrint(dialogueID).Forget();
             _isQuestClear = false;
         }
         else
@@ -87,7 +88,10 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
 
     public void CompleteQuest()
     {
+        if (_questID.Count <= 0) return;
+
         UIPopUpHandler.Instance.GetScript<Quest>().QuestClear(_questID.Dequeue());
+        _isQuestClear = false;
     }
 
     public void Load(SaveData saveData)

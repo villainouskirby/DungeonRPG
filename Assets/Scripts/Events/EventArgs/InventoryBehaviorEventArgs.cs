@@ -21,7 +21,8 @@ namespace Events
 
         public override void Clear()
         {
-            throw new System.NotImplementedException();
+            InventoryBehavior = Behavior.None;
+            ItemID = "";
         }
     }
 }

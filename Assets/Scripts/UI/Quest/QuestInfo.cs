@@ -31,7 +31,7 @@ public class QuestInfo
 
         for (int i = 0; i < 3; i++)
         {
-            if (Missions[i] != null || Missions[i].IsMissionCleared)
+            if (Missions[i] != null && !Missions[i].IsMissionCleared)
             {
                 isClear = false;
                 break;
