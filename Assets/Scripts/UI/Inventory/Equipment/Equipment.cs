@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,9 +18,15 @@ public class Equipment : UIBase, ISave
 
     private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
 
+    protected override void OnDisable()
+    {
+        
+    }
+
     protected override void InitBase()
     {
         UIPopUpHandler.Instance.RegisterUI(this);
+        _isActvieOnStart = true;
     }
 
     public void Equip(EquipmentItem equipmentItem)

@@ -973,6 +973,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 2d43a0344300c14459955e8e07e774d3, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &782025257116172834
 GameObject:
   m_ObjectHideFlags: 0
@@ -1823,6 +1824,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: bff4194d8de11e842a725efb75a53df1, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!114 &9011547213451674583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3101,6 +3103,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 5fea6c8e67811ee469f440be045038c7, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &2392447392715987310
 GameObject:
   m_ObjectHideFlags: 0
@@ -3788,6 +3791,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: bff4194d8de11e842a725efb75a53df1, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!114 &7630712393433689294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4712,6 +4716,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: ac424a787d0d2424e83147d23aff92e7, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &3601930823875867358
 GameObject:
   m_ObjectHideFlags: 0
@@ -5220,7 +5225,7 @@ GameObject:
   - component: {fileID: 2424243304723355440}
   - component: {fileID: 6385622446689005604}
   m_Layer: 5
-  m_Name: BodyArmorSlot
+  m_Name: ArmorSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5296,7 +5301,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _image: {fileID: 2424243304723355440}
-  _equipmentType: 0
+  _equipmentType: 2
 --- !u!1 &3960850106721854180
 GameObject:
   m_ObjectHideFlags: 0
@@ -5938,6 +5943,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 386008e54d84bbc4c893c0f3d7724a34, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!1 &4237760821322409495
 GameObject:
   m_ObjectHideFlags: 0
@@ -6299,6 +6305,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 2bcbfa253a14ee541a69a50368e6e03f, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &4724501110124878305
 GameObject:
   m_ObjectHideFlags: 0
@@ -6853,6 +6860,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 0523f785f985c2c4fbae027fefc2eea8, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &5006552648556293154
 GameObject:
   m_ObjectHideFlags: 0
@@ -7054,7 +7062,7 @@ GameObject:
   - component: {fileID: 3629985757325729309}
   - component: {fileID: 6917249882794893299}
   m_Layer: 5
-  m_Name: ToolSlot
+  m_Name: BackpackSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7432,6 +7440,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 7e1bbbd14f85fc743a3d17ebd9d4acfe, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!1 &5505301081074367007
 GameObject:
   m_ObjectHideFlags: 0
@@ -8043,6 +8052,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: bff4194d8de11e842a725efb75a53df1, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!114 &5471063098118042633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8650,6 +8660,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: bff4194d8de11e842a725efb75a53df1, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!114 &2293266138339956017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8985,6 +8996,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 935acd1b34f4174418f278ee7f2e33c7, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &6929658755622277838
 GameObject:
   m_ObjectHideFlags: 0
@@ -8998,7 +9010,7 @@ GameObject:
   - component: {fileID: 1171823140332315851}
   - component: {fileID: 5762524806271071395}
   m_Layer: 5
-  m_Name: LegArmorSlot
+  m_Name: SubWeaponSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9074,7 +9086,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _image: {fileID: 1171823140332315851}
-  _equipmentType: 0
+  _equipmentType: 1
 --- !u!1 &6940148688916672703
 GameObject:
   m_ObjectHideFlags: 0
@@ -11510,6 +11522,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: bff4194d8de11e842a725efb75a53df1, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 1
 --- !u!114 &8593720624547019229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11676,6 +11689,7 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 6dfd1815df56d5d45a1c3d1789ecafd3, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+  _isFixed: 0
 --- !u!1 &8705655541641131474
 GameObject:
   m_ObjectHideFlags: 0
@@ -11948,9 +11962,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4676271930974047971}
-  - {fileID: 8462335160912246756}
   - {fileID: 6561110999229409422}
+  - {fileID: 8462335160912246756}
+  - {fileID: 4676271930974047971}
   - {fileID: 451729576875815906}
   m_Father: {fileID: 495368259022503425}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
