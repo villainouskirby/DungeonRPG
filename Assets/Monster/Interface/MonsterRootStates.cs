@@ -186,6 +186,10 @@ public sealed class MonsterDetectState : IMonsterState
     }
     public async void Tick()
     {
+        if (ctx.data.hearToCombat)
+        {
+            machine.ChangeState(new CombatSuperState(ctx, machine));
+        }
         if (ctx.isCombat)
         {
             machine.ChangeState(new CombatSuperState(ctx, machine));
