@@ -80,8 +80,8 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         for (int i = 0; i < chunks.Count; i++)
             if (!DontUnLoadChunk.Contains(chunks[i]))
             {
-                DontUnLoadChunk.Add(chunks[i]);
                 LoadNav(chunks[i]);
+                DontUnLoadChunk.Add(chunks[i]);
             }
     }
 
@@ -144,7 +144,6 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         {
             NavMeshBuildSettings buildSettings = NavMesh.GetSettingsByID(0);
             Vector3 worldPos = new(pos[i].x + 0.5f + chunkPos.x * 16, pos[i].y + 0.5f + chunkPos.y * 16 );
-            Debug.Log(pos[i]);
             var linkData = new NavMeshLinkData
             {
                 startPosition = worldPos,

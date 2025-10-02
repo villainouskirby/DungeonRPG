@@ -71,7 +71,6 @@ public class MapManager : MonoBehaviour, ITileMapBase
             Shader.SetGlobalFloat("_PlayerBlock", 1);
         else
             Shader.SetGlobalFloat("_PlayerBlock", 0);
-        Debug.Log(isBlock);
     }
 
     public void ChangeMapping()

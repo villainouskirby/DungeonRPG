@@ -26,8 +26,6 @@ public class DecoManager : MonoBehaviour, ITileMapBase
 
         DecoPool.Init();
         ActiveDecoObj = new();
-        CM.Instance.ChunkLoadAction += LoadDecoInChunk;
-        CM.Instance.ChunkUnloadAction += UnloadDecoInChunk;
     }
 
     public void InitMap(MapEnum mapType)
@@ -44,6 +42,9 @@ public class DecoManager : MonoBehaviour, ITileMapBase
         }
 
         ActiveDecoObj = new();
+
+        CM.Instance.ChunkLoadAction += LoadDecoInChunk;
+        CM.Instance.ChunkUnloadAction += UnloadDecoInChunk;
     }
 
     public void StartMap(MapEnum mapType)
@@ -96,6 +97,7 @@ public class DecoManager : MonoBehaviour, ITileMapBase
 
     public void LoadDecoInChunk(Vector2Int targetChunk)
     {
+        Debug.Log(targetChunk);
         if (!DL.Instance.All.decoObjData.ContainsKey(targetChunk))
             return;
 
