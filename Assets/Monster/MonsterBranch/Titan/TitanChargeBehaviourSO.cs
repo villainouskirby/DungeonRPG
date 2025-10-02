@@ -18,7 +18,10 @@ public class TitanDashAttackSO : AttackBehaviourSO
 
     public override bool CanRun(MonsterContext ctx)
     {
-        return ctx.player != null;
+        if (!ctx.player) return false;
+        float d = Vector2.Distance(ctx.transform.position, ctx.player.position);
+        // inMelee가 아니어야 대시 허용
+        return d > ctx.data.attackEnterDistance * 1.01f;
     }
 
     public override IEnumerator Execute(MonsterContext ctx)

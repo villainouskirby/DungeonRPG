@@ -16,6 +16,9 @@ public class BettleAnimationPlayer : AnimationPlayerBase
     public string idleKey = "idle";
     public string walkKey = "walk";
     public string runKey = "run";
+    public string detectKey = "detect";
+    public string hideKey = "hide";
+    public string idleHideKey = "idlehide";
 
     [Header("Direction Keys (optional)")]
     public string frontKey = "front";
@@ -98,7 +101,7 @@ public class BettleAnimationPlayer : AnimationPlayerBase
     {
         switch (tag)
         {
-            case MonsterStateTag.Idle:
+            case MonsterStateTag.Idle: return idleHideKey;
             case MonsterStateTag.Stun: return idleKey;
             case MonsterStateTag.Detect:
             case MonsterStateTag.SearchWander:
@@ -106,7 +109,8 @@ public class BettleAnimationPlayer : AnimationPlayerBase
             case MonsterStateTag.Return: return (ctx != null && ctx.IsFastReturn) ? runKey : walkKey;
             case MonsterStateTag.CombatMove:
             case MonsterStateTag.CombatAttack:
-            case MonsterStateTag.Flee: return runKey;
+            case MonsterStateTag.Flee: return detectKey;
+            case MonsterStateTag.Hide: return hideKey;
             default: return null;
         }
     }

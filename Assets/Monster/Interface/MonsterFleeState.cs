@@ -23,6 +23,7 @@ public sealed class MonsterFleeState : IMonsterState
     float _elapsed;    // 도망 경과 시간
 
     bool cleanerMode;
+    bool bettleMode;
     float cleanerWaitTimer;
     public MonsterFleeState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
@@ -35,7 +36,12 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.agent.speed = spd;
         ctx.agent.isStopped = false;
 
+        bettleMode = (ctx.data.category == MonsterData.MonsterCategory.Beetle);
         cleanerMode = (ctx.data.category == MonsterData.MonsterCategory.Cleaner);
+        if (bettleMode)
+        {
+            ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
+        }
         if (cleanerMode)
         {
             cleanerWaitTimer = 0f;
@@ -78,6 +84,10 @@ public sealed class MonsterFleeState : IMonsterState
 
         // 경과 시간 체크 → 10초 후 자동 소멸
         _elapsed += Time.deltaTime;
+        if (_elapsed >= 0.6f)
+        {
+            ctx.animationHub?.SetTag(MonsterStateTag.SearchWander, ctx);
+        }
         if (_elapsed >= 10f)
         {
             ReleaseAndCleanup();
@@ -166,7 +176,7 @@ public sealed class MonsterFleeState : IMonsterState
         float elapsed = 0f;
 
         ctx.agent.enabled = false; // NavMeshAgent 끄고 수동 이동
-        ctx.animationHub?.SetTag(MonsterStateTag.CombatMove, ctx);
+        ctx.animationHub?.SetTag(MonsterStateTag.SearchWander, ctx);
 
         while (elapsed < duration)
         {
@@ -189,7 +199,7 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.agent.isStopped = true;
         ctx.agent.velocity = Vector3.zero;
 
-        ctx.anim.Play("Vanish");
+        ctx.animationHub?.SetTag(MonsterStateTag.Hide, ctx);
 
         VanishAndRelease().Forget();
     }

@@ -6,7 +6,6 @@ using System;
 using UnityEngine.UI;
 using Core;
 
-
 public class PotionManager : Singleton<PotionManager>
 {
 
