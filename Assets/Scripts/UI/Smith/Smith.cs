@@ -84,6 +84,7 @@ public class Smith : NPCBase<Smith>
     protected override void InitBase()
     {
         UIPopUpHandler.Instance.RegisterUI(this);
+        _npcName = "smith";
     }
 
     public void InitSmith()

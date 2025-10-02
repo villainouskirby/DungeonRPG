@@ -23,13 +23,20 @@ public class HandleableButtons : MonoBehaviour
                 handler.Init();
             }
 
-            handler.SetNormalSprite();
             _handlers[i] = handler;
         }
 
         if (_idx < 0 || _idx >= _handlers.Length)
         {
             _idx = 0;
+        }
+    }
+
+    private void Start()
+    {
+        for (int i = 0; i < _handlers.Length; i++)
+        {
+            _handlers[i].SetNormalSprite();
         }
 
         _handlers[_idx].SetEnterSprite();
