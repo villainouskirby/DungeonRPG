@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DBUtility;
 using Events;
 using UnityEngine;
 using ItemType = InventoryUI.TabType;
@@ -341,6 +342,8 @@ public class Inventory : UIBase, ISave
             {
                 if (item is EquipmentItem ei)
                 {
+                    ei.IsEquipped = true;
+
                     // 해당 슬롯 UI 업데이트
                     _equipment.Equip(ei);
 
@@ -568,6 +571,19 @@ public class Inventory : UIBase, ISave
         }
 
         return amount;
+    }
+    
+    public void GiveInitEquipment()
+    {
+        if (_items.Count == 0)
+        {
+            // 기본 아이템 장착(임시)
+            AddItemForce(ItemDataConstructor.GetItemData("ARM_001"));
+            AddItemForce(ItemDataConstructor.GetItemData("BPK_001"));
+
+            UseItem(0);
+            UseItem(1);
+        }
     }
 
     public bool CheckItemUsable(int index) => _items[index] is IUsableItem;

@@ -28,6 +28,18 @@ namespace DBUtility
                     itemData = new WeaponItemData(rawData, null);
                     break;
 
+                case "ARMOR":
+                    itemData = new ArmorItemData(rawData, null);
+                    break;
+
+                case "BACKPACK":
+                    itemData = new BackpackItemData(rawData, null);
+                    break;
+
+                case "SUBWEAPON":
+                    itemData = new SubWeaponItemData(rawData, null);
+                    break;
+
                 case "POTION":
                     itemData = new PotionItemData(rawData, null);
                     break;

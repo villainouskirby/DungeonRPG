@@ -9,6 +9,7 @@ public class InventoryItemSlotUI : ItemSlotUI
 {
     [SerializeField] private Image _slotBackground;
     [SerializeField] private GameObject[] _detailAbilityObjects;
+    [SerializeField] private TextMeshProUGUI[] _detailAbilityTexts;
     [SerializeField] private TextMeshProUGUI _tierText;
     [SerializeField] private TextMeshProUGUI _explanationText;
 
@@ -22,7 +23,6 @@ public class InventoryItemSlotUI : ItemSlotUI
     [SerializeField] private float _slideSpeed = 10;
     [SerializeField] private float _slideInterval = 0.1f;
 
-    private TextMeshProUGUI[] _detailAbilityTexts;
     private bool _isDetailOn = false;
 
     private float _viewportWidth;
@@ -33,13 +33,6 @@ public class InventoryItemSlotUI : ItemSlotUI
     private void Start()
     {
         _viewportWidth = _detailArea.sizeDelta.x;
-
-        _detailAbilityTexts = new TextMeshProUGUI[_detailAbilityObjects.Length];
-        
-        for (int i = 0; i < _detailAbilityTexts.Length; i++)
-        {
-            _detailAbilityTexts[i] = _detailAbilityObjects[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        }
     }
 
     public void SetItemDetail(ItemData data)

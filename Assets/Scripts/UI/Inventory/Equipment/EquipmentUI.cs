@@ -47,7 +47,11 @@ public class EquipmentUI : SlotInteractHandler
 
     public override void OnDoubleClick()
     {
-        _equipment.UnEquip(GetSlotEquipmentType(_pointedSlot as EquipmentSlotUI));
+        Equipment.EquipmentType type = GetSlotEquipmentType(_pointedSlot as EquipmentSlotUI);
+
+        if (type == Equipment.EquipmentType.Armor || type == Equipment.EquipmentType.Backpack) return;
+
+        _equipment.UnEquip(type);
     }
 
     public override void OnLeftClick()

@@ -9,7 +9,7 @@ public class BackpackItemData : EquipmentItemData
 
     public BackpackItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {
-        Array.Find(Item_Info.Backpack, backpack => backpack.id == info.id);
+        _backpackInfo = Array.Find(Item_Info.Backpack, backpack => backpack.id == info.id);
 
         _equipmentType = Equipment.EquipmentType.Backpack;
     }
