@@ -60,8 +60,9 @@ public class QuickSlot : UIBase
         }*/
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         gameObject.SetActive(false);
     }
 

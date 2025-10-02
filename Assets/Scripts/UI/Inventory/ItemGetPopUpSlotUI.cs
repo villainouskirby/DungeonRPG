@@ -15,6 +15,7 @@ public class ItemGetPopUpSlotUI : SlotUI
     [Tooltip("아이템 개수")]
     [SerializeField] private TextMeshProUGUI _amountText;
 
+    private Image _outerImage;
     private RectTransform _rect;
 
     private bool _isOpen = false;
@@ -27,8 +28,8 @@ public class ItemGetPopUpSlotUI : SlotUI
 
     public void InitSlotUI()
     {
+        _outerImage = GetComponent<Image>();
         _rect = GetComponent<RectTransform>();
-        _image = GetComponent<Image>();
         gameObject.SetActive(false);
     }
 
@@ -46,18 +47,13 @@ public class ItemGetPopUpSlotUI : SlotUI
             _rect = GetComponent<RectTransform>();
         }
 
-        if(_image == null)
-        {
-            _image = GetComponent<Image>();
-        }
-
         Vector2 destPos = Vector2.down * contentPosY;
         Vector2 startPos = destPos + Vector2.right *_rect.sizeDelta.x;
         _rect.anchoredPosition = startPos;
 
-        Color color = _image.color;
+        Color color = _outerImage.color;
         color.a = 1;
-        _image.color = color;
+        _outerImage.color = color;
         gameObject.SetActive(true);
         _isOpen = true;
 
@@ -103,9 +99,9 @@ public class ItemGetPopUpSlotUI : SlotUI
         while ((dTime = (Time.time - startTime) / 0.1f) < 1)
         {
             _rect.anchoredPosition = Vector2.Lerp(startPos, destPos, dTime);
-            Color color = _image.color;
+            Color color = _outerImage.color;
             color.a = 1 - dTime;
-            _image.color = color;
+            _outerImage.color = color;
 
             await UniTask.NextFrame(cancellationToken: token);
         }

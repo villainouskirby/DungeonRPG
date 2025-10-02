@@ -88,6 +88,8 @@ public class ItemGetPopUpUI : MonoBehaviour
 
                     await UniTask.NextFrame(cancellationToken: _cts.Token);
                 }
+
+                _content.anchoredPosition = Vector2.up * destPosY;
             }
 
             var slot = _popUpSlotStack.Pop();
