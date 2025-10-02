@@ -144,7 +144,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a9f84881abde25b48904c0ff67bca145, type: 2}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -278,15 +278,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bd11f81db6dcc6478479b0cf27f6e24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stateIndicator: {fileID: 0}
+  animationHub: {fileID: 0}
+  alertSR: {fileID: 0}
   data: {fileID: 11400000, guid: b9da2fb80d284914f95c1e4f48bd03fb, type: 2}
-  spawner: {fileID: 0}
+  spawner: {x: 0, y: 0, z: 0}
   obstacleMask:
     serializedVersion: 2
     m_Bits: 128
   monster_Id: MST_BTL
   mdata:
     Monster_id: 
-    Monster_name: 
     Monster_rank: 0
     Monster_atk: 0
     Monster_hp: 0

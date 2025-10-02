@@ -49,6 +49,29 @@ public class MapManager : MonoBehaviour, ITileMapBase
 
         if (_wallDataPoolBuffer != null)
             _wallDataPoolBuffer.Dispose();
+
+        PlayerMoveChecker.Instance.AddMoveAction(CheckPlayerBlock);
+    }
+
+    public void CheckPlayerBlock(Vector2Int pos)
+    {
+        Vector2Int upPos = pos + new Vector2Int(0, 1);
+        bool isBlock = false;
+        for (int i = 0; i < DL.Instance.All.LayerCount; i++)
+        {
+            if (!_controller[i].gameObject.activeSelf || DL.Instance.All.TileMapLayerInfo[i].LayerIndex < 4)
+                continue;
+            if (CM.Instance.GetTile(pos, i) != 0)
+            {
+                isBlock = true;
+                break;
+            }
+        }
+        if (isBlock)
+            Shader.SetGlobalFloat("_PlayerBlock", 1);
+        else
+            Shader.SetGlobalFloat("_PlayerBlock", 0);
+        Debug.Log(isBlock);
     }
 
     public void ChangeMapping()
@@ -80,7 +103,7 @@ public class MapManager : MonoBehaviour, ITileMapBase
             _controller[i] =
             Instantiate(TileMapPrefab, TM.Instance.LayerRoot.transform, false).GetComponent<TileMapController>();
             SetDataBuffer(ref _layerBuffer[i], i);
-            _controller[i].InitTileMap(_layerBuffer[i], i);
+            _controller[i].InitTileMap(_layerBuffer[i], i, DL.Instance.All.TileMapLayerInfo[i].LayerIndex);
             SpriteRenderer rd = _controller[i].GetComponent<SpriteRenderer>();
             rd.sortingOrder = DL.Instance.All.TileMapLayerInfo[i].LayerIndex;
             _controller[i].transform.position = new(0, 0, DL.Instance.All.TileMapLayerInfo[i].Z);
