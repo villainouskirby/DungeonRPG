@@ -105,6 +105,7 @@ public sealed class CleanerAnimationPlayer : AnimationPlayerBase
             case MonsterStateTag.CombatMove:
             case MonsterStateTag.CombatAttack:
             case MonsterStateTag.Flee: return runKey;
+            case MonsterStateTag.Hide: return runKey;
             default: return null;
         }
     }

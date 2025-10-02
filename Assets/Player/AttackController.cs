@@ -18,9 +18,13 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // Overlap 결과 재사용 버퍼(필요시 늘려도 됨)
     static readonly Collider2D[] _overlapHits = new Collider2D[64];
 
+    [Header("콤보 입력 허용 창(1타 종료 기준)")]
+    [SerializeField, Min(0f)] private float comboWindowBefore = 0.50f; // 종료 0.5초 전부터
+    [SerializeField, Min(0f)] private float comboWindowAfter = 0.10f; // 종료 0.1초 후까지
+    [SerializeField] private bool useStrictComboWindow = true;          // 창 밖 입력은 무시
     [Header("약공격 설정")]
     [SerializeField] private float baseDamage = 10f;     // 플레이어 기본 공격력
-    private float comboBuffer = 0.5f;   // 콤보 버퍼시간
+    [SerializeField] private float comboBuffer = 0.5f;   // 콤보 버퍼시간
     [SerializeField] private float[] comboRate = { 0.7f, 1.3f }; // 1 타, 2 타 배율
     [SerializeField] private float combo1cost = 4f;
     [SerializeField] private float combo2cost = 6f;
@@ -183,6 +187,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     #endregion
         // 공격 입력
     private bool comboQueued = false;    // 후딜 중 눌린 입력 버퍼
+    private float comboQueuedAt = -999f;
     private bool attackLocked = false;
     public void LockAttack()
     {
@@ -236,6 +241,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
                 if (now <= nextAttackReady && now >= nextAttackReady - comboBuffer)
                 {
                     comboQueued = true;
+                    comboQueuedAt = now;
                 }
                 else
                 {
@@ -257,8 +263,17 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float now = Time.time;
         if (now < nextAttackReady) return;
 
-        bool within = (now >= nextAttackReady) && (now <= nextAttackReady + comboInputTime);
-
+        bool within = false;
+        if (useStrictComboWindow && comboQueuedAt > -1f)
+        {
+            float endT = nextAttackReady;
+            within = (comboQueuedAt >= endT - comboWindowBefore) &&
+                     (comboQueuedAt <= endT + comboWindowAfter);
+        }
+        else
+        {
+            within = (now >= nextAttackReady) && (now <= nextAttackReady + comboInputTime);
+        }
         comboStep = within ? (comboStep == 1 ? 2 : 1) : 1;
 
 
@@ -294,6 +309,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float postDelay = Mathf.Max(0f, afterDelay[Mathf.Clamp(step - 1, 0, afterDelay.Length - 1)]);
         float totalCast = playLen + postDelay;
 
+        nextAttackReady = Time.time + totalCast;
         pc.ChangeState(new NormalAttackState(pc, totalCast));
         anim.Play(clip, 0, 0f);
 
@@ -336,20 +352,33 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         if (!string.IsNullOrEmpty(idleClip))
             anim.CrossFade(idleClip, 0.05f);
 
-        nextAttackReady = Time.time + postDelay;
         if (postDelay > 0f) yield return new WaitForSeconds(postDelay);
 
         
         anim.SetFloat(HashAttackSpeed, 1f);
 
-        if (step == 1 && comboQueued && Time.time <= nextAttackReady + comboInputTime)
+        if (step == 1 && comboQueued)
         {
             comboQueued = false;
-            isAttacking = false;
-            DoQuickComboAttack();
-            yield break;
+
+            bool allow = true;
+
+            if (useStrictComboWindow)
+            {
+                float endT = nextAttackReady;                       // 1타 종료 시각
+                float winMin = endT - comboWindowBefore;              // 허용 구간 시작
+                float winMax = endT + comboWindowAfter;               // 허용 구간 끝
+                allow = (comboQueuedAt >= winMin && comboQueuedAt <= winMax);
+            }
+
+            if (allow)
+            {
+                isAttacking = false;
+                DoQuickComboAttack(); // 여기서 2타로 진입
+                yield break;
+            }
         }
-        
+
         isAttacking = false;
     }
 

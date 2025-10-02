@@ -88,6 +88,7 @@ public class TileMapLayerData
 public class TileMapLayerInfo
 {
     public int LayerIndex;
+    public bool LayerOrder;
     public int[] WallTileIndex;
     public float Z;
 }

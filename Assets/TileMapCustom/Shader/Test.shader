@@ -29,7 +29,7 @@ Shader "Tilemap/LitTilemap"
 
         Blend SrcAlpha OneMinusSrcAlpha, One OneMinusSrcAlpha
         Cull Off
-        ZWrite Off
+        ZWrite On
 
         Pass
         {
@@ -87,6 +87,7 @@ Shader "Tilemap/LitTilemap"
             float _HeightStrength;
             float _LayerIndex;
             float _HeightWallActive;
+            float _LayerOrder;
 
             /// TileMap
             // Global
@@ -102,6 +103,7 @@ Shader "Tilemap/LitTilemap"
             float _TileSize;
             float4 _DefaultColor;
             float _PlayerHeight;
+            float _PlayerBlock;
 
             // Matching TileType Texture - _TileTexture[TileType]
             Texture2DArray _TileTexture;
@@ -187,8 +189,8 @@ Shader "Tilemap/LitTilemap"
                 int localChunkIndex = PosToIndex(localChunkPos, _ViewChunkSize);
                 int localChunkOffset = _MappingBuffer[localChunkIndex];
 
-                int2 distance = abs(_PlayerPos - i.worldPos);
-                int maxDistance = max(distance.x, distance.y);
+                int2 posDistance = abs(_PlayerPos - i.worldPos);
+                int maxDistance = max(posDistance.x, posDistance.y);
                 
                 float validCoord = step(maxDistance, _ViewBoxSize);
 
@@ -266,9 +268,21 @@ Shader "Tilemap/LitTilemap"
                 SurfaceData2D surfaceData;
                 InputData2D inputData;
 
+                float4 lightedColor;
                 InitializeSurfaceData(fogedColor.rgb, main.a, mask, surfaceData);
                 InitializeInputData(i.uv, i.lightingUV, inputData);
-                float4 lightedColor = CombinedShapeLightShared(surfaceData, inputData);
+                lightedColor = CombinedShapeLightShared(surfaceData, inputData);
+
+                /*
+                if (_IsCeiling == 1)
+                {
+                    InitializeSurfaceData(float3(1,1,1), 1, 1, surfaceData);
+                    InitializeInputData(i.uv, i.lightingUV, inputData);
+                    float4 lightOnly = CombinedShapeLightShared(surfaceData, inputData);
+                    float3 finalRGB = fogedColor.rgb * lightOnly.rgb;
+                    lightedColor = float4(finalRGB, lightedColor.a);
+                }
+                */
                 
                 //fogedColor = _LayerIndex;
                 float4 resultColor = lerp(lightedColor, float4(0, 0, 0, 1), heightFog * 0.3);
@@ -277,12 +291,27 @@ Shader "Tilemap/LitTilemap"
                 wallStartDistance = wallStartDistance * 0.5f;
                 float wallAble = clamp(wallStartDistance, 0, 1);
                 wallAble = wallAble * isWall;
-                resultColor = lerp(resultColor, float4(0, 0, 0, 1), wallAble);
+                resultColor = lerp(resultColor, float4(0, 0, 0, 1), wallAble * 0.7);
 
                 //return lightedColor;
                 //return float4(heightFog * 0.1, heightFog * 0.1, 0, 1);
                 //return lerp(float4(0, 0, 0, 0), float4(heightFog * 0.1, heightFog * 0.1, 0, 1), valid);
                 //return lerp(float4(0, 0, 0, 0), float4(height * 0.1, height * 0.1, 0, 1), valid);
+                float2 playerOffset = float2(0, 0.65);
+                UNITY_BRANCH
+                if (_LayerOrder > 4 && _PlayerBlock == 1)
+                {
+                    if (isWall)
+                    {
+                        if (_PlayerPos.y - wallData.w > 0)
+                        if (distance(i.worldPos.xy, _PlayerPos.xy + playerOffset) < 1.3)
+                            return float4(0, 0, 0, 0);
+                    }
+                    else
+                        if (distance(i.worldPos.xy, _PlayerPos.xy + playerOffset) < 1.3)
+                            return float4(0, 0, 0, 0);
+                }
+
                 return lerp(_DefaultColor, resultColor, valid);
             }
             ENDHLSL
