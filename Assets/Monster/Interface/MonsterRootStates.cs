@@ -28,7 +28,6 @@ public sealed class MonsterIdleState : IMonsterState
         }
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
-        ctx.anim.Play("Idle");
         restTimer = UnityEngine.Random.Range(0.5f, 2f);
         detectGate = 0f;
         returnGate = 0f;
@@ -49,7 +48,6 @@ public sealed class MonsterIdleState : IMonsterState
 
         ctx.agent.speed = ctx.data.detectSpeed;
         ctx.agent.SetDestination(dest);
-        ctx.anim.Play("Walk");
 
         machine.ChangeState(new MonsterWanderState(ctx, machine));
     }

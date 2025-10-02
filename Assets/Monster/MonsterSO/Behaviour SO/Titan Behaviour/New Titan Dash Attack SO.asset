@@ -12,21 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f754803dd1317564d9257e691273297b, type: 3}
   m_Name: New Titan Dash Attack SO
   m_EditorClassIdentifier: 
+  arriveThreshold: 0.15
+  overshootDistance: 4
   windup: 1
-  recover: 1.5
+  recover: 3
   dashSpeed: 15
-  dashDistance: 15
-  maxDashSeconds: 1.5
-  bodyRadius: 0.3
-  skin: 0.02
+  maxDashSeconds: 3
   damage: 30
   hitRadius: 1
-  obstacleMaskOverride:
-    serializedVersion: 2
-    m_Bits: 512
   hitMask:
     serializedVersion: 2
     m_Bits: 512
   hitTriggersOnly: 0
+  sampleRadius: 1.5
+  rayStep: 0.25
   repeatDashPercent: 80
   reattachRadius: 2

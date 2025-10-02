@@ -111,6 +111,7 @@ public class BettleAnimationPlayer : AnimationPlayerBase
             case MonsterStateTag.CombatAttack:
             case MonsterStateTag.Flee: return detectKey;
             case MonsterStateTag.Hide: return hideKey;
+            case MonsterStateTag.Killed: return hideKey;
             default: return null;
         }
     }
