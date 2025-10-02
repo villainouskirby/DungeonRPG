@@ -15,6 +15,14 @@ public class TextPrinter : MonoBehaviour
 
     private CancellationTokenSource _cts;
 
+    private void OnDisable()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+        _isPrintingText = false;
+    }
+
     public void InitTMP(TextMeshProUGUI targetTMP)
     {
         _targetTMP = targetTMP;
@@ -27,11 +35,10 @@ public class TextPrinter : MonoBehaviour
     /// </summary>
     public bool CheckIsPrinting()
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
-
         if (_isPrintingText)
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
             _targetTMP.text = _text;
             _isPrintingText = false;
             return true;
@@ -45,6 +52,8 @@ public class TextPrinter : MonoBehaviour
         _cts = new CancellationTokenSource();
         _text = text;
 
+        _targetTMP.text = "";
+
         _isPrintingText = true;
 
         try
@@ -52,14 +61,18 @@ public class TextPrinter : MonoBehaviour
             for (int i = 0; i < _text.Length; i++)
             {
                 _targetTMP.text += _text[i];
-                await UniTask.Delay(_delayTime);
+                await UniTask.Delay(_delayTime, cancellationToken: _cts.Token);
             }
         }
         catch (OperationCanceledException)
         {
 
         }
-
-        _isPrintingText = false;
+        finally
+        {
+            _isPrintingText = false;
+            _cts?.Dispose();
+            _cts = null;
+        }
     }
 }

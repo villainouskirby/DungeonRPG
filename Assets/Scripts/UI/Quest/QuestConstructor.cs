@@ -32,7 +32,16 @@ namespace DBUtility
 
         public static QuestInfo GetQuestInfo(string id)
         {
-            return GetQuestInfo(Array.Find(Quest_Info.Quest, info => info.id == id));
+            var info = GetRawQuestInfo(id);
+
+            if (info == null) return null;
+
+            return GetQuestInfo(info);
+        }
+
+        public static Quest_Info_Quest GetRawQuestInfo(string id)
+        {
+            return Array.Find(Quest_Info.Quest, info => info.id == id);
         }
 
         private static Mission GetMission(string id)

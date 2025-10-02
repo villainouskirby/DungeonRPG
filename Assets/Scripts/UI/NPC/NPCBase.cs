@@ -1,6 +1,7 @@
 using UnityEngine;
 using Events;
 using System.Collections.Generic;
+using DBUtility;
 
 public class NPCBase<T> : UIBase, ISave where T : UIBase
 {
@@ -43,7 +44,20 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
 
         if (_questID.TryPeek(out var id))
         {
-            runner.StartPrint(UIPopUpHandler.Instance.GetScript<Quest>().GetQuestInfo(id).Info.start_text).Forget();
+            var quest = UIPopUpHandler.Instance.GetScript<Quest>();
+            var info = quest.GetQuestInfo(id);
+            string dialogueID;
+            
+            if (info == null)
+            {
+                dialogueID = QuestConstructor.GetRawQuestInfo(id).start_text;
+            }
+            else
+            {
+                dialogueID = info.Info.start_text + "-ing";
+            }
+
+            runner.StartPrint(dialogueID).Forget();
             _isQuestClear = false;
         }
         else

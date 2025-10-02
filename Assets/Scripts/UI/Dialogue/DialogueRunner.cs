@@ -30,7 +30,7 @@ public class DialogueRunner : UIBase
 
     private bool _isDialogueRunning = false;
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
         _buttons.SetActive(false);
     }
@@ -100,7 +100,7 @@ public class DialogueRunner : UIBase
 
     private void Update()
     {
-        if (_isDialogueRunning && Input.GetMouseButton(0))
+        if (_isDialogueRunning && Input.GetMouseButtonUp(0))
         {
             TryPrint();
         }
@@ -166,7 +166,11 @@ public class DialogueRunner : UIBase
 
     private void AddNewQuest(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<Quest>().AddQuest(QuestConstructor.GetQuestInfo(endEvent.Value));
+        var info = QuestConstructor.GetQuestInfo(endEvent.Value);
+
+        if (info == null) return;
+
+        UIPopUpHandler.Instance.GetScript<Quest>().AddQuest(info);
     }
 
     private void UnlockQuest(DialogueEndEvent endEvent)
@@ -174,6 +178,9 @@ public class DialogueRunner : UIBase
         using (var args = QuestUnlockedEventArgs.Get())
         {
             var info = Array.Find(Quest_Info.Quest, quest => quest.id == endEvent.Value);
+
+            if (info == null) return;
+
             args.Init(info.name, info.id);
             EventManager.Instance.QuestUnlockedEvent.Invoke(args);
             args.Release();
