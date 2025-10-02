@@ -21,10 +21,10 @@ public class IT_NpcFunc : MonoBehaviour
 
         switch (_npcName) // 대충 UI Open하는 코드 추가 작성
         {
-            case NPC.A:
+            case NPC.Smith:
                 gameObject.GetComponent<SpriteRenderer>().color = Color.red;
                 break;
-            case NPC.B:
+            case NPC.Shop:
                 gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
                 break;
             case NPC.C:
@@ -60,14 +60,14 @@ public class IT_NpcFunc : MonoBehaviour
         {
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {
-                case NPC.A:
-                    UIPopUpHandler.Instance.OpenUI<Smith>();
+                case NPC.Smith:
+                    UIPopUpHandler.Instance.GetScript<Smith>().StartTalk();
                     break;
-                case NPC.B:
-                    UIPopUpHandler.Instance.OpenUI<Shop>();
+                case NPC.Shop:
+                    UIPopUpHandler.Instance.GetScript<Shop>().StartTalk();
                     break;
                 case NPC.C:
-                    UIPopUpHandler.Instance.OpenUI<Quest>();
+                    UIPopUpHandler.Instance.GetScript<Quest>();
                     break;
             }
         }

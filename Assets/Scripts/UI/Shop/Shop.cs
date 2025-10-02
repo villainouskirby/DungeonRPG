@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shop : UIBase
+public class Shop : NPCBase<Shop>
 {
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ShopUI _shopUI;
@@ -22,7 +22,7 @@ public class Shop : UIBase
         _inventory.OnInventoryChanged += UpdateSlot;
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
         _inventory.OnInventoryChanged -= UpdateSlot;
     }

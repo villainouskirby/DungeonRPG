@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Smith : UIBase
+public class Smith : NPCBase<Smith>
 {
     [Header("Smith UI")]
     [SerializeField] private SmithUI _smithUI;
