@@ -12,6 +12,10 @@ public abstract class EquipmentItem : Item, ISyncUsableItem
 
     public bool UseSync() { return true; }
 
-    public UniTask<bool> Use() => UniTask.FromResult(UseSync());
+    public UniTask<bool> Use()
+    {
+        if (IsEquipped) return UniTask.FromResult(false);
 
+        return UniTask.FromResult(UseSync());
+    }
 }

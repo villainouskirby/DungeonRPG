@@ -9,7 +9,7 @@ public class SubWeaponItemData : BattleEquipmentItemData
 
     public SubWeaponItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
     {
-        Array.Find(Item_Info.SubWeapon, subWeapon => subWeapon.id == info.id);
+        _subWeaponInfo = Array.Find(Item_Info.SubWeapon, subWeapon => subWeapon.id == info.id);
 
         _equipmentType = Equipment.EquipmentType.SubWeapon;
     }

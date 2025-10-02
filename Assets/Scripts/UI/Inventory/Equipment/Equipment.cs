@@ -75,7 +75,7 @@ public class Equipment : UIBase, ISave
         switch (type)
         {
             case EquipmentType.Weapon:
-                _attackSO.Value = sign * (data as WeaponItemData).WeaponInfo.atk;
+                _attackSO.Value += sign * (data as WeaponItemData).WeaponInfo.atk;
                 break;
 
             case EquipmentType.SubWeapon:
@@ -83,15 +83,15 @@ public class Equipment : UIBase, ISave
 
             case EquipmentType.Armor:
                 Item_Info_Armor armorInfo = (data as ArmorItemData).ArmorInfo;
-                _hpSO.Value = sign * armorInfo.hp;
-                _staminaSO.Value = sign * armorInfo.stamina;
-                _speedSO.Value = sign * armorInfo.speed;
+                _hpSO.Value += sign * armorInfo.hp;
+                _staminaSO.Value += sign * armorInfo.stamina;
+                _speedSO.Value += sign * armorInfo.speed;
                 break;
 
             case EquipmentType.Backpack:
                 Item_Info_Backpack backpackInfo = (data as BackpackItemData).BackpackInfo;
                 _inventory.ChangeMaxCapacity(backpackInfo.max_weight);
-                _speedSO.Value *= backpackInfo.speed;
+                _speedSO.Value += sign * backpackInfo.speed;
                 break;
         }
 

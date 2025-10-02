@@ -233,6 +233,8 @@ public class InventoryUI : SlotInteractHandler
     /// <summary> 아이템 획득시 팝업될 아이템 큐에 추가 </summary>
     public void AddItemPopUpQueue(ItemData itemData, int amount = 1)
     {
+        if (_itemGetPopUpUI == null) return;
+
         _itemGetPopUpUI.AddItemPopUpQueue(itemData, amount);
     }
 

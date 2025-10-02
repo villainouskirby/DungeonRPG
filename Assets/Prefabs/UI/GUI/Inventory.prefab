@@ -1931,10 +1931,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _equipmentUI: {fileID: 3410500581822875836}
   _inventory: {fileID: 1302917273968783864}
-  _hpSO: {fileID: 0}
-  _staminaSO: {fileID: 0}
-  _attackSO: {fileID: 0}
-  _speedSO: {fileID: 0}
+  _hpSO: {fileID: 11400000, guid: 301677ac4aa6d604c812e14f50d08f0e, type: 2}
+  _staminaSO: {fileID: 11400000, guid: fb96c9f1fc6cf0943921f0c12ef767b6, type: 2}
+  _attackSO: {fileID: 11400000, guid: 46cae976488384948b82d1d33b553e4e, type: 2}
+  _speedSO: {fileID: 11400000, guid: 1908df05f23267a4695fbd5ca1dbc9c4, type: 2}
 --- !u!114 &3410500581822875836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1951,9 +1951,9 @@ MonoBehaviour:
   _equipmentPopUpUI: {fileID: 6149116132138600138}
   _equipmentEffectUI: {fileID: 5720133665695443303}
   _weaponSlot: {fileID: 5119963390896070770}
-  _subWeaponSlot: {fileID: 0}
-  _ArmorSlot: {fileID: 0}
-  _backpackSlot: {fileID: 0}
+  _subWeaponSlot: {fileID: 5762524806271071395}
+  _ArmorSlot: {fileID: 6385622446689005604}
+  _backpackSlot: {fileID: 6917249882794893299}
 --- !u!114 &6149116132138600138
 MonoBehaviour:
   m_ObjectHideFlags: 0
