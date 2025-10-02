@@ -1,9 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Tutorial;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using static UnityEditor.Searcher.SearcherWindow.Alignment;
+using static UnityEngine.GraphicsBuffer;
 
 [System.Serializable]
 public class EventArea : MonoBehaviour
@@ -21,7 +26,7 @@ public class EventArea : MonoBehaviour
     {
         if (collider.CompareTag("Player"))
         {
-            InEvent();
+            InEvent(collider);
         }
     }
 
@@ -29,7 +34,7 @@ public class EventArea : MonoBehaviour
     {
         if (collider.CompareTag("Player"))
         {
-            OutEvent();
+            OutEvent(collider);
         }
     }
 
@@ -41,7 +46,7 @@ public class EventArea : MonoBehaviour
         transform.position = new(Data.Pos.x, Data.Pos.y, 0);
     }
 
-    private void InEvent()
+    private void InEvent(Collider2D collider)
     {
         switch (Data.Type)
         {
@@ -54,10 +59,19 @@ public class EventArea : MonoBehaviour
             case EventAreaType.OnOffLayer:
                 OnOffLayer_In();
                 break;
+            case EventAreaType.OnOffSmoothLayer:
+                OnOffSmoothLayer_In(collider);
+                break;
+            case EventAreaType.ChangeGroundLayer:
+                ChangeGroundLayer_In();
+                break;
+            case EventAreaType.ChangePlayerLight:
+                ChangePlayerLight_In();
+                break;
         }
     }
 
-    private void OutEvent()
+    private void OutEvent(Collider2D collider)
     {
         switch (Data.Type)
         {
@@ -67,6 +81,13 @@ public class EventArea : MonoBehaviour
                 ShowText_Out();
                 break;
             case EventAreaType.OnOffLayer:
+                break;
+            case EventAreaType.OnOffSmoothLayer:
+                OnOffSmoothLayer_Out(collider);
+                break;
+            case EventAreaType.ChangeGroundLayer:
+                break;
+            case EventAreaType.ChangePlayerLight:
                 break;
         }
     }
@@ -108,6 +129,87 @@ public class EventArea : MonoBehaviour
     {
         UIPopUpHandler.Instance.GetScript<KeyGuideUI>().CloseTutorial();
     }
+
+    public string DirectionString = "Up";
+
+    [Range(0, 1f)] public float process;   // 0~1 진행도(실시간)
+    Transform _target;
+    Coroutine _loop;
+    bool _vertical;
+    bool _forward;
+
+    public void OnOffSmoothLayer_In(Collider2D other)
+    {
+        Transform _target = other.transform;
+
+        string d = Data.param2;
+        if (d.Equals("Up", StringComparison.OrdinalIgnoreCase)) { _vertical = true; _forward = true; }
+        else if (d.Equals("Down", StringComparison.OrdinalIgnoreCase)) { _vertical = true; _forward = false; }
+        else if (d.Equals("Right", StringComparison.OrdinalIgnoreCase)) { _vertical = false; _forward = true; }
+        else if (d.Equals("Left", StringComparison.OrdinalIgnoreCase)) { _vertical = false; _forward = false; }
+
+        // 이전 루프 정리
+        if (_loop != null) { StopCoroutine(_loop); _loop = null; }
+
+        // --- 로컬 코루틴: 트리거 안에 있는 동안 매 프레임 진행도 계산 ---
+        IEnumerator Loop()
+        {
+            var myCol = GetComponent<Collider2D>();
+            if (myCol == null) yield break;
+
+            while (_target != null)
+            {
+                // 내 트리거의 AABB (축 정렬 바운즈) — 회전 트리거는 아래 주석 참고
+                Bounds b = myCol.bounds;
+
+                // 대상 월드 위치를 한 축으로 투영 (Up/Down→y축, Left/Right→x축)
+                Vector3 p = _target.position;
+                float v = _vertical ? p.y : p.x;
+
+                // 축 범위(min~max)에서 위치를 0~1로 매핑
+                float a = _vertical ? b.min.y : b.min.x;
+                float z = _vertical ? b.max.y : b.max.x;
+
+                // 규칙:
+                //  - Up/Right  : 아래/왼(0) → 위/오른(1)  => InverseLerp(a, z, v)
+                //  - Down/Left : 위/오른(0) → 아래/왼(1)  => InverseLerp(z, a, v)
+                float t = _forward ? Mathf.InverseLerp(a, z, v)
+                                   : Mathf.InverseLerp(z, a, v);
+
+                process = Mathf.Clamp01(t);
+
+                yield return null; // 프레임마다 갱신
+            }
+        }
+
+        _loop = StartCoroutine(Loop());
+    }
+
+    /// <summary>
+    /// 2D 트리거에서 "나갔을 때" 호출 (OnTriggerExit2D에서 호출)
+    /// </summary>
+    public void OnOffSmoothLayer_Out(Collider2D other)
+    {
+        if (_target == other.transform)
+        {
+            if (_loop != null) { StopCoroutine(_loop); _loop = null; }
+            _target = null;
+        }
+    }
+
+    private void ChangeGroundLayer_In()
+    {
+        int targetLayer = int.Parse(Data.param1);
+        if (targetLayer == HeightManager.Instance.GroundLayer)
+            return;
+        HeightManager.Instance.ChangeLayer(targetLayer);
+    }
+    private void ChangePlayerLight_In()
+    {
+        Light2D light = TileMapMaster.Instance.Player.transform.GetChild(2).GetComponent<Light2D>();
+        light.pointLightOuterRadius = int.Parse(Data.param1);
+        light.intensity = int.Parse(Data.param2);
+    }
 }
 
 [System.Serializable]
@@ -127,7 +229,10 @@ public class EventAreaData
 
 public enum EventAreaType
 {
-    ChangeLayer     = 0,
-    ShowText        = 1,
-    OnOffLayer      = 2,
+    ChangeLayer         = 0,
+    ShowText            = 1,
+    OnOffLayer          = 2,
+    OnOffSmoothLayer    = 3,
+    ChangeGroundLayer   = 4,
+    ChangePlayerLight   = 5,
 }

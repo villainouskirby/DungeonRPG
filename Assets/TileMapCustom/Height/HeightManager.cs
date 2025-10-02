@@ -12,6 +12,7 @@ public class HeightManager : MonoBehaviour, ITileMapBase
 
     public float PlayerHeight;
     public int CurrentLayer = 0;
+    public int GroundLayer = 0;
     public bool AutoHeight = true;
 
     public int Prime => (int)TileMapBasePrimeEnum.HeightManager;
@@ -34,7 +35,7 @@ public class HeightManager : MonoBehaviour, ITileMapBase
     {
         if (AutoHeight)
         {
-            PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, CurrentLayer);
+            PlayerHeight = ChunkManager.Instance.GetHeight(playerPos, GroundLayer);
             Shader.SetGlobalFloat("_PlayerHeight", PlayerHeight);
         }
     }

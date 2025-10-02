@@ -12,7 +12,7 @@ public class ContactOnCamera : MonoBehaviour
         TargetCamera = TileMapMaster.Instance.TargetCamera;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         Vector3 cameraPos = TargetCamera.transform.position;
         float distance = Mathf.Abs(cameraPos.z);

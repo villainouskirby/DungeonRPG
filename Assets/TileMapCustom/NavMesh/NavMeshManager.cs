@@ -89,6 +89,8 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
     {
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
+        if (DontUnLoadChunk.Contains(chunkPos))
+            return;
 
         _handleDic[chunkPos] = Addressables.LoadAssetAsync<NavMeshData>($"{_currentMapType.ToString()}_ChunkNavMesh_{chunkPos.x}_{chunkPos.y}");
 

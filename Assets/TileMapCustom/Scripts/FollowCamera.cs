@@ -11,7 +11,7 @@ public class FollowCamera : MonoBehaviour
         TargetCamera = TileMapMaster.Instance.TargetCamera;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         float z = transform.position.z;
         Vector3 cameraPos = TargetCamera.transform.position;
