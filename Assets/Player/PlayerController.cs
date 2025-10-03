@@ -330,6 +330,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 _ => "Sneak_side"
             };
         }
+        if (cur is GuardState)
+        {
+            clip = facingDir switch
+            {
+                0 => "Guard_back",
+                1 => "Guard_front",
+                _ => "Guard_side"
+            };
+        }
         anim.Play(clip);
     }
     
