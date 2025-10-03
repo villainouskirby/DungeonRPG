@@ -25,6 +25,11 @@ public class InventoryPopUpUI : ItemPopUpUI
         if (_menu == null) _menu = _menuPopUp.AddComponent<InventoryMenu>();
     }
 
+    public Item GetItem(int index)
+    {
+        return _inventoryUI.GetItem(index);
+    }
+
     public void OpenInfo(int index)
     {
         ItemData data = _inventoryUI.GetItemData(index);
@@ -39,7 +44,6 @@ public class InventoryPopUpUI : ItemPopUpUI
             base.OpenInfo(data);
         }
     }
-
     public void OpenMenu(int index)
     {
         _menuPopUp.SetActive(false);

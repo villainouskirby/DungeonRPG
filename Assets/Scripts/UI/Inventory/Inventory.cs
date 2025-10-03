@@ -97,6 +97,11 @@ public class Inventory : UIBase, ISave
 
     // -------------
 
+    protected void OnEnable()
+    {
+        UIPopUpHandler.Instance.GetScript<Palette>().SetPalette(0);
+    }
+
     protected override void Awake()
     {
         base.Awake();
@@ -342,8 +347,6 @@ public class Inventory : UIBase, ISave
             {
                 if (item is EquipmentItem ei)
                 {
-                    ei.IsEquipped = true;
-
                     // 해당 슬롯 UI 업데이트
                     _equipment.Equip(ei);
 
@@ -433,6 +436,13 @@ public class Inventory : UIBase, ISave
 
         _slotCountDict[GetItemTypeByIndex(index)]--;
         CalculateRestWeight(data.Info.weight, amount);
+
+        var item = _items[index];
+        if (item is EquipmentItem ei)
+        {
+            ei.OnEquippedChanged = null;
+        }
+
         _items.RemoveAt(index);
         UpdateWeightText();
 
@@ -481,7 +491,7 @@ public class Inventory : UIBase, ISave
 
         if (isNew)
         {
-            _inventoryUI.RegisterItemSlot(index, item.Data, type);
+            _inventoryUI.RegisterItemSlot(index, item, type);
         }
 
         if (item is CountableItem ci)

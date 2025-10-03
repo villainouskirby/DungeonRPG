@@ -20,6 +20,8 @@ public struct DialogueEndEvent
         Lose,               // 아이템 잃음
         AcceptQuest,        // 퀘스트 수주
         UnlockQuest,        // 퀘스트 해금
+        Palette,            // 팔레트 팝업 => value(bag, quest, map, book), amount(0 : 기본, 1 : 점, 2 : 빛)
+        Tutorial,           // 튜토리얼 팝업 => value(bag, quest, map, book)
         CloseDialogue       // 대화 종료
     }
 

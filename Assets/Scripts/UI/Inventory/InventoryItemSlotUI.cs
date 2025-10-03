@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class InventoryItemSlotUI : ItemSlotUI
 {
     [SerializeField] private Image _slotBackground;
+    [SerializeField] private GameObject _equippedImage;
     [SerializeField] private GameObject[] _detailAbilityObjects;
     [SerializeField] private TextMeshProUGUI[] _detailAbilityTexts;
     [SerializeField] private TextMeshProUGUI _tierText;
@@ -33,6 +34,11 @@ public class InventoryItemSlotUI : ItemSlotUI
     private void Start()
     {
         _viewportWidth = _detailArea.sizeDelta.x;
+    }
+
+    public void SetEquipped(bool isEquipped)
+    {
+        _equippedImage.SetActive(isEquipped);
     }
 
     public void SetItemDetail(ItemData data)

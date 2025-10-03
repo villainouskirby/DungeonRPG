@@ -8,6 +8,7 @@ using DBUtility;
 using Events;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using Tutorial;
 
 public class DialogueRunner : UIBase
 {
@@ -46,6 +47,8 @@ public class DialogueRunner : UIBase
         _eventDict[DialogueEndEvent.KeyName.Lose] = RemoveInventory;
         _eventDict[DialogueEndEvent.KeyName.AcceptQuest] = AddNewQuest;
         _eventDict[DialogueEndEvent.KeyName.UnlockQuest] = UnlockQuest;
+        _eventDict[DialogueEndEvent.KeyName.Palette] = PopUpPalette;
+        _eventDict[DialogueEndEvent.KeyName.Tutorial] = PopUpTutorial;
         _eventDict[DialogueEndEvent.KeyName.CloseDialogue] = (DialogueEndEvent endEvent) => gameObject.SetActive(false);
 
         _openUIButton.onClick.AddListener(OpenUI);
@@ -205,6 +208,54 @@ public class DialogueRunner : UIBase
             args.Init(info.name, info.id);
             EventManager.Instance.QuestUnlockedEvent.Invoke(args);
             args.Release();
+        }
+    }
+
+    private void PopUpPalette(DialogueEndEvent endEvent)
+    {
+        var palette = UIPopUpHandler.Instance.GetScript<Palette>();
+
+        switch (endEvent.Value)
+        {
+            case "bag":
+                palette.SetPalette(0, endEvent.Amount);
+                break;
+
+            case "quest":
+                palette.SetPalette(1, endEvent.Amount);
+                break;
+
+            case "map":
+                palette.SetPalette(2, endEvent.Amount);
+                break;
+
+            case "book":
+                palette.SetPalette(3, endEvent.Amount);
+                break;
+        }
+    }
+
+    private void PopUpTutorial(DialogueEndEvent endEvent)
+    {
+        var keyGuide = UIPopUpHandler.Instance.GetScript<KeyGuideUI>();
+
+        switch (endEvent.Value)
+        {
+            case "bag":
+
+                break;
+
+            case "quest":
+
+                break;
+
+            case "map":
+
+                break;
+
+            case "book":
+
+                break;
         }
     }
 }

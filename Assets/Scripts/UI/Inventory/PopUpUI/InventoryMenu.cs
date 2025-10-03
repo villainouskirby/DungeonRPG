@@ -54,22 +54,38 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void InitButton(int index)
     {
-        ItemData data = _inventoryUI.GetItemData(index);
-        _setToQuickSlotButton.interactable = _inventoryUI.CheckItemUsable(index);
-        _useButton.interactable = _inventoryUI.CheckItemUsable(index);
+        Item item = _inventoryUI.GetItem(index);
+
+        if (item is EquipmentItem ei)
+        {
+            _setToQuickSlotButton.interactable = !ei.IsEquipped;
+            _useButton.interactable = false;
+
+            _setToQuickSlotButton.onClick.AddListener(() =>
+            {
+                _inventoryUI.UseItem(index);
+                CloseUI();
+            });
+        }
+        else
+        {
+            _setToQuickSlotButton.interactable = _inventoryUI.CheckItemUsable(index);
+            _useButton.interactable = _inventoryUI.CheckItemUsable(index);
+
+            _useButton.onClick.AddListener(() =>
+            {
+                _inventoryUI.UseItem(index);
+                CloseUI();
+            });
+
+            _setToQuickSlotButton.onClick.AddListener(() =>
+            {
+                _inventoryUI.SetItemToQuickSlot(index);
+                CloseUI();
+            });
+        }
+
         _removeButton.interactable = true;
-
-        _setToQuickSlotButton.onClick.AddListener(() =>
-        {
-            _inventoryUI.SetItemToQuickSlot(index);
-            CloseUI();
-        });
-
-        _useButton.onClick.AddListener(() =>
-        {
-            _inventoryUI.UseItem(index);
-            CloseUI();
-        });
 
         _removeButton.onClick.AddListener(() =>
         {
