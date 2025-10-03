@@ -36,10 +36,13 @@ SpriteAtlas:
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys: []
+    packedSpriteRenderDataKeys:
+    - a86470a33a6bf42c4b3595704624658b: -2413806693520163455
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Circle
   m_RenderDataMap: {}
   m_Tag: Map2DecoAtlas
   m_IsVariant: 0

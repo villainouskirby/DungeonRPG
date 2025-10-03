@@ -259,8 +259,10 @@ public class EventArea : MonoBehaviour
     private void ChangePlayerLight_In()
     {
         Light2D light = TileMapMaster.Instance.Player.transform.GetChild(2).GetComponent<Light2D>();
-        light.pointLightOuterRadius = int.Parse(Data.param1);
-        light.intensity = int.Parse(Data.param2);
+        if (Data.param1.Trim() != "")
+            light.pointLightOuterRadius = int.Parse(Data.param1);
+        if (Data.param2.Trim() != "")
+            light.intensity = int.Parse(Data.param2);
     }
 }
 
