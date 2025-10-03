@@ -94,7 +94,7 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
         }
 
         /* 4) 후딜레이 */
-        ctx.anim.Play("ChargeRecover");
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         yield return new WaitForSeconds(recoverTime);
 
         ctx.agent.isStopped = false;
