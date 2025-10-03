@@ -121,8 +121,7 @@ public class EventArea : MonoBehaviour
     private void ShowText_In()
     {
         string text = Data.param1;
-        KeyGuideUI.GuideType type = (KeyGuideUI.GuideType)Enum.Parse(typeof(KeyGuideUI.GuideType), text);
-        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(type);
+        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(text);
     }
 
     private void ShowText_Out()

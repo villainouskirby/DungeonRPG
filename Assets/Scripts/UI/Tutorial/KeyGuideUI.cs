@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,10 @@ namespace Tutorial
             Dodge,
             Crouch,
             Sprint,
+            Bag,
+            Quest,
+            Map,
+            Tab
         }
 
         [SerializeField] private Sprite _wasdSprite;
@@ -20,6 +25,10 @@ namespace Tutorial
         [SerializeField] private Sprite _dodgeSprite;
         [SerializeField] private Sprite _crouchSprite;
         [SerializeField] private Sprite _sprintSprite;
+        [SerializeField] private Sprite _bagSprite;
+        [SerializeField] private Sprite _questSprite;
+        [SerializeField] private Sprite _mapSprite;
+        [SerializeField] private Sprite _tabSprite;
 
         private bool _isTutorialFinished = false;
 
@@ -42,8 +51,20 @@ namespace Tutorial
             _spritesDict[GuideType.Dodge] = _dodgeSprite;
             _spritesDict[GuideType.Crouch] = _crouchSprite;
             _spritesDict[GuideType.Sprint] = _sprintSprite;
+            _spritesDict[GuideType.Bag] = _bagSprite;
+            _spritesDict[GuideType.Quest] = _questSprite;
+            _spritesDict[GuideType.Map] = _mapSprite;
+            _spritesDict[GuideType.Tab] = _tabSprite;
 
             gameObject.SetActive(false);
+        }
+
+        public void OpenTutorial(string typeName)
+        {
+            if (Enum.TryParse(typeName, out GuideType type))
+            {
+                OpenTutorial(type);
+            }
         }
 
         public void OpenTutorial(GuideType type)
