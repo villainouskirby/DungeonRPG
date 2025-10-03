@@ -1,5 +1,6 @@
 using Unity.IO.LowLevel.Unsafe;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerChangeState
@@ -163,19 +164,18 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         _isDropping = true;
 
-        // 이동/공격 등 즉시 정지성 초기화
+        // 모든 이동 정지
         rb.velocity = Vector2.zero;
         attackController?.CancelAttackBufferOnEscape();
 
-        // 아래(Front) 바라보는 방향 고정 후 애니메이션 재생
-        SetFacingDirection(1); // 1=Down/Front
+        // 바라보는 방향 Front 고정 + 낙하 애니메이션 재생
+        SetFacingDirection(1);
         anim.CrossFade("Escape_front", 0.05f);
 
-        Vector2 start = rb.position;
-        Vector2 target = start + Vector2.down * Mathf.Abs(distance);
+        Vector3 start = transform.position;
+        Vector3 target = start + Vector3.down * Mathf.Abs(distance);
         float t = 0f;
 
-        // 낙하 중엔 상태를 Idle로 유지(특수 상태가 없다면) — 원하면 전용 DropState로 교체 가능
         if (GetCurrentState() is not IdleState)
             ChangeState(new IdleState(this));
 
@@ -184,23 +184,25 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             t += Time.deltaTime;
             float u = Mathf.Clamp01(t / duration);
 
-            // 간단한 ease-in(가속 느낌). 더 묵직하게 하고 싶으면 u*u*u 등으로 변경
+            // 간단한 ease-in 곡선 (더 묵직하게 하고 싶으면 u*u*u)
             float ease = u * u;
 
-            Vector2 pos = Vector2.Lerp(start, target, ease);
-            rb.MovePosition(pos);
+            // 절대 좌표 강제 세팅 → 충돌 무시
+            transform.position = Vector3.Lerp(start, target, ease);
 
             yield return null;
         }
 
-        rb.MovePosition(target);
-        rb.velocity = Vector2.zero;
+        // 착지 위치 고정
+        transform.position = target;
+
+        // 1프레임 멈춤
         yield return new WaitForSeconds(1f);
 
         _isDropping = false;
         _dropCo = null;
 
-        // 착지 후 정지 & Idle 복귀
+        // Idle 복귀
         rb.velocity = Vector2.zero;
         ChangeState(new IdleState(this));
     }
