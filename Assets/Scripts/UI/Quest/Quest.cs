@@ -13,10 +13,23 @@ public class Quest : UIBase
     protected override void InitBase()
     {
         UIPopUpHandler.Instance.RegisterUI(this);
+        EventManager.Instance.QuestCompleteEvent.AddListener(QuestClear);
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.QuestCompleteEvent.RemoveListener(QuestClear);
     }
 
     public void AddQuest(QuestInfo info)
     {
+        using (var args = QuestAllocateEventArgs.Get())
+        {
+            args.Init(info.Info.id, info.Info.targetNPC);
+            EventManager.Instance.QuestAllocateEvent.Invoke(args);
+            args.Release();
+        }
+
         _questInfos.Add(info);
         UpdateSlot(_questInfos.Count - 1);
     }
@@ -83,8 +96,8 @@ public class Quest : UIBase
         RemoveQuest(index);
     }
     
-    public void QuestClear(string id)
+    public void QuestClear(QuestCompleteEventArgs args)
     {
-        QuestClear(_questInfos.FindIndex(info => info.Info.id == id));
+        QuestClear(_questInfos.FindIndex(info => info.Info.id == args.QuestID));
     }
 }

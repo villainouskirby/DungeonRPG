@@ -24,8 +24,6 @@ public class PotionItem : CountableItem, IUsableItem
             args.Release();
         }
 
-        UIPopUpHandler.Instance.GetScript<Inventory>().AddItemForce(ItemDataConstructor.GetItemData("POT_001"));
-
         var result = await PotionManager.Instance.GetPotionID(Data);
 
         switch (result)
@@ -35,10 +33,12 @@ public class PotionItem : CountableItem, IUsableItem
                 return false;
 
             case PotionUseResult.Completed:
+                UIPopUpHandler.Instance.GetScript<Inventory>().AddItemForce(ItemDataConstructor.GetItemData("POT_001"));
                 Amount--;               // 정상 종료 → 소모
                 return true;
 
             case PotionUseResult.Cancelled:
+                UIPopUpHandler.Instance.GetScript<Inventory>().AddItemForce(ItemDataConstructor.GetItemData("POT_001"));
                 Amount--;               // 회피/피격으로 중간 취소 → 소모
                 return false;
         }
