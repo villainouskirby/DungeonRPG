@@ -205,6 +205,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             comboQueued = false;
             return;
         }
+        if (pc._isDropping)
+        {
+            pc.rb.velocity = Vector2.zero;
+            return;
+        }
         if (pc != null && (pc.EscapeActive || pc.GetCurrentState() is PotionConsumeState))
         {
             pressActive = false;      // 누르고 있던 프레스도 취소
