@@ -13,6 +13,10 @@ public  class Quest_Info_Quest
     /// </summary>
     public string npc;
     /// <summary>
+    /// 퀘스트 완료 NPC
+    /// </summary>
+    public string targetNPC;
+    /// <summary>
     /// 퀘스트 이름
     /// </summary>
     public string name;

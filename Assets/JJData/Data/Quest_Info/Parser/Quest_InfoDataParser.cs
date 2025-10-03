@@ -122,6 +122,10 @@ public static class Quest_InfoDataParser
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
+            sheetRowData.targetNPC = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
             sheetRowData.name = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
