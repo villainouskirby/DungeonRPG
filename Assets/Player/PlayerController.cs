@@ -1,5 +1,6 @@
 using Unity.IO.LowLevel.Unsafe;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerChangeState
@@ -149,6 +150,63 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         _hitBlinkCo = null;
     }
     #endregion
+    #region 낙하 로직
+    public bool _isDropping = false;
+    Coroutine _dropCo;
+    public void StartDrop(float distance = 6f, float duration = 0.6f)
+    {
+        if (_isDropping) return;
+        if (_dropCo != null) StopCoroutine(_dropCo);
+        _dropCo = StartCoroutine(DropRoutine(distance, duration));
+    }
+
+    private IEnumerator DropRoutine(float distance, float duration)
+    {
+        _isDropping = true;
+
+        // 모든 이동 정지
+        rb.velocity = Vector2.zero;
+        attackController?.CancelAttackBufferOnEscape();
+
+        // 바라보는 방향 Front 고정 + 낙하 애니메이션 재생
+        SetFacingDirection(1);
+        anim.CrossFade("Escape_front", 0.05f);
+
+        Vector3 start = transform.position;
+        Vector3 target = start + Vector3.down * Mathf.Abs(distance);
+        float t = 0f;
+
+        if (GetCurrentState() is not IdleState)
+            ChangeState(new IdleState(this));
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float u = Mathf.Clamp01(t / duration);
+
+            // 간단한 ease-in 곡선 (더 묵직하게 하고 싶으면 u*u*u)
+            float ease = u * u;
+
+            // 절대 좌표 강제 세팅 → 충돌 무시
+            transform.position = Vector3.Lerp(start, target, ease);
+
+            yield return null;
+        }
+
+        // 착지 위치 고정
+        transform.position = target;
+
+        // 1프레임 멈춤
+        yield return new WaitForSeconds(1f);
+
+        _isDropping = false;
+        _dropCo = null;
+
+        // Idle 복귀
+        rb.velocity = Vector2.zero;
+        ChangeState(new IdleState(this));
+    }
+    #endregion
     public bool EscapeActive => escPhase != EscapePhase.None;
 
     private bool stateLocked = false; // 외부(포션 등) 잠금
@@ -184,6 +242,9 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         UpdateByState();
         if (EscapeActive) UpdateEscape();
 
+        if (Input.GetKeyDown(KeyCode.R))
+            StartDrop(6f, 0.6f);
+
         //강제정지
         float hx = Input.GetAxisRaw("Horizontal");
         float hy = Input.GetAxisRaw("Vertical");
@@ -198,6 +259,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     void FixedUpdate()
     {
         if (UIPopUpHandler.Instance.IsUIOpen) { return; }
+        if (_isDropping)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
 
         Vector2 raw = ReadMoveRaw();
 
