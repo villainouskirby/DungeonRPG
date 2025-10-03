@@ -21,7 +21,7 @@ public struct DialogueEndEvent
         AcceptQuest,        // 퀘스트 수주
         UnlockQuest,        // 퀘스트 해금
         Palette,            // 팔레트 팝업 => value(bag, quest, map, book), amount(0 : 기본, 1 : 점, 2 : 빛)
-        Tutorial,           // 튜토리얼 팝업 => value(bag, quest, map, book)
+        Tutorial,           // 튜토리얼 팝업 => value(Bag, Quest, Map, Click 등등 자세한건 KeyGuideUI 스크립트에서 확인)
         CloseDialogue       // 대화 종료
     }
 

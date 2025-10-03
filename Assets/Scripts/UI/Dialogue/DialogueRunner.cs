@@ -218,49 +218,11 @@ public class DialogueRunner : UIBase
 
     private void PopUpPalette(DialogueEndEvent endEvent)
     {
-        var palette = UIPopUpHandler.Instance.GetScript<Palette>();
-
-        switch (endEvent.Value)
-        {
-            case "bag":
-                palette.SetPalette(0, endEvent.Amount);
-                break;
-
-            case "quest":
-                palette.SetPalette(1, endEvent.Amount);
-                break;
-
-            case "map":
-                palette.SetPalette(2, endEvent.Amount);
-                break;
-
-            case "book":
-                palette.SetPalette(3, endEvent.Amount);
-                break;
-        }
+        UIPopUpHandler.Instance.GetScript<Palette>().SetPalette(endEvent.Value, endEvent.Amount);
     }
 
     private void PopUpTutorial(DialogueEndEvent endEvent)
     {
-        var keyGuide = UIPopUpHandler.Instance.GetScript<KeyGuideUI>();
-
-        switch (endEvent.Value)
-        {
-            case "bag":
-
-                break;
-
-            case "quest":
-
-                break;
-
-            case "map":
-
-                break;
-
-            case "book":
-
-                break;
-        }
+        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value);
     }
 }

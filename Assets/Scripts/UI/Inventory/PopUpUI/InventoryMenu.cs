@@ -88,11 +88,18 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             _removeButton.interactable = true;
         }
 
-        _removeButton.onClick.AddListener(() =>
+
+        if (item is PotionItem)
         {
-            _removePopUpUI.SetItemData(index);
-            CloseUI();
-        });
+            _removeButton.interactable = false;
+        }
+        {
+            _removeButton.onClick.AddListener(() =>
+            {
+                _removePopUpUI.SetItemData(index);
+                CloseUI();
+            });
+        }
     }
 
     private void CloseUI()
