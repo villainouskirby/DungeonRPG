@@ -13,7 +13,7 @@ public class HoundApproachBehaviourSO : AttackBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         ctx.agent.speed = ctx.data.combatSpeed;
-        ctx.anim.Play("Run");
+        ctx.animationHub?.SetTag(MonsterStateTag.CombatMove, ctx);
 
         /* 원하는 거리까지 계속 이동 */
         while (Vector2.Distance(ctx.transform.position, ctx.player.position) > desiredDistance)

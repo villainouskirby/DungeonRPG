@@ -118,7 +118,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     private void Update()
     {
-        HandleAttackInput();
+        if (!UIPopUpHandler.Instance.IsUIOpen) { HandleAttackInput(); }
 
         if (isAttackCharging)
         {

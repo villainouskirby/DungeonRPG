@@ -128,6 +128,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     private void Update()
     {
+        if (UIPopUpHandler.Instance.IsUIOpen) { return; }
         stateMachine.Update();
         UpdateByState();
         if (EscapeActive) UpdateEscape();
@@ -145,6 +146,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     }
     void FixedUpdate()
     {
+        if (UIPopUpHandler.Instance.IsUIOpen) { return; }
+
         Vector2 raw = ReadMoveRaw();
 
         if (stateMachine.GetCurrentState() is PotionConsumeState && raw == Vector2.zero)
