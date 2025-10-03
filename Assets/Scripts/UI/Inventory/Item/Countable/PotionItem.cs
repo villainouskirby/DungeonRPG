@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Events;
-using UnityEngine;
+using DBUtility;
 
 public class PotionItem : CountableItem, IUsableItem
 {
@@ -23,6 +23,8 @@ public class PotionItem : CountableItem, IUsableItem
             EventManager.Instance.InventoryBehaviorEvent.Invoke(args);
             args.Release();
         }
+
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItemForce(ItemDataConstructor.GetItemData("POT_001"));
 
         var result = await PotionManager.Instance.GetPotionID(Data);
 
