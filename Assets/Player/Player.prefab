@@ -324,6 +324,7 @@ MonoBehaviour:
   getUpAccel: 50
   getUpDecel: 35
   isInvincible: 0
+  _isDropping: 0
 --- !u!114 &4262740636599311042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,7 +535,7 @@ MonoBehaviour:
   comboWindowBefore: 0.5
   comboWindowAfter: 0.1
   useStrictComboWindow: 1
-  baseDamage: 5
+  baseDamage: 10
   comboBuffer: 0.5
   comboRate:
   - 1
@@ -552,8 +553,8 @@ MonoBehaviour:
   slash2Width: 2
   slash2Length: 2
   slash2CenterOffset: 0
-  stunLight1: 0.2
-  stunLight2: 0.35
+  stunLight1: 0.4
+  stunLight2: 0.5
   stunHeavy: 0.6
   maxChargeTime: 1
   heavyMultiplier: 1
@@ -590,6 +591,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad10ee2120bd2b4c88eeab34a8fe7dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idleRadius: 0
+  sneakRadius: 0
+  sneakMoveRadius: 0
+  moveRadius: 3
+  chargingRadius: 1
+  normalAttackRadius: 5
+  escapeRadius: 4
+  runRadius: 5
+  otherRadius: 0
 --- !u!1 &8451933295760913560
 GameObject:
   m_ObjectHideFlags: 0
