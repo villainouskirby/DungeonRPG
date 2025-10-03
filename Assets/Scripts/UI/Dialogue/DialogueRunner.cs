@@ -35,6 +35,7 @@ public class DialogueRunner : UIBase
     protected override void OnDisable()
     {
         _buttons.SetActive(false);
+        base.OnDisable();
     }
 
     protected override void InitBase()

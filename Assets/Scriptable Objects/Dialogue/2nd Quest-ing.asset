@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75b2d6481ae74d49a8c86c079a6d812, type: 3}
+  m_Name: 2nd Quest-ing
+  m_EditorClassIdentifier: 
+  Lines:
+  - Speaker: "\uC0C1\uC778"
+    Text: "\uAC00\uBC29\uC744 \uC5F4\uACE0 \uD3EC\uC158\uC744 \uC544\uC774\uD15C
+      \uD30C\uC6B0\uCE58\uC5D0 \uB123\uC5B4\uBD10."
+  - Speaker: "\uC0C1\uC778"
+    Text: "\uBAA8\uD5D8\uC5D0\uC11C \uC790\uC8FC \uC0AC\uC6A9\uD558\uAC8C \uB420\uD14C\uB2C8
+      \uBBF8\uB9AC \uC5F0\uC2B5\uD574\uB450\uBA74 \uC88B\uC744\uAC78?"
+  EndEvent:
+  - Key: 8
+    Value: 
+    Amount: 0
