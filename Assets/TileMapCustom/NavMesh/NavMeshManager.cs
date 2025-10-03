@@ -41,7 +41,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         foreach (var pair in ActiveNav)
             target.Add(pair.Key);
         for (int i = 0; i < target.Count; i++)
-            UnLoadNav(target[i]);
+            UnLoadNav(target[i], true);
 
         CM.Instance.ChunkLoadAction += LoadNav;
         CM.Instance.ChunkUnloadAction += UnLoadNav;
@@ -77,6 +77,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         for (int i = 0; i < chunks.Count; i++)
             if (!DontUnLoadChunk.Contains(chunks[i]))
             {
+                UnLoadNav(chunks[i], true);
                 LoadNav(chunks[i]);
                 DontUnLoadChunk.Add(chunks[i]);
             }
@@ -87,7 +88,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         List<Vector2Int> remainMonsterChunk = DontUnLoadChunk.ToList();
         DontUnLoadChunk.Clear();
         for (int i = 0; i < remainMonsterChunk.Count; i++)
-            UnLoadNav(remainMonsterChunk[i]);
+            { UnLoadNav(remainMonsterChunk[i], true); Debug.Log(remainMonsterChunk[i]); }
     }
 
     private void LoadNav(Vector2Int chunkPos)
@@ -108,6 +109,8 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void SetNav(NavMeshData data, Vector2Int chunkPos)
     {
+        if (ActiveNav.ContainsKey(chunkPos))
+            return;
         Vector3 pos = new Vector3(chunkPos.x * 16 + 8, chunkPos.y * 16 + 8, 0f);
         ActiveNav[chunkPos] = NavMesh.AddNavMeshData(data);
         AddLink(chunkPos);
@@ -118,9 +121,11 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     }
 
-    private void UnLoadNav(Vector2Int navPos)
+    private void UnLoadNav(Vector2Int navPos) => UnLoadNav(navPos, false);
+
+    private void UnLoadNav(Vector2Int navPos, bool forceDelete = false)
     {
-        if (DontUnLoadChunk.Contains(navPos))
+        if (!forceDelete && DontUnLoadChunk.Contains(navPos))
             return;
         if (ActiveNav.ContainsKey(navPos))
         {

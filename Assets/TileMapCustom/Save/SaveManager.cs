@@ -15,6 +15,12 @@ public static class SaveManager
     public static SaveData LoadSlot() => LoadSlot(SaveSlotIndex);
     public static void NewSlot() => NewSlot(SaveSlotIndex, SlotName);
 
+
+    public static void AutoSave()
+    {
+        SaveSlot(SaveSlotIndex.Auto1, "Auto1");
+    }
+
     public static void SaveSlot(SaveSlotIndex saveSlotIndex, string slotName)
     {
         if (!SaveFileData.ManualSaveSlot[(int)saveSlotIndex].Exist)

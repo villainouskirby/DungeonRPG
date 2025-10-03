@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using DL = DataLoader;
 
@@ -7,7 +8,6 @@ public class EventAreaManager : MonoBehaviour, ITileMapOption
 {
     public GameObject[] AllActiveEventArea;
     public GameObject EventAreaPrefab;
-
     public TileMapOptionEnum OptionType => TileMapOptionEnum.EventAreaManager;
 
     public void Init()

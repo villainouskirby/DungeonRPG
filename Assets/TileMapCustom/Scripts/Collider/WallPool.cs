@@ -55,6 +55,8 @@ public class WallPool : MonoBehaviour
     public void Return(PolygonCollider2D poly)
     {
         poly.gameObject.SetActive(false);
+        poly.pathCount = 0;
+
         _pool.Enqueue(poly);
     }
 }
