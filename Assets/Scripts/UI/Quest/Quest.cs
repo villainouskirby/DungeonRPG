@@ -71,7 +71,7 @@ public class Quest : UIBase
 
             if (newInfo == null) return;
 
-            args.Init(newInfo.npc, newInfo.id);
+            args.Init(newInfo.id, newInfo.npc);
             EventManager.Instance.QuestUnlockedEvent.Invoke(args);
             args.Release();
         }
