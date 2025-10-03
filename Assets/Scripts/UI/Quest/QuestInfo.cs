@@ -44,7 +44,7 @@ public class QuestInfo
 
             using (var args = QuestClearEventArgs.Get())
             {
-                args.Init(_info.id, isClear);
+                args.Init(_info.id, Info.targetNPC, isClear);
                 EventManager.Instance.QuestClearEvent.Invoke(args);
                 args.Release();
             }

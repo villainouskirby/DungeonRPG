@@ -153,14 +153,14 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     #region 낙하 로직
     public bool _isDropping = false;
     Coroutine _dropCo;
-    public void StartDrop(float distance = 6f, float duration = 0.6f)
+    public void StartDrop(int targetLayer, int targetGround, int targetHeight, float distance = 6f, float duration = 0.6f)
     {
         if (_isDropping) return;
         if (_dropCo != null) StopCoroutine(_dropCo);
-        _dropCo = StartCoroutine(DropRoutine(distance, duration));
+        _dropCo = StartCoroutine(DropRoutine(targetLayer, targetGround, targetHeight, distance, duration));
     }
 
-    private IEnumerator DropRoutine(float distance, float duration)
+    private IEnumerator DropRoutine(int targetLayer, int targetGround, int targetHeight,float distance, float duration)
     {
         _isDropping = true;
 
@@ -179,8 +179,12 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (GetCurrentState() is not IdleState)
             ChangeState(new IdleState(this));
 
+        float ori1 = HeightManager.Instance.PlayerHeight;
+        HeightManager.Instance.AutoHeight = false;
+
         while (t < duration)
         {
+            HeightManager.Instance.SetPlayerHeight(Mathf.Lerp(ori1, targetHeight, t / duration));
             t += Time.deltaTime;
             float u = Mathf.Clamp01(t / duration);
 
@@ -192,6 +196,10 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
             yield return null;
         }
+
+        HeightManager.Instance.GroundLayer = targetGround;
+        HeightManager.Instance.CurrentLayer = targetLayer;
+        HeightManager.Instance.AutoHeight = true;
 
         // 착지 위치 고정
         transform.position = target;
@@ -242,8 +250,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         UpdateByState();
         if (EscapeActive) UpdateEscape();
 
-        if (Input.GetKeyDown(KeyCode.R))
-            StartDrop(6f, 0.6f);
 
         //강제정지
         float hx = Input.GetAxisRaw("Horizontal");
