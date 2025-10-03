@@ -94,9 +94,9 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
         }
 
         /* 4) 후딜레이 */
+        yield return new WaitForSeconds(0.3f);
         ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
-        yield return new WaitForSeconds(recoverTime);
-
+        yield return new WaitForSeconds(recoverTime-0.3f);
         ctx.agent.isStopped = false;
 
         // 돌진 끝난 후 플레이어 쪽으로 다시 방향 갱신

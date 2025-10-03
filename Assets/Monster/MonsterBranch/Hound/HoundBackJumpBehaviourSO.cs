@@ -17,7 +17,7 @@ public class HoundBackstepJumpBehaviourSO : AttackBehaviourSO
     {
         if (!ctx.player) yield break;
 
-        ctx.anim.Play("Jump");
+        ctx.animationHub?.SetTag(MonsterStateTag.BackStep, ctx);
 
         Vector3 start = ctx.transform.position;
         Vector3 dirToPlayer = (ctx.player.position - start).normalized;
