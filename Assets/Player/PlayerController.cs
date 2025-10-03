@@ -1,4 +1,5 @@
 using Unity.IO.LowLevel.Unsafe;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour, IPlayerChangeState
@@ -97,6 +98,57 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         };
     }
     #endregion
+    #region 피격 시 깜빡이는 로직
+    Coroutine _hitBlinkCo;
+
+    // MPB 헬퍼
+    static void SetSpriteAlpha(SpriteRenderer sr, float a)
+    {
+        if (!sr) return;
+        var mpb = new MaterialPropertyBlock();
+        sr.GetPropertyBlock(mpb);
+        if (mpb == null) mpb = new MaterialPropertyBlock();
+
+        // 현재 색을 읽어서 알파만 교체 (셰이더에 _Color가 있어야 함)
+        Color baseColor = Color.white;
+        if (sr.sharedMaterial && sr.sharedMaterial.HasProperty("_Color"))
+            baseColor = sr.sharedMaterial.color;
+        mpb.SetColor("_Color", new Color(baseColor.r, baseColor.g, baseColor.b, a));
+        sr.SetPropertyBlock(mpb);
+    }
+    static void ResetSpriteAlpha(SpriteRenderer sr)
+    {
+        SetSpriteAlpha(sr, 1f);
+    }
+
+    // 피격 무적 + 알파 깜빡임
+    public void StartHitInvincible(float duration = 1f, float blinkInterval = 0.1f)
+    {
+        if (_hitBlinkCo != null) StopCoroutine(_hitBlinkCo);
+        _hitBlinkCo = StartCoroutine(HitInvincibleRoutine(duration, blinkInterval));
+    }
+
+    IEnumerator HitInvincibleRoutine(float duration, float blinkInterval)
+    {
+        isInvincible = true;
+
+        float t = 0f;
+        bool low = false; // false: 1.0, true: 0.35
+        const float lowA = 0.35f;
+
+        while (t < duration)
+        {
+            low = !low;
+            SetSpriteAlpha(sprite, low ? lowA : 1f);
+            yield return new WaitForSeconds(blinkInterval);
+            t += blinkInterval;
+        }
+
+        ResetSpriteAlpha(sprite);
+        isInvincible = false;
+        _hitBlinkCo = null;
+    }
+    #endregion
     public bool EscapeActive => escPhase != EscapePhase.None;
 
     private bool stateLocked = false; // 외부(포션 등) 잠금
@@ -128,7 +180,6 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     private void Update()
     {
-        if (UIPopUpHandler.Instance.IsUIOpen) { return; }
         stateMachine.Update();
         UpdateByState();
         if (EscapeActive) UpdateEscape();

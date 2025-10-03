@@ -24,12 +24,28 @@ public class PotionItem : CountableItem, IUsableItem
             args.Release();
         }
 
-        if (Amount > 0)
+        var result = await PotionManager.Instance.GetPotionID(Data);
+
+        switch (result)
         {
-            Amount--;
-            if (!await PotionManager.Instance.GetPotionID(Data)) return false;
-            return true;
+            case PotionUseResult.FailedToStart:
+                // 예: HP 풀, 잘못된 데이터 등 → 소모 안함
+                return false;
+
+            case PotionUseResult.Completed:
+                Amount--;               // 정상 종료 → 소모
+                return true;
+
+            case PotionUseResult.Cancelled:
+                Amount--;               // 회피/피격으로 중간 취소 → 소모
+                return false;
         }
-        else return false;
+        return false;
     }
+}
+public enum PotionUseResult
+{
+    FailedToStart, // 시작 불가(HP 풀, 잘못된 데이터 등)
+    Completed,     // 정상 종료
+    Cancelled      // 중간 취소(회피/피격 등)
 }

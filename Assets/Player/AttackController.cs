@@ -199,6 +199,12 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     }
     void HandleAttackInput()
     {
+        if (PlayerManager.Instance && !PlayerManager.Instance.CanAttack)
+        {
+            pressActive = false;
+            comboQueued = false;
+            return;
+        }
         if (pc != null && (pc.EscapeActive || pc.GetCurrentState() is PotionConsumeState))
         {
             pressActive = false;      // 누르고 있던 프레스도 취소
@@ -220,6 +226,11 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             Time.time - pressTime >= chargeThreshold &&
             !isAttacking)
         {
+            if (PlayerManager.Instance && !PlayerManager.Instance.CanHeavyAttack)
+            {
+                pressActive = false;
+                return;
+            }
             // 상태 머신 진입 (속도 1f 유지용)
             pc.ChangeState(new ChargingState(pc));
 
@@ -385,6 +396,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     // 강공격 차징 
     public bool TryStartCharging()
     {
+        if (PlayerManager.Instance && !PlayerManager.Instance.CanHeavyAttack) return false;
         if (!PlayerData.Instance)
         {
             return false;

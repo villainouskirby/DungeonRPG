@@ -31,6 +31,7 @@ public sealed class MonsterFleeState : IMonsterState
     {
         ctx.indicator?.Show(MonsterStateTag.Flee);
         ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
+        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
 
         float spd = (ctx.data.fleeSpeed > 0f) ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
         ctx.agent.speed = spd;

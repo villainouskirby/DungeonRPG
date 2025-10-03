@@ -38,38 +38,46 @@ public class PotionManager : Singleton<PotionManager>
             _potionById = SheetDataUtil.DicByKey(Item_Info.Potion, p => p.id); // "PAR_POT_001" 키
     }
 
-    public async UniTask<bool> GetPotionID(ItemData data)
+    public async UniTask<PotionUseResult> GetPotionID(ItemData data)
     {
-        if (isDrinking || player == null) return false;
-        isDrinking = true;
+        if (isDrinking || player == null) return PotionUseResult.FailedToStart;
 
         EnsurePotionTable();
 
         PotionItemData pi = data as PotionItemData;
-        if (pi == null) { isDrinking = false; return false; }
+        if (pi == null) { isDrinking = false; return PotionUseResult.FailedToStart; }
 
         string dt = pi.SID;         // 예: "PAR_POT_001"
         if (string.IsNullOrEmpty(dt) || !_potionById.TryGetValue(dt, out var row))
         {
             Debug.LogError($"Potion DT not found: {dt}");
-            isDrinking = false;
-            return false;
+            return PotionUseResult.FailedToStart;
         }
-
-        bool success = false;
-
         if (row.type == "heal")
         {
-            // 회복은 마시는 동안에만 진행
-            int amount = Mathf.RoundToInt(row.effect);
-            success = await DrinkHeal(amount, DRINK_DURATION);
-        }
-        else
-        {
-            success = await Drink();
-
-            if (success)
+            if (PlayerData.Instance != null && PlayerData.Instance.IsHpFull)
             {
+                // 필요하면 여기서 "HP가 가득 차서 사용할 수 없습니다" 같은 UI/사운드 트리거
+                return PotionUseResult.FailedToStart;
+            }
+        }
+        isDrinking = true;
+        try
+        {
+            bool success = false;
+
+            if (row.type == "heal")
+            {
+                int amount = Mathf.RoundToInt(row.effect);
+                success = await DrinkHeal(amount, DRINK_DURATION); // 취소되면 false
+                return success ? PotionUseResult.Completed : PotionUseResult.Cancelled;
+            }
+            else
+            {
+                success = await Drink(); // 취소되면 false
+                if (!success) return PotionUseResult.Cancelled;
+
+                // 비-힐 타입은 성공 시 효과 적용
                 switch (row.type)
                 {
                     case "add":
@@ -90,11 +98,13 @@ public class PotionManager : Singleton<PotionManager>
                         Debug.LogWarning($"Unknown potion type: {row.type}");
                         break;
                 }
+                return PotionUseResult.Completed;
             }
         }
-
-        isDrinking = false;
-        return success;
+        finally
+        {
+            isDrinking = false;
+        }
     }
     private bool _cancelRequested;
     public void RequestCancelDrink() => _cancelRequested = true;

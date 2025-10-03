@@ -35,7 +35,7 @@ public class PlayerData : Singleton<PlayerData>
     [SerializeField] private float exhaustRegenBlockSec = 1.5f; // 바닥난 직후 리젠 금지 시간
     public bool SprintLocked { get; private set; } = false;
     PlayerController pc;
-
+    PlayerDefense defense;
     //스테미나 필드
     int regenBlockCount = 0;
     public bool isStaminaBlocked => regenBlockCount > 0;
@@ -45,6 +45,7 @@ public class PlayerData : Singleton<PlayerData>
     protected override void AfterAwake()
     {
         if (!pc) pc = GetComponent<PlayerController>();
+        if (!defense) defense = GetComponent<PlayerDefense>();
     }
 
     private void Start()
@@ -64,6 +65,14 @@ public class PlayerData : Singleton<PlayerData>
         }
         TryUnlockSprint();
     }
+    public bool IsHpFull => currentHP.Value >= MaxHP.Value - Mathf.Epsilon;
+    public void ForceSetMaxHP(float max, bool fillCurrent = true)
+    {
+        if (MaxHP != null) MaxHP.Value = Mathf.Max(1f, max);
+        if (fillCurrent && currentHP != null) currentHP.Value = MaxHP.Value;
+        // 변경 이벤트 발사
+        OnHPChanged?.Invoke(currentHP.Value, currentHP.Value);
+    }
     public void HPValueChange(float value)
     {
         float old = currentHP.Value;
@@ -75,6 +84,15 @@ public class PlayerData : Singleton<PlayerData>
 
         if (Mathf.Abs(currentHP.Value - old) > Mathf.Epsilon)
             OnHPChanged?.Invoke(old, currentHP.Value);
+
+        if (value < 0f && pc != null)
+        {
+            bool guarded = defense != null && defense.ConsumeLastGuardApplied();
+            if (!guarded)
+            {
+                pc.StartHitInvincible(1f, 0.1f); // 1초 무적, 0.1초 간격 깜빡임
+            }
+        }
     }
     public void PlayerStun(float stunDuration)
     {

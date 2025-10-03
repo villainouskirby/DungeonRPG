@@ -13,8 +13,18 @@ public class IdleState : IPlayerState
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) { player.ChangeState(new EscapeState(player)); return; }
-        if (Input.GetMouseButtonDown(1)) { player.ChangeState(new GuardState(player)); return; }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
+                player.ChangeState(new EscapeState(player));
+            return;
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (PlayerManager.Instance == null || PlayerManager.Instance.CanGuard)
+                player.ChangeState(new GuardState(player));
+            return;
+        }
 
         Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
                      ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -188,12 +198,22 @@ public class GuardState : IPlayerState
 
     public void Enter()
     {
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanGuard)
+        {
+            pc?.ChangeState(new IdleState(pc));
+            return;
+        }
         Debug.Log("Guard ON");
         if (pc) pc.rb.velocity = Vector2.zero;      // 즉시 정지
     }
 
     public void Update()
     {
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanGuard) // 가드 유지 중에도 막히면 해제
+        {
+            pc.ChangeState(new IdleState(pc));
+            return;
+        }
         PlayerData.Instance?.BlockStaminaRegen(1f);
         // 공격키 → 가드 해제 & 공격 전환
         if (Input.GetMouseButtonDown(0))
@@ -254,9 +274,12 @@ public sealed class PotionConsumeState : IPlayerState
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) // 회피 시 포션 사용 취소
-        { 
-            owner.ChangeState(new EscapeState(owner));
-            pm.RequestCancelDrink();
+        {
+            if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
+            {
+                owner.ChangeState(new EscapeState(owner));
+                pm.RequestCancelDrink();
+            }
             return;
         }
         // 안전망: 이벤트 못 받아도 시간 경과 시 종료
@@ -437,9 +460,15 @@ public class NormalAttackState : IPlayerState
         if (queued == NextIntent.None && remain <= BUFFER_WINDOW_SEC)
         {
             if (Input.GetKeyDown(KeyCode.Space))
-                queued = NextIntent.Escape;
+            {
+                if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
+                    queued = NextIntent.Escape;
+            }
             else if (Input.GetMouseButtonDown(1))
-                queued = NextIntent.Guard;
+            {
+                if (PlayerManager.Instance == null || PlayerManager.Instance.CanGuard)
+                    queued = NextIntent.Guard;
+            }
         }
 
         remain -= Time.deltaTime;
@@ -448,8 +477,8 @@ public class NormalAttackState : IPlayerState
             switch (queued)
             {
                 case NextIntent.Escape:
+                    if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
                     {
-                        // 회피 직전, 입력 방향으로 페이싱 보정
                         var pc = owner as PlayerController;
                         if (pc != null)
                         {
@@ -457,17 +486,24 @@ public class NormalAttackState : IPlayerState
                             if (mv != Vector2.zero)
                             {
                                 if (Mathf.Abs(mv.x) > Mathf.Abs(mv.y))
-                                    pc.SetFacingDirection(mv.x < 0 ? 2 : 3); // Left/Right
+                                    pc.SetFacingDirection(mv.x < 0 ? 2 : 3);
                                 else
-                                    pc.SetFacingDirection(mv.y > 0 ? 0 : 1); // Up/Down
+                                    pc.SetFacingDirection(mv.y > 0 ? 0 : 1);
                             }
                         }
                         owner.ChangeState(new EscapeState(owner));
                         break;
                     }
+                    goto default;
+
                 case NextIntent.Guard:
-                    owner.ChangeState(new GuardState(owner));
-                    break;
+                    if (PlayerManager.Instance == null || PlayerManager.Instance.CanGuard)
+                    {
+                        owner.ChangeState(new GuardState(owner));
+                        break;
+                    }
+                    goto default;
+
                 default:
                     owner.ChangeState(new IdleState(owner));
                     break;
@@ -497,9 +533,10 @@ public class EscapeState : IPlayerState
 
     public void Enter()
     {
-        if (invalid || !pc.TryBeginEscape())
+        if ((PlayerManager.Instance != null && !PlayerManager.Instance.CanDodge) ||
+       invalid || !pc.TryBeginEscape())
         {
-            pc?.ChangeState(new IdleState(pc));  // pc가 null이면 아무 일도 안 함
+            pc?.ChangeState(new IdleState(pc));
         }
     }
 

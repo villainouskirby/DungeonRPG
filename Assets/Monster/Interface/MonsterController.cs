@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using HeapExplorer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;   // Handles, Gizmos
 #endif
@@ -95,12 +96,50 @@ public class MonsterController : MonoBehaviour
     {
     }
 
-    void Update() 
+    void Update()
     {
-        if (!_initialized) return; 
-        root.Tick(); 
+        if (!_initialized) return;
+        root.Tick();
     }
-    
+    #region 피격 시 깜빡거림
+    Coroutine _damageBlinkCo;
+
+    // MPB 헬퍼 (플레이어와 동일)
+    static void SetSpriteAlpha(SpriteRenderer sr, float a)
+    {
+        if (!sr) return;
+        var mpb = new MaterialPropertyBlock();
+        sr.GetPropertyBlock(mpb);
+        if (mpb == null) mpb = new MaterialPropertyBlock();
+
+        Color baseColor = Color.white;
+        if (sr.sharedMaterial && sr.sharedMaterial.HasProperty("_Color"))
+            baseColor = sr.sharedMaterial.color;
+        mpb.SetColor("_Color", new Color(baseColor.r, baseColor.g, baseColor.b, a));
+        sr.SetPropertyBlock(mpb);
+    }
+    static void ResetSpriteAlpha(SpriteRenderer sr)
+    {
+        SetSpriteAlpha(sr, 1f);
+    }
+
+    IEnumerator DamageBlinkRoutine(float duration = 1f, float blinkInterval = 0.1f)
+    {
+        float t = 0f;
+        bool low = false;
+        const float lowA = 0.35f;
+
+        while (t < duration)
+        {
+            low = !low;
+            SetSpriteAlpha(Sprite, low ? lowA : 1f);
+            yield return new WaitForSeconds(blinkInterval);
+            t += blinkInterval;
+        }
+        ResetSpriteAlpha(Sprite);
+        _damageBlinkCo = null;
+    }
+    #endregion
     // 외부에서 데미지
     // 기존 시그니처 보존
     public void TakeDamage(float dmg) => TakeDamage(dmg, 0f);
@@ -113,6 +152,9 @@ public class MonsterController : MonoBehaviour
         OnHpChanged?.Invoke(CurrentHP, MaxHP);
         OnDamaged?.Invoke(dmg);
         Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
+
+        if (_damageBlinkCo != null) StopCoroutine(_damageBlinkCo);
+        _damageBlinkCo = StartCoroutine(DamageBlinkRoutine(1f, 0.1f));
 
         if (ctx.hp <= 0f)
         {

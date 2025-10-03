@@ -187,10 +187,12 @@ public sealed class MonsterDetectState : IMonsterState
         if (ctx.data.hearToCombat)
         {
             machine.ChangeState(new CombatSuperState(ctx, machine));
+            if (ctx.alert) ctx.alert.gameObject.SetActive(false);
         }
         if (ctx.isCombat)
         {
             machine.ChangeState(new CombatSuperState(ctx, machine));
+            if (ctx.alert) ctx.alert.gameObject.SetActive(false);
             return;
         }
 

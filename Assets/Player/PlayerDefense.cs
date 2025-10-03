@@ -18,6 +18,7 @@ public class PlayerDefense : MonoBehaviour
 
     float lastGuardPress = 0f;   // 마지막으로 우클릭을 누른 시각
     float guardCooldown = 0f;      // 남은 쿨타임(초)
+    public bool LastGuardApplied { get; private set; } = false;
 
     void Update()
     {
@@ -27,9 +28,15 @@ public class PlayerDefense : MonoBehaviour
         // 우클릭 'Down' 기록 (가드 판정용)
         if (Input.GetMouseButtonDown(1)) { lastGuardPress = Time.time; }
     }
-
+    public bool ConsumeLastGuardApplied()
+    {
+        bool v = LastGuardApplied;
+        LastGuardApplied = false;     // 소비 후 즉시 초기화
+        return v;
+    }
     public int ResolveGuard(int incomingDamage)
     {
+        LastGuardApplied = false;
         // 가드 중? (버튼 누르고 있고, 쿨타임 없음, 스태미너 충분)
         bool holding = Input.GetMouseButton(1);
         if (!holding || guardCooldown > 0f) return incomingDamage;
@@ -47,6 +54,8 @@ public class PlayerDefense : MonoBehaviour
         // 감쇄 비율·쿨타임 적용
         guardCooldown = isJust ? justGuardDelay : normalGuardDelay;
         float ratio = isJust ? justGuardRatio : normalGuardRatio;
+
+        LastGuardApplied = true;
 
         Debug.Log(isJust ? "JUST GUARD!" : "Guard success");
         return Mathf.RoundToInt(incomingDamage * ratio);

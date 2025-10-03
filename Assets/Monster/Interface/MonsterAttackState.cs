@@ -19,6 +19,7 @@ public sealed class CombatSuperState : IMonsterState
     public void Enter()
     {
         if (!ctx.isCombat) ctx.isCombat = true;
+        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
         UpdatePresentationByRange();
         SelectAndRun();
     }
