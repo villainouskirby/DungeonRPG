@@ -72,6 +72,9 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        foreach (var chunk in LoadedChunkIndex.Keys)
+            ChunkUnloadAction?.Invoke(chunk);
+
         ChunkLoadAction = null;
         ChunkUnloadAction = null;
         ChunkRefreshAction = null;

@@ -97,7 +97,6 @@ public class DecoManager : MonoBehaviour, ITileMapBase
 
     public void LoadDecoInChunk(Vector2Int targetChunk)
     {
-        Debug.Log(targetChunk);
         if (!DL.Instance.All.decoObjData.ContainsKey(targetChunk))
             return;
 

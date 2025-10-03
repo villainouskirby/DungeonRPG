@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using TMPro;
 using Tutorial;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using static UnityEditor.Experimental.GraphView.GraphView;
 using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.GraphicsBuffer;
 
@@ -68,6 +70,9 @@ public class EventArea : MonoBehaviour
             case EventAreaType.ChangePlayerLight:
                 ChangePlayerLight_In();
                 break;
+            case EventAreaType.AutoSave:
+                AutoSave_In();
+                break;
         }
     }
 
@@ -88,6 +93,8 @@ public class EventArea : MonoBehaviour
             case EventAreaType.ChangeGroundLayer:
                 break;
             case EventAreaType.ChangePlayerLight:
+                break;
+            case EventAreaType.AutoSave:
                 break;
         }
     }
@@ -264,6 +271,53 @@ public class EventArea : MonoBehaviour
         if (Data.param2.Trim() != "")
             light.intensity = int.Parse(Data.param2);
     }
+
+    Coroutine _autoSaveC;
+    private void AutoSave_In()
+    {
+        SaveManager.AutoSave();
+        TMP_Text target = GameObject.Find("AutoSaveText").GetComponent<TMP_Text>();
+        target.text = "자동 저장 중..";
+
+        int fadeDuration = 1;
+        int stayDuration = 1;
+
+        if (_loop != null) { return; }
+
+        IEnumerator Loop()
+        {
+            Color c = target.color;
+
+            while (true)
+            {
+                // Fade In
+                float t = 0f;
+                while (t < fadeDuration)
+                {
+                    t += Time.deltaTime;
+                    c.a = Mathf.Lerp(0f, 1f, t / fadeDuration);
+                    target.color = c;
+                    yield return null;
+                }
+
+                yield return new WaitForSeconds(stayDuration);
+                target.text = "자동 저장 완료";
+                // Fade Out
+                t = 0f;
+                while (t < fadeDuration)
+                {
+                    t += Time.deltaTime;
+                    c.a = Mathf.Lerp(1f, 0f, t / fadeDuration);
+                    target.color = c;
+                    yield return null;
+                }
+
+                yield return new WaitForSeconds(stayDuration);
+            }
+        }
+
+        _loop = StartCoroutine(Loop());
+    }
 }
 
 [System.Serializable]
@@ -289,4 +343,5 @@ public enum EventAreaType
     OnOffSmoothLayer    = 3,
     ChangeGroundLayer   = 4,
     ChangePlayerLight   = 5,
+    AutoSave            = 6,
 }
