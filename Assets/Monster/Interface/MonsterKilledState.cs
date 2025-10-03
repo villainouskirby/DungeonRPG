@@ -59,9 +59,7 @@ public sealed class MonsterKilledState : IMonsterState
                     continue;
                 }
 
-                // AddInventory(data) 시그니처에 맞춰 개수만큼 반복 추가
-                for (int i = 0; i < r.count; i++)
-                    inv.AddItem(data, r.count, true);
+                inv.AddItem(data, r.count, true);
             }
         }
 

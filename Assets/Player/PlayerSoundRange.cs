@@ -5,6 +5,33 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
 {
     public static PlayerSoundRange Instance { get; private set; }
 
+    [Header("상태별 소음 반경(인스펙터에서 조절)")]
+    [Tooltip("서 있는 상태(Idle)")]
+    [SerializeField] private float idleRadius = 0f;
+
+    [Tooltip("웅크리기(Sneak)")]
+    [SerializeField] private float sneakRadius = 0f;
+
+    [Tooltip("웅크린 이동(SneakMove)")]
+    [SerializeField] private float sneakMoveRadius = 0f;
+
+    [Tooltip("걷기(Move)")]
+    [SerializeField] private float moveRadius = 7f;
+
+    [Tooltip("차지 중(Charging)")]
+    [SerializeField] private float chargingRadius = 7f;
+
+    [Tooltip("평타(노멀 어택)")]
+    [SerializeField] private float normalAttackRadius = 7f;
+
+    [Tooltip("회피/구르기(Escape)")]
+    [SerializeField] private float escapeRadius = 7f;
+
+    [Tooltip("달리기(Run)")]
+    [SerializeField] private float runRadius = 10f;
+
+    [Tooltip("그 외 기타 상태(매칭 안 될 때)")]
+    [SerializeField] private float otherRadius = 0f;
     private PlayerStateMachine stateMachine;
     private PlayerController pc;
 
@@ -19,10 +46,6 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
         pc = GetComponent<PlayerController>();
         if (pc == null)
             Debug.LogError("[PlayerSoundRange] PlayerController 를 찾지 못했습니다.");
-
-        stateMachine = new PlayerStateMachine();
-
-        stateMachine.ChangeState(new IdleState(this));
     }
 
     private void Update()
@@ -37,13 +60,17 @@ public class PlayerSoundRange : MonoBehaviour, IPlayerChangeState
     // 상태에 따른 소음 반경 설정
     private void UpdateNoiseByState()
     {
-        var st = pc.GetCurrentState();
+        var st = pc ? pc.GetCurrentState() : null;
 
-        if (st is IdleState or SneakState) NoiseRadius = 1f;
-        else if (st is SneakMoveState) NoiseRadius = 3f;
-        else if (st is MoveState or ChargingState or NormalAttackState or EscapeState) NoiseRadius = 7f;
-        else if (st is RunState) NoiseRadius = 10f;
-        else NoiseRadius = 0f;   // 예외·공격 등
+        if (st is IdleState) NoiseRadius = idleRadius;
+        else if (st is SneakState) NoiseRadius = sneakRadius;
+        else if (st is SneakMoveState) NoiseRadius = sneakMoveRadius;
+        else if (st is MoveState) NoiseRadius = moveRadius;
+        else if (st is ChargingState) NoiseRadius = chargingRadius;
+        else if (st is NormalAttackState) NoiseRadius = normalAttackRadius;
+        else if (st is EscapeState) NoiseRadius = escapeRadius;
+        else if (st is RunState) NoiseRadius = runRadius;
+        else NoiseRadius = otherRadius;
     }
 #if UNITY_EDITOR
     void OnDrawGizmos()
