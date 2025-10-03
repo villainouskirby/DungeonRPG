@@ -223,6 +223,13 @@ public class DialogueRunner : UIBase
 
     private void PopUpTutorial(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value.Trim());
+        if (endEvent.Amount == 0)
+        {
+            UIPopUpHandler.Instance.GetScript<KeyGuideUI>().CloseTutorial();
+        }
+        else
+        {
+            UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value.Trim());
+        }
     }
 }
