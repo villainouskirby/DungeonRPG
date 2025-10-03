@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class IT_JumpObj : InteractionObj
 {
-    public Vector3 TargetPos;
+    public int TargetLayer;
+    public int TargetGround;
+    public int TargetHeight;
 
     public IT_JumpObj(InteractionTile interactionTile) : base(interactionTile)
     {
