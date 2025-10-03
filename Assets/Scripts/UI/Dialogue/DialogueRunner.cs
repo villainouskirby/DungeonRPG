@@ -173,24 +173,24 @@ public class DialogueRunner : UIBase
 
     private void ContinueDialogue(DialogueEndEvent endEvent)
     {
-        StartPrint(endEvent.Value).Forget();
+        StartPrint(endEvent.Value.Trim()).Forget();
     }
 
     private void AddInventory(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(ItemDataConstructor.GetItemData(endEvent.Value), endEvent.Amount);
+        UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(ItemDataConstructor.GetItemData(endEvent.Value.Trim()), endEvent.Amount);
     }
 
     private void RemoveInventory(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<Inventory>().RemoveItem(ItemDataConstructor.GetItemData(endEvent.Value), endEvent.Amount);
+        UIPopUpHandler.Instance.GetScript<Inventory>().RemoveItem(ItemDataConstructor.GetItemData(endEvent.Value.Trim()), endEvent.Amount);
     }
 
     private void AddNewQuest(DialogueEndEvent endEvent)
     {
         if (string.IsNullOrEmpty(_questID))
         {
-            _questID = endEvent.Value;
+            _questID = endEvent.Value.Trim();
         }
 
         var info = QuestConstructor.GetQuestInfo(_questID);
@@ -206,7 +206,7 @@ public class DialogueRunner : UIBase
     {
         using (var args = QuestUnlockedEventArgs.Get())
         {
-            var info = Array.Find(Quest_Info.Quest, quest => quest.id == endEvent.Value);
+            var info = Array.Find(Quest_Info.Quest, quest => quest.id == endEvent.Value.Trim());
 
             if (info == null) return;
 
@@ -218,11 +218,11 @@ public class DialogueRunner : UIBase
 
     private void PopUpPalette(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<Palette>().SetPalette(endEvent.Value, endEvent.Amount);
+        UIPopUpHandler.Instance.GetScript<Palette>().SetPalette(endEvent.Value.Trim(), endEvent.Amount);
     }
 
     private void PopUpTutorial(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value);
+        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value.Trim());
     }
 }

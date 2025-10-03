@@ -25,9 +25,7 @@ public struct DialogueEndEvent
         CloseDialogue       // 대화 종료
     }
 
-    public string Value => _value.Trim();
-
     public KeyName Key;
-    [SerializeField] private string _value;
+    public string Value;
     public int Amount;
 }
