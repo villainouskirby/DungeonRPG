@@ -5,5 +5,7 @@ using UnityEngine;
 public class IT_JumpTile : InteractionTile
 {
     [Header("Move Setings")]
-    public Vector3 TargetPos;
+    public int TargetLayer;
+    public int TargetGround;
+    public int TargetHeight;
 }

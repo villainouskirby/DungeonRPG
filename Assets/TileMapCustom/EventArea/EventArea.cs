@@ -260,7 +260,7 @@ public class EventArea : MonoBehaviour
         int targetLayer = int.Parse(Data.param1);
         if (targetLayer == HeightManager.Instance.GroundLayer)
             return;
-        HeightManager.Instance.ChangeLayer(targetLayer);
+        HeightManager.Instance.GroundLayer = targetLayer;
     }
     private void ChangePlayerLight_In()
     {

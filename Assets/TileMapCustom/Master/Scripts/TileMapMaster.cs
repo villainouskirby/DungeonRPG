@@ -104,6 +104,7 @@ public class TileMapMaster : MonoBehaviour
 
     public void LoadTilemap(SaveData data)
     {
+        UIPopUpHandler.Instance.GetScript<LoadingPanel>().StartLoading();
         Player.transform.position = data.PlayerPos;
         MapType = data.mapType;
 
@@ -149,7 +150,7 @@ public class TileMapMaster : MonoBehaviour
                 _option[i].StartMap(data.mapType);
             }
         }
-
+        UIPopUpHandler.Instance.GetScript<LoadingPanel>().StopLoading();
         // 벽 생성 시작
         //Player.GetComponent<WallColliderGenerator>().Init();
         //GuideController.InitializeTileMap();
@@ -157,6 +158,7 @@ public class TileMapMaster : MonoBehaviour
 
     public void StartTileMap(MapEnum mapType)
     {
+        UIPopUpHandler.Instance.GetScript<LoadingPanel>().StartLoading();
         MapType = mapType;
         for (int i = 0; i < _base.Count; i++)
         {
@@ -187,7 +189,7 @@ public class TileMapMaster : MonoBehaviour
                 _option[i].StartMap(mapType);
             }
         }
-
+        UIPopUpHandler.Instance.GetScript<LoadingPanel>().StopLoading();
         // 벽 생성 시작
         //Player.GetComponent<WallColliderGenerator>().Init();
         //GuideController.InitializeTileMap();

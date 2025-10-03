@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Threading;
 using UnityEngine;
 
@@ -44,8 +45,13 @@ public class LoadingPanel : UIBase
 
     public void StopLoading()
     {
-        _isStop = true;
+        StartCoroutine(A());
+    }
 
+    public IEnumerator A()
+    {
+        yield return new WaitForSeconds(2);
+        _isStop = true;
         gameObject.SetActive(false);
     }
 }
