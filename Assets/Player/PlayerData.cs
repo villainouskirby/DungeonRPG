@@ -69,7 +69,7 @@ public class PlayerData : Singleton<PlayerData>
     public void ForceSetMaxHP(float max, bool fillCurrent = true)
     {
         if (MaxHP != null) MaxHP.Value = Mathf.Max(1f, max);
-        if (fillCurrent && currentHP != null) currentHP.Value = MaxHP.Value;
+        if (fillCurrent && currentHP != null) currentHP.Value = MaxHP.Value-30f;
         // 변경 이벤트 발사
         OnHPChanged?.Invoke(currentHP.Value, currentHP.Value);
     }
