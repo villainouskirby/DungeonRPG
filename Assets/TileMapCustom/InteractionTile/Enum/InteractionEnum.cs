@@ -8,4 +8,5 @@ public enum InteractionEnum
     Entry = 1,
     Npc = 2,
     Teleport = 3,
+    Jump = 4,
 }
