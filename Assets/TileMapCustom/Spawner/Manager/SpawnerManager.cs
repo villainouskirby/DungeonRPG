@@ -42,7 +42,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
     public void StartMap(MapEnum mapType)
     {
         if (!_isLoad)
-            { SetSpawner(); SetMonsterChunkNav(); }
+        { SetSpawner(); SetMonsterChunkNav(); }
 
         CheckSpawner(PlayerMoveChecker.Instance.LastTilePos);
 

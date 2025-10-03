@@ -36,6 +36,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        ResetMonsterChunkNav();
         List<Vector2Int> target = new();
         foreach (var pair in ActiveNav)
             target.Add(pair.Key);
@@ -72,17 +73,21 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     public void SetMonsterChunkNav(List<Vector2Int> chunks)
     {
-        List<Vector2Int> remainMonsterChunk = DontUnLoadChunk.ToList();
-        DontUnLoadChunk.Clear();
-        for (int i = 0; i < remainMonsterChunk.Count; i++)
-            UnLoadNav(remainMonsterChunk[i]);
-
+        ResetMonsterChunkNav();
         for (int i = 0; i < chunks.Count; i++)
             if (!DontUnLoadChunk.Contains(chunks[i]))
             {
                 LoadNav(chunks[i]);
                 DontUnLoadChunk.Add(chunks[i]);
             }
+    }
+
+    public void ResetMonsterChunkNav()
+    {
+        List<Vector2Int> remainMonsterChunk = DontUnLoadChunk.ToList();
+        DontUnLoadChunk.Clear();
+        for (int i = 0; i < remainMonsterChunk.Count; i++)
+            UnLoadNav(remainMonsterChunk[i]);
     }
 
     private void LoadNav(Vector2Int chunkPos)
