@@ -90,6 +90,7 @@ public class DialogueRunner : UIBase
         if (_handle.Status == AsyncOperationStatus.Failed)
         {
             Debug.LogError("해당 대사 스크립트 없음. Name : Dialogue/" + dialogueName);
+            _isDialogueRunning = false;
             return;
         }
 
@@ -97,7 +98,7 @@ public class DialogueRunner : UIBase
         _dialogueLines = new Queue<DialogueLineStatement>(dialogue.Lines);
         _endEvent = dialogue.EndEvent;
 
-        gameObject.SetActive(true);
+        UIPopUpHandler.Instance.CloseAllAndOpenUI<DialogueRunner>();
 
         TryPrint();
     }

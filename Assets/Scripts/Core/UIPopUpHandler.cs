@@ -89,7 +89,6 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
 
     /// <summary>
     /// UI 열기
-    /// <para/> 한번에 하나만 띄우게 함
     /// </summary>
     /// <returns> 해당 UI 클래스 </returns>
     public T OpenUI<T>() where T : UIBase
@@ -102,6 +101,16 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
         _openUIs.Add(ui);
 
         return ui as T;
+    }
+
+    public T CloseAllAndOpenUI<T>() where T : UIBase
+    {
+        while (_openUIs.Count > 0)
+        {
+            CloseLastUI();
+        }
+
+        return OpenUI<T>();
     }
 
     public void CloseUI<T>(T ui) where T : UIBase
