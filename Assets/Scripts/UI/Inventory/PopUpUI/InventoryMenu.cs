@@ -60,6 +60,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             _setToQuickSlotButton.interactable = !ei.IsEquipped;
             _useButton.interactable = false;
+            _removeButton.interactable = !ei.IsEquipped;
 
             _setToQuickSlotButton.onClick.AddListener(() =>
             {
@@ -83,9 +84,9 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 _inventoryUI.SetItemToQuickSlot(index);
                 CloseUI();
             });
-        }
 
-        _removeButton.interactable = true;
+            _removeButton.interactable = true;
+        }
 
         _removeButton.onClick.AddListener(() =>
         {

@@ -341,6 +341,11 @@ public class Inventory : UIBase, ISave
         Item item = _items[index];
         if (item is IUsableItem uItem)
         {
+            if (item is not EquipmentItem)
+            {
+                gameObject.SetActive(false);
+            }
+
             bool succeeded = await uItem.Use();
 
             if (succeeded)

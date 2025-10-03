@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 5329568933094217659}
   - component: {fileID: 1996200415566135622}
   - component: {fileID: 7257506805039395038}
+  - component: {fileID: 6602590089013493098}
   m_Layer: 5
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -256,10 +257,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: InventoryPopUpUI, Assembly-CSharp
-        m_MethodName: CloseExcessPopUp
-        m_Mode: 1
+      - m_Target: {fileID: 6602590089013493098}
+        m_TargetAssemblyTypeName: ObjectActiveHandler, Assembly-CSharp
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -283,6 +284,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &6602590089013493098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4342725983291110806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e79ba02cf85f8fb4f896f8c6e78ed232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _object: {fileID: 6410101172865031950}
 --- !u!1 &6028392617087035467
 GameObject:
   m_ObjectHideFlags: 0

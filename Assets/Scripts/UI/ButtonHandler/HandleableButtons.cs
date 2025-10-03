@@ -1,29 +1,35 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HandleableButtons : MonoBehaviour
 {
     [Header("기본 인덱스 값")]
     [SerializeField] private int _idx = 0;
 
+    private bool _isInteractActive = true;
     private ButtonSpriteHandler[] _handlers;
+    private Button[] _buttons;
     private float _prevAxis = 0;
 
     private void Awake()
     {
         int cnt = transform.childCount;
         _handlers = new ButtonSpriteHandler[cnt];
+        _buttons = new Button[cnt];
 
         for (int i = 0; i < cnt; i++)
         {
-            if (!transform.GetChild(i).TryGetComponent<ButtonSpriteHandler>(out var handler))
+            var child = transform.GetChild(i);
+            if (!child.TryGetComponent<ButtonSpriteHandler>(out var handler))
             {
-                handler.AddComponent<ButtonSpriteHandler>();
+                handler = child.AddComponent<ButtonSpriteHandler>();
                 handler.Init();
             }
 
             _handlers[i] = handler;
+            _buttons[i] = child.GetComponent<Button>();
         }
 
         if (_idx < 0 || _idx >= _handlers.Length)
@@ -61,6 +67,14 @@ public class HandleableButtons : MonoBehaviour
     // 기본적으로 위에서 아래로 카운팅
     private void Update()
     {
+        if (!_isInteractActive) return;
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            _buttons[_idx].onClick?.Invoke();
+            return;
+        }
+
         float axis = Input.GetAxisRaw("Vertical");
 
         if (axis == _prevAxis) return;
@@ -92,5 +106,10 @@ public class HandleableButtons : MonoBehaviour
 
         _handlers[_idx].SetNormalSprite();
         _idx = idx;
+    }
+
+    public void SetInteractActive(bool active)
+    {
+        _isInteractActive = active;
     }
 }

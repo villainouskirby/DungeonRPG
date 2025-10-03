@@ -12,6 +12,7 @@ public class StartSceneFunc : MonoBehaviour
     public SaveFileManager SaveFileManager;
     public Button ContinueBtn;
     public Color BtnDisableColor;
+    public HandleableButtons HandleableButtons;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class StartSceneFunc : MonoBehaviour
         if (SaveManager.SaveFileData.ManualSaveSlot[(int)SaveSlotIndex.Auto1].Exist)
         {
             ContinueCheckUI.SetActive(true);
+            HandleableButtons.SetInteractActive(false);
         }
         else
         {

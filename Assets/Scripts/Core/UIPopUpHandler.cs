@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Core;
+using UnityEditor;
 
 public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
 {
@@ -125,6 +126,18 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
 
         int idx = _openUIs.Count - 1;
         _openUIs[idx].SetActive(false);
+    }
+
+    public void OpenInGameUIs()
+    {
+        GetScript<QuickSlotInGameUI>()?.SetActive(true);
+        GetScript<Palette>()?.SetActive(true);
+    }
+
+    public void CloseInGameUIs()
+    {
+        GetScript<QuickSlotInGameUI>()?.SetActive(false);
+        GetScript<Palette>()?.SetActive(false);
     }
 
     public void Initialize()
