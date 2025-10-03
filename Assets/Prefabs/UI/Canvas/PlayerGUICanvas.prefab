@@ -406,11 +406,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2078240464856685233}
     m_Modifications:
-    - target: {fileID: 1996200415566135622, guid: 5d27b67375731c64390c4b5fd213295e,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 2285272085407982053}
     - target: {fileID: 2200742833137537511, guid: 5d27b67375731c64390c4b5fd213295e,
         type: 3}
       propertyPath: m_Pivot.x
@@ -926,18 +921,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 4012162269761950054}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2285272085407982053 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2889334627942084739, guid: 3a98f4bfd2b6b644589e433dc3417071,
-    type: 3}
-  m_PrefabInstance: {fileID: 4012162269761950054}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5523530bbc6be3b4c8990d908d961316, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2718753641086574750 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1302917273968783864, guid: 3a98f4bfd2b6b644589e433dc3417071,

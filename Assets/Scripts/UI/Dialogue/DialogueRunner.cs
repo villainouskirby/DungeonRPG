@@ -34,8 +34,10 @@ public class DialogueRunner : UIBase
 
     protected override void OnDisable()
     {
-        _buttons.SetActive(false);
         base.OnDisable();
+
+        UIPopUpHandler.Instance.OpenInGameUIs();
+        _buttons.SetActive(false);
     }
 
     protected override void InitBase()
@@ -100,6 +102,7 @@ public class DialogueRunner : UIBase
         _endEvent = dialogue.EndEvent;
 
         UIPopUpHandler.Instance.CloseAllAndOpenUI<DialogueRunner>();
+        UIPopUpHandler.Instance.CloseInGameUIs();
 
         TryPrint();
     }
