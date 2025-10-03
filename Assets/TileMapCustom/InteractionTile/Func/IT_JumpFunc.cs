@@ -7,7 +7,9 @@ using UnityEngine.SceneManagement;
 public class IT_JumpFunc : MonoBehaviour
 {
     private BoxCollider2D _collider;
-    private Vector3 _targetPos;
+    private int _targetLayer;
+    private int _targetGround;
+    private int _targetHeight;
     private bool _isActive;
     private GameObject _player;
     public SpriteRenderer SR;
@@ -15,7 +17,9 @@ public class IT_JumpFunc : MonoBehaviour
     public void Init(IT_JumpObj jumpObj)
     {
         _collider = GetComponent<BoxCollider2D>();
-        _targetPos = jumpObj.TargetPos;
+        _targetLayer = jumpObj.TargetLayer;
+        _targetGround = jumpObj.TargetGround;
+        _targetHeight = jumpObj.TargetHeight;
         _isActive = false;
         SR.sortingLayerName = jumpObj.LayerName;
         SR.sortingOrder = jumpObj.LayerIndex;
@@ -47,7 +51,7 @@ public class IT_JumpFunc : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.O))
         {
-            _player.transform.position = _targetPos;
+            _player.GetComponent<PlayerController>().StartDrop(_targetLayer, _targetGround, _targetHeight);
         }
     }
 }

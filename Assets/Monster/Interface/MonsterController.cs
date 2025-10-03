@@ -39,6 +39,9 @@ public class MonsterController : MonoBehaviour
     public Dictionary<string, Monster_Info_Monster> monsterDic;
     MonsterStateMachine root = new();
     MonsterContext ctx;
+    [Header("Z-Lock")]
+    [SerializeField] bool lockZ = true;
+    [SerializeField] float lockedZ = -0.0001f;
 
     bool _initialized = false;
     void Awake()
@@ -101,6 +104,22 @@ public class MonsterController : MonoBehaviour
         if (!_initialized) return;
         root.Tick();
     }
+    void LateUpdate()
+    {
+        if (!_initialized) return;
+        if (!lockZ) return;
+
+        var p = transform.position;
+        if (Mathf.Abs(p.z - lockedZ) > 1e-6f)
+        {
+            p.z = lockedZ;
+            transform.position = p;
+
+            // NavMeshAgent 내부 좌표와 동기화(지터 방지)
+            if (Agent) Agent.nextPosition = p;
+        }
+    }
+
     #region 피격 시 깜빡거림
     Coroutine _damageBlinkCo;
 
