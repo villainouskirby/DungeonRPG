@@ -60,7 +60,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -93,3 +93,7 @@ MonoBehaviour:
   _dodgeSprite: {fileID: 21300000, guid: d0014ce79bdbb234e9572c7ce7f05ef4, type: 3}
   _crouchSprite: {fileID: 21300000, guid: 17893d73dbcefff47be70997081d178a, type: 3}
   _sprintSprite: {fileID: 21300000, guid: 6bf096ff73031974e8abe2d589445aa4, type: 3}
+  _bagSprite: {fileID: 21300000, guid: 557d058ee4c923c44b0b3c2196a212bc, type: 3}
+  _questSprite: {fileID: 21300000, guid: 41a51722ed7ec084194d3a3c8a8aaa27, type: 3}
+  _mapSprite: {fileID: 21300000, guid: 79f64b6ac1178d740a310321c8676646, type: 3}
+  _tabSprite: {fileID: 21300000, guid: 900194fee529553469438759315fe871, type: 3}
