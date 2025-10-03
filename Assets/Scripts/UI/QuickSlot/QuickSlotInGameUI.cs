@@ -29,6 +29,9 @@ public class QuickSlotInGameUI : UIBase
         }
     }
 
+    private float _prevTime = 0;
+    private float _scrollInterval = 0.5f;
+
     protected override void InitBase()
     {
         _isActvieOnStart = true;
@@ -47,22 +50,33 @@ public class QuickSlotInGameUI : UIBase
     {
         if (_slotCount == 0) return;
 
-        if (Input.GetKeyUp(KeyCode.Alpha1))
+        if (Time.time -  _prevTime > _scrollInterval)
         {
-            _currentIndex = (_currentIndex - 1 + _slotCount) % _slotCount;
-            SetSlotSprite(_actualIndex);
+            float axis = Input.GetAxis("Mouse ScrollWheel");
+
+            if (axis != 0)
+            {
+                _prevTime = Time.time;
+
+                if (axis < 0)
+                {
+                    Debug.Log(-1);
+                    _currentIndex = (_currentIndex - 1 + _slotCount) % _slotCount;
+                    SetSlotSprite(_actualIndex);
+                }
+                else if (axis > 0)
+                {
+                    Debug.Log(1);
+                    _currentIndex = (_currentIndex + 1) % _slotCount;
+                    SetSlotSprite(_actualIndex);
+                }
+            }
         }
 
-        if (Input.GetKeyUp(KeyCode.Alpha2))
+        if (Input.GetKeyUp(KeyCode.E))
         {
             Debug.Log("aaaa");
             UseItem().Forget();
-        }
-
-        if (Input.GetKeyUp(KeyCode.Alpha3))
-        {
-            _currentIndex = (_currentIndex + 1) % _slotCount;
-            SetSlotSprite(_actualIndex);
         }
     }
 
