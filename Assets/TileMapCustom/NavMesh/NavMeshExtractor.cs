@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NavMeshPlus.Components;
 using System;
 using System.Collections;
@@ -12,7 +13,6 @@ using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
-using static Antlr4.Runtime.Atn.SemanticContext;
 using EM = ExtractorMaster;
 
 public class NavMeshExtractor : MonoBehaviour, IExtractorLate
@@ -705,3 +705,4 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
         AssetDatabase.SaveAssets();
     }
 }
+#endif

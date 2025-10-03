@@ -21,7 +21,9 @@ public class EventAreaExtractor : MonoBehaviour, IExtractor
             BoxCollider2D collider = child.GetComponent<BoxCollider2D>();
 
             data = eventArea.Data;
+#if UNITY_EDITOR
             data.Pos = ExtractorMaster.Instance.CorrectPos(child.position);
+#endif
             data.Offset = collider.offset;
             data.Size = collider.size;
 

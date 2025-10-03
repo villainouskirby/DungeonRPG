@@ -16,7 +16,9 @@ public class InteractionObj
         int tileX = Mathf.FloorToInt((interactionTile.transform.position.x) / 1f);
         int tileY = Mathf.FloorToInt((interactionTile.transform.position.y) / 1f);
         TilePos = new(tileX, tileY);
+#if UNITY_EDITOR
         TilePos = ExtractorMaster.Instance.CorrectPos(TilePos);
+#endif
         Type = interactionTile.Type;
         Z = interactionTile.Z;
         LayerName = interactionTile.LayerName;

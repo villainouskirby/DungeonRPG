@@ -1,15 +1,17 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.Rendering.Universal;
+#if UNITY_EDITOR
 using System.Net;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEditor.U2D;
-using UnityEngine;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
@@ -213,6 +215,7 @@ public class DecoExtractor : MonoBehaviour, IExtractor
         Debug.Log($"DecoExtractor : {groupName} 그룹에 Addressable로 등록 완료");
     }
 }
+#endif
 
 [System.Serializable]
 public class DecoObjData

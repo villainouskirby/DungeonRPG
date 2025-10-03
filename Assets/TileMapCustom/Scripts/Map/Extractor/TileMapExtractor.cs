@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
@@ -532,3 +533,4 @@ public class TileMapExtractor : MonoBehaviour, IExtractorFirst
         return tex;
     }
 }
+#endif

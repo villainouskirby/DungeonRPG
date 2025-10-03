@@ -108,7 +108,7 @@ public static class SaveManager
         {
             TileMapData oriData;
             Debug.Log($"{((MapEnum)i).ToString()}_MapData");
-            JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", ExtractorMaster.DataFileDirectory);
+            JJSave.RLoad(out oriData, $"{((MapEnum)i).ToString()}_MapData", "TileMapData/");
             if (oriData == null)
                 continue;
             JJSave.LSave(oriData.All, $"{((MapEnum)i).ToString()}_All", $"SaveFile/{saveSlotIndex}/{((MapEnum)i).ToString()}/");

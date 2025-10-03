@@ -187,12 +187,16 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
             if (distance <= spawner.MaxRange && distance > spawner.MinRange)
             {
                 ActiveSpawner.Add(spawner);
+#if UNITY_EDITOR
                 spawnerGizmo.Add(spawner);
+#endif
             }
             else
             {
                 ActiveSpawner.Remove(spawner);
+#if UNITY_EDITOR
                 spawnerGizmo.Remove(spawner);
+#endif
             }
         }
 
@@ -206,12 +210,16 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
             if (distance <= spawner.MaxRange && distance > spawner.MinRange)
             {
                 ActiveSpawner.Add(spawner);
+#if UNITY_EDITOR
                 spawnerGizmo.Add(spawner);
+#endif
             }
             else
             {
                 ActiveSpawner.Remove(spawner);
+#if UNITY_EDITOR
                 spawnerGizmo.Remove(spawner);
+#endif
             }
         }
     }
@@ -246,7 +254,7 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
             Gizmos.DrawCube(new(tilePos.x * tileSize + tileSize/2, tilePos.y * tileSize + tileSize/2, 0), Vector3.one * 1f);
         }
     }
-
+#endif
     public void Load(SaveData saveData)
     {
         _isLoad = true;
@@ -278,5 +286,4 @@ public class SpawnerManager : MonoBehaviour, ITileMapOption, ISave
     }
 
     public bool IsSave => true;
-#endif
 }

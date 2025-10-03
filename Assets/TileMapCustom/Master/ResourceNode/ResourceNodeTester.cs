@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.U2D;
@@ -22,7 +23,7 @@ public class ResourceNodeTester : MonoBehaviour
         for (int i = 0; i < target.Count; i++)
             DestroyImmediate(target[i].gameObject);
     }
-
+#if UNITY_EDITOR
     [ContextMenu("Generate All ReosurceNode for Editor")]
     public void GenerateInEditor()
     {
@@ -63,4 +64,6 @@ public class ResourceNodeTester : MonoBehaviour
             resourceNodeBase.Set(ResourceNode[i]);
         }
     }
+#endif
 }
+#endif

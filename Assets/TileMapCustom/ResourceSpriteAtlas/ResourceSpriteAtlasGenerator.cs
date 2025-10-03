@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.U2D;
@@ -178,3 +179,4 @@ public class ResourceSpriteAtlasGenerator : MonoBehaviour
         return AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
     }
 }
+#endif

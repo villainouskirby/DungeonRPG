@@ -8,9 +8,6 @@ using Tutorial;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
-using static UnityEngine.GraphicsBuffer;
 
 [System.Serializable]
 public class EventArea : MonoBehaviour

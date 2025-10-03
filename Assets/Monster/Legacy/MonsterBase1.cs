@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Connect;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.XR;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(Animator))]
 public abstract class MonsterBase1 : MonoBehaviour

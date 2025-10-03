@@ -56,7 +56,7 @@ public class IT_NpcFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {

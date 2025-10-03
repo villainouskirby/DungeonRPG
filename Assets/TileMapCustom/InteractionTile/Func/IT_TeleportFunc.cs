@@ -45,7 +45,7 @@ public class IT_TeleportFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             _player.transform.position = _targetPos;
         }

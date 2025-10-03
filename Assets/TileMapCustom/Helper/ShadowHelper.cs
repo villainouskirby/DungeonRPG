@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+using EM = ExtractorMaster;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -126,3 +128,4 @@ public class ShadowHelper : MonoBehaviour
         }
     }
 }
+#endif

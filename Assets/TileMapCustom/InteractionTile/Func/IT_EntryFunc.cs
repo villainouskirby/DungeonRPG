@@ -45,7 +45,7 @@ public class IT_EntryFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.F))
             { HeightManager.Instance.ChangeLayer(_layer); TileMapMaster.Instance.StartTileMap(_mapType); }
     }
 }

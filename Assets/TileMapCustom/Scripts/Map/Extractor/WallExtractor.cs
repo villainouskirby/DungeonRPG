@@ -1,16 +1,18 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+#if UNITY_EDITOR
+using EM = ExtractorMaster;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using EM = ExtractorMaster;
 
 public class Wallxtractor : MonoBehaviour, IExtractorLate
 {
@@ -213,7 +215,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
         AssetDatabase.SaveAssets();
     }
 }
-
+#endif
 public class PolygonColliderData
 {
     public int PathCount;

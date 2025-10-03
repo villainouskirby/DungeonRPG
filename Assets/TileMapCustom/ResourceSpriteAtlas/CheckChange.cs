@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,3 +24,4 @@ public class CheckChange : MonoBehaviour
         _action.Invoke(_srInfo);
     }
 }
+#endif
