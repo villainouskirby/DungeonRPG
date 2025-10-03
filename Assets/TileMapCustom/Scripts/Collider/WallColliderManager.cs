@@ -69,6 +69,9 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
+        if (ActiveWall.ContainsKey(chunkPos))
+            return;
+
         _handleDic[chunkPos] = Addressables.LoadAssetAsync<TextAsset>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_WallMesh_{chunkPos.x}_{chunkPos.y}");
 
         _handleDic[chunkPos].Completed += op =>
@@ -80,6 +83,8 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
 
     private void SetWall(PolygonColliderData data, Vector2Int chunkPos)
     {
+        if (ActiveWall.ContainsKey(chunkPos))
+            return;
         ActiveWall[chunkPos] = Pool.Get(data, chunkPos);
     }
 
@@ -90,6 +95,7 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
 
         if (ActiveWall.ContainsKey(wallPos))
         {
+            Debug.Log(wallPos);
             Pool.Return(ActiveWall[wallPos]);
             ActiveWall.Remove(wallPos);
             Addressables.Release(_handleDic[wallPos]);
