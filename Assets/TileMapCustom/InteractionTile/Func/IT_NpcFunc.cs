@@ -18,19 +18,6 @@ public class IT_NpcFunc : MonoBehaviour
         _isActive = false;
         SR.sortingLayerName = npcObj.LayerName;
         SR.sortingOrder = npcObj.LayerIndex;
-
-        switch (_npcName) // 대충 UI Open하는 코드 추가 작성
-        {
-            case NPC.Smith:
-                gameObject.GetComponent<SpriteRenderer>().color = Color.red;
-                break;
-            case NPC.Shop:
-                gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
-                break;
-            case NPC.C:
-                gameObject.GetComponent<SpriteRenderer>().color = Color.green;
-                break;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

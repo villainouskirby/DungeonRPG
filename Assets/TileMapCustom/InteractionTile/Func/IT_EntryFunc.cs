@@ -46,6 +46,6 @@ public class IT_EntryFunc : MonoBehaviour
             return;
 
         if (Input.GetKeyDown(KeyCode.F))
-            { HeightManager.Instance.ChangeLayer(_layer); TileMapMaster.Instance.StartTileMap(_mapType); }
+            { HeightManager.Instance.ChangeLayer(_layer); TileMapMaster.Instance.LastLocation = TileMapMaster.Instance.Player.transform.position; TileMapMaster.Instance.StartTileMap(_mapType); }
     }
 }

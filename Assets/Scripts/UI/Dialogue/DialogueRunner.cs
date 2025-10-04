@@ -1,14 +1,15 @@
+using Cysharp.Threading.Tasks;
+using DBUtility;
+using Events;
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Tutorial;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using DBUtility;
-using Events;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
-using Tutorial;
 
 public class DialogueRunner : UIBase
 {
@@ -75,6 +76,18 @@ public class DialogueRunner : UIBase
         StartPrint(dialogueName).Forget();
     }
 
+    public bool HasKey(string key)
+    {
+        foreach (var locator in Addressables.ResourceLocators)
+        {
+            if (locator.Locate(key, typeof(object), out IList<IResourceLocation> locations))
+            {
+                return true; // 키 존재
+            }
+        }
+        return false; // 키 없음
+    }
+
     public async UniTaskVoid StartPrint(string dialogueName)
     {
         if (_isDialogueRunning) return;
@@ -87,6 +100,8 @@ public class DialogueRunner : UIBase
 
         _isDialogueRunning = true;
 
+        if (!HasKey("Dialogue/" + dialogueName))
+            return;
         _handle = Addressables.LoadAssetAsync<DialogueSO>("Dialogue/" + dialogueName);
         await _handle.ToUniTask();
 

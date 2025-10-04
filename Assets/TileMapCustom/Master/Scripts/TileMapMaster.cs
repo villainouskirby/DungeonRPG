@@ -85,9 +85,12 @@ public class TileMapMaster : MonoBehaviour
     }
 
 
+    public Vector2 LastLocation;
+
     public void Init()
     {
         _instance = this;
+        LastLocation = Vector2.zero;
 
         // Base, Option들을 전부 찾아서 Prime 기준으로 Sort해준다.
         CollectTarget(out _base);
@@ -106,6 +109,8 @@ public class TileMapMaster : MonoBehaviour
     {
         UIPopUpHandler.Instance.GetScript<LoadingPanel>().StartLoading();
         Player.transform.position = data.PlayerPos;
+        if (LastLocation != Vector2.zero)
+            Player.transform.position = LastLocation;
         MapType = data.mapType;
 
         for (int i = 0; i < _base.Count; i++)
