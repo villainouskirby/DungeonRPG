@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using CM = ChunkManager;
 using DL = DataLoader;
 
@@ -61,12 +62,28 @@ public class WallColliderManager : MonoBehaviour, ITileMapBase
         }
     }
 
+
+    public bool HasKey(string key)
+    {
+        foreach (var locator in Addressables.ResourceLocators)
+        {
+            if (locator.Locate(key, typeof(object), out IList<IResourceLocation> locations))
+            {
+                return true; // 키 존재
+            }
+        }
+        return false; // 키 없음
+    }
+
     private void LoadWall(Vector2Int chunkPos)
     {
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
         if (ActiveWall.ContainsKey(chunkPos))
+            return;
+
+        if (!HasKey($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_WallMesh_{chunkPos.x}_{chunkPos.y}"))
             return;
 
         _handleDic[chunkPos] = Addressables.LoadAssetAsync<TextAsset>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_WallMesh_{chunkPos.x}_{chunkPos.y}");
