@@ -40,6 +40,11 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 
         _image.sprite = _defaultSprite;
 
+        if (_button == null)
+        {
+            _button = GetComponent<Button>();
+        }
+
         if (_rect == null)
         {
             _rect = GetComponent<RectTransform>();
