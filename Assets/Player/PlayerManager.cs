@@ -1,5 +1,6 @@
 using Core;
 using UnityEngine;
+using static ItemDataExtensions.ItemDataExtension;
 
 /// <summary>
 /// 플레이어 동작 전역 허브:
@@ -42,5 +43,9 @@ public class PlayerManager : Singleton<PlayerManager>
     void Start()
     {
         InitializePlayerStatsToDefaults();
+    }
+    void Awake()
+    {
+        Debug.Log($"[PM] Awake {GetInstanceID()} on {name} (scene={gameObject.scene.name})");
     }
 }

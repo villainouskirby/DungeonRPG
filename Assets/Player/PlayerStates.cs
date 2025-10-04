@@ -533,6 +533,7 @@ public class EscapeState : IPlayerState
 
     public void Enter()
     {
+        if (UIPopUpHandler.Instance.IsUIOpen) { return; }
         if ((PlayerManager.Instance != null && !PlayerManager.Instance.CanDodge) ||
        invalid || !pc.TryBeginEscape())
         {

@@ -30,6 +30,8 @@ public class Equipment : UIBase, ISave
     {
         UIPopUpHandler.Instance.RegisterUI(this);
         _isActvieOnStart = true;
+
+        RefreshAttackGateByWeapon();
     }
 
     public void Equip(EquipmentItem equipmentItem)
@@ -50,6 +52,8 @@ public class Equipment : UIBase, ISave
         {
             UIPopUpHandler.Instance.GetScript<QuickSlot>().InitQuickSlot();
         }
+
+        if (type == EquipmentType.Weapon) RefreshAttackGateByWeapon();
     }
 
     public void UnEquip(EquipmentType type)
@@ -61,6 +65,8 @@ public class Equipment : UIBase, ISave
         UpdateEquipmentEffect(type, false);
         _playerEquipments.Remove(type);
         UpdateSlot(type);
+
+        if (type == EquipmentType.Weapon) RefreshAttackGateByWeapon();
     }
 
     /// <summary>
@@ -98,6 +104,18 @@ public class Equipment : UIBase, ISave
         _equipmentUI.SetEquipmentEffect();
     }
 
+    /// <summary>
+    /// 무기 장착 여부에 따라 전역 공격, 가드 허용을 토글
+    /// </summary>
+    private void RefreshAttackGateByWeapon()
+    {
+        bool hasWeapon = _playerEquipments.ContainsKey(EquipmentType.Weapon);
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.SetAttack(hasWeapon);
+            PlayerManager.Instance.SetGuard(hasWeapon);
+        }
+    }
     public void UpdateSlot(EquipmentType type)
     {
         EquipmentItem ei;
@@ -120,6 +138,8 @@ public class Equipment : UIBase, ISave
     public void Load(SaveData saveData)
     {
         _playerEquipments = saveData.Equipments;
+
+        RefreshAttackGateByWeapon();
     }
 
     public void Save(SaveData saveData)
