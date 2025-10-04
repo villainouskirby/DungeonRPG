@@ -544,6 +544,7 @@ GameObject:
   - component: {fileID: 1537223053017705400}
   - component: {fileID: 1932792426776886736}
   - component: {fileID: 8787263582750568838}
+  - component: {fileID: 7612857767592740768}
   m_Layer: 5
   m_Name: SetToQuickSlotButton
   m_TagString: Untagged
@@ -598,7 +599,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 574e8696ae6c2da41962454dd87e837d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c57277f7bd9f58f408fe3884a6fef7b1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -652,6 +653,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7612857767592740768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421048068076414757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6754b4acbd7faab4e93ba79511be027a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isResetOnRealease: 1
+  _isResetOnExit: 0
+  _isSetSizeToSprite: 1
+  _innerSpriteHandler: {fileID: 0}
+  _defaultSprite: {fileID: 21300000, guid: c57277f7bd9f58f408fe3884a6fef7b1, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: e350c5c3ce488404baf3ca27804a6182, type: 3}
+  _disabledSprite: {fileID: 0}
+  _enterSprite: {fileID: 0}
 --- !u!1 &626400288923678837
 GameObject:
   m_ObjectHideFlags: 0
@@ -2076,6 +2097,7 @@ GameObject:
   - component: {fileID: 6373844795936164150}
   - component: {fileID: 2870668308254727924}
   - component: {fileID: 1648745908332796088}
+  - component: {fileID: 171017260208964896}
   m_Layer: 5
   m_Name: RemoveButton
   m_TagString: Untagged
@@ -2130,7 +2152,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: aa581d8aef90c4f47acf8c6283929539, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1471922926b5d3740b81b22bb04d6672, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2184,6 +2206,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &171017260208964896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647427490625814778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6754b4acbd7faab4e93ba79511be027a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isResetOnRealease: 1
+  _isResetOnExit: 0
+  _isSetSizeToSprite: 1
+  _innerSpriteHandler: {fileID: 0}
+  _defaultSprite: {fileID: 21300000, guid: 1471922926b5d3740b81b22bb04d6672, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: aa581d8aef90c4f47acf8c6283929539, type: 3}
+  _disabledSprite: {fileID: 0}
+  _enterSprite: {fileID: 0}
 --- !u!1 &1756423025874226872
 GameObject:
   m_ObjectHideFlags: 0
@@ -4364,6 +4406,7 @@ GameObject:
   - component: {fileID: 9030005685001808741}
   - component: {fileID: 2699454009413113434}
   - component: {fileID: 8323913549551253267}
+  - component: {fileID: 4050144940081129928}
   m_Layer: 5
   m_Name: UseButton
   m_TagString: Untagged
@@ -4472,6 +4515,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4050144940081129928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3601930823875867358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6754b4acbd7faab4e93ba79511be027a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _isResetOnRealease: 1
+  _isResetOnExit: 0
+  _isSetSizeToSprite: 1
+  _innerSpriteHandler: {fileID: 0}
+  _defaultSprite: {fileID: 21300000, guid: a19bf9c62f29e0542aaf8cb3c03b4a4e, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 4821b032b972f6840817e2fd6ac9e9ce, type: 3}
+  _disabledSprite: {fileID: 0}
+  _enterSprite: {fileID: 0}
 --- !u!1 &3695541605305447082
 GameObject:
   m_ObjectHideFlags: 0
@@ -7370,7 +7433,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 16fd1edbc43c33948bc963c29e38496d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ccc9f14bfc426ff4fa31914348f1f453, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10726,6 +10789,18 @@ MonoBehaviour:
   _setToQuickSlotButton: {fileID: 8787263582750568838}
   _useButton: {fileID: 8323913549551253267}
   _removeButton: {fileID: 1648745908332796088}
+  _images:
+  - {fileID: 2699454009413113434}
+  - {fileID: 1932792426776886736}
+  - {fileID: 2870668308254727924}
+  _normalSprite:
+  - {fileID: 21300000, guid: a19bf9c62f29e0542aaf8cb3c03b4a4e, type: 3}
+  - {fileID: 21300000, guid: c57277f7bd9f58f408fe3884a6fef7b1, type: 3}
+  - {fileID: 21300000, guid: 1471922926b5d3740b81b22bb04d6672, type: 3}
+  _disableSprite:
+  - {fileID: 21300000, guid: 4f2020f8313197d4fa2c39feeae2154e, type: 3}
+  - {fileID: 21300000, guid: 574e8696ae6c2da41962454dd87e837d, type: 3}
+  - {fileID: 21300000, guid: eb5e96720401de24184df3a99428638a, type: 3}
   _removePopUpUI: {fileID: 8120703544040755342}
 --- !u!1 &8643856091242208387
 GameObject:

@@ -20,6 +20,7 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     [SerializeField] private Sprite _enterSprite;
 
     private Image _image;
+    private Button _button;
     private RectTransform _rect;
 
     private bool _isFixed = false;
@@ -63,6 +64,8 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 
         if (_defaultSprite == null) return;
 
+        if (_button && !_button.interactable) return;
+
         if (_image == null)
         {
             _image = GetComponent<Image>();
@@ -77,6 +80,8 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     public void SetPressedSprite()
     {
         if (_pressedSprite == null) return;
+
+        if (_button && !_button.interactable) return;
 
         if (_image == null)
         {
@@ -93,6 +98,8 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (_disabledSprite == null) return;
 
+        if (_button && !_button.interactable) return;
+
         if (_image == null)
         {
             _image = GetComponent<Image>();
@@ -107,6 +114,8 @@ public class ButtonSpriteHandler : MonoBehaviour, IPointerDownHandler, IPointerU
     public void SetEnterSprite()
     {
         if (_enterSprite == null) return;
+
+        if (_button && !_button.interactable) return;
 
         if (_image == null)
         {

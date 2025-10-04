@@ -148,17 +148,17 @@ public class InventoryUI : SlotInteractHandler
 
         // 현재 중량에 따른 색 변경
         Color color;
-        if (currentCapacity >= 0.9 * maxCapacity)
+        if (currentCapacity >= maxCapacity)
         {
             color = Color.red;
         }
-        else if (currentCapacity >= 0.8 * maxCapacity)
+        else if (currentCapacity >= 0.9 * maxCapacity)
         {
             color = Color.yellow;
         }
         else
         {
-            color = Color.black;
+            color = Color.white;
         }
         _currentWeightText.color = color;
         ApplyWeightPenaltyToPlayer(currentCapacity, maxCapacity);

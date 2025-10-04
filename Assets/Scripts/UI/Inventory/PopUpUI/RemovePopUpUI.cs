@@ -7,7 +7,7 @@ public class RemovePopUpUI : AmountSelectPopUpUI
 
     public override void SetItemData(int index)
     {
-        _popUpName.text = "Remove";
+        //_popUpName.text = "Remove";
         ItemData itemData = _inventoryUI.GetItemData(index);
         SetItemData(index, itemData.IconSprite, itemData.Name, _inventoryUI.GetItemAmount(index));
     }
