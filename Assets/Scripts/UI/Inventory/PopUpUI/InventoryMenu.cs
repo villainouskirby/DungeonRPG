@@ -10,6 +10,10 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField] private Button _useButton;
     [SerializeField] private Button _removeButton;
 
+    [SerializeField] private Image[] _images;
+    [SerializeField] private Sprite[] _normalSprite;
+    [SerializeField] private Sprite[] _disableSprite;
+
     [SerializeField] private RemovePopUpUI _removePopUpUI;
 
     private bool _isOnPointer = false;
@@ -99,6 +103,33 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 _removePopUpUI.SetItemData(index);
                 CloseUI();
             });
+        }
+
+        if (_useButton.interactable)
+        {
+            _images[0].sprite = _normalSprite[0];
+        }
+        else
+        {
+            _images[0].sprite = _disableSprite[0];
+        }
+
+        if (_setToQuickSlotButton.interactable)
+        {
+            _images[1].sprite = _normalSprite[1];
+        }
+        else
+        {
+            _images[1].sprite = _disableSprite[1];
+        }
+
+        if (_removeButton.interactable)
+        {
+            _images[2].sprite = _normalSprite[2];
+        }
+        else
+        {
+            _images[2].sprite = _disableSprite[2];
         }
     }
 

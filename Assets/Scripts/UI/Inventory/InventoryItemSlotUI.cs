@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using TMPro;
+using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,9 +11,17 @@ public class InventoryItemSlotUI : ItemSlotUI
     [SerializeField] private Image _slotBackground;
     [SerializeField] private GameObject _equippedImage;
     [SerializeField] private GameObject[] _detailAbilityObjects;
+    [SerializeField] private Image[] _detailImages;
     [SerializeField] private TextMeshProUGUI[] _detailAbilityTexts;
     [SerializeField] private TextMeshProUGUI _tierText;
     [SerializeField] private TextMeshProUGUI _explanationText;
+
+    [Header("Detail Sprites")]
+    [SerializeField] private Sprite _colectIcon;
+    [SerializeField] private Sprite _hpIcon;
+    [SerializeField] private Sprite _powerIcon;
+    [SerializeField] private Sprite _speedIcon;
+    [SerializeField] private Sprite _staminaIcon;
 
     [Header("Slider")]
     [SerializeField] private RectTransform _viewport;
@@ -51,13 +60,15 @@ public class InventoryItemSlotUI : ItemSlotUI
         switch (data)
         {
             case WeaponItemData:
-                _detailAbilityTexts[0].text = "공격력 : " + (data as WeaponItemData).WeaponInfo.atk.ToString();
+                _detailImages[0].sprite = _powerIcon;
+                _detailAbilityTexts[0].text = (data as WeaponItemData).WeaponInfo.atk.ToString();
                 activatedDetailCnt = 1;
 
                 break;
 
             case SubWeaponItemData:
-                _detailAbilityTexts[0].text = "채집 레벨 : " + (data as SubWeaponItemData).SubWeaponInfo.count.ToString();
+                _detailImages[0].sprite = _colectIcon;
+                _detailAbilityTexts[0].text = (data as SubWeaponItemData).SubWeaponInfo.count.ToString();
                 activatedDetailCnt = 1;
 
                 break;
@@ -65,11 +76,25 @@ public class InventoryItemSlotUI : ItemSlotUI
             case ArmorItemData:
                 Item_Info_Armor armorInfo = (data as ArmorItemData).ArmorInfo;
 
-                _detailAbilityTexts[0].text = "체력 : " + armorInfo.hp.ToString();
-                _detailAbilityTexts[1].text = "스태미너 : " + armorInfo.stamina.ToString();
+                _detailImages[0].sprite = _hpIcon;
+                _detailImages[1].sprite = _staminaIcon;
+                _detailImages[2].sprite = _speedIcon;
+
+                _detailAbilityTexts[0].text = armorInfo.hp.ToString();
+                _detailAbilityTexts[1].text = armorInfo.stamina.ToString();
+                _detailAbilityTexts[2].text = armorInfo.speed.ToString();
                 activatedDetailCnt = 2;
 
                 break;
+
+            case BackpackItemData:
+                Item_Info_Backpack backpackInfo = (data as BackpackItemData).BackpackInfo;
+
+                _detailImages[0].sprite = _speedIcon;
+                _detailAbilityTexts[0].text = backpackInfo.speed.ToString();
+
+                break;
+
         }
 
 
