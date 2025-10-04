@@ -124,8 +124,8 @@ public class PlayerFarming : MonoBehaviour
 
     private void SelectFarm(GameObject target)
     {
-        if (TargetResourceNodeOutline != null)
-            TargetResourceNodeOutline.OffOutline();
+        //if (TargetResourceNodeOutline != null)
+            //TargetResourceNodeOutline.OffOutline();
 
         TargetObj = target;
         TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
@@ -286,10 +286,10 @@ public class PlayerFarming : MonoBehaviour
             _rangedResourceNodeObj.Remove(collision.transform.parent.gameObject);
             if (collision.transform.parent.gameObject == TargetObj)
             {
-                TargetResourceNodeOutline.OffOutline();
+                //TargetResourceNodeOutline.OffOutline();
                 TargetObj = null;
                 TargetResourceNode = null;
-                TargetResourceNodeOutline = null;
+                //TargetResourceNodeOutline = null;
                 if (IsFarming)
                 {
                     Debug.Log("채집 실패 - 범위를 벗어남");
@@ -302,7 +302,7 @@ public class PlayerFarming : MonoBehaviour
                 IsFarming = false;
                 TargetObj = null;
                 TargetResourceNode = null;
-                TargetResourceNodeOutline = null;
+                //TargetResourceNodeOutline = null;
                 FarmIcon.gameObject.SetActive(false);
             }
         }
