@@ -245,9 +245,8 @@ GameObject:
   - component: {fileID: 5382554830589741717}
   - component: {fileID: 7742637209788341873}
   - component: {fileID: 6620938914345478364}
-  - component: {fileID: 2442131095584760866}
   - component: {fileID: 8422171715171851318}
-  - component: {fileID: -3272728881773259035}
+  - component: {fileID: 2442131095584760866}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -568,6 +567,18 @@ MonoBehaviour:
   gizmoSlash1Color: {r: 1, g: 0, b: 0, a: 0.25}
   gizmoSlash2Color: {r: 1, g: 0, b: 1, a: 0.25}
   gizmoheavyColor: {r: 1, g: 1, b: 0, a: 0.15}
+--- !u!210 &8422171715171851318
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6623701870858405499}
+  m_Enabled: 1
+  m_SortingLayerID: -105541197
+  m_SortingLayer: 3
+  m_SortingOrder: 4
+  m_SortAtRoot: 0
 --- !u!114 &2442131095584760866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -581,58 +592,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleRadius: 0
-  idleIntensity: 0
   sneakRadius: 0
-  sneakIntensity: 1
   sneakMoveRadius: 0
-  sneakMoveIntensity: 1
   moveRadius: 3
-  moveIntensity: 3
   chargingRadius: 1
-  chargingIntensity: 3
   normalAttackRadius: 5
-  normalAttackIntensity: 5
   escapeRadius: 4
-  escapeIntensity: 5
   runRadius: 5
-  runIntensity: 10
   otherRadius: 0
-  otherIntensity: 0
---- !u!210 &8422171715171851318
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6623701870858405499}
-  m_Enabled: 1
-  m_SortingLayerID: -105541197
-  m_SortingLayer: 3
-  m_SortingOrder: 4
-  m_SortAtRoot: 0
---- !u!114 &-3272728881773259035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6623701870858405499}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 611bec9e2e22cb24fb98b69e91572f1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  yOffset: 1.6
-  bg: {fileID: 0}
-  fill: {fileID: 0}
-  fullWidth: 1.6
-  height: 0.22
-  fullColor: {r: 0.25, g: 0.95, b: 0.25, a: 1}
-  lowColor: {r: 0.95, g: 0.25, b: 0.25, a: 1}
-  countDown: 0
-  sortingLayer: Default
-  orderInLayer: 120
 --- !u!1 &8451933295760913560
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class HoundBackstepJumpBehaviourSO : AttackBehaviourSO
     public float jumpDistance = 3f;
     public float jumpDuration = 0.5f;   // 전체 점프 시간
     public float sampleRadius = 0.8f;   // 스냅 반경
-    public float afterdelay = 0.5f; // 점프 후 후딜레이
+
     public override bool CanRun(MonsterContext ctx)
         => ctx.player != null;
 
@@ -65,15 +65,9 @@ public class HoundBackstepJumpBehaviourSO : AttackBehaviourSO
         // 분기(근접 50 / 오빗 50)
         ctx.nextBehaviourIndex = (Random.Range(0, 100) < 50) ? 0 : 2;
 
-        // 점프 끝나면 플레이어를 바라보게, 후딜레이 적용
+        // 점프 끝나면 플레이어를 바라보게
         if (ctx.player)
-        {
             ctx.SetForward((ctx.player.position - ctx.transform.position).normalized);
-            ctx.agent.isStopped = true;
-            ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
-            yield return new WaitForSeconds(afterdelay);
-            ctx.agent.isStopped = false;
-        }
     }
 
     public override void OnInterrupt(MonsterContext ctx)

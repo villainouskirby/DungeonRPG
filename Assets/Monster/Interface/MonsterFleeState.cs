@@ -18,7 +18,6 @@ public sealed class MonsterFleeState : IMonsterState
     const float ANIM_UPDATE_COOLD = 0.05f; // SetTag 스팸 방지
     float _animCooldown;
 
-    float _stateEnterTime;
     bool _isDashing;   // 돌진 중 여부
     bool _isReleased;  // 릴리즈 처리 여부
     float _elapsed;    // 도망 경과 시간
@@ -33,7 +32,7 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.indicator?.Show(MonsterStateTag.Flee);
         ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
-        _stateEnterTime = Time.time;
+
         float spd = (ctx.data.fleeSpeed > 0f) ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
         ctx.agent.speed = spd;
         ctx.agent.isStopped = false;
@@ -160,7 +159,7 @@ public sealed class MonsterFleeState : IMonsterState
         }
 
         // 정지 상태가 일정 시간 지속되면 → 돌진 시작
-        if (_stateEnterTime + 3f < Time.time &&!_isDashing && !moving && _stillAccum >= STILL_HOLD_SEC)
+        if (!_isDashing && !moving && _stillAccum >= STILL_HOLD_SEC)
         {
             DashTowardPlayer().Forget();
         }
@@ -174,7 +173,7 @@ public sealed class MonsterFleeState : IMonsterState
 
         Vector3 dir = (ctx.player.position - ctx.transform.position).normalized;
         float dashSpeed = ctx.data.fleeDashSpeed > 0 ? ctx.data.fleeDashSpeed : ctx.data.fleeSpeed * 1.5f;
-        float duration = 2.4f;
+        float duration = 3f;
         float elapsed = 0f;
 
         ctx.agent.enabled = false; // NavMeshAgent 끄고 수동 이동
