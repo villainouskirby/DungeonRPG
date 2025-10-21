@@ -74,8 +74,10 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         }
         else
         {
-            _setToQuickSlotButton.interactable = _inventoryUI.CheckItemUsable(index);
-            _useButton.interactable = _inventoryUI.CheckItemUsable(index);
+            bool isUsable = _inventoryUI.CheckItemUsable(index);
+
+            _setToQuickSlotButton.interactable = isUsable;
+            _useButton.interactable = isUsable;
 
             _useButton.onClick.AddListener(() =>
             {
@@ -97,6 +99,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             _removeButton.interactable = false;
         }
+        else
         {
             _removeButton.onClick.AddListener(() =>
             {

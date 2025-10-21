@@ -1079,7 +1079,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5419,7 +5419,7 @@ PrefabInstance:
     - target: {fileID: 7419178380967891492, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000025749207
+      value: -0.000043094158
       objectReference: {fileID: 0}
     - target: {fileID: 7513065301469500711, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
@@ -8045,6 +8045,7 @@ MonoBehaviour:
   Player: {fileID: 1252477883}
   WallRoot: {fileID: 0}
   LayerRoot: {fileID: 446844720}
+  LastLocation: {x: 0, y: 0}
 --- !u!4 &2082541861
 Transform:
   m_ObjectHideFlags: 0
