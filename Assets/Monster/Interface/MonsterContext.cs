@@ -30,6 +30,7 @@ public sealed class MonsterContext
     public float attack;
     public float hearRange;
     public float sightDistance;
+    public bool SightLocked { get; set; }
     public float speed;
     public Vector3 LastHeardPos;
     public bool IsFastReturn;
@@ -88,6 +89,7 @@ public sealed class MonsterContext
     public bool CanSeePlayer(float maxDist, float fovAngleDeg)
     {
         if (!player) return false;
+        if (SightLocked) return false;
 
         Vector2 start = transform.position;
         Vector2 dir = (player.position - transform.position);
@@ -130,12 +132,17 @@ public sealed class MonsterContext
     public bool CanHearPlayer(float baseRange)
     {
         if (!player) return false;
+        if (!PlayerSoundRange.Instance) return false;
+        var psr = PlayerSoundRange.Instance;
 
         float dist = Vector2.Distance(transform.position, player.position);
         int walls = CountObstaclesBetween(transform.position, player.position);
 
         float reduced = baseRange - walls * data.soundObstaclePenalty;
         reduced = Mathf.Max(0f, reduced);
+
+        if (psr.NoiseIntensity < data.minSoundIntensityToDetect)
+            return false;
 
         float hearable = reduced + (PlayerSoundRange.Instance ? PlayerSoundRange.Instance.NoiseRadius : 0f);
         return dist <= hearable;

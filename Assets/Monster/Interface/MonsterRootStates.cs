@@ -22,8 +22,9 @@ public sealed class MonsterIdleState : IMonsterState
         ctx.indicator?.Show(MonsterStateTag.Idle);
         ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         bettleMode = (ctx.data.category == MonsterData.MonsterCategory.Beetle);
-        if (bettleMode) // 딱정벌레면은 그냥 가만히
+        if (bettleMode) // 딱정벌레면은 그냥 가만히, 시야도 막음
         {
+            ctx.SightLocked = true;
             ctx.agent.isStopped = true;
         }
         if (!ctx.data.canMove)         // 고정형 Idle 유지
@@ -152,6 +153,7 @@ public sealed class MonsterDetectState : IMonsterState
         ctx.animationHub?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
         ctx.agent.speed = ctx.data.detectSpeed;
+        ctx.SightLocked = false;
 
         Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
 
