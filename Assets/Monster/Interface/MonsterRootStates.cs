@@ -25,6 +25,7 @@ public sealed class MonsterIdleState : IMonsterState
         if (bettleMode) // 딱정벌레면은 그냥 가만히
         {
             ctx.agent.isStopped = true;
+            ctx.SightLocked = true;
         }
         if (!ctx.data.canMove)         // 고정형 Idle 유지
             return;
@@ -152,6 +153,7 @@ public sealed class MonsterDetectState : IMonsterState
         ctx.animationHub?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
         ctx.agent.speed = ctx.data.detectSpeed;
+        ctx.SightLocked = false;
 
         Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
 

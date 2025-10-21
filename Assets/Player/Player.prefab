@@ -592,14 +592,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idleRadius: 0
+  idleIntensity: 0
   sneakRadius: 0
+  sneakIntensity: 1
   sneakMoveRadius: 0
+  sneakMoveIntensity: 1
   moveRadius: 3
+  moveIntensity: 3
   chargingRadius: 1
+  chargingIntensity: 3
   normalAttackRadius: 5
+  normalAttackIntensity: 5
   escapeRadius: 4
+  escapeIntensity: 10
   runRadius: 5
+  runIntensity: 5
   otherRadius: 0
+  otherIntensity: 0
 --- !u!1 &8451933295760913560
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,6 +21,7 @@ public sealed class MonsterFleeState : IMonsterState
     bool _isDashing;   // 돌진 중 여부
     bool _isReleased;  // 릴리즈 처리 여부
     float _elapsed;    // 도망 경과 시간
+    float _stateEnterTime;
 
     bool cleanerMode;
     bool bettleMode;
@@ -32,7 +33,7 @@ public sealed class MonsterFleeState : IMonsterState
         ctx.indicator?.Show(MonsterStateTag.Flee);
         ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
-
+        _stateEnterTime = Time.time;
         float spd = (ctx.data.fleeSpeed > 0f) ? ctx.data.fleeSpeed : ctx.data.detectSpeed;
         ctx.agent.speed = spd;
         ctx.agent.isStopped = false;
@@ -159,7 +160,7 @@ public sealed class MonsterFleeState : IMonsterState
         }
 
         // 정지 상태가 일정 시간 지속되면 → 돌진 시작
-        if (!_isDashing && !moving && _stillAccum >= STILL_HOLD_SEC)
+        if (_stateEnterTime + 3f < Time.time && !_isDashing && !moving && _stillAccum >= STILL_HOLD_SEC)
         {
             DashTowardPlayer().Forget();
         }

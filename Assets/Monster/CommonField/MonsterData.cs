@@ -14,8 +14,13 @@ public class MonsterData : ScriptableObject
 
     [Header("이동 / 시야")]
     public bool canMove = true; // 터렛처럼 정지형이면 false
+    [Tooltip("몬스터가 소리를 '인지'하기 위한 최소 소리 범위")]
     public float hearRange = 3f;   // 청각 반경(고정)
+    [Tooltip("몬스터가 소리를 '인지'하기 위한 최소 소리 강도")]
+    public int minSoundIntensityToDetect = 5;
+    [Tooltip("시야 거리")]
     public float sightDistance = 6f;   // 시야 거리
+    [Tooltip("시야 각도")]
     public float sightAngle = 90f;
     public float lostDistance = 8f;   // 시야 벗어나면 Combat 해제
     public float wanderRadius = 4f;   // Idle 산책 범위
