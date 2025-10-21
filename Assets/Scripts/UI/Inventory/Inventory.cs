@@ -601,7 +601,7 @@ public class Inventory : UIBase, ISave
         }
     }
 
-    public bool CheckItemUsable(int index) => _items[index] is IUsableItem;
+    public bool CheckItemUsable(int index) => _items[index].Data.Info.usable;
 
     public virtual void Load(SaveData saveData)
     {
