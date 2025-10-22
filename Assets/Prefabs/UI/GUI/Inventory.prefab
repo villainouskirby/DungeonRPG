@@ -1723,7 +1723,7 @@ GameObject:
   - component: {fileID: 3973303733145991009}
   - component: {fileID: 9011547213451674583}
   m_Layer: 5
-  m_Name: EquipmentButton
+  m_Name: UsableButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3464,7 +3464,7 @@ GameObject:
   - component: {fileID: 4796377485074663405}
   - component: {fileID: 7630712393433689294}
   m_Layer: 5
-  m_Name: UsableButton
+  m_Name: PotionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4439,7 +4439,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ac424a787d0d2424e83147d23aff92e7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 935acd1b34f4174418f278ee7f2e33c7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4465,8 +4465,8 @@ MonoBehaviour:
   _isResetOnExit: 1
   _isSetSizeToSprite: 0
   _innerSpriteHandler: {fileID: 0}
-  _defaultSprite: {fileID: 21300000, guid: f7217eb794262ad45b6870c76258aa37, type: 3}
-  _pressedSprite: {fileID: 21300000, guid: ac424a787d0d2424e83147d23aff92e7, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: 452022646f95afb49b2cf8fb7f3b9151, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 935acd1b34f4174418f278ee7f2e33c7, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
 --- !u!1 &3601930823875867358
@@ -5748,10 +5748,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5861478063954166594}
-  - {fileID: 739043446006841720}
   - {fileID: 8416287086112797949}
   - {fileID: 5090000779852407554}
   - {fileID: 6722104212895777788}
+  - {fileID: 739043446006841720}
   m_Father: {fileID: 9059939460855167007}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6047,7 +6047,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2bcbfa253a14ee541a69a50368e6e03f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0523f785f985c2c4fbae027fefc2eea8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6073,8 +6073,8 @@ MonoBehaviour:
   _isResetOnExit: 1
   _isSetSizeToSprite: 0
   _innerSpriteHandler: {fileID: 0}
-  _defaultSprite: {fileID: 21300000, guid: b63ef040af31a7247bc903efd1932904, type: 3}
-  _pressedSprite: {fileID: 21300000, guid: 2bcbfa253a14ee541a69a50368e6e03f, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: 9e03e42d345619148b96847d379c7762, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 0523f785f985c2c4fbae027fefc2eea8, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
 --- !u!1 &4724501110124878305
@@ -6601,7 +6601,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0523f785f985c2c4fbae027fefc2eea8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ac424a787d0d2424e83147d23aff92e7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6627,8 +6627,8 @@ MonoBehaviour:
   _isResetOnExit: 1
   _isSetSizeToSprite: 0
   _innerSpriteHandler: {fileID: 0}
-  _defaultSprite: {fileID: 21300000, guid: 9e03e42d345619148b96847d379c7762, type: 3}
-  _pressedSprite: {fileID: 21300000, guid: 0523f785f985c2c4fbae027fefc2eea8, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: f7217eb794262ad45b6870c76258aa37, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: ac424a787d0d2424e83147d23aff92e7, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
 --- !u!1 &5006552648556293154
@@ -7681,7 +7681,7 @@ GameObject:
   - component: {fileID: 8625741431778020053}
   - component: {fileID: 5471063098118042633}
   m_Layer: 5
-  m_Name: IngredientButton
+  m_Name: EquipmentButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8288,7 +8288,7 @@ GameObject:
   - component: {fileID: 1848794750335327276}
   - component: {fileID: 2293266138339956017}
   m_Layer: 5
-  m_Name: PotionButton
+  m_Name: IngredientButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8734,7 +8734,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 935acd1b34f4174418f278ee7f2e33c7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2bcbfa253a14ee541a69a50368e6e03f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8760,8 +8760,8 @@ MonoBehaviour:
   _isResetOnExit: 1
   _isSetSizeToSprite: 0
   _innerSpriteHandler: {fileID: 0}
-  _defaultSprite: {fileID: 21300000, guid: 452022646f95afb49b2cf8fb7f3b9151, type: 3}
-  _pressedSprite: {fileID: 21300000, guid: 935acd1b34f4174418f278ee7f2e33c7, type: 3}
+  _defaultSprite: {fileID: 21300000, guid: b63ef040af31a7247bc903efd1932904, type: 3}
+  _pressedSprite: {fileID: 21300000, guid: 2bcbfa253a14ee541a69a50368e6e03f, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
 --- !u!1 &6929658755622277838

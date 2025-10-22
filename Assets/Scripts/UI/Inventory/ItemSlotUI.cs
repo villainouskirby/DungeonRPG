@@ -22,7 +22,7 @@ public class ItemSlotUI : SlotUI
         SetItemInfo(imageSprite);
         _nameText.text = name;
         _itemWeight = Weight;
-        _weightText.text = Weight.ToString();
+        _weightText.text = Weight.ToString() + "kg";
         gameObject.SetActive(true);
     }
 
@@ -35,8 +35,8 @@ public class ItemSlotUI : SlotUI
         }
         else
         {
-            _amountText.text = "X" + amount.ToString();
-            _weightSumText.text = (amount * _itemWeight).ToString();
+            _amountText.text = "X " + amount.ToString();
+            _weightSumText.text = (amount * _itemWeight).ToString() + "kg";
         }
     }
 }

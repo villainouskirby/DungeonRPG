@@ -137,7 +137,7 @@ public class DialogueRunner : UIBase
 
     private void Update()
     {
-        if (_isDialogueRunning && Input.GetMouseButtonUp(0))
+        if (_isDialogueRunning && (Input.GetMouseButtonUp(0) || Input.GetKeyUp(KeyCode.Space)))
         {
             TryPrint();
         }

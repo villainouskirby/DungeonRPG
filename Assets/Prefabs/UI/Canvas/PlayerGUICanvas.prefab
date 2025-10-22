@@ -236,6 +236,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: MenuPalette
       objectReference: {fileID: 0}
+    - target: {fileID: 8529981110614466026, guid: a2cdcd0fa01f12749a792b511ab0b574,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -359,6 +364,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ItemGetPopUp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8622141836901895651, guid: 5dcdf54ef45ec6841ad685273ab9c874,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3275450548111407800, guid: 690bda17b40d93e4094c4570da8d774a,
         type: 3}
@@ -860,6 +870,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory
       objectReference: {fileID: 0}
+    - target: {fileID: 6765442670238909724, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7191604882806176430, guid: 3a98f4bfd2b6b644589e433dc3417071,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -1153,7 +1168,7 @@ PrefabInstance:
     - target: {fileID: 1889387315174873913, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -54
       objectReference: {fileID: 0}
     - target: {fileID: 1889387315174873913, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
         type: 3}
@@ -1293,6 +1308,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: QuickSlot
+      objectReference: {fileID: 0}
+    - target: {fileID: 3519115988332444482, guid: 0c128c39dae018f49bab91a675cd9aa5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

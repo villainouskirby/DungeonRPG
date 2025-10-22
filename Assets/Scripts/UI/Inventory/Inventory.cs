@@ -32,10 +32,10 @@ public class Inventory : UIBase, ISave
     protected Dictionary<ItemType, Func<int>> _indexDict = new();
 
     protected int GetAllItemIndex() => 0;
-    protected int GetEquipmentItemIndex() => 0;
-    protected int GetUsableItemIndex() => _slotCountDict[ItemType.Equipment];
+    protected int GetUsableItemIndex() => 0;
     protected int GetPotionItemIndex() => GetUsableItemIndex() + _slotCountDict[ItemType.Usable];
     protected int GetOthersItemIndex() => GetPotionItemIndex() + _slotCountDict[ItemType.Potion];
+    protected int GetEquipmentItemIndex() => GetOthersItemIndex() + _slotCountDict[ItemType.Others];
 
     /// <returns> 총 아이템(슬롯)수 </returns>
     public int GetItemsCount()
@@ -109,10 +109,10 @@ public class Inventory : UIBase, ISave
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
 
         _indexDict[ItemType.All] = GetAllItemIndex;
-        _indexDict[ItemType.Equipment] = GetEquipmentItemIndex;
         _indexDict[ItemType.Usable] = GetUsableItemIndex;
         _indexDict[ItemType.Potion] = GetPotionItemIndex;
         _indexDict[ItemType.Others] = GetOthersItemIndex;
+        _indexDict[ItemType.Equipment] = GetEquipmentItemIndex;
 
         UpdateWeightText();
 

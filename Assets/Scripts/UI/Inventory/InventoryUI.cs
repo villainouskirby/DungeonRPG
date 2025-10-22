@@ -8,10 +8,10 @@ public class InventoryUI : SlotInteractHandler
     public enum TabType
     {
         All = 0,
-        Equipment = 1,
-        Usable = 2,
-        Potion = 3,
-        Others = 4
+        Usable = 1,
+        Potion = 2,
+        Others = 3,
+        Equipment = 4,
     }
 
     [Header("Scripts")]
