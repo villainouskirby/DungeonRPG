@@ -79,7 +79,7 @@ public class MonsterController : MonoBehaviour
 
         ctx = new(this, mdata);
         ctx.hub.ResetAll();
-
+        MonsterKilledState.ResetAlphaOnSpawn(this.gameObject);
         MaxHP = mdata.Monster_hp;
         CurrentHP = MaxHP;
         ctx.hp = MaxHP;

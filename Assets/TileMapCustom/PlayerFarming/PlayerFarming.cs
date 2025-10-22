@@ -50,6 +50,7 @@ public class PlayerFarming : MonoBehaviour
 
     private Camera _mainCamera;
 
+    bool IsMonsterTarget() => TargetObj != null && TargetObj.CompareTag("Monster");
 
     private void Start()
     {
@@ -128,10 +129,12 @@ public class PlayerFarming : MonoBehaviour
             //TargetResourceNodeOutline.OffOutline();
 
         TargetObj = target;
-        TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
-        TargetResourceNodeOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
-        TargetResourceNodeOutline.OnOutline(GetOutlineColor());
-
+        if (!IsMonsterTarget()) // 몬스터면 자원 전용 컴포넌트/아웃라인 건들지 않기
+        {
+            TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
+            TargetResourceNodeOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
+            TargetResourceNodeOutline.OnOutline(GetOutlineColor());
+        }
         if (FarmIcon == null)
             FarmIcon = Instantiate(IconObj, TargetObj.transform.position + TargetingObjPosCorrect, Quaternion.identity).GetComponent<FarmIconFunc>();
 
@@ -208,6 +211,19 @@ public class PlayerFarming : MonoBehaviour
 
     private bool CheckFarmable()
     {
+        if (IsMonsterTarget())
+        {
+            // 페이드(소멸) 중이면 상호작용 금지
+            if (MonsterKilledState.IsDespawning(TargetObj)) return false;
+
+            // 난이도 필요 시 Monster 측 데이터로 바꿔도 됨. 우선 0으로.
+            int resistance = 0;
+            int levelDifferencemon = Level - resistance;
+            return levelDifferencemon >= MinLevelDifference;
+        }
+
+        // 자원일 때 NPE 방지
+        if (TargetResourceNode == null || TargetResourceNode.Info == null) return false;
         int levelDifference = Level - TargetResourceNode.Info.Resistance;
         return levelDifference >= MinLevelDifference;
     }
@@ -238,6 +254,18 @@ public class PlayerFarming : MonoBehaviour
         IsFarming = false;
         _time = 0;
         FarmGageBar.gameObject.SetActive(false);
+
+        if (IsMonsterTarget())
+        {
+            // 드롭 지급 + 즉시 3초 페이드(→ Release)는 MonsterKilledState가 처리
+            MonsterKilledState.OnFarmSuccess(TargetObj);
+
+            // 타깃/목록 정리
+            _rangedResourceNodeObj.Remove(TargetObj);
+            ResetFarm();
+            Debug.Log("몬스터 파밍");
+            return;
+        }
 
         // 채집 성공 - 임시 코드
         TargetResourceNode.GetItem(ClearFarm);
