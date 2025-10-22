@@ -127,7 +127,7 @@ public class ResourceNodeBase : MonoBehaviour
     {
         transform.DOKill();
         transform.position = _oriPos;
-        transform.DOShakePosition(time, power);
+        transform.DOShakePosition(time, new Vector3(power, power, 0f));
     }
 
     public void Damage(float damage)
