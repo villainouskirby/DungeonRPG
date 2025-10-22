@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using DBUtility;
+using Tutorial;
 
 public class InventoryTest : MonoBehaviour
 {
@@ -26,6 +27,12 @@ public class InventoryTest : MonoBehaviour
     [SerializeField] private bool isMainQuest;
     [SerializeField] private Sprite sprite;
 
+    [SerializeField] Transform interactTestTransform;
+
+    public void OpenInteractUI()
+    {
+        UIPopUpHandler.Instance.GetScript<InteractUI>().OpenInteractPopUp(InteractUI.InteractType.F, interactTestTransform);
+    }
 
     public void AddQuickSlot()
     {
