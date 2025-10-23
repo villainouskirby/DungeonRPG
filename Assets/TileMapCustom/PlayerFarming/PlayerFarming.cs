@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 
 public class PlayerFarming : MonoBehaviour
@@ -126,15 +127,29 @@ public class PlayerFarming : MonoBehaviour
     private void SelectFarm(GameObject target)
     {
         //if (TargetResourceNodeOutline != null)
-            //TargetResourceNodeOutline.OffOutline();
+        //TargetResourceNodeOutline.OffOutline();
+
 
         TargetObj = target;
-        if (!IsMonsterTarget()) // 몬스터면 자원 전용 컴포넌트/아웃라인 건들지 않기
+        if (!IsMonsterTarget())
         {
             TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
-            TargetResourceNodeOutline = TargetObj.transform.GetChild(1).GetComponent<OutlineGenerator>();
-            TargetResourceNodeOutline.OnOutline(GetOutlineColor());
+            // 방어적 접근
+            var t = TargetObj.transform;
+            if (t.childCount > 1)
+                TargetResourceNodeOutline = t.GetChild(1).GetComponent<OutlineGenerator>();
+            else
+                TargetResourceNodeOutline = TargetObj.GetComponentInChildren<OutlineGenerator>(true);
+
+            TargetResourceNodeOutline?.OnOutline(GetOutlineColor());
         }
+        else
+        {
+            // 몬스터일 땐 자원 참조/아웃라인 비움
+            TargetResourceNodeOutline = null;
+            TargetResourceNode = null;
+        }
+
         if (FarmIcon == null)
             FarmIcon = Instantiate(IconObj, TargetObj.transform.position + TargetingObjPosCorrect, Quaternion.identity).GetComponent<FarmIconFunc>();
 
@@ -176,15 +191,9 @@ public class PlayerFarming : MonoBehaviour
             GameObject firstFarm = hit.collider.gameObject;
             if (_rangedResourceNodeObj.Contains(firstFarm))
             {
-                IsMouseSelect = true;
                 SelectFarm(firstFarm);
             }
         }
-        else
-        {
-            IsMouseSelect = false;
-        }
-
         if (Input.GetKeyDown(FarmingKey))
         {
             StartFarm();
@@ -298,9 +307,11 @@ public class PlayerFarming : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("FarmRange"))
+        if (collision.CompareTag("FarmRange"))
         {
-            _rangedResourceNodeObj.Add(collision.transform.parent.gameObject);
+            GameObject parentGo = collision.transform.parent ? collision.transform.parent.gameObject : collision.gameObject;
+            if (!_rangedResourceNodeObj.Contains(parentGo))
+                _rangedResourceNodeObj.Add(parentGo);
 
             if (_rangedResourceNodeObj.Count >= 1)
                 IsTargeting = true;
@@ -311,13 +322,14 @@ public class PlayerFarming : MonoBehaviour
     {
         if (collision.CompareTag("FarmRange"))
         {
-            _rangedResourceNodeObj.Remove(collision.transform.parent.gameObject);
-            if (collision.transform.parent.gameObject == TargetObj)
+            GameObject parentGo = collision.transform.parent ? collision.transform.parent.gameObject : collision.gameObject;
+
+            _rangedResourceNodeObj.Remove(parentGo);
+            if (parentGo == TargetObj)
             {
-                //TargetResourceNodeOutline.OffOutline();
                 TargetObj = null;
                 TargetResourceNode = null;
-                //TargetResourceNodeOutline = null;
+
                 if (IsFarming)
                 {
                     Debug.Log("채집 실패 - 범위를 벗어남");
@@ -330,8 +342,7 @@ public class PlayerFarming : MonoBehaviour
                 IsFarming = false;
                 TargetObj = null;
                 TargetResourceNode = null;
-                //TargetResourceNodeOutline = null;
-                FarmIcon.gameObject.SetActive(false);
+                FarmIcon?.gameObject.SetActive(false);
             }
         }
     }

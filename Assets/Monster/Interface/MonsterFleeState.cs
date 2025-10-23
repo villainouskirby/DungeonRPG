@@ -174,7 +174,7 @@ public sealed class MonsterFleeState : IMonsterState
 
         Vector3 dir = (ctx.player.position - ctx.transform.position).normalized;
         float dashSpeed = ctx.data.fleeDashSpeed > 0 ? ctx.data.fleeDashSpeed : ctx.data.fleeSpeed * 1.5f;
-        float duration = 3f;
+        float duration = 0.5f;
         float elapsed = 0f;
 
         ctx.agent.enabled = false; // NavMeshAgent 끄고 수동 이동

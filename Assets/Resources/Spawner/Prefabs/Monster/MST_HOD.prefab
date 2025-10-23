@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5576968882271249353}
   - component: {fileID: 9200365501202104010}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,6 +85,73 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1892178154980726240
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8641802366620779877}
+  - component: {fileID: 5887658281853954944}
+  m_Layer: 2
+  m_Name: Distance
+  m_TagString: FarmRange
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8641802366620779877
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892178154980726240}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 253870871629854883}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &5887658281853954944
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892178154980726240}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 5
 --- !u!1 &1958449047109215961
 GameObject:
   m_ObjectHideFlags: 0
@@ -95,7 +162,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2274186853316805523}
   - component: {fileID: 3273837709849983511}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +246,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4119642635682651215}
   - component: {fileID: 4496370742800930793}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: Indicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +331,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3819366013571473712}
   - component: {fileID: 8806736305430585713}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -359,7 +426,7 @@ GameObject:
   - component: {fileID: 2792765607173353309}
   - component: {fileID: 208910127237641683}
   - component: {fileID: -7543886781866867926}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: MST_HOD
   m_TagString: Monster
   m_Icon: {fileID: 0}
@@ -379,6 +446,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8641802366620779877}
   - {fileID: 2274186853316805523}
   - {fileID: 5576968882271249353}
   - {fileID: 4119642635682651215}
@@ -569,6 +637,8 @@ MonoBehaviour:
     Monster_DT: 
     Monster_condition: 
     Monster_condition_DT: 
+  lockZ: 1
+  lockedZ: -0.0001
 --- !u!195 &6744450290341369502
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -699,7 +769,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1623933505189961312}
   - component: {fileID: 1479315545441205331}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: BackGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -784,7 +854,7 @@ GameObject:
   m_Component:
   - component: {fileID: 334715161822416862}
   - component: {fileID: 4762896549514728887}
-  m_Layer: 20
+  m_Layer: 25
   m_Name: HPBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}

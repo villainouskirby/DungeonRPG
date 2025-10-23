@@ -6,8 +6,10 @@ using UnityEngine.AI;
 
 public sealed class MonsterKilledState : IMonsterState
 {
-    static readonly System.Collections.Generic.HashSet<GameObject> s_despawning = new();
-    static readonly System.Collections.Generic.Dictionary<GameObject, MonsterKilledState> s_instances = new();
+    static readonly HashSet<GameObject> s_despawning = new();
+    static readonly Dictionary<GameObject, MonsterKilledState> s_instances = new();
+    static readonly Dictionary<GameObject, int> s_versions = new();
+    int _ver = 0;
     readonly MonsterContext ctx;
     readonly MonsterController ctr;
     readonly MonsterStateMachine root;
@@ -32,6 +34,8 @@ public sealed class MonsterKilledState : IMonsterState
             var c = sr.color;
             if (c.a < 1f) sr.color = new Color(c.r, c.g, c.b, 1f);
         }
+        if (!s_versions.TryGetValue(go, out var v)) v = 0;
+        s_versions[go] = v + 1;
         // 혹시 남아있을지 모를 플래그/참조도 정리
         s_despawning.Remove(go);
         s_instances.Remove(go);
@@ -45,7 +49,15 @@ public sealed class MonsterKilledState : IMonsterState
         ctx.SafeStopAgent();
         ctx.anim?.Play("Die");
         ctx.animationHub?.SetTag(MonsterStateTag.Killed, ctx);
+        ctr._killed = true;
+        if (ctx.alert) ctx.alert.gameObject.SetActive(false);
+
+        if (!s_versions.TryGetValue(go, out var v)) v = 0;
+        _ver = s_versions[go] = v + 1;
+
         s_instances[go] = this;
+
+        _isFading = false;
         /*
         // 1) 몬스터에 설정된 드롭테이블 ID (예: DT_BTL_NOR)
         string dtId = ctr.mdata?.Monster_DT;
@@ -95,18 +107,20 @@ public sealed class MonsterKilledState : IMonsterState
     bool _isFading;
 
     // 27초 대기 후(총 30초-3초) 자동 페이드
-    async Cysharp.Threading.Tasks.UniTaskVoid LifeCycleAsync()
+    async UniTaskVoid LifeCycleAsync()
     {
         const float lifeSeconds = 30f;
         const float fadeSeconds = 3f;
         int waitMs = Mathf.Max(0, (int)((lifeSeconds - fadeSeconds) * 1000));
-        await Cysharp.Threading.Tasks.UniTask.Delay(waitMs);
+        await UniTask.Delay(waitMs);
 
-        if (_isFading) return;
+        if (!IsCurrentInstance() || !IsCurrentVersion() || _isFading) return;
+
         await FadeAndReleaseAsync(fadeSeconds);
     }
     void GrantLootAndFadeNow()
     {
+        if (!IsCurrentInstance() || !IsCurrentVersion()) return;
         // 1) 몬스터에 설정된 드롭테이블 ID (예: DT_BTL_NOR)
         string dtId = ctr.mdata?.Monster_DT;
         if (string.IsNullOrEmpty(dtId))
@@ -126,7 +140,7 @@ public sealed class MonsterKilledState : IMonsterState
         }
 
         // 3) 파싱 & 굴림
-        System.Collections.Generic.List<DropResolved> rolls = DropTableResolver.RollDrops(dropRow.DropTable_Info);
+        List<DropResolved> rolls = DropTableResolver.RollDrops(dropRow.DropTable_Info);
 
         // 4) 지급: ItemDataConstructor + AddInventory(data)
         var inv = UIPopUpHandler.Instance.GetScript<Inventory>(); // 프로젝트 인벤토리
@@ -154,23 +168,26 @@ public sealed class MonsterKilledState : IMonsterState
     // 플레이어 파밍 완료 시 바로 호출
     public void StartFadeNow()
     {
+        if (!IsCurrentInstance() || !IsCurrentVersion()) return;
         if (_isFading) return;
         FadeAndReleaseAsync(3f).Forget();
     }
 
-    async Cysharp.Threading.Tasks.UniTask FadeAndReleaseAsync(float fadeSeconds)
+    async UniTask FadeAndReleaseAsync(float fadeSeconds)
     {
+        if (!IsCurrentInstance() || !IsCurrentVersion()) return;
         _isFading = true;
         s_despawning.Add(go);
 
         // 알파 서서히 0으로
         var srs = go.GetComponentsInChildren<SpriteRenderer>(true);
-        var cache = new System.Collections.Generic.List<(SpriteRenderer sr, Color c)>(srs.Length);
+        var cache = new List<(SpriteRenderer sr, Color c)>(srs.Length);
         foreach (var sr in srs) if (sr) cache.Add((sr, sr.color));
 
         float t = 0f;
         while (t < fadeSeconds)
         {
+            if (!IsCurrentInstance() || !IsCurrentVersion()) return;
             float a = Mathf.Lerp(1f, 0f, t / fadeSeconds);
             for (int i = 0; i < cache.Count; i++)
             {
@@ -186,6 +203,7 @@ public sealed class MonsterKilledState : IMonsterState
             if (sr) sr.color = new Color(c.r, c.g, c.b, 0f);
         }
 
+        if (!IsCurrentInstance() || !IsCurrentVersion()) return;
         // 정리
         s_despawning.Remove(go);
         s_instances.Remove(go);
@@ -204,7 +222,15 @@ public sealed class MonsterKilledState : IMonsterState
         await UniTask.Delay(1000);
         SpawnerPool.Instance.MonsterPool.Release(ctx.id, go);
     }
+    bool IsCurrentInstance()
+    {
+        return s_instances.TryGetValue(go, out var inst) && ReferenceEquals(inst, this);
+    }
 
+    bool IsCurrentVersion()
+    {
+        return s_versions.TryGetValue(go, out var cur) && cur == _ver;
+    }
     public void Tick() { }
     public void Exit() { }
 }

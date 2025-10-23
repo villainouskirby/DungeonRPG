@@ -32,7 +32,7 @@ public class MonsterController : MonoBehaviour
     public MonsterStateMachine StateMachine => root;
     public float MaxHP { get; private set; }
     public float CurrentHP { get; private set; }
-    public event System.Action<float, float> OnHpChanged;
+    public event Action<float, float> OnHpChanged;
     public event Action<float> OnDamaged;
 
     public Dictionary<string, Monster_Info_Monster> monsterDic;
@@ -43,6 +43,7 @@ public class MonsterController : MonoBehaviour
     [SerializeField] float lockedZ = -0.0001f;
 
     bool _initialized = false;
+    public bool _killed = false;
     void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
@@ -80,6 +81,7 @@ public class MonsterController : MonoBehaviour
         ctx = new(this, mdata);
         ctx.hub.ResetAll();
         MonsterKilledState.ResetAlphaOnSpawn(this.gameObject);
+        _killed = false;
         MaxHP = mdata.Monster_hp;
         CurrentHP = MaxHP;
         ctx.hp = MaxHP;
@@ -165,6 +167,8 @@ public class MonsterController : MonoBehaviour
     // 새 시그니처 스턴 지속시간 포함
     public void TakeDamage(float dmg, float stunSec)
     {
+        if (_killed)
+            return;
         ctx.hp = Mathf.Max(0, ctx.hp - dmg);
         CurrentHP = ctx.hp;
         OnHpChanged?.Invoke(CurrentHP, MaxHP);

@@ -45,6 +45,8 @@ public class HPBarView : MonoBehaviour
     {
         if (owner)
             owner.OnHpChanged += HandleHpChanged;
+        if (owner)
+            HandleHpChanged(owner.CurrentHP, owner.MaxHP);
         UpdateTransform();
     }
 
@@ -75,6 +77,12 @@ public class HPBarView : MonoBehaviour
         float r = (max <= 0f) ? 0f : current / max;
         r = Mathf.Clamp01(r);
         currentRatio = r;
+
+        if (r <= 0f)
+        {
+            SetInVisible();
+            return;
+        }
 
         ApplySize(r);
         ApplyColor(r);
@@ -152,5 +160,11 @@ public class HPBarView : MonoBehaviour
     {
         if (bg) bg.enabled = on;
         if (fill) fill.enabled = on;
+    }
+
+    public void SetInVisible()
+    {
+        if (bg) bg.enabled = false;
+        if (fill) fill.enabled = false;
     }
 }
