@@ -588,7 +588,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     { 
         if (stateLocked)
         {
-            if(s is IdleState || s is MoveState)
+            if(s is IdleState)
                 stateMachine.ChangeState(s);
         }
         else
