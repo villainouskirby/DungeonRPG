@@ -224,7 +224,7 @@ public class PlayerFarming : MonoBehaviour
         {
             // 페이드(소멸) 중이면 상호작용 금지
             if (MonsterKilledState.IsDespawning(TargetObj)) return false;
-
+            if (MonsterKilledState.HarvestsLeft(TargetObj) <= 0) return false;
             // 난이도 필요 시 Monster 측 데이터로 바꿔도 됨. 우선 0으로.
             int resistance = 0;
             int levelDifferencemon = Level - resistance;
@@ -266,13 +266,23 @@ public class PlayerFarming : MonoBehaviour
 
         if (IsMonsterTarget())
         {
-            // 드롭 지급 + 즉시 3초 페이드(→ Release)는 MonsterKilledState가 처리
-            MonsterKilledState.OnFarmSuccess(TargetObj);
+            // 아이템 지급. 0이 되면 MonsterKilledState가 페이드 시작.
+            MonsterKilledState.OnFarmHarvest(TargetObj);
 
-            // 타깃/목록 정리
-            _rangedResourceNodeObj.Remove(TargetObj);
-            ResetFarm();
-            Debug.Log("몬스터 파밍");
+            int left = MonsterKilledState.HarvestsLeft(TargetObj);
+
+            if (left <= 0 || MonsterKilledState.IsDespawning(TargetObj))
+            {
+                _rangedResourceNodeObj.Remove(TargetObj);
+                ResetFarm();
+                Debug.Log("몬스터 파밍 완료");
+            }
+            else
+            {
+                Debug.Log($"몬스터 파밍 1회 완료. 남은 횟수: {left}");
+                FarmIcon?.SetIcon(CheckFarmable());
+                TargetResourceNodeOutline?.OnOutline(GetOutlineColor());
+            }
             return;
         }
 
