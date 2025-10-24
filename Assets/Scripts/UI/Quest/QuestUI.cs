@@ -87,6 +87,7 @@ public class QuestUI : SlotInteractHandler
         for (int i = 0; i < info.Missions.Length; i++)
         {
             Mission mission = info.Missions[i];
+
             if (mission == null)
             {
                 _missionTexts[i].text = "";
