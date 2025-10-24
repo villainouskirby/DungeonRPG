@@ -30,7 +30,7 @@ public class InventoryUI : SlotInteractHandler
     [SerializeField] private TextMeshProUGUI _currentWeightText;
     [SerializeField] private TextMeshProUGUI _maxWeightText;
 
-    private TabType _currentTabType;
+    public TabType CurrentTabType { get; private set; }
     private Dictionary<TabType, List<InventoryItemSlotUI>> _itemSlotsDict = new();
     private Dictionary<TabType, Transform> _contentsDict = new();
 
@@ -64,7 +64,7 @@ public class InventoryUI : SlotInteractHandler
 
     private void ChangeCurrentTabType(int index)
     {
-        _currentTabType = (TabType)index;
+        CurrentTabType = (TabType)index;
     }
 
     public void AfterAwake()
@@ -76,6 +76,11 @@ public class InventoryUI : SlotInteractHandler
             _itemSlotsDict[type] = new();
             _contentsDict[type] = _allContents[i];
         }
+    }
+
+    public void AfterStart()
+    {
+        _inventoryPopUpUI?.AfterStart();
     }
 
     public void InitInventoryUI()
@@ -143,8 +148,8 @@ public class InventoryUI : SlotInteractHandler
         if (_currentWeightText == null) return;
 
         // 텍스트 세팅
-        _currentWeightText.text = currentCapacity.ToString();
-        _maxWeightText.text = maxCapacity.ToString();
+        _currentWeightText.text = currentCapacity.ToString() + "kg";
+        _maxWeightText.text = maxCapacity.ToString() + "kg";
 
         // 현재 중량에 따른 색 변경
         Color color;
@@ -251,10 +256,15 @@ public class InventoryUI : SlotInteractHandler
         _itemGetPopUpUI.AddItemPopUpQueue(itemData, amount);
     }
 
+    public InventoryItemSlotUI GetItemSlotUI(int index)
+    {
+        return (index >= 0 && index < _itemSlotsDict[TabType.All].Count) ? _itemSlotsDict[TabType.All][index] : null;
+    }
+
     /// <returns> 해당 슬롯의 인덱스 값 </returns>
     protected int GetItemSlotIndex(InventoryItemSlotUI slot)
     {
-        return _inventory.GetIndexFromAllItems(_itemSlotsDict[_currentTabType].IndexOf(slot), _currentTabType);
+        return _inventory.GetIndexFromAllItems(_itemSlotsDict[CurrentTabType].IndexOf(slot), CurrentTabType);
     }
 
     #region Pointer Event

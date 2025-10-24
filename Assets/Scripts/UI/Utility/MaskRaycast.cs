@@ -6,6 +6,11 @@ public class MaskRaycast : MaskableGraphic, ICanvasRaycastFilter
 {
     [SerializeField] private Rect _raycastArea;
 
+    public void SetRaycastRect(Rect rect)
+    {
+        _raycastArea = rect;
+    }
+
     public bool IsRaycastLocationValid(Vector2 sp, Camera eventCamera)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, sp, eventCamera, out Vector2 localPoint);

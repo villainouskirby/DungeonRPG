@@ -71,6 +71,8 @@ public abstract class SlotInteractHandler : MonoBehaviour, IPointerClickHandler,
     {
         if (_pointedSlot != null)
         {
+            EventSystem.current.SetSelectedGameObject(_pointedSlot.gameObject);
+
             // 더블클릭 확인
             if (eventData.button == PointerEventData.InputButton.Left)
             {

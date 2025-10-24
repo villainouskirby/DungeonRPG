@@ -545,6 +545,7 @@ GameObject:
   - component: {fileID: 1932792426776886736}
   - component: {fileID: 8787263582750568838}
   - component: {fileID: 7612857767592740768}
+  - component: {fileID: 3986229103803483674}
   m_Layer: 5
   m_Name: SetToQuickSlotButton
   m_TagString: Untagged
@@ -566,9 +567,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 110530335120828116}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100, y: -88}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 168, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1537223053017705400
@@ -673,6 +674,19 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: e350c5c3ce488404baf3ca27804a6182, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+--- !u!114 &3986229103803483674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421048068076414757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: QuickSlotButton
 --- !u!1 &626400288923678837
 GameObject:
   m_ObjectHideFlags: 0
@@ -2119,9 +2133,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 110530335120828116}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100, y: -141.66666}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 168, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6373844795936164150
@@ -4482,6 +4496,7 @@ GameObject:
   - component: {fileID: 2699454009413113434}
   - component: {fileID: 8323913549551253267}
   - component: {fileID: 4050144940081129928}
+  - component: {fileID: 5522629888891626756}
   m_Layer: 5
   m_Name: UseButton
   m_TagString: Untagged
@@ -4503,9 +4518,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 110530335120828116}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100, y: -34.333332}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 168, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9030005685001808741
@@ -4610,6 +4625,19 @@ MonoBehaviour:
   _pressedSprite: {fileID: 21300000, guid: 4821b032b972f6840817e2fd6ac9e9ce, type: 3}
   _disabledSprite: {fileID: 0}
   _enterSprite: {fileID: 0}
+--- !u!114 &5522629888891626756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3601930823875867358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: UseButton
 --- !u!1 &3695541605305447082
 GameObject:
   m_ObjectHideFlags: 0
@@ -10762,7 +10790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &110530335120828116
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10865,6 +10893,9 @@ MonoBehaviour:
   _setToQuickSlotButton: {fileID: 8787263582750568838}
   _useButton: {fileID: 8323913549551253267}
   _removeButton: {fileID: 1648745908332796088}
+  _focusTargets:
+  - {fileID: 5522629888891626756}
+  - {fileID: 3986229103803483674}
   _images:
   - {fileID: 2699454009413113434}
   - {fileID: 1932792426776886736}
@@ -10892,6 +10923,7 @@ GameObject:
   - component: {fileID: 3867725303119710491}
   - component: {fileID: 4621679745103530556}
   - component: {fileID: 8593720624547019229}
+  - component: {fileID: 325080305598401739}
   m_Layer: 5
   m_Name: AllButton
   m_TagString: Untagged
@@ -11046,6 +11078,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _object: {fileID: 3166564598818365036}
+--- !u!114 &325080305598401739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8643856091242208387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: AllSlot
 --- !u!1 &8645285582108510551
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField] private Button _setToQuickSlotButton;
     [SerializeField] private Button _useButton;
     [SerializeField] private Button _removeButton;
+    [SerializeField] private FocusTarget[] _focusTargets;
 
     [SerializeField] private Image[] _images;
     [SerializeField] private Sprite[] _normalSprite;
@@ -29,6 +30,16 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         _isOnPointer = false;
     }
 
+    public void AfterStart()
+    {
+        foreach (var target in _focusTargets)
+        {
+            target.Register();
+        }
+
+        gameObject.SetActive(false);
+    }
+
     void Update()
     {
         OnClick();
@@ -44,7 +55,7 @@ public class InventoryMenu : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         if (Input.GetMouseButtonUp(0))
         {
-            if (!_isPointerDown)
+            if (!(_isPointerDown || UIPopUpHandler.Instance.IsUIFocusing()))
             {
                 gameObject.SetActive(false);
             }

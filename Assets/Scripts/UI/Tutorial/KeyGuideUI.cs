@@ -30,6 +30,8 @@ namespace Tutorial
         [SerializeField] private Sprite _mapSprite;
         [SerializeField] private Sprite _tabSprite;
 
+        public GuideType CurrentType { get; private set; }
+
         private bool _isTutorialFinished = false;
 
         private Image _tutorialImage;
@@ -69,6 +71,7 @@ namespace Tutorial
 
         public void OpenTutorial(GuideType type)
         {
+            CurrentType = type;
             _tutorialImage.sprite = _spritesDict[type];
             gameObject.SetActive(true);
         }

@@ -25,6 +25,11 @@ public class InventoryPopUpUI : ItemPopUpUI
         if (_menu == null) _menu = _menuPopUp.AddComponent<InventoryMenu>();
     }
 
+    public void AfterStart()
+    {
+        _menu?.AfterStart();
+    }
+
     public Item GetItem(int index)
     {
         return _inventoryUI.GetItem(index);

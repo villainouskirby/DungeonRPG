@@ -19,7 +19,6 @@ public class Inventory : UIBase, ISave
     [SerializeField] private Equipment _equipment;
     [SerializeField] private IntVariableSO _gold;
 
-
     // --- Items ---
 
     /// <summary>
@@ -104,6 +103,7 @@ public class Inventory : UIBase, ISave
 
     protected override void Awake()
     {
+        _isActvieOnStart = true;
         base.Awake();
 
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
@@ -124,6 +124,8 @@ public class Inventory : UIBase, ISave
     private void Start()
     {
         UIPopUpHandler.Instance.GetScript<QuickSlot>().InitQuickSlot();
+        _inventoryUI.AfterStart();
+        gameObject.SetActive(false);
     }
 
     /// <summary> 인벤토리 열기 </summary>
@@ -288,7 +290,7 @@ public class Inventory : UIBase, ISave
     }
 
     /// <summary> 아이템 넣기 </summary>
-    public int AddItem(ItemData itemData, int amount = 1, bool isGetItem = true) // 반환값 쓸 일 없어서 지울듯?
+    public int AddItem(ItemData itemData, int amount = 1, bool isGetItem = true)
     {
         // 가방에 넣을 수 있는 개수 체크
         if (_maxCapacity > 0 && RestCapacity <= -0.2f * _maxCapacity)
@@ -599,6 +601,24 @@ public class Inventory : UIBase, ISave
             UseItem(0);
             UseItem(1);
         }
+    }
+
+    public InventoryItemSlotUI GetItemSlotUI(string id)
+    {
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Data.SID == id)
+            {
+                return _inventoryUI.GetItemSlotUI(i);
+            }
+        }
+
+        return null;
+    }
+
+    public ItemType GetTabType()
+    {
+        return _inventoryUI.CurrentTabType;
     }
 
     public bool CheckItemUsable(int index) => _items[index].Data.Info.usable;

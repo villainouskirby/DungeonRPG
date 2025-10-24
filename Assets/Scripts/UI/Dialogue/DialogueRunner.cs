@@ -54,6 +54,7 @@ public class DialogueRunner : UIBase
         _eventDict[DialogueEndEvent.KeyName.Palette] = PopUpPalette;
         _eventDict[DialogueEndEvent.KeyName.Tutorial] = PopUpTutorial;
         _eventDict[DialogueEndEvent.KeyName.CloseDialogue] = (DialogueEndEvent endEvent) => gameObject.SetActive(false);
+        _eventDict[DialogueEndEvent.KeyName.FocusUI] = FocusUI;
 
         _openUIButton.onClick.AddListener(OpenUI);
         _talkButton.onClick.AddListener(StartTalk);
@@ -246,5 +247,10 @@ public class DialogueRunner : UIBase
         {
             UIPopUpHandler.Instance.GetScript<KeyGuideUI>().OpenTutorial(endEvent.Value.Trim());
         }
+    }
+
+    private void FocusUI(DialogueEndEvent endEvent)
+    {
+        UIPopUpHandler.Instance.GetScript<UIFocus>().EnqueueFocusEvent(endEvent.Value, endEvent.Amount);
     }
 }

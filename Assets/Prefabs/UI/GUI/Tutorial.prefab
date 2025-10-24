@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5667379218900023049}
   - component: {fileID: 7625136793841215863}
   - component: {fileID: 1757995506038071345}
+  - component: {fileID: 5976550479581538634}
   m_Layer: 5
   m_Name: Tutorial
   m_TagString: Untagged
@@ -97,3 +98,16 @@ MonoBehaviour:
   _questSprite: {fileID: 21300000, guid: 41a51722ed7ec084194d3a3c8a8aaa27, type: 3}
   _mapSprite: {fileID: 21300000, guid: 79f64b6ac1178d740a310321c8676646, type: 3}
   _tabSprite: {fileID: 21300000, guid: 900194fee529553469438759315fe871, type: 3}
+--- !u!114 &5976550479581538634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6568818782999802242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: KeyGuide
