@@ -7666,6 +7666,26 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: escapeRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: chargingRadius
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: escapeIntensity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: normalAttackRadius
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2912204716069094641, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
       propertyPath: chargeCanvas
