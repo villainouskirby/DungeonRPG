@@ -2618,9 +2618,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -656, y: 18.820007}
+  m_AnchoredPosition: {x: -8, y: 268}
   m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5000001, y: 0.49999997}
 --- !u!114 &666769082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2667,7 +2667,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 666769085}
         m_TargetAssemblyTypeName: InventoryTest, Assembly-CSharp
-        m_MethodName: AddInventory2
+        m_MethodName: AddInventory1
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2738,6 +2738,7 @@ MonoBehaviour:
   quest: {fileID: 0}
   isMainQuest: 0
   sprite: {fileID: 0}
+  interactTestTransform: {fileID: 0}
 --- !u!1 &669224308
 GameObject:
   m_ObjectHideFlags: 0
@@ -6724,6 +6725,7 @@ MonoBehaviour:
     Monster_condition_DT: 
   lockZ: 1
   lockedZ: -0.0001
+  _killed: 0
 --- !u!114 &1605937789 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -7543886781866867926, guid: fc256c2320f0409418a23fd135b49aca,
@@ -7664,6 +7666,26 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: escapeRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: chargingRadius
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: escapeIntensity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2442131095584760866, guid: ccdbe8f60e63dde45aecbcdd76056e32,
+        type: 3}
+      propertyPath: normalAttackRadius
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2912204716069094641, guid: ccdbe8f60e63dde45aecbcdd76056e32,
         type: 3}
       propertyPath: chargeCanvas
@@ -7970,7 +7992,7 @@ MonoBehaviour:
   TestSaveSlotIndex: 0
   DefaultStartMapType: 0
   TargetCamera: {fileID: 524322943}
-  ViewBoxSize: 15
+  ViewBoxSize: 20
   Player: {fileID: 1252477883}
   WallRoot: {fileID: 0}
   LayerRoot: {fileID: 446844720}
@@ -8150,6 +8172,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.989622
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.14369512
       objectReference: {fileID: 0}
     - target: {fileID: 1930298506536831493, guid: 9e51de881f1d1304a8b04647c7b1af95,
         type: 3}
