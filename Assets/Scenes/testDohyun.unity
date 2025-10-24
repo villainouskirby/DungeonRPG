@@ -7992,7 +7992,7 @@ MonoBehaviour:
   TestSaveSlotIndex: 0
   DefaultStartMapType: 0
   TargetCamera: {fileID: 524322943}
-  ViewBoxSize: 15
+  ViewBoxSize: 20
   Player: {fileID: 1252477883}
   WallRoot: {fileID: 0}
   LayerRoot: {fileID: 446844720}
@@ -8172,6 +8172,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.989622
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527957558029707755, guid: 9e51de881f1d1304a8b04647c7b1af95,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.14369512
       objectReference: {fileID: 0}
     - target: {fileID: 1930298506536831493, guid: 9e51de881f1d1304a8b04647c7b1af95,
         type: 3}
