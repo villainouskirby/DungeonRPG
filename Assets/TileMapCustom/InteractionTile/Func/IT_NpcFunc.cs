@@ -59,6 +59,9 @@ public class IT_NpcFunc : MonoBehaviour
                 case NPC.C:
                     UIPopUpHandler.Instance.GetScript<Quest>();
                     break;
+                case NPC.priest:
+                    UIPopUpHandler.Instance.GetScript<Priest>().StartTalk();
+                    break;
             }
         }
     }
