@@ -25,7 +25,7 @@ public class PotionItemData : CountableItemData
     [SerializeReference] private Item_Info_Potion _potionInfo;
 
     // public Dictionary<string, Item_Info_Item> PotionDic;
-    public PotionItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public PotionItemData(Item_Info_Item info) : base(info)
     {
         _potionInfo = Array.Find(Item_Info.Potion, potion => potion.id == info.id);
         _effectType = _potionInfo.type switch

@@ -7,7 +7,7 @@ public class ArmorItemData : BattleEquipmentItemData
 
     [SerializeField] private Item_Info_Armor _armorInfo;
 
-    public ArmorItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public ArmorItemData(Item_Info_Item info) : base(info)
     {
         _armorInfo = Array.Find(Item_Info.Armor, armor => armor.id == info.id);
 

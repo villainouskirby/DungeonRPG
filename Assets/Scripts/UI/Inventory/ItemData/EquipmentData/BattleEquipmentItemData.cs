@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class BattleEquipmentItemData : EquipmentItemData
 {
-    protected BattleEquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    protected BattleEquipmentItemData(Item_Info_Item info) : base(info)
     {
     }
 }

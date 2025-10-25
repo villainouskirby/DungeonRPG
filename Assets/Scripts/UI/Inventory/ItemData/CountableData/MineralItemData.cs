@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MineralItemData : ResourceItemData
 {
-    public MineralItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public MineralItemData(Item_Info_Item info) : base(info)
     {
     }
 

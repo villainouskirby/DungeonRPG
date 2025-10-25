@@ -22,7 +22,7 @@ public static class DropTableUtil
 
         for(int i = 0; i < Item_Info.Item.Length; i++)
         {
-            ResourceItemData resourceItemData = new(Item_Info.Item[i], null);
+            ResourceItemData resourceItemData = new(Item_Info.Item[i]);
             _mappingItem[Item_Info.Item[i].id] = resourceItemData;
         }
     }

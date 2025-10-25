@@ -13,11 +13,11 @@ namespace DBUtility
             switch (rawData.type)
             {
                 case "HERB":
-                    itemData = new HerbItemData(rawData, null);
+                    itemData = new HerbItemData(rawData);
                     break;
 
                 case "MINERAL":
-                    itemData = new MineralItemData(rawData, null);
+                    itemData = new MineralItemData(rawData);
                     break;
 
                 case "Special":
@@ -25,23 +25,23 @@ namespace DBUtility
                     break;
 
                 case "WEAPON":
-                    itemData = new WeaponItemData(rawData, null);
+                    itemData = new WeaponItemData(rawData);
                     break;
 
                 case "ARMOR":
-                    itemData = new ArmorItemData(rawData, null);
+                    itemData = new ArmorItemData(rawData);
                     break;
 
                 case "BACKPACK":
-                    itemData = new BackpackItemData(rawData, null);
+                    itemData = new BackpackItemData(rawData);
                     break;
 
                 case "SUBWEAPON":
-                    itemData = new SubWeaponItemData(rawData, null);
+                    itemData = new SubWeaponItemData(rawData);
                     break;
 
                 case "POTION":
-                    itemData = new PotionItemData(rawData, null);
+                    itemData = new PotionItemData(rawData);
                     break;
 
                 default:

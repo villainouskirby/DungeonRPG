@@ -76,7 +76,7 @@ public class ItemGetPopUpSlotUI : SlotUI
     {
         float startTime = Time.time;
         
-        while (Time.time - startTime < 10)
+        while (Time.time - startTime < 3)
         {
             if (!_isOpen) return;
 

@@ -63,19 +63,19 @@ public class InventoryTest : MonoBehaviour
     public void AddPotion1()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
-        PotionItemData itemData = new(ItemDic["ITM_POT_001"], tempPotion1);
+        PotionItemData itemData = new(ItemDic["ITM_POT_001"]);
         UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
     public void AddPotion2()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
-        PotionItemData itemData = new(ItemDic["ITM_POT_002"], tempPotion2);
+        PotionItemData itemData = new(ItemDic["ITM_POT_002"]);
         UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
     public void AddStoneItem()
     {
         ItemDic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
-        ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], tempRock, "PAR_MIN_ROC");
+        ThrowItemData itemData = new(ItemDic["ITM_MIN_ROC"], "PAR_MIN_ROC");
         UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
 
@@ -101,7 +101,7 @@ public class InventoryTest : MonoBehaviour
 
     public void AddShopItem()
     {
-        shop.AddShopItem(new TestItemData(Item_Info.Item[0], null).Createitem());
+        shop.AddShopItem(new TestItemData(Item_Info.Item[0]).Createitem());
     }
 
     public void InitShop()

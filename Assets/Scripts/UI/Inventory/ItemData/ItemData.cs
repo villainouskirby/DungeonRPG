@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ItemDataExtensions;
+using DBUtility;
+using static ItemDataExtensions.ItemDataExtension;
+using System;
+using UnityEngine.AddressableAssets;
 
 [System.Serializable]
 public abstract class ItemData
@@ -17,11 +21,20 @@ public abstract class ItemData
 
     [SerializeField] private Sprite _iconSprite;
 
-    public ItemData(Item_Info_Item info, Sprite sprite)
+    public ItemData(Item_Info_Item info)
     {
         _info = info;
-        _iconSprite = sprite; // TODO => info 내부의 sprite 정보로 sprite 가져와야함 -> 하위 클래스마다 다른 경로로 하여 끌고오는게 맞을수도
 
+        try
+        {
+            _iconSprite = Addressables.LoadAssetAsync<Sprite>("ItemSprites/" + info.id).WaitForCompletion();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"이미지 로드 실패: {ex.Message}");
+            _iconSprite = null;
+        }
+        
         if (_info.throwable)
         {
             _extensions[ItemDataExtension.Name.Throwable] = new ThrowableItemDataExtension(SID);

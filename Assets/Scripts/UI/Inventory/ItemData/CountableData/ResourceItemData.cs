@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ResourceItemData : CountableItemData
 {
-    public ResourceItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public ResourceItemData(Item_Info_Item info) : base(info)
     {
     }
 

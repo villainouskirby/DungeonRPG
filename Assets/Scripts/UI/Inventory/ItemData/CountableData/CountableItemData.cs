@@ -5,7 +5,7 @@ public abstract class CountableItemData : ItemData
 {
     public int MaxAmount => Info.max_amount;
 
-    protected CountableItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    protected CountableItemData(Item_Info_Item info) : base(info)
     {
     }
 

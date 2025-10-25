@@ -9,15 +9,15 @@ public static class ItemUtil
         switch (data.type)
         {
             case "THROW":
-                return new ThrowItemData(data, null, null);
+                return new ThrowItemData(data, null);
             case "DROP":
-                return new ResourceItemData(data, null);
+                return new ResourceItemData(data);
             case "HONE":
                 return null;
             case "WEAPON":
-                return new WeaponItemData(data, null);
+                return new WeaponItemData(data);
             case "ARMOR":
-                return new ArmorItemData(data, null);
+                return new ArmorItemData(data);
             case "BACKPACK":
                 return null;
             case "SUBWEAPON":
@@ -25,7 +25,7 @@ public static class ItemUtil
             case "BOTTLE":
                 return null;
             case "POTION":
-                return new PotionItemData(data, null);
+                return new PotionItemData(data);
             default:
                 return null;
         }

@@ -7,7 +7,7 @@ public class BackpackItemData : EquipmentItemData
 
     [SerializeField] private Item_Info_Backpack _backpackInfo;
 
-    public BackpackItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public BackpackItemData(Item_Info_Item info) : base(info)
     {
         _backpackInfo = Array.Find(Item_Info.Backpack, backpack => backpack.id == info.id);
 

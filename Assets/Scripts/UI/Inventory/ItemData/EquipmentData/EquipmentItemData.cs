@@ -8,7 +8,7 @@ public abstract class EquipmentItemData : ItemData
     [SerializeField] protected Equipment.EquipmentType _equipmentType;
     [SerializeField] private bool _isEquipped;
 
-    protected EquipmentItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    protected EquipmentItemData(Item_Info_Item info) : base(info)
     {
     }
 }

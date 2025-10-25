@@ -7,7 +7,7 @@ public class SubWeaponItemData : BattleEquipmentItemData
 
     [SerializeField] private Item_Info_SubWeapon _subWeaponInfo;
 
-    public SubWeaponItemData(Item_Info_Item info, Sprite sprite) : base(info, sprite)
+    public SubWeaponItemData(Item_Info_Item info) : base(info)
     {
         _subWeaponInfo = Array.Find(Item_Info.SubWeapon, subWeapon => subWeapon.id == info.id);
 

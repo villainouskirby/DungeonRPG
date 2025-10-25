@@ -9,7 +9,7 @@ public class ThrowItemData : CountableItemData
 
     public Item_Info_ThrowableItem Info { get; private set; }
 
-    public ThrowItemData(Item_Info_Item info, Sprite sprite, string parDt) : base(info, sprite)
+    public ThrowItemData(Item_Info_Item info, string parDt) : base(info)
     {
         PAR_DT = parDt;
     }
