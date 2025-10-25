@@ -109,7 +109,17 @@ public class MoveAndVanishSO : SpecialBehaviourSO
                 yield return null;
             }
 
-            // 풀 반환(네 기존 로직 유지)
+            SoundManager.Instance.PlaySound3D(
+                    "SFX_CleanerDespawn",
+                    ctx.transform,
+                    0f,
+                    false,
+                    SoundType.SFX,
+                    true,
+                    1.5f,
+                    25f
+                );
+            // 풀 반환
             SpawnerPool.Instance.MonsterPool.Release(ctx.id, ctx.mono.gameObject);
             yield break;
         }

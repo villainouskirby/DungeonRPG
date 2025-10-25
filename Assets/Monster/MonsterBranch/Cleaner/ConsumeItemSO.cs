@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Xml.Linq;
 using UnityEngine;
 [CreateAssetMenu(menuName = "Behaviours/Cleaner/Consume Item")]
 public class ConsumeItemSO : SpecialBehaviourSO
@@ -17,6 +18,16 @@ public class ConsumeItemSO : SpecialBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        SoundManager.Instance.PlaySound3D(
+                    "SFX_CleanerSwallow",
+                    ctx.transform,
+                    0f,
+                    false,
+                    SoundType.SFX,
+                    true,
+                    1.5f,
+                    25f
+                );
         ctx.anim.Play("Eat");
         ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
         yield return new WaitForSeconds(eatTime);
