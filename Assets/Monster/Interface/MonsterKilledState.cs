@@ -11,6 +11,7 @@ public sealed class MonsterKilledState : IMonsterState
     static readonly Dictionary<GameObject, int> s_versions = new();
     static readonly Dictionary<GameObject, int> s_harvestsLeft = new();
     int _ver = 0;
+    bool _killedSfxPlayed;
     readonly MonsterContext ctx;
     readonly MonsterController ctr;
     readonly MonsterStateMachine root;
@@ -42,6 +43,44 @@ public sealed class MonsterKilledState : IMonsterState
 
     public void Enter()
     {
+        if (!_killedSfxPlayed)
+        {
+            string sfxName = null;
+            switch (ctx.data.category)
+            {
+                case MonsterData.MonsterCategory.Cleaner:
+                    sfxName = "SFX_CleanerDie";
+                    break;
+                case MonsterData.MonsterCategory.Hound:
+                    sfxName = "SFX_HoundDie";
+                    break;
+                case MonsterData.MonsterCategory.Beetle:
+                    sfxName = "SFX_BettleDie";
+                    break;
+                case MonsterData.MonsterCategory.Titan:
+                    sfxName = "SFX_TitanDie";
+                    break;
+                default:
+                    sfxName = "SFX_GenericDie";
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(sfxName))
+            {
+                _killedSfxPlayed = true;
+                // 3D 원샷: 몬스터 위치에서, 루프=false
+                SoundManager.Instance.PlaySound3D(
+                    sfxName,
+                    ctx.transform,
+                    0f,
+                    false,
+                    SoundType.SFX,
+                    true,
+                    1.5f,
+                    25f
+                );
+            }
+        }
         ctx.indicator?.Show(MonsterStateTag.Killed);
         ctx.SafeStopAgent();
         ctx.anim?.Play("Die");

@@ -175,6 +175,40 @@ public class MonsterController : MonoBehaviour
         OnDamaged?.Invoke(dmg);
         Debug.Log($"{monster_Id} 몬스터에게 {dmg} 피해! (stun={stunSec:F2}s)");
 
+        string sfxName = null;
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                sfxName = "SFX_CleanerDamaged";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                sfxName = "SFX_HoundDamaged";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                sfxName = "SFX_BettleDamaged";
+                break;
+            case MonsterData.MonsterCategory.Titan:
+                sfxName = "SFX_TitanDamaged";
+                break;
+            default:
+                sfxName = "SFX_GenericDamaged";
+                break;
+        }
+
+        if (!string.IsNullOrEmpty(sfxName))
+        {
+            SoundManager.Instance.PlaySound3D(
+                sfxName,
+                transform,       // 이 몬스터의 위치에서
+                0f,               // delay 없음
+                false,            // isLoop = false (한 번만)
+                SoundType.SFX,
+                true,             // attachToTarget = true (몬스터 따라감)
+                1.5f,             // minDistance
+                25f               // maxDistance
+            );
+        }
+
         if (_damageBlinkCo != null) StopCoroutine(_damageBlinkCo);
         _damageBlinkCo = StartCoroutine(DamageBlinkRoutine(1f, 0.1f));
 

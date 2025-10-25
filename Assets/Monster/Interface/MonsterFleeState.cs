@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Xml.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
@@ -26,10 +27,40 @@ public sealed class MonsterFleeState : IMonsterState
     bool cleanerMode;
     bool bettleMode;
     float cleanerWaitTimer;
+    string _runLoopClipKey;
     public MonsterFleeState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
     public void Enter()
     {
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _runLoopClipKey = "SFX_CleanerRun";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _runLoopClipKey = "SFX_HoundRun";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _runLoopClipKey = "SFX_BettleRun"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _runLoopClipKey = null;
+                break;
+        }
+        if (_runLoopClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _runLoopClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
         ctx.indicator?.Show(MonsterStateTag.Flee);
         ctx.animationHub?.SetTag(MonsterStateTag.Flee, ctx);
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
@@ -92,6 +123,8 @@ public sealed class MonsterFleeState : IMonsterState
         }
         if (_elapsed >= 10f)
         {
+            if (!string.IsNullOrEmpty(_runLoopClipKey))
+                SoundManager.Instance.StopLoopSound(_runLoopClipKey);
             ReleaseAndCleanup();
             return;
         }
@@ -133,6 +166,8 @@ public sealed class MonsterFleeState : IMonsterState
     public void Exit()
     {
         ctx.agent.isStopped = false;
+        if (!string.IsNullOrEmpty(_runLoopClipKey))
+            SoundManager.Instance.StopLoopSound(_runLoopClipKey);
     }
 
     void UpdateLocomotionAndDash()
@@ -200,7 +235,39 @@ public sealed class MonsterFleeState : IMonsterState
 
         ctx.agent.isStopped = true;
         ctx.agent.velocity = Vector3.zero;
+        string sfxName = null;
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                sfxName = "SFX_CleanerDespawn";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                sfxName = "SFX_HoundDespawn";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                sfxName = "SFX_BettleDespawn";
+                break;
+            case MonsterData.MonsterCategory.Titan:
+                sfxName = "SFX_TitanDespawn";
+                break;
+            default:
+                sfxName = "SFX_GenericDespawn";
+                break;
+        }
 
+        if (!string.IsNullOrEmpty(sfxName))
+        {
+            SoundManager.Instance.PlaySound3D(
+                sfxName,
+                ctx.transform,
+                0f,
+                false,
+                SoundType.SFX,
+                true,
+                1.5f,
+                25f
+            );
+        }
         ctx.animationHub?.SetTag(MonsterStateTag.Hide, ctx);
 
         VanishAndRelease().Forget();
