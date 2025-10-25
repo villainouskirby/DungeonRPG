@@ -51,7 +51,7 @@ public class InventoryItemSlotUI : ItemSlotUI
 
     public void SetItemDetail(ItemData data)
     {
-        _tierText.text = data.Info.rank.ToString();
+        _tierText.text = data.Info.rank.ToString() + " Tier";
         _explanationText.text = data.Info.Explanation;
 
         int activatedDetailCnt = 0;
@@ -93,7 +93,6 @@ public class InventoryItemSlotUI : ItemSlotUI
                 _detailAbilityTexts[0].text = backpackInfo.speed.ToString();
 
                 break;
-
         }
 
 
