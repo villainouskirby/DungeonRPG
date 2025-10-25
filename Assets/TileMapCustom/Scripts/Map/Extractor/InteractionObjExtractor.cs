@@ -25,6 +25,7 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
                 continue;
 
             InteractionTile interactionTile = child.GetComponent<InteractionTile>();
+            if (interactionTile == null) continue;
             interactionTile.Z = child.transform.position.z;
             SpriteRenderer sr = child.GetComponent<SpriteRenderer>();
             interactionTile.LayerName = sr.sortingLayerName;
