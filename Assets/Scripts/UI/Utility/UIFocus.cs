@@ -115,7 +115,7 @@ public class UIFocus : UIBase
             Rect rect = new Rect();
             rect.size = rectTransform.sizeDelta;
 
-            await UniTask.NextFrame();
+            await UniTask.DelayFrame(3);
 
             rect.position = rectTransform.TransformPoint(rectTransform.rect.center);
 
