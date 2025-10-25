@@ -29,6 +29,11 @@ public class InventoryTest : MonoBehaviour
 
     [SerializeField] Transform interactTestTransform;
 
+    public void PlaySound()
+    {
+        SoundManager.Instance.PlaySound2D("Test");
+    }
+
     public void OpenInteractUI()
     {
         UIPopUpHandler.Instance.GetScript<InteractUI>().OpenInteractPopUp(InteractUI.InteractType.F, interactTestTransform);

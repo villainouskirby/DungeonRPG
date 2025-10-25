@@ -37,6 +37,17 @@ public class DialogueRunner : UIBase
     {
         base.OnDisable();
 
+        if (_isDialogueRunning)
+        {
+            if (_handle.IsValid())
+            {
+                Addressables.Release(_handle);
+                _handle = default;
+            }
+
+            _isDialogueRunning = false;
+        }
+
         UIPopUpHandler.Instance.OpenInGameUIs();
         _buttons.SetActive(false);
     }

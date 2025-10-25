@@ -126,11 +126,11 @@ public class UIFocus : UIBase
                     switch (keyCode)
                     {
                         case KeyCode.Tab:
-                            UIPopUpHandler.Instance.OpenUI<Inventory>();
+                            UIPopUpHandler.Instance.CloseAllAndOpenUI<Inventory>();
                             break;
 
                         case KeyCode.Alpha1:
-                            UIPopUpHandler.Instance.OpenUI<Quest>();
+                            UIPopUpHandler.Instance.CloseAllAndOpenUI<Quest>();
                             break;
                     }
 
