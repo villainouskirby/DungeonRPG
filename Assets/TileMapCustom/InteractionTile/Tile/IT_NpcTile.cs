@@ -10,7 +10,8 @@ public class IT_NpcTile : InteractionTile
 
 public enum NPC
 {
-    Smith = 1,
-    Shop = 2,
+    smith = 1,
+    merchant = 2,
     C = 3,
+    priest = 4,
 }

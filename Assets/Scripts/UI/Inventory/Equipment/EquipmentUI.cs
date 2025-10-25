@@ -51,7 +51,7 @@ public class EquipmentUI : SlotInteractHandler
 
         if (type == Equipment.EquipmentType.Armor || type == Equipment.EquipmentType.Backpack) return;
 
-        _equipment.UnEquip(type);
+        //_equipment.UnEquip(type);
     }
 
     public override void OnLeftClick()

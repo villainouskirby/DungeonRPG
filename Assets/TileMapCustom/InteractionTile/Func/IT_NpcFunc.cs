@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Tutorial;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,6 +26,7 @@ public class IT_NpcFunc : MonoBehaviour
         if (collision.transform.tag == "Player")
         {
             _isActive = true;
+            UIPopUpHandler.Instance.GetScript<InteractUI>().OpenInteractPopUp(InteractUI.InteractType.F, transform);
         }
     }
 
@@ -33,6 +35,7 @@ public class IT_NpcFunc : MonoBehaviour
         if (collision.transform.tag == "Player")
         {
             _isActive = false;
+            UIPopUpHandler.Instance.GetScript<InteractUI>().CloseInteractPopUp();
         }
     }
 
@@ -47,10 +50,10 @@ public class IT_NpcFunc : MonoBehaviour
         {
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {
-                case NPC.Smith:
+                case NPC.smith:
                     UIPopUpHandler.Instance.GetScript<Smith>().StartTalk();
                     break;
-                case NPC.Shop:
+                case NPC.merchant:
                     UIPopUpHandler.Instance.GetScript<Shop>().StartTalk();
                     break;
                 case NPC.C:

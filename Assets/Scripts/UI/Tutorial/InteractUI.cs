@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,10 @@ namespace Tutorial
         private RectTransform _rect;
         private Dictionary<InteractType, Sprite> _spritesDict = new();
 
+        private int _subscribeNum = 0;
+        private SpriteRenderer _targetRenderer;
+        private Transform _targetTransform;
+
         protected override void InitBase()
         {
             _image = GetComponent<Image>();
@@ -35,28 +40,41 @@ namespace Tutorial
 
         public void OpenInteractPopUp(InteractType type, Transform transform)
         {
-            SpriteRenderer spriteRenderer = transform.GetComponent<SpriteRenderer>();
-            Vector2 pos = new Vector2(transform.position.x, spriteRenderer.bounds.max.y);
-            pos = RectTransformUtility.WorldToScreenPoint(Camera.main, pos);
+            _targetRenderer = transform.GetComponent<SpriteRenderer>();
+            _targetTransform = transform;
 
-            OpenInteractPopUp(type, pos);
+            if (_subscribeNum++ == 0)
+            {
+                UpdatePopUp(type).Forget();
+                gameObject.SetActive(true);
+            }
         }
 
-        public void OpenInteractPopUp(InteractType type, Vector2 pos)
+        public async UniTaskVoid UpdatePopUp(InteractType type)
         {
-            pos += Vector2.up * _yOffset;
-
             Sprite sprite = _spritesDict[type];
             _image.sprite = sprite;
             _rect.sizeDelta = sprite.rect.size;
-            _rect.anchoredPosition = pos;
 
-            gameObject.SetActive(true);
+            while (_subscribeNum > 0)
+            {
+                Vector2 pos = new Vector2(_targetTransform.position.x, _targetRenderer.bounds.max.y);
+                pos = RectTransformUtility.WorldToScreenPoint(Camera.main, pos);
+                pos += Vector2.up * _yOffset;
+
+                _rect.anchoredPosition = pos;
+
+                await UniTask.NextFrame();
+            }
         }
 
         public void CloseInteractPopUp()
         {
-            gameObject.SetActive(false);
+            if (--_subscribeNum <= 0)
+            {
+                _subscribeNum = 0;
+                gameObject.SetActive(false);
+            }
         }
     }
 }

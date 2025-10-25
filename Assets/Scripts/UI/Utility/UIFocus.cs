@@ -75,9 +75,9 @@ public class UIFocus : UIBase
 
             KeyCode keyCode = KeyCode.None;
 
-            if (rectTransform.TryGetComponent(out KeyGuideUI comp))
+            if (rectTransform.TryGetComponent(out KeyGuideUI guideUI))
             {
-                switch (comp.CurrentType)
+                switch (guideUI.CurrentType)
                 {
                     case KeyGuideUI.GuideType.Bag:
                     case KeyGuideUI.GuideType.Tab:
@@ -85,6 +85,19 @@ public class UIFocus : UIBase
                         break;
 
                     case KeyGuideUI.GuideType.Quest:
+                        keyCode = KeyCode.Alpha1;
+                        break;
+                }
+            }
+            else if (rectTransform.parent.TryGetComponent(out Palette palette))
+            {
+                switch (rectTransform.name)
+                {
+                    case "Bag":
+                        keyCode = KeyCode.Tab;
+                        break;
+
+                    case "Quest":
                         keyCode = KeyCode.Alpha1;
                         break;
                 }

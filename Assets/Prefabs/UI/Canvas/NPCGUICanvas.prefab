@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4813191931441399122}
   - component: {fileID: 1421795821890289011}
+  - component: {fileID: 4984602171130353959}
   m_Layer: 5
   m_Name: Priest
   m_TagString: Untagged
@@ -44,6 +45,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4204261284974889409}
   m_CullTransparentMesh: 1
+--- !u!114 &4984602171130353959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4204261284974889409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cebaf9e73bf65a543a584a4000b293d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _npcName: P
 --- !u!1 &6203970844465572454
 GameObject:
   m_ObjectHideFlags: 0
