@@ -111,6 +111,17 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
         ui.SetActive(true);
         _openUIs.Add(ui);
 
+        switch (ui)
+        {
+            case Inventory:
+                SoundManager.Instance.PlaySound2D("OpenBag");
+                break;
+
+            case Quest:
+                SoundManager.Instance.PlaySound2D("OpenQuest");
+                break;
+        }
+
         return ui as T;
     }
 

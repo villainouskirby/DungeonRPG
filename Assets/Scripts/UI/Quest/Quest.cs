@@ -16,11 +16,6 @@ public class Quest : UIBase
         EventManager.Instance.QuestCompleteEvent.AddListener(QuestClear);
     }
 
-    private void OnEnable()
-    {
-        SoundManager.Instance.PlaySound2D("OpenQuest");
-    }
-
     private void OnDestroy()
     {
         EventManager.Instance.QuestCompleteEvent.RemoveListener(QuestClear);
