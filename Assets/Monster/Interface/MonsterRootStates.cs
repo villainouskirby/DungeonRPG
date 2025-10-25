@@ -32,6 +32,7 @@ public sealed class MonsterIdleState : IMonsterState
         restTimer = UnityEngine.Random.Range(0.5f, 2f);
         detectGate = 0f;
         returnGate = 0f;
+
     }
 
     public void Tick()
@@ -78,7 +79,9 @@ public sealed class MonsterIdleState : IMonsterState
         }
         return false; // None
     }
-    public void Exit() { }
+    public void Exit() 
+    {
+    }
 }
 
 // WanderState : 이동만 담당, 도착하면 Idle 로 복귀
@@ -89,10 +92,40 @@ public sealed class MonsterWanderState : IMonsterState
 
     float timeout = 1f;
     float detectGate;
-
+    string _walkLoopClipKey;
     public MonsterWanderState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
-    public void Enter() { if (!ctx.data.canMove) return; }         // 고정형 Idle 유지return;
+    public void Enter() 
+    { 
+        if (!ctx.data.canMove) return;
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _walkLoopClipKey = "SFX_CleanerWalk";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _walkLoopClipKey = "SFX_HoundWalk";
+                break;
+            default:
+                _walkLoopClipKey = null;
+                break;
+        }
+        if (_walkLoopClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _walkLoopClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
+    }
+
     public void Tick()
     {
         Route r = ctx.hub.Decide(Time.deltaTime);
@@ -127,7 +160,11 @@ public sealed class MonsterWanderState : IMonsterState
             case Route.Flee: machine.ChangeState(new MonsterFleeState(ctx, machine)); break;
         }
     }
-    public void Exit() { }
+    public void Exit()
+    {
+        if (!string.IsNullOrEmpty(_walkLoopClipKey))
+            SoundManager.Instance.StopLoopSound(_walkLoopClipKey);
+    }
 }
 
 // DetectState
@@ -139,7 +176,7 @@ public sealed class MonsterDetectState : IMonsterState
 
     const float hearInterval = 0.5f;   // 청각 체크 주기
     const float chaseTimeout = 5f;     // 최근 소리 후 추적 유지 시간
-
+    string _walkLoopClipKey;
     float hearTimer;    // 0.5초 타이머
     float chaseTimer;   // 5초 타이머
     Vector3 targetPos;  // 마지막 들린 위치
@@ -149,6 +186,35 @@ public sealed class MonsterDetectState : IMonsterState
 
     public async void Enter()
     {
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _walkLoopClipKey = "SFX_CleanerWalk";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _walkLoopClipKey = "SFX_HoundWalk";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _walkLoopClipKey = "SFX_BettleWalk"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _walkLoopClipKey = null;
+                break;
+        }
+        if (_walkLoopClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _walkLoopClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
         ctx.indicator?.Show(MonsterStateTag.Detect);
         ctx.animationHub?.SetTag(MonsterStateTag.Detect, ctx);
         ctx.anim.Play("Walk");
@@ -166,7 +232,7 @@ public sealed class MonsterDetectState : IMonsterState
                        : (ctx.player ? ctx.player.position : ctx.transform.position);
         ctx.agent.SetDestination(targetPos);
 
-
+        
         hearTimer = 0f;
         chaseTimer = chaseTimeout;
         returnGate = 0f;
@@ -264,6 +330,8 @@ public sealed class MonsterDetectState : IMonsterState
         cts = null;
 
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
+        if (!string.IsNullOrEmpty(_walkLoopClipKey))
+            SoundManager.Instance.StopLoopSound(_walkLoopClipKey);
     }
     // ========== 내부 로직 ==========
     bool SeePredicate()
@@ -356,7 +424,7 @@ public sealed class MonsterSearchWanderState : IMonsterState
     const float searchTime = 5f;               // 5초 배회
     const float stuckTimeout = 1f;   // 한 지점에서 막힘 판정
     const float sampleCycle = 1f;   // 정상 도착 후 재샘플 주기
-
+    string _walkLoopClipKey;
     float elapsed;
     float localTimer;
     float detectGate;
@@ -366,6 +434,35 @@ public sealed class MonsterSearchWanderState : IMonsterState
 
     public void Enter()
     {
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _walkLoopClipKey = "SFX_CleanerWalk";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _walkLoopClipKey = "SFX_HoundWalk";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _walkLoopClipKey = "SFX_BettleWalk"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _walkLoopClipKey = null;
+                break;
+        }
+        if (_walkLoopClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _walkLoopClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
         ctx.indicator?.Show(MonsterStateTag.SearchWander);
         ctx.animationHub?.SetTag(MonsterStateTag.SearchWander, ctx);
         if (!ctx.data.canMove) { machine.ChangeState(new MonsterReturnState(ctx, machine)); return; }
@@ -435,7 +532,11 @@ public sealed class MonsterSearchWanderState : IMonsterState
             return;
         }
     }
-    public void Exit() { }
+    public void Exit() 
+    {
+        if (!string.IsNullOrEmpty(_walkLoopClipKey))
+            SoundManager.Instance.StopLoopSound(_walkLoopClipKey);
+    }
 
     void PickRandomDest()
     {
@@ -452,9 +553,38 @@ sealed class MonsterReturnState : IMonsterState
     float detectGate;
     bool ReturnLock;
     public MonsterReturnState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
-
+    string _walkLoopClipKey;
     public void Enter()
     {
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _walkLoopClipKey = "SFX_CleanerWalk";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _walkLoopClipKey = "SFX_HoundWalk";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _walkLoopClipKey = "SFX_BettleWalk"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _walkLoopClipKey = null;
+                break;
+        }
+        if (_walkLoopClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _walkLoopClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
         ctx.indicator?.Show(MonsterStateTag.Return);
         ctx.animationHub?.SetTag(MonsterStateTag.Return, ctx);
         ReturnLock = ctx.IsFastReturn;
@@ -522,7 +652,12 @@ sealed class MonsterReturnState : IMonsterState
         }
     }
 
-    public void Exit() { ctx.IsFastReturn = false; }
+    public void Exit() 
+    {
+        if (!string.IsNullOrEmpty(_walkLoopClipKey))
+            SoundManager.Instance.StopLoopSound(_walkLoopClipKey);
+        ctx.IsFastReturn = false; 
+    }
 }
 public sealed class MonsterStunState : IMonsterState
 {

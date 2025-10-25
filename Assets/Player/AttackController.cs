@@ -345,10 +345,15 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         int dmg = Mathf.RoundToInt(baseDamage * comboRate[step - 1]);
 
         if (step == 1)
+        {
             DoSlashBox(dmg, transform.position, forward, w1, slash1Length, slash1CenterOffset, stunLight1, lift);
+            SoundManager.Instance.PlaySound2D("SFX_PlayerAttack1");
+        }
         else
+        {
             DoSlashBox(dmg, transform.position, forward, w2, slash2Length, slash2CenterOffset, stunLight2, lift);
-
+            SoundManager.Instance.PlaySound2D("SFX_PlayerAttack2");
+        }
         // 여기서 바로 스태미나 차감 (히트 타이밍에 소비)
         if (step == 1)
             PlayerData.Instance.ConsumeComboAttackStamina(combo1cost, allowDebt: true);
@@ -436,7 +441,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
 
         int dir = DirFromMouse();
         pc.SetFacingDirection(dir);
-
+        
         StartCoroutine(PerformHeavySlash(dir, damage));
     }
     private IEnumerator HeavyCooldown()
@@ -516,7 +521,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
     private IEnumerator PerformHeavySlash(int dir, int damage)
     {
         isAttacking = true;
-
+        SoundManager.Instance.PlaySound2D("SFX_PlayerStrongAttackPerform");
         string clip = HeavyAttackClipName(dir);
         var c = FindClip(clip);
         float clipLen = (c != null && c.length > 0f) ? c.length : 1f;

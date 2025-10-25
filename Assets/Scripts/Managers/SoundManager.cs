@@ -94,6 +94,8 @@ public class SoundManager : Singleton<SoundManager>, IManager
         if (isLoop) { AddToLoopList(soundPlayer); }
 
         soundPlayer.InitSound3D(await GetClip(clipName), minDistance, maxDistance);
+        soundPlayer.AttachOrSnap(audioTarget, attachToTarget);
+
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }
 

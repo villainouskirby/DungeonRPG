@@ -475,6 +475,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             escDir = facingDir switch
             { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
+        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeSlap");
         rb.velocity = escDir.normalized * slideForce;
 
         attackController?.CancelAttackBufferOnEscape();
@@ -547,6 +548,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     void StartGetUp()
     {
+        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeGetup");
         escPhase = EscapePhase.GetUp;
         phaseT = getUpTime;
 

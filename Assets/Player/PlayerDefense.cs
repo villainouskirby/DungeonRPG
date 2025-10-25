@@ -36,6 +36,7 @@ public class PlayerDefense : MonoBehaviour
     }
     public int ResolveGuard(int incomingDamage)
     {
+        SoundManager.Instance.PlaySound2D("SFX_PlayerGuardSuccess");
         LastGuardApplied = false;
         // 가드 중? (버튼 누르고 있고, 쿨타임 없음, 스태미너 충분)
         bool holding = Input.GetMouseButton(1);

@@ -45,8 +45,27 @@ public class TemporarySoundPlayer : MonoBehaviour
         _audioSource.rolloffMode = AudioRolloffMode.Linear;
         _audioSource.minDistance = minDistance;
         _audioSource.maxDistance = maxDistance;
+        _audioSource.dopplerLevel = 0f;
+        _audioSource.spread = 0f;
+        _audioSource.panStereo = 0f;
     }
-
+    public void AttachOrSnap(Transform target, bool attachToTarget)
+    {
+        if (attachToTarget)
+        {
+            // 부모로 붙이고, 로컬 좌표/회전을 0으로 맞춘다
+            transform.SetParent(target, worldPositionStays: false);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            // 부모 해제하고, 월드 위치/회전을 즉시 스냅
+            transform.SetParent(null);
+            transform.position = target.position;
+            transform.rotation = target.rotation;
+        }
+    }
     private async UniTaskVoid ReleaseWhenFinish(float clipLength)
     {
         await UniTask.WaitForSeconds(clipLength);

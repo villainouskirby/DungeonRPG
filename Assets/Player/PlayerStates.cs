@@ -46,6 +46,7 @@ public class MoveState : IPlayerState
 
     public void Enter()
     {
+        SoundManager.Instance.PlaySound2D("SFX_PlayerWalk", 0.1f, true, SoundType.SFX);
         Debug.Log("Move 상태 시작");
     }
 
@@ -69,6 +70,7 @@ public class MoveState : IPlayerState
     public void Exit()
     {
         //Debug.Log("Move 상태 종료");
+        SoundManager.Instance.StopLoopSound("SFX_PlayerWalk");
     }
 
     public override string ToString() => "Move";
@@ -80,6 +82,7 @@ public class RunState : IPlayerState
 
     public void Enter()
     {
+        SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, true, SoundType.SFX);
         //Debug.Log("Run 상태 시작");
     }
 
@@ -106,6 +109,7 @@ public class RunState : IPlayerState
 
     public void Exit()
     {
+        SoundManager.Instance.StopLoopSound("SFX_PlayerRun");
         //Debug.Log("Run 상태 종료");
     }
 
@@ -118,6 +122,7 @@ public class SneakMoveState : IPlayerState
 
     public void Enter()
     {
+        SoundManager.Instance.PlaySound2D("SFX_PlayerSneakMove", 0.3f, true, SoundType.SFX);
         //Debug.Log("SneakMoveState 상태 시작");
     }
 
@@ -142,6 +147,7 @@ public class SneakMoveState : IPlayerState
 
     public void Exit()
     {
+        SoundManager.Instance.StopLoopSound("SFX_PlayerSneakMove");
         //Debug.Log("SneakMoveState 상태 종료");
     }
 
@@ -191,6 +197,7 @@ public class GuardState : IPlayerState
 
     public GuardState(IPlayerChangeState player)
     {
+        
         pc = player as PlayerController;
         ac = pc?.GetComponent<AttackController>();
         pd = pc?.GetComponent<PlayerDefense>();
@@ -203,6 +210,7 @@ public class GuardState : IPlayerState
             pc?.ChangeState(new IdleState(pc));
             return;
         }
+        SoundManager.Instance.PlaySound2D("SFX_PlayerGuardUp");
         Debug.Log("Guard ON");
         if (pc) pc.rb.velocity = Vector2.zero;      // 즉시 정지
     }
@@ -237,7 +245,10 @@ public class GuardState : IPlayerState
         }
     }
 
-    public void Exit() => Debug.Log("Guard OFF");
+    public void Exit()
+    {
+        Debug.Log("Guard OFF");
+    }
     public override string ToString() => "Guard";
 }
 public sealed class PotionConsumeState : IPlayerState
@@ -386,7 +397,7 @@ public class ChargingState : IPlayerState
             player.ChangeState(new IdleState(player));
             return;
         }
-
+        SoundManager.Instance.PlaySound2D("SFX_PlayerStrongAttackCharge");
         // 이번 차징 세션 누적 소모 상한 20 시작
         if (PlayerData.Instance != null)
             PlayerData.Instance.BeginChargeSpendCap(19f);
