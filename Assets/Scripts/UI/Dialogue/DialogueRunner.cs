@@ -159,6 +159,8 @@ public class DialogueRunner : UIBase
     {
         if (!_printer.CheckIsPrinting())
         {
+            SoundManager.Instance.PlaySound2D("Dialogue");
+
             if (_dialogueLines.TryDequeue(out var statement))
             {
                 _speakerText.text = statement.Speaker;

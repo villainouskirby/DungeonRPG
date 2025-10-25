@@ -99,6 +99,7 @@ public class Inventory : UIBase, ISave
     protected void OnEnable()
     {
         UIPopUpHandler.Instance.GetScript<Palette>().SetPalette(0);
+        SoundManager.Instance.PlaySound2D("OpenBag");
     }
 
     protected override void Awake()
