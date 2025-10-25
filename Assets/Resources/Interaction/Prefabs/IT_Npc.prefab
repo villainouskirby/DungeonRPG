@@ -98,6 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _npcSprite: {fileID: 8840058050914012880}
+  _markSprite: {fileID: 2454334439438618409}
   _npcTile: {fileID: 1889841447412736846}
   _positionOffset: 0.2
   _questionMark: {fileID: 21300000, guid: 7cc9f00a824244d4fabe5da39d9182d4, type: 3}
@@ -249,6 +250,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SR: {fileID: 8840058050914012880}
+  _merchantSprite: {fileID: 21300000, guid: aa9f34a4536dde141892b3362699d2f3, type: 3}
+  _blacksmithSprite: {fileID: 21300000, guid: ef70cb20ff5748241bb39a625780eaba, type: 3}
 --- !u!114 &1889841447412736846
 MonoBehaviour:
   m_ObjectHideFlags: 0

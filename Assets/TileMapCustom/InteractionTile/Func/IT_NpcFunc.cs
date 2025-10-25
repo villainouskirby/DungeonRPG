@@ -12,6 +12,9 @@ public class IT_NpcFunc : MonoBehaviour
     private bool _isActive;
     public SpriteRenderer SR;
 
+    [SerializeField] private Sprite _merchantSprite;
+    [SerializeField] private Sprite _blacksmithSprite;
+
     public void Init(IT_NpcObj npcObj)
     {
         _collider = GetComponent<BoxCollider2D>();
@@ -19,6 +22,21 @@ public class IT_NpcFunc : MonoBehaviour
         _isActive = false;
         SR.sortingLayerName = npcObj.LayerName;
         SR.sortingOrder = npcObj.LayerIndex;
+
+        switch (_npcName)
+        {
+            case NPC.merchant:
+                SR.sprite = _merchantSprite;
+                break;
+
+            case NPC.smith:
+                SR.sprite = _blacksmithSprite;
+                break;
+
+            default:
+                SR.sprite = _merchantSprite;
+                break;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

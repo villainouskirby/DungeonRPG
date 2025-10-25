@@ -4,6 +4,7 @@ using UnityEngine;
 public class QuestStateMark : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _npcSprite;
+    [SerializeField] private SpriteRenderer _markSprite;
     [SerializeField] private IT_NpcTile _npcTile;
     [SerializeField] private float _positionOffset = 0.2f;
 
@@ -39,7 +40,7 @@ public class QuestStateMark : MonoBehaviour
     {
         if (args.NPCName != _npcTile.NpcName.ToString()) return;
 
-        _npcSprite.sprite = _questionMark;
+        _markSprite.sprite = _questionMark;
         gameObject.SetActive(true);
     }
 
@@ -54,7 +55,7 @@ public class QuestStateMark : MonoBehaviour
     {
         if (args.TargetNPC != _npcTile.NpcName.ToString()) return;
 
-        _npcSprite.sprite = _dotMark;
+        _markSprite.sprite = _dotMark;
         gameObject.SetActive(true);
     }
 
@@ -64,11 +65,11 @@ public class QuestStateMark : MonoBehaviour
 
         if (args.IsClear)
         {
-            _npcSprite.sprite = _exclamationMark;
+            _markSprite.sprite = _exclamationMark;
         }
         else
         {
-            _npcSprite.sprite = _dotMark;
+            _markSprite.sprite = _dotMark;
         }
 
         gameObject.SetActive(true);
