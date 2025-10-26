@@ -15,6 +15,16 @@ public class MoveToItemSO : SpecialBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        SoundManager.Instance.PlaySound3D(
+                "SFX_CleanerWalk",
+                ctx.transform,
+                delay: 0f,
+                isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
         Transform target = ctx.CanSeeObject(searchRadius);
         if (!target) yield break;
 
@@ -25,6 +35,7 @@ public class MoveToItemSO : SpecialBehaviourSO
         while (target && Vector2.Distance(ctx.transform.position, target.position) > stopDist)
             yield return null;
 
+        SoundManager.Instance.StopLoopSound("SFX_CleanerWalk");
         ctx.SafeStopAgent();
         yield return null;
 

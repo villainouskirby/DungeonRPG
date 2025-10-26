@@ -6,12 +6,22 @@ public class HoundApproachBehaviourSO : AttackBehaviourSO
 {
     [Tooltip("이 거리 이내로 접근할 때까지 실행")]
     public float desiredDistance = 2f;
-
+    string _runLoopClipKey;
     public override bool CanRun(MonsterContext ctx)
         => Vector2.Distance(ctx.transform.position, ctx.player.position) > desiredDistance;
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        SoundManager.Instance.PlaySound3D(
+            "SFX_HoundRun",
+            ctx.transform,
+            delay: 0f,
+            isLoop: true,
+            type: SoundType.SFX,
+            attachToTarget: true,
+            minDistance: 0f,
+            maxDistance: 30f);
+        
         ctx.agent.speed = ctx.data.combatSpeed;
         ctx.animationHub?.SetTag(MonsterStateTag.CombatMove, ctx);
 

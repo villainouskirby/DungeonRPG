@@ -18,6 +18,14 @@ public class ConsumeItemSO : SpecialBehaviourSO
 
     public override IEnumerator Execute(MonsterContext ctx)
     {
+        
+        ctx.anim.Play("Eat");
+        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
+        yield return new WaitForSeconds(eatTime);
+
+        Transform t = ctx.CanSeeObject(consumeDist);
+        if (!t) yield break;
+
         SoundManager.Instance.PlaySound3D(
                     "SFX_CleanerSwallow",
                     ctx.transform,
@@ -28,12 +36,6 @@ public class ConsumeItemSO : SpecialBehaviourSO
                     1.5f,
                     25f
                 );
-        ctx.anim.Play("Eat");
-        ctx.animationHub?.SetTag(MonsterStateTag.Idle, ctx);
-        yield return new WaitForSeconds(eatTime);
-
-        Transform t = ctx.CanSeeObject(consumeDist);
-        if (!t) yield break;
 
         // DropItem이면 데이터/수량을 stomach에 Push 후 풀 반환
         if (t.TryGetComponent(out DropItem di))

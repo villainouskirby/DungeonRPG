@@ -94,7 +94,20 @@ public class SoundManager : Singleton<SoundManager>, IManager
         if (isLoop) { AddToLoopList(soundPlayer); }
 
         soundPlayer.InitSound3D(await GetClip(clipName), minDistance, maxDistance);
-        soundPlayer.AttachOrSnap(audioTarget, attachToTarget);
+        if (attachToTarget)
+        {
+            // 부모로 붙이고 로컬 0
+            soundPlayer.transform.SetParent(audioTarget, worldPositionStays: false);
+            soundPlayer.transform.localPosition = Vector3.zero;
+            soundPlayer.transform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            // 부모 해제하고 월드 위치/회전만 복사
+            soundPlayer.transform.SetParent(null);
+            soundPlayer.transform.position = audioTarget.position;
+            soundPlayer.transform.rotation = audioTarget.rotation;
+        }
 
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }

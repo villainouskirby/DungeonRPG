@@ -20,7 +20,7 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         if (!ctx.player) yield break;
-
+        SoundManager.Instance.StopLoopSound("SFX_HoundRun");
         Vector2 dir = (ctx.player.position - ctx.transform.position).normalized;
         /* 1) 준비 */
         ctx.SetForward(dir);
@@ -35,13 +35,19 @@ public class HoundChargeAttackBehaviourSO : AttackBehaviourSO
 
 
         /* 2) 돌진 */
-        ctx.anim.Play("Charge");
-
         ctx.SetForward(dir);
-        ctx.anim.Play("Charge");
 
         ctx.animationHub?.SetTag(MonsterStateTag.CombatAttack, ctx);
-
+        SoundManager.Instance.PlaySound3D(
+                    "SFX_HoundChargeAttack",
+                    ctx.transform,
+                    0f,
+                    false,
+                    SoundType.SFX,
+                    true,
+                    1.5f,
+                    25f
+                );
         float travelled = 0f;
         bool hitApplied = false;
         bool stopOnHit = false;

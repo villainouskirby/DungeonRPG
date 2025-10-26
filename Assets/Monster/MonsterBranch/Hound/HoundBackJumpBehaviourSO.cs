@@ -16,9 +16,18 @@ public class HoundBackstepJumpBehaviourSO : AttackBehaviourSO
     public override IEnumerator Execute(MonsterContext ctx)
     {
         if (!ctx.player) yield break;
-
+        SoundManager.Instance.StopLoopSound("SFX_HoundRun");
         ctx.animationHub?.SetTag(MonsterStateTag.BackStep, ctx);
-
+        SoundManager.Instance.PlaySound3D(
+                    "SFX_HoundBackJump",
+                    ctx.transform,
+                    0f,
+                    false,
+                    SoundType.SFX,
+                    true,
+                    1.5f,
+                    25f
+                );
         Vector3 start = ctx.transform.position;
         Vector3 dirToPlayer = (ctx.player.position - start).normalized;
         Vector3 backDir = -dirToPlayer;

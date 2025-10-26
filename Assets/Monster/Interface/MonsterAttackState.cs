@@ -19,6 +19,7 @@ public sealed class CombatSuperState : IMonsterState
     {
         if (!ctx.isCombat) ctx.isCombat = true;
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
+        
         UpdatePresentationByRange();
         SelectAndRun();
     }
@@ -37,7 +38,10 @@ public sealed class CombatSuperState : IMonsterState
         }
     }
 
-    public void Exit() { Interrupt(); }
+    public void Exit() 
+    { 
+        Interrupt();
+    }
 
     // === 실행/선택 ===
     void SelectAndRun()

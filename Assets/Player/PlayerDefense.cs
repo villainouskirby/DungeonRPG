@@ -36,7 +36,7 @@ public class PlayerDefense : MonoBehaviour
     }
     public int ResolveGuard(int incomingDamage)
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerGuardSuccess");
+        
         LastGuardApplied = false;
         // 가드 중? (버튼 누르고 있고, 쿨타임 없음, 스태미너 충분)
         bool holding = Input.GetMouseButton(1);
@@ -49,9 +49,11 @@ public class PlayerDefense : MonoBehaviour
 
         // 스태미너 확인·차감 
         int cost = isJust ? justGuardCost : normalGuardCost;
-        if (!PlayerData.Instance.SpendStamina(cost))      // 부족 → 가드 실패
+        if (!PlayerData.Instance.SpendStamina(cost)) // 부족 → 가드 실패
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerGuardSuccess");
             return incomingDamage;
-
+        }
         // 감쇄 비율·쿨타임 적용
         guardCooldown = isJust ? justGuardDelay : normalGuardDelay;
         float ratio = isJust ? justGuardRatio : normalGuardRatio;

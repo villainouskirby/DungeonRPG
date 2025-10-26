@@ -397,7 +397,7 @@ public class ChargingState : IPlayerState
             player.ChangeState(new IdleState(player));
             return;
         }
-        SoundManager.Instance.PlaySound2D("SFX_PlayerStrongAttackCharge");
+        SoundManager.Instance.PlaySound2D("SFX_PlayerStrongAttackCharge", 0f, true, SoundType.SFX);
         // 이번 차징 세션 누적 소모 상한 20 시작
         if (PlayerData.Instance != null)
             PlayerData.Instance.BeginChargeSpendCap(19f);
@@ -449,7 +449,11 @@ public class ChargingState : IPlayerState
         float held = Mathf.Min(Time.time - startTime, ac.maxChargeTime);
     }
 
-    public void Exit() { if (PlayerData.Instance != null) PlayerData.Instance.EndChargeSpendCap(); }
+    public void Exit() 
+    {
+        SoundManager.Instance.StopLoopSound("SFX_PlayerStrongAttackCharge");
+        if (PlayerData.Instance != null) PlayerData.Instance.EndChargeSpendCap(); 
+    }
     public override string ToString() => "Charging";
 }
 public class NormalAttackState : IPlayerState

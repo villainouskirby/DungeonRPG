@@ -33,7 +33,6 @@ public sealed class MonsterTraceState : IMonsterState
 
         float spd = (ctx.data.traceSpeed > 0f) ? ctx.data.traceSpeed : ctx.data.detectSpeed;
         ctx.agent.speed = spd;
-        ctx.agent.isStopped = false;
 
         _prevPos = ctx.transform.position;
         _stillAccum = 0f;
@@ -99,16 +98,13 @@ public sealed class MonsterTraceState : IMonsterState
         }
         else                         // 적정 밴드 안 → 정지/대기
         {
-            if (!ctx.agent.isStopped)
-            {
-                ctx.agent.isStopped = true;
                 ctx.agent.velocity = Vector3.zero;
                 if (ctx.player)
                 {
                     Vector2 toP = (ctx.player.position - ctx.transform.position).normalized;
                     ctx.SetForward(toP);
                 }
-            }
+            
             // 바라보는 방향만 유지하고 끝
         }
         UpdateLocomotionTag(dt);

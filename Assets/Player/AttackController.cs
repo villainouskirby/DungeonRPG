@@ -514,6 +514,8 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
             // 파밍 오브젝트(필요시 트리거도 허용)
             if (col.CompareTag("Farm") && col.TryGetComponent(out ResourceNodeBase f))
             {
+                SoundManager.Instance.PlaySound2D("SFX_PlayerStrongAttackOre");
+                // TODO: 광석이랑 식물 구분 해야될듯
                 f.Damage(dmg);
             }
         }

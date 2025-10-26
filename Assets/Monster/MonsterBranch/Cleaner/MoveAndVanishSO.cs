@@ -93,6 +93,7 @@ public class MoveAndVanishSO : SpecialBehaviourSO
 
             // 피격 없이 끝까지 갔을 때만 Vanish 진행
             ctx.agent.enabled = false;   // NavMeshAgent 업데이트 차단
+            
             ctx.anim.Play("Vanish");
             float vt = 0f;
             while (vt < vanishDelay)
@@ -108,18 +109,19 @@ public class MoveAndVanishSO : SpecialBehaviourSO
                 vt += Time.deltaTime;
                 yield return null;
             }
-
             SoundManager.Instance.PlaySound3D(
                     "SFX_CleanerDespawn",
                     ctx.transform,
                     0f,
                     false,
                     SoundType.SFX,
-                    true,
+                    false,
                     1.5f,
                     25f
                 );
+            yield return null;
             // 풀 반환
+            ctx.agent.isStopped = false;
             SpawnerPool.Instance.MonsterPool.Release(ctx.id, ctx.mono.gameObject);
             yield break;
         }

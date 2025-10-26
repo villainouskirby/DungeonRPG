@@ -213,6 +213,8 @@ public class PlayerFarming : MonoBehaviour
     {
         if (CheckFarmable())
         {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerFarmOre", 0f, true, SoundType.SFX);
+            //TODO: 광석인지 식물인지 구분 필요
             IsFarming = true;
             FarmGageBar.gameObject.SetActive(true);
             _time = 0;
@@ -244,14 +246,16 @@ public class PlayerFarming : MonoBehaviour
     {
         if (!IsFarming)
             return;
-
+        
         if (IsFarmSuccess())
         {
+            SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
             SuccessFarm();
             // 채집 성공
         }
         else
         {
+            SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
             IsFarming = false;
             _time = 0;
             FarmGageBar.gameObject.SetActive(false);
