@@ -25,7 +25,12 @@ public class IdleState : IPlayerState
                 player.ChangeState(new GuardState(player));
             return;
         }
-
+        var pf = PlayerFarming.Instance;
+        if (pf != null && Input.GetKeyDown(pf.FarmingKey) && pf.CanFarmNow())
+        {
+            player.ChangeState(new FarmingState(player));
+            return;
+        }
         Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
                      ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
@@ -569,4 +574,124 @@ public class EscapeState : IPlayerState
     public void Exit() { }
 
     public override string ToString() => "Escape";
+}
+
+public sealed class FarmingState : IPlayerState
+{
+    private readonly IPlayerChangeState owner;
+    private readonly PlayerController pc;
+    private PlayerFarming pf;
+
+    private float total;   // 필요 시간
+    private float remain;  // 남은 시간
+    private bool finished;
+
+    public FarmingState(IPlayerChangeState p)
+    {
+        owner = p;
+        pc = p as PlayerController;
+    }
+
+    public void Enter()
+    {
+        pf = PlayerFarming.Instance;
+        if (pf == null || !pf.CanFarmNow())
+        {
+            owner.ChangeState(new IdleState(owner));
+            return;
+        }
+
+        // 움직임 정지(원하면 유지)
+        if (pc != null) pc.rb.velocity = Vector2.zero;
+
+        total = Mathf.Max(0.05f, pf.GetRequiredTime()); // 1f 기본
+        remain = total;
+        finished = false;
+
+        pf.BeginFarmVisuals();
+
+        // 피격 감지 → HP 감소 시 캔슬
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnHPChanged += OnHPChanged;
+    }
+
+    public void Update()
+    {
+        if (finished) return;
+
+        if (Input.GetKeyDown(KeyCode.Space) &&
+            (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge))
+        {
+            CancelAndGoEscape();
+            return;
+        }
+
+        if (Input.GetKeyDown(PlayerFarming.Instance.FarmingKey))
+        {
+            CancelAndGoIdle();
+            return;
+        }
+
+        if (!pf.IsTargeting || pf.TargetObj == null)
+        {
+            CancelAndGoIdle();
+            return;
+        }
+
+        remain -= Time.deltaTime;
+        pf.UpdateGage(remain, total);
+
+        if (remain <= 0f)
+        {
+            finished = true;
+            CompleteAndExit();
+        }
+    }
+
+    public void Exit()
+    {
+        // 안전 정리
+        pf?.CancelFarmVisuals();
+        if (PlayerData.Instance != null)
+            PlayerData.Instance.OnHPChanged -= OnHPChanged;
+    }
+
+    public override string ToString() => "Farming";
+
+    private void CancelAndGoIdle()
+    {
+        finished = true;
+        owner.ChangeState(new IdleState(owner));
+    }
+
+    private void CancelAndGoEscape()
+    {
+        finished = true;
+        owner.ChangeState(new EscapeState(owner));
+    }
+
+    private void CompleteAndExit()
+    {
+        // 성공 처리 (몬스터/자원 내부에서 정리)
+        // 내부적으로 디스폰/남은 횟수/풀반납 등 처리됨
+        var beforeTarget = pf.TargetObj;
+        InvokeSuccess();
+
+        // 타깃이 사라졌거나 더 이상 파밍 불가면 Idle
+        if (pf.TargetObj == null || beforeTarget != pf.TargetObj || !pf.CanFarmNow())
+            owner.ChangeState(new IdleState(owner));
+        else
+            owner.ChangeState(new IdleState(owner)); // 1회 단위 종료(요구사항상 한 번 캐면 종료)
+    }
+
+    private void InvokeSuccess()
+    {
+        pf.SuccessFarm();
+    }
+
+    private void OnHPChanged(float oldHp, float newHp)
+    {
+        if (!finished && newHp < oldHp)
+            CancelAndGoIdle();
+    }
 }
