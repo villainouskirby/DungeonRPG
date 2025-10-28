@@ -50,6 +50,8 @@ public class PlayerFarming : MonoBehaviour
     public FarmGageBarFunc FarmGageBar;
 
     private Camera _mainCamera;
+    [SerializeField] private float baseRequiredTime = 1f;
+    public float GetRequiredTime() => Mathf.Max(0.05f, baseRequiredTime);
 
     bool IsMonsterTarget() => TargetObj != null && TargetObj.CompareTag("Monster");
 
@@ -162,19 +164,6 @@ public class PlayerFarming : MonoBehaviour
 
     private void Update()
     {
-        if (IsFarming)
-        {
-            _time += Time.deltaTime;
-            FarmGageBar.SetGage(1f - _time / _requiredTime);
-
-            // 시간이 지나면 자동 채집? 일단 추가
-            if (_time >= _requiredTime)
-            {
-                IsFarming = false;
-                SuccessFarm();
-            }
-        }
-
         if (Input.GetKeyDown(DropItemKey))
         {
             if (TargetDropItem != null)
@@ -196,31 +185,9 @@ public class PlayerFarming : MonoBehaviour
                 SelectFarm(firstFarm);
             }
         }
-        if (Input.GetKeyDown(FarmingKey))
-        {
-            StartFarm();
-        }
-        if (Input.GetKeyUp(FarmingKey))
-        {
-            EndFarm();
-        }
     }
-
     private float _time;
-    private float _requiredTime;
 
-    void StartFarm()
-    {
-        if (CheckFarmable())
-        {
-            SoundManager.Instance.PlaySound2D("SFX_PlayerFarmOre", 0f, true, SoundType.SFX);
-            //TODO: 광석인지 식물인지 구분 필요
-            IsFarming = true;
-            FarmGageBar.gameObject.SetActive(true);
-            _time = 0;
-            _requiredTime = 1f; // 임시로 제작
-        }
-    }
 
     private bool CheckFarmable()
     {
@@ -241,30 +208,7 @@ public class PlayerFarming : MonoBehaviour
         return levelDifference >= MinLevelDifference;
     }
 
-
-    void EndFarm()
-    {
-        if (!IsFarming)
-            return;
-        
-        if (IsFarmSuccess())
-        {
-            SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
-            SuccessFarm();
-            // 채집 성공
-        }
-        else
-        {
-            SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
-            IsFarming = false;
-            _time = 0;
-            FarmGageBar.gameObject.SetActive(false);
-            // 채집 실패 - 사유 시간 끝나기전에 손을 땜.
-            Debug.Log("채집 실패 - 시간 부족");
-        }
-    }
-
-    private void SuccessFarm()
+    public void SuccessFarm()
     {
         IsFarming = false;
         _time = 0;
@@ -305,19 +249,55 @@ public class PlayerFarming : MonoBehaviour
         ResetFarm();
     }
 
-    private bool IsFarmSuccess()
-    {
-        return _time >= _requiredTime;
-    }
 
     private void ResetFarm()
     {
-        _time = 0;
-        _requiredTime = 0;
-        IsFarming = false;
         FarmGageBar.gameObject.SetActive(false);
         TargetObj = null;
         TargetResourceNode = null;
+    }
+
+    public bool CanFarmNow()
+    {
+        if (!IsTargeting || TargetObj == null) return false;
+
+        if (IsMonsterTarget())
+        {
+            if (MonsterKilledState.IsDespawning(TargetObj)) return false;
+            if (MonsterKilledState.HarvestsLeft(TargetObj) <= 0) return false;
+            int resistance = 0; // 필요하면 몬스터 데이터로
+            return (Level - resistance) >= MinLevelDifference;
+        }
+
+        if (TargetResourceNode == null || TargetResourceNode.Info == null) return false;
+        return (Level - TargetResourceNode.Info.Resistance) >= MinLevelDifference;
+    }
+    public void BeginFarmVisuals()
+    {
+        if (FarmGageBar != null)
+        {
+            FarmGageBar.gameObject.SetActive(true);
+            FarmGageBar.SetGage(1f);
+        }
+        SoundManager.Instance.PlaySound2D("SFX_PlayerFarmOre", 0f, true, SoundType.SFX);
+
+        // 아이콘/아웃라인도 최신 가능여부 색으로
+        FarmIcon?.SetIcon(CanFarmNow());
+        TargetResourceNodeOutline?.OnOutline(CanFarmNow() ? AbleColor : DisableColor);
+    }
+
+    // 상태머신에서 호출: 취소/실패
+    public void CancelFarmVisuals()
+    {
+        SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
+        if (FarmGageBar != null) FarmGageBar.gameObject.SetActive(false);
+    }
+
+    // 상태머신에서 호출: 프레임마다 게이지만 업데이트(0~1)
+    public void UpdateGage(float remain, float total)
+    {
+        if (FarmGageBar != null && total > 0f)
+            FarmGageBar.SetGage(Mathf.Clamp01(1f - (total - remain) / total));
     }
 
 

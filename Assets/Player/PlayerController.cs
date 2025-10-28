@@ -125,6 +125,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     // 피격 무적 + 알파 깜빡임
     public void StartHitInvincible(float duration = 1f, float blinkInterval = 0.1f)
     {
+        CancelFarmingIfAny("hit");
         if (_hitBlinkCo != null) StopCoroutine(_hitBlinkCo);
         _hitBlinkCo = StartCoroutine(HitInvincibleRoutine(duration, blinkInterval));
     }
@@ -148,6 +149,15 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         ResetSpriteAlpha(sprite);
         isInvincible = false;
         _hitBlinkCo = null;
+    }
+
+    public void CancelFarmingIfAny(string reason = null)
+    {
+        var cur = GetCurrentState();
+        if (cur is FarmingState)
+        {
+            ChangeState(new IdleState(this));
+        }
     }
     #endregion
     #region 낙하 로직
