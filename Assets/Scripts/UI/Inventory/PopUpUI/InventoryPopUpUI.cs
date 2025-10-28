@@ -57,5 +57,7 @@ public class InventoryPopUpUI : ItemPopUpUI
         _menuPopUp.SetActive(true);
     }
 
+    public void CloseMenu() => _menuPopUp.SetActive(false);
+
     public void OpenExcessPopUP() => _excessPopUpUI.OpenExcessPopUp();
 }

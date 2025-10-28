@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ItemDataExtensions;
-using DBUtility;
-using static ItemDataExtensions.ItemDataExtension;
-using System;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Cysharp.Threading.Tasks;
 
 [System.Serializable]
 public abstract class ItemData
@@ -25,16 +24,8 @@ public abstract class ItemData
     {
         _info = info;
 
-        try
-        {
-            _iconSprite = Addressables.LoadAssetAsync<Sprite>("ItemSprites/" + info.id).WaitForCompletion();
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"이미지 로드 실패: {ex.Message}");
-            _iconSprite = null;
-        }
-        
+        _iconSprite = SafeAddressableLoader.LoadSync<Sprite>("ItemSprites/" + info.id);
+
         if (_info.throwable)
         {
             _extensions[ItemDataExtension.Name.Throwable] = new ThrowableItemDataExtension(SID);

@@ -281,6 +281,7 @@ public class InventoryUI : SlotInteractHandler
     public override void OnRightClick()
     {
         (_pointedSlot as InventoryItemSlotUI).ToggleDetail();
+        _inventoryPopUpUI.CloseMenu();
     }
 
     public override void OnPointerIn()

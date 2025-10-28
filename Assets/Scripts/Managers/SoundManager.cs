@@ -35,22 +35,22 @@ public class SoundManager : Singleton<SoundManager>, IManager
         AddClipsToClipDict(_audioClipNames);
     }
 
-    public async void AddClipsToClipDict(string[] names)
+    public void AddClipsToClipDict(string[] names)
     {
         foreach (var name in _audioClipNames)
         {
-            await GetClip(name);
+            GetClip(name);
         }
     }
 
-    public async UniTask<AudioClip> GetClip(string name)
+    public AudioClip GetClip(string name)
     {
         if (_clipDict.TryGetValue(name, out var clip))
         {
             return clip;
         }
 
-        clip = await Addressables.LoadAssetAsync<AudioClip>("AudioClips/" + name).ToUniTask();
+        clip = SafeAddressableLoader.LoadSync<AudioClip>("AudioClips/" + name);
 
         if (clip != null)
         {
@@ -62,10 +62,12 @@ public class SoundManager : Singleton<SoundManager>, IManager
 
     private TemporarySoundPlayer PopSoundPlayer()
     {
+        TemporarySoundPlayer soundPlayer;
+
         if (_soundPlayerPool.Count > 0) return _soundPlayerPool.Pop();
 
         GameObject obj = new("TemporarySoundPlayer");
-        TemporarySoundPlayer soundPlayer = obj.AddComponent<TemporarySoundPlayer>();
+        soundPlayer = obj.AddComponent<TemporarySoundPlayer>();
 
         return soundPlayer;
     }
@@ -75,25 +77,27 @@ public class SoundManager : Singleton<SoundManager>, IManager
         _loopSoundPlayers.Add(soundPlayer);
     }
 
-    public async void PlaySound2D(string clipName, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX)
+    public void PlaySound2D(string clipName, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX)
     {
         var soundPlayer = PopSoundPlayer();
 
+        soundPlayer.InitSound2D(GetClip(clipName));
+
         if (isLoop) { AddToLoopList(soundPlayer); }
 
-        soundPlayer.InitSound2D(await GetClip(clipName));
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }
 
-    public async void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, float minDistance = 0.0f, float maxDistance = 50.0f)
+    public void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, float minDistance = 0.0f, float maxDistance = 50.0f)
     {
         var soundPlayer = PopSoundPlayer();
 
         if (attachToTarget) { soundPlayer.transform.parent = audioTarget; }
 
+        soundPlayer.InitSound3D(GetClip(clipName), minDistance, maxDistance);
+
         if (isLoop) { AddToLoopList(soundPlayer); }
 
-        soundPlayer.InitSound3D(await GetClip(clipName), minDistance, maxDistance);
         if (attachToTarget)
         {
             // 부모로 붙이고 로컬 0
@@ -119,7 +123,8 @@ public class SoundManager : Singleton<SoundManager>, IManager
             if (audioPlayer.ClipName == clipName)
             {
                 _loopSoundPlayers.Remove(audioPlayer);
-                Destroy(audioPlayer.gameObject);
+                audioPlayer.Stop();
+                PushSoundPlayer(audioPlayer);
                 return;
             }
         }
@@ -129,8 +134,11 @@ public class SoundManager : Singleton<SoundManager>, IManager
 
     public void PushSoundPlayer(TemporarySoundPlayer soundPlayer)
     {
-        soundPlayer.transform.parent = transform;
-        _soundPlayerPool.Push(soundPlayer);
+        if (!_soundPlayerPool.Contains(soundPlayer))
+        {
+            soundPlayer.transform.parent = transform;
+            _soundPlayerPool.Push(soundPlayer);
+        }
     }
 
     public void ClearCache()

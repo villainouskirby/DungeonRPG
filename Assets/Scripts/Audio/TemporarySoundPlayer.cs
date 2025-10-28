@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,9 +8,12 @@ public class TemporarySoundPlayer : MonoBehaviour
     private AudioSource _audioSource;
     public string ClipName => _audioSource.clip.name;
 
+    private bool _isStopped = true;
+
     private void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
+        _audioSource.playOnAwake = false;
     }
 
     public async UniTaskVoid Play(AudioMixerGroup audioMixer, float delay, bool isLoop)
@@ -19,6 +21,12 @@ public class TemporarySoundPlayer : MonoBehaviour
         if (delay > 0)
         {
             await UniTask.WaitForSeconds(delay);
+        }
+
+        if (_isStopped)
+        {
+            SoundManager.Instance.PushSoundPlayer(this);
+            return;
         }
 
         gameObject.SetActive(true);
@@ -33,9 +41,18 @@ public class TemporarySoundPlayer : MonoBehaviour
         }
     }
 
+    public void Stop()
+    {
+        _isStopped = true;
+        _audioSource.loop = false;
+        _audioSource.Stop();
+        gameObject.SetActive(false);
+    }
+
     public void InitSound2D(AudioClip clip)
     {
         _audioSource.clip = clip;
+        _isStopped = false;
     }
 
     public void InitSound3D(AudioClip clip, float minDistance, float maxDistance)
@@ -48,6 +65,7 @@ public class TemporarySoundPlayer : MonoBehaviour
         _audioSource.dopplerLevel = 0f;
         _audioSource.spread = 0f;
         _audioSource.panStereo = 0f;
+        _isStopped = false;
     }
     public void AttachOrSnap(Transform target, bool attachToTarget)
     {

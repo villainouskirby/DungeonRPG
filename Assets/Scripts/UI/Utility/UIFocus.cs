@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using TMPro;
 using Tutorial;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,16 +8,36 @@ using UnityEngine.UI;
 
 public class UIFocus : UIBase
 {
-    [SerializeField] private MaskRaycast _maskRaycast;
+    public struct FocusInfo
+    {
+        public RectTransform Rect;
+        public int Type;
+        public string Text;
+        public Vector2 TextPos;
+    }
 
-    private Queue<RectTransform> _focusQueue = new();
+    [SerializeField] private MaskRaycast _maskRaycast;
+    [SerializeField] private RectTransform _textBGRect;
+    [SerializeField] private RectTransform _textRect;
+    [SerializeField] private RectTransform _highlightRect;
+    [SerializeField] private TextMeshProUGUI _tmp;
+    [SerializeField] private float _shadeAlpha = 0.5f;
+
+    private Queue<FocusInfo> _focusQueue = new();
     private Dictionary<string, RectTransform> _focusTargetDict = new();
+
+    private MaskableGraphic _shadowImage;
+    private Image _highlightImage;
 
     public bool IsFocusing { get; private set; } = false;
 
     protected override void InitBase()
     {
+        _shadowImage = GetComponent<MaskableGraphic>();
+        _highlightImage = _highlightRect.GetComponent<Image>();
+
         UIPopUpHandler.Instance.RegisterUI(this);
+        _highlightRect.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -30,18 +51,18 @@ public class UIFocus : UIBase
         _focusTargetDict.Remove(key);
     }
 
-    public void EnqueueFocusEvent(string key, int type = 0)
+    public void EnqueueFocusEvent(DialogueEndEvent endEvent)
     {
         RectTransform target;
 
-        if (type == 0)
+        if (endEvent.Amount == 0)
         {
-            _focusTargetDict.TryGetValue(key, out target);
+            _focusTargetDict.TryGetValue(endEvent.Value, out target);
         }
         else
         {
             var inventory = UIPopUpHandler.Instance.GetScript<Inventory>();
-            var slot = inventory.GetItemSlotUI(key);
+            var slot = inventory.GetItemSlotUI(endEvent.Value);
 
             if (slot == null) return;
 
@@ -49,13 +70,23 @@ public class UIFocus : UIBase
             
             if (inventory.GetTabType() != InventoryUI.TabType.All)
             {
-                EnqueueFocusEvent("AllSlot");
+                FocusInfo info = new();
+                info.Rect = _focusTargetDict["AllSlot"];
+                info.Type = 0;
+                
+                _focusQueue.Enqueue(info);
             }
         }
 
         if (target != null)
         {
-            _focusQueue.Enqueue(target);
+            FocusInfo info = new();
+            info.Rect = target;
+            info.Type = endEvent.Amount;
+            info.Text = endEvent.TutorialText;
+            info.TextPos = endEvent.TextPosition;
+
+            _focusQueue.Enqueue(info);
         }
 
         StartFocus().Forget();
@@ -67,9 +98,10 @@ public class UIFocus : UIBase
 
         IsFocusing = true;
 
-        while (_focusQueue.Count > 0)
+        do
         {
-            RectTransform rectTransform = _focusQueue.Peek();
+            FocusInfo focusInfo = _focusQueue.Dequeue();
+            RectTransform rectTransform = focusInfo.Rect;
             GameObject go = rectTransform.gameObject;
             bool isClicked = false;
 
@@ -117,10 +149,26 @@ public class UIFocus : UIBase
 
             await UniTask.DelayFrame(3);
 
-            rect.position = rectTransform.TransformPoint(rectTransform.rect.center);
-
+            Vector3 pos = rectTransform.TransformPoint(rectTransform.rect.center);
+            rect.position = pos;
             _maskRaycast.SetRaycastRect(rect);
+
+            Vector3 scale = new Vector3((focusInfo.TextPos.x > 0) ? 1 : -1, 1, 1);
+            _textBGRect.localScale = scale;
+            _textRect.localScale = scale;
+            _textBGRect.position = focusInfo.TextPos + rect.position;
+
+            _tmp.text = focusInfo.Text;
+
             gameObject.SetActive(true);
+            UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, 0.5f);
+
+            if (keyCode == KeyCode.None || focusInfo.Type == 2)
+            {
+                await HighLight(pos, 0.5f); ;
+            }
+
+            await fadeTask;
 
             while (true)
             {
@@ -128,7 +176,8 @@ public class UIFocus : UIBase
                 {
                     await UniTask.NextFrame();
 
-                    if (isClicked && EventSystem.current.currentSelectedGameObject == go)
+                    if (focusInfo.Type == 2 || 
+                       (isClicked && EventSystem.current.currentSelectedGameObject == go))
                     {
                         break;
                     }
@@ -153,10 +202,70 @@ public class UIFocus : UIBase
                 await UniTask.Yield();
             }
 
-            _focusQueue.Dequeue();
+            _highlightRect.gameObject.SetActive(false);
             gameObject.SetActive(false);
-        }
+        } while (_focusQueue.Count > 0);
 
         IsFocusing = false;
+    }
+
+    public async UniTask Fade(MaskableGraphic targetImage, float startAlpha, float targetAlpha, float duration, bool useMaterialColor = false)
+    {
+        Material material = targetImage.materialForRendering;
+        Color color;
+
+        if (useMaterialColor && material)
+        {
+            color = material.color;
+        }
+        else
+        {
+            color = targetImage.color;
+        }
+
+        float startTime = Time.time;
+        float t;
+
+        while ((t = (Time.time - startTime) / duration) < 1)
+        {
+            color.a = Mathf.Lerp(startAlpha, targetAlpha, t);
+
+            if (useMaterialColor && material)
+            {
+                material.color = color;
+            }
+            else
+            {
+                targetImage.color = color;
+            }
+
+            await UniTask.NextFrame();
+        }
+
+        color.a = targetAlpha;
+        targetImage.color = color;
+    }
+
+    public async UniTask HighLight(Vector2 pos, float duration)
+    {
+        _highlightRect.position = pos;
+        _highlightRect.localScale = new Vector3(1, 1, 1);
+        _highlightRect.gameObject.SetActive(true);
+
+        await Fade(_highlightImage, 0, 1, 0.2f, true);
+        await UniTask.Delay(200);
+
+        float startTime = Time.time;
+        float t;
+
+        while ((t = (Time.time - startTime) / duration) < 1)
+        {
+            float l = Mathf.Lerp(1, 0.5f, t);
+            _highlightRect.localScale = new Vector3(l, l, 1);
+
+            await UniTask.NextFrame();
+        }
+
+        _highlightRect.localScale = new Vector3(0.5f, 0.5f, 1);
     }
 }
