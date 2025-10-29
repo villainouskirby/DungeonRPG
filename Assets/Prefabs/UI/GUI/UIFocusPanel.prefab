@@ -405,7 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c263403b71cd18c4e8d59d5eff94e305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 19a01dc9c13fe504fb84b29ce9b7d624, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -437,3 +437,6 @@ MonoBehaviour:
   _highlightRect: {fileID: 5440280068608895171}
   _tmp: {fileID: 7017704955811141423}
   _shadeAlpha: 0.5
+  _shadowDuration: 0.5
+  _highlightFadeDuration: 0.1
+  _highlightScaleDuration: 0.3

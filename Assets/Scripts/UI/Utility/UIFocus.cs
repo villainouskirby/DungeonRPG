@@ -23,6 +23,11 @@ public class UIFocus : UIBase
     [SerializeField] private TextMeshProUGUI _tmp;
     [SerializeField] private float _shadeAlpha = 0.5f;
 
+    [Header("Anim Time")]
+    [SerializeField] private float _shadowDuration = 0.5f;
+    [SerializeField] private float _highlightFadeDuration = 0.1f;
+    [SerializeField] private float _highlightScaleDuration = 0.3f;
+
     private Queue<FocusInfo> _focusQueue = new();
     private Dictionary<string, RectTransform> _focusTargetDict = new();
 
@@ -35,6 +40,9 @@ public class UIFocus : UIBase
     {
         _shadowImage = GetComponent<MaskableGraphic>();
         _highlightImage = _highlightRect.GetComponent<Image>();
+
+        Material newMaterial = Instantiate(_highlightImage.material);
+        _highlightImage.material = newMaterial;
 
         UIPopUpHandler.Instance.RegisterUI(this);
         _highlightRect.gameObject.SetActive(false);
@@ -161,11 +169,11 @@ public class UIFocus : UIBase
             _tmp.text = focusInfo.Text;
 
             gameObject.SetActive(true);
-            UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, 0.5f);
+            UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, _shadowDuration);
 
             if (keyCode == KeyCode.None || focusInfo.Type == 2)
             {
-                await HighLight(pos, 0.5f); ;
+                await HighLight(pos); ;
             }
 
             await fadeTask;
@@ -246,19 +254,19 @@ public class UIFocus : UIBase
         targetImage.color = color;
     }
 
-    public async UniTask HighLight(Vector2 pos, float duration)
+    public async UniTask HighLight(Vector2 pos)
     {
         _highlightRect.position = pos;
         _highlightRect.localScale = new Vector3(1, 1, 1);
         _highlightRect.gameObject.SetActive(true);
 
-        await Fade(_highlightImage, 0, 1, 0.2f, true);
+        await Fade(_highlightImage, 0, 1, _highlightFadeDuration, true);
         await UniTask.Delay(200);
 
         float startTime = Time.time;
         float t;
 
-        while ((t = (Time.time - startTime) / duration) < 1)
+        while ((t = (Time.time - startTime) / _highlightScaleDuration) < 1)
         {
             float l = Mathf.Lerp(1, 0.5f, t);
             _highlightRect.localScale = new Vector3(l, l, 1);
