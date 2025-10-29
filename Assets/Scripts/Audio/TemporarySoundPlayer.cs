@@ -1,10 +1,12 @@
 using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 using UnityEngine.Audio;
 
 [RequireComponent(typeof(AudioSource))]
 public class TemporarySoundPlayer : MonoBehaviour
 {
+    private Action OnClipEnd;
     private AudioSource _audioSource;
     public string ClipName => _audioSource.clip.name;
 
@@ -14,6 +16,15 @@ public class TemporarySoundPlayer : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
         _audioSource.playOnAwake = false;
+    }
+
+    private void OnDisable()
+    {
+        Reset();
+
+        OnClipEnd?.Invoke();
+        OnClipEnd = null;
+        SoundManager.Instance.PushSoundPlayer(this);
     }
 
     public async UniTaskVoid Play(AudioMixerGroup audioMixer, float delay, bool isLoop)
@@ -43,29 +54,39 @@ public class TemporarySoundPlayer : MonoBehaviour
 
     public void Stop()
     {
-        _isStopped = true;
-        _audioSource.loop = false;
         _audioSource.Stop();
         gameObject.SetActive(false);
     }
 
-    public void InitSound2D(AudioClip clip)
+    public void Reset()
+    {
+        _isStopped = true;
+        _audioSource.clip = null;
+        _audioSource.loop = false;
+        _audioSource.spatialBlend = 0;
+        _audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        _audioSource.minDistance = 1;
+        _audioSource.maxDistance = 500;
+        _audioSource.spread = 0;
+        _audioSource.panStereo = 0;
+    }
+
+    public void InitSoundClip(AudioClip clip, Action clipEndEvent)
     {
         _audioSource.clip = clip;
+        OnClipEnd += clipEndEvent;
         _isStopped = false;
     }
 
-    public void InitSound3D(AudioClip clip, float minDistance, float maxDistance)
+    public void Init3DProperty(AudioRolloffMode rolloffMode, float minDistance, float maxDistance)
     {
-        _audioSource.clip = clip;
         _audioSource.spatialBlend = 1.0f;
-        _audioSource.rolloffMode = AudioRolloffMode.Linear;
+        _audioSource.rolloffMode = rolloffMode;
         _audioSource.minDistance = minDistance;
         _audioSource.maxDistance = maxDistance;
         _audioSource.dopplerLevel = 0f;
         _audioSource.spread = 0f;
         _audioSource.panStereo = 0f;
-        _isStopped = false;
     }
     public void AttachOrSnap(Transform target, bool attachToTarget)
     {
@@ -88,7 +109,11 @@ public class TemporarySoundPlayer : MonoBehaviour
     {
         await UniTask.WaitForSeconds(clipLength);
 
+        while (_audioSource.isPlaying)
+        {
+            await UniTask.NextFrame();
+        }
+
         gameObject.SetActive(false);
-        SoundManager.Instance.PushSoundPlayer(this);
     }
 }

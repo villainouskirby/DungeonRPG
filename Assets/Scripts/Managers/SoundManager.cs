@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.AddressableAssets;
+using System;
 
 public enum SoundType
 {
@@ -77,24 +78,25 @@ public class SoundManager : Singleton<SoundManager>, IManager
         _loopSoundPlayers.Add(soundPlayer);
     }
 
-    public void PlaySound2D(string clipName, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX)
+    public void PlaySound2D(string clipName, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, Action clipEndEvent = null)
     {
         var soundPlayer = PopSoundPlayer();
 
-        soundPlayer.InitSound2D(GetClip(clipName));
+        soundPlayer.InitSoundClip(GetClip(clipName), clipEndEvent);
 
         if (isLoop) { AddToLoopList(soundPlayer); }
-
+        
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }
 
-    public void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, float minDistance = 0.0f, float maxDistance = 50.0f)
+    public void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, AudioRolloffMode rolloffMode = AudioRolloffMode.Linear, float minDistance = 0.0f, float maxDistance = 50.0f, Action clipEndEvent = null)
     {
         var soundPlayer = PopSoundPlayer();
 
         if (attachToTarget) { soundPlayer.transform.parent = audioTarget; }
 
-        soundPlayer.InitSound3D(GetClip(clipName), minDistance, maxDistance);
+        soundPlayer.InitSoundClip(GetClip(clipName), clipEndEvent);
+        soundPlayer.Init3DProperty(rolloffMode, minDistance, maxDistance);
 
         if (isLoop) { AddToLoopList(soundPlayer); }
 
