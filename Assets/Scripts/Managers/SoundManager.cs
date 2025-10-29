@@ -89,14 +89,14 @@ public class SoundManager : Singleton<SoundManager>, IManager
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }
 
-    public void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, AudioRolloffMode rolloffMode = AudioRolloffMode.Linear, float minDistance = 0.0f, float maxDistance = 50.0f, Action clipEndEvent = null)
+    public void PlaySound3D(string clipName, Transform audioTarget, float delay = 0f, bool isLoop = false, SoundType type = SoundType.SFX, bool attachToTarget = true, float minDistance = 0.0f, float maxDistance = 50.0f, AudioRolloffMode rolloffMode = AudioRolloffMode.Linear, Action clipEndEvent = null)
     {
         var soundPlayer = PopSoundPlayer();
 
         if (attachToTarget) { soundPlayer.transform.parent = audioTarget; }
 
         soundPlayer.InitSoundClip(GetClip(clipName), clipEndEvent);
-        soundPlayer.Init3DProperty(rolloffMode, minDistance, maxDistance);
+        soundPlayer.Init3DProperty(minDistance, maxDistance, rolloffMode);
 
         if (isLoop) { AddToLoopList(soundPlayer); }
 

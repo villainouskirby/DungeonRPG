@@ -64,9 +64,9 @@ public class TemporarySoundPlayer : MonoBehaviour
         _audioSource.clip = null;
         _audioSource.loop = false;
         _audioSource.spatialBlend = 0;
-        _audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
         _audioSource.minDistance = 1;
         _audioSource.maxDistance = 500;
+        _audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
         _audioSource.spread = 0;
         _audioSource.panStereo = 0;
     }
@@ -78,12 +78,12 @@ public class TemporarySoundPlayer : MonoBehaviour
         _isStopped = false;
     }
 
-    public void Init3DProperty(AudioRolloffMode rolloffMode, float minDistance, float maxDistance)
+    public void Init3DProperty(float minDistance, float maxDistance, AudioRolloffMode rolloffMode)
     {
         _audioSource.spatialBlend = 1.0f;
-        _audioSource.rolloffMode = rolloffMode;
         _audioSource.minDistance = minDistance;
         _audioSource.maxDistance = maxDistance;
+        _audioSource.rolloffMode = rolloffMode;
         _audioSource.dopplerLevel = 0f;
         _audioSource.spread = 0f;
         _audioSource.panStereo = 0f;
