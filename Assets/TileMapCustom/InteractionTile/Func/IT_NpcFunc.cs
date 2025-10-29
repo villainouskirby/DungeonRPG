@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(BoxCollider2D))]
 public class IT_NpcFunc : MonoBehaviour
 {
+    public NPC NpcName => _npcName;
+
     private BoxCollider2D _collider;
     private NPC _npcName;
     private bool _isActive;

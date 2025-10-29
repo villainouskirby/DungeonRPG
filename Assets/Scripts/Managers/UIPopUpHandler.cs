@@ -135,8 +135,19 @@ public class UIPopUpHandler : Singleton<UIPopUpHandler>, IManager
         return OpenUI<T>();
     }
 
+    public void CloseUI<T>() where T : UIBase
+    {
+        T ui = GetScript<T>();
+
+        if (ui == null) return;
+
+        CloseUI(ui);
+    }
+
     public void CloseUI<T>(T ui) where T : UIBase
     {
+        if (ui == null) return;
+
         ui.SetActive(false);
         _openUIs.Remove(ui);
     }

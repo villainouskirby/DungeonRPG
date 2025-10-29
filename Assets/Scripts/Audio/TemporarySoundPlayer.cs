@@ -18,15 +18,6 @@ public class TemporarySoundPlayer : MonoBehaviour
         _audioSource.playOnAwake = false;
     }
 
-    private void OnDisable()
-    {
-        Reset();
-
-        OnClipEnd?.Invoke();
-        OnClipEnd = null;
-        SoundManager.Instance.PushSoundPlayer(this);
-    }
-
     public async UniTaskVoid Play(AudioMixerGroup audioMixer, float delay, bool isLoop)
     {
         if (delay > 0)
@@ -55,7 +46,11 @@ public class TemporarySoundPlayer : MonoBehaviour
     public void Stop()
     {
         _audioSource.Stop();
+        OnClipEnd?.Invoke();
+        Reset();
+
         gameObject.SetActive(false);
+        SoundManager.Instance.PushSoundPlayer(this);
     }
 
     public void Reset()
@@ -69,6 +64,7 @@ public class TemporarySoundPlayer : MonoBehaviour
         _audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
         _audioSource.spread = 0;
         _audioSource.panStereo = 0;
+        OnClipEnd = null;
     }
 
     public void InitSoundClip(AudioClip clip, Action clipEndEvent)
@@ -114,6 +110,6 @@ public class TemporarySoundPlayer : MonoBehaviour
             await UniTask.NextFrame();
         }
 
-        gameObject.SetActive(false);
+        Stop();
     }
 }

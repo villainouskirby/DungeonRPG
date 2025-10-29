@@ -16,6 +16,7 @@ public class UIFocus : UIBase
         public Vector2 TextPos;
     }
 
+    [SerializeField] private GameObject _clickBlocker;
     [SerializeField] private MaskRaycast _maskRaycast;
     [SerializeField] private RectTransform _textBGRect;
     [SerializeField] private RectTransform _textRect;
@@ -108,6 +109,8 @@ public class UIFocus : UIBase
 
         do
         {
+            _clickBlocker.SetActive(true);
+
             FocusInfo focusInfo = _focusQueue.Dequeue();
             RectTransform rectTransform = focusInfo.Rect;
             GameObject go = rectTransform.gameObject;
@@ -152,7 +155,7 @@ public class UIFocus : UIBase
                 rectTransform.GetComponent<FocusTarget>().OnClicked += () => isClicked = true;
             }
 
-            Rect rect = new Rect();
+            Rect rect = new();
             rect.size = rectTransform.sizeDelta;
 
             await UniTask.DelayFrame(3);
@@ -178,6 +181,8 @@ public class UIFocus : UIBase
 
             await fadeTask;
 
+            _clickBlocker.SetActive(false);
+
             while (true)
             {
                 if (Input.GetMouseButtonUp(0))
@@ -193,6 +198,8 @@ public class UIFocus : UIBase
 
                 if (keyCode != KeyCode.None && Input.GetKeyDown(keyCode))
                 {
+                    UIPopUpHandler.Instance.CloseUI<KeyGuideUI>();
+
                     switch (keyCode)
                     {
                         case KeyCode.Tab:

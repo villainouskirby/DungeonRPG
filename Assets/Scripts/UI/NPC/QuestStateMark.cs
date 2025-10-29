@@ -5,7 +5,7 @@ public class QuestStateMark : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer _npcSprite;
     [SerializeField] private SpriteRenderer _markSprite;
-    [SerializeField] private IT_NpcTile _npcTile;
+    [SerializeField] private IT_NpcFunc _npc;
     [SerializeField] private float _positionOffset = 0.2f;
 
     [Header("Sprites")]
@@ -22,7 +22,7 @@ public class QuestStateMark : MonoBehaviour
         EventManager.Instance.QuestClearEvent.AddListener(SetClearMark);
         EventManager.Instance.QuestCompleteEvent.AddListener(CloseQuestMark);
 
-        if (_npcTile.NpcName != NPC.merchant)
+        if (_npc.NpcName != NPC.merchant)
         {
             gameObject.SetActive(false);
         }
@@ -38,22 +38,22 @@ public class QuestStateMark : MonoBehaviour
 
     public void ShowQuestMark(QuestUnlockedEventArgs args)
     {
-        if (args.NPCName != _npcTile.NpcName.ToString()) return;
+        if (args.NPCName != _npc.NpcName.ToString()) return;
 
-        _markSprite.sprite = _questionMark;
+        _markSprite.sprite = _exclamationMark;
         gameObject.SetActive(true);
     }
 
     public void CloseQuestMark(QuestCompleteEventArgs args)
     {
-        if (args.NPC != _npcTile.NpcName.ToString()) return;
+        if (args.NPC != _npc.NpcName.ToString()) return;
 
         gameObject.SetActive(false);
     }
 
     public void SetWaitMark(QuestAllocateEventArgs args)
     {
-        if (args.TargetNPC != _npcTile.NpcName.ToString()) return;
+        if (args.TargetNPC != _npc.NpcName.ToString()) return;
 
         _markSprite.sprite = _dotMark;
         gameObject.SetActive(true);
@@ -61,11 +61,11 @@ public class QuestStateMark : MonoBehaviour
 
     public void SetClearMark(QuestClearEventArgs args)
     {
-        if (args.TargetNPC != _npcTile.NpcName.ToString()) return;
+        if (args.TargetNPC != _npc.NpcName.ToString()) return;
 
         if (args.IsClear)
         {
-            _markSprite.sprite = _exclamationMark;
+            _markSprite.sprite = _questionMark;
         }
         else
         {
