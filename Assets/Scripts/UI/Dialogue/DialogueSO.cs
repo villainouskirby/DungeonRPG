@@ -31,6 +31,6 @@ public struct DialogueEndEvent
     public int Amount;
 
     [Header("FocusUI")]
-    public string TutorialText;
+    [Multiline] public string TutorialText;
     public Vector2 TextPosition;
 }
