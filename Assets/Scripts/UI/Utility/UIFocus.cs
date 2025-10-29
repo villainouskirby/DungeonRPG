@@ -60,40 +60,40 @@ public class UIFocus : UIBase
         _focusTargetDict.Remove(key);
     }
 
-    public void EnqueueFocusEvent(DialogueEndEvent endEvent)
+    public void EnqueueFocusEvent(int type, string focusID, string tutorialText, Vector2 textPos)
     {
         RectTransform target;
 
-        if (endEvent.Amount == 0)
-        {
-            _focusTargetDict.TryGetValue(endEvent.Value, out target);
-        }
-        else
+        if (type == 1)
         {
             var inventory = UIPopUpHandler.Instance.GetScript<Inventory>();
-            var slot = inventory.GetItemSlotUI(endEvent.Value);
+            var slot = inventory.GetItemSlotUI(focusID);
 
             if (slot == null) return;
 
             target = slot.GetComponent<RectTransform>();
-            
+
             if (inventory.GetTabType() != InventoryUI.TabType.All)
             {
                 FocusInfo info = new();
                 info.Rect = _focusTargetDict["AllSlot"];
                 info.Type = 0;
-                
+
                 _focusQueue.Enqueue(info);
             }
+        }
+        else
+        {
+            _focusTargetDict.TryGetValue(focusID, out target);
         }
 
         if (target != null)
         {
             FocusInfo info = new();
             info.Rect = target;
-            info.Type = endEvent.Amount;
-            info.Text = endEvent.TutorialText;
-            info.TextPos = endEvent.TextPosition;
+            info.Type = type;
+            info.Text = tutorialText;
+            info.TextPos = textPos;
 
             _focusQueue.Enqueue(info);
         }

@@ -264,6 +264,6 @@ public class DialogueRunner : UIBase
 
     private void FocusUI(DialogueEndEvent endEvent)
     {
-        UIPopUpHandler.Instance.GetScript<UIFocus>().EnqueueFocusEvent(endEvent);
+        UIPopUpHandler.Instance.GetScript<UIFocus>().EnqueueFocusEvent(endEvent.Amount, endEvent.Value, endEvent.TutorialText, endEvent.TextPosition);
     }
 }
