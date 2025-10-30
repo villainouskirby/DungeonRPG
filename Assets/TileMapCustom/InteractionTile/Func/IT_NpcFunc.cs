@@ -20,6 +20,8 @@ public class IT_NpcFunc : MonoBehaviour
     public void Init(IT_NpcObj npcObj)
     {
         _collider = GetComponent<BoxCollider2D>();
+        _collider.size = npcObj.ColliderBounds;
+        _collider.offset = npcObj.ColliderOffset;
         _npcName = npcObj.NpcName;
         _isActive = false;
         SR.sortingLayerName = npcObj.LayerName;

@@ -15,6 +15,8 @@ public class IT_TeleportFunc : MonoBehaviour
     public void Init(IT_TeleportObj teleportObj)
     {
         _collider = GetComponent<BoxCollider2D>();
+        _collider.size = teleportObj.ColliderBounds;
+        _collider.offset = teleportObj.ColliderOffset;
         _targetPos = teleportObj.TargetPos;
         _isActive = false;
         SR.sortingLayerName = teleportObj.LayerName;
