@@ -40,17 +40,22 @@ namespace Tutorial
 
         public void OpenInteractPopUp(InteractType type, Transform transform)
         {
+            OpenInteractPopUp(type, transform, _yOffset);
+        }
+
+        public void OpenInteractPopUp(InteractType type, Transform transform, float yOffset)
+        {
             _targetRenderer = transform.GetComponent<SpriteRenderer>();
             _targetTransform = transform;
 
             if (_subscribeNum++ == 0)
             {
-                UpdatePopUp(type).Forget();
+                UpdatePopUp(type, yOffset).Forget();
                 gameObject.SetActive(true);
             }
         }
 
-        public async UniTaskVoid UpdatePopUp(InteractType type)
+        public async UniTaskVoid UpdatePopUp(InteractType type, float yOffset)
         {
             Sprite sprite = _spritesDict[type];
             _image.sprite = sprite;
@@ -60,7 +65,7 @@ namespace Tutorial
             {
                 Vector2 pos = new Vector2(_targetTransform.position.x, _targetRenderer.bounds.max.y);
                 pos = RectTransformUtility.WorldToScreenPoint(Camera.main, pos);
-                pos += Vector2.up * _yOffset;
+                pos += Vector2.up * yOffset;
 
                 _rect.anchoredPosition = pos;
 
