@@ -15,6 +15,8 @@ public class IT_EntryFunc : MonoBehaviour
     public void Init(IT_EntryObj entryObj)
     {
         _collider = GetComponent<BoxCollider2D>();
+        _collider.offset = entryObj.ColliderOffset;
+        _collider.size = entryObj.ColliderBounds;
         _mapType = entryObj.MapType;
         _layer = entryObj.Layer;
         _isActive = false;

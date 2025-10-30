@@ -15,6 +15,7 @@ public class EventArea : MonoBehaviour
     public EventAreaData Data;
 
     private BoxCollider2D _collider;
+    private bool _isFirst;
 
     void Awake()
     {
@@ -47,6 +48,8 @@ public class EventArea : MonoBehaviour
 
     private void InEvent(Collider2D collider)
     {
+        _isFirst = false;
+
         switch (Data.Type)
         {
             case EventAreaType.ChangeLayer:
@@ -70,6 +73,9 @@ public class EventArea : MonoBehaviour
             case EventAreaType.AutoSave:
                 AutoSave_In();
                 break;
+            case EventAreaType.UIFocus:
+                UIFoucus_In();
+                break;
         }
     }
 
@@ -92,6 +98,8 @@ public class EventArea : MonoBehaviour
             case EventAreaType.ChangePlayerLight:
                 break;
             case EventAreaType.AutoSave:
+                break;
+            case EventAreaType.UIFocus:
                 break;
         }
     }
@@ -284,35 +292,57 @@ public class EventArea : MonoBehaviour
         {
             Color c = target.color;
 
-            while (true)
+            // Fade In
+            float t = 0f;
+            while (t < fadeDuration)
             {
-                // Fade In
-                float t = 0f;
-                while (t < fadeDuration)
-                {
-                    t += Time.deltaTime;
-                    c.a = Mathf.Lerp(0f, 1f, t / fadeDuration);
-                    target.color = c;
-                    yield return null;
-                }
-
-                yield return new WaitForSeconds(stayDuration);
-                target.text = "자동 저장 완료";
-                // Fade Out
-                t = 0f;
-                while (t < fadeDuration)
-                {
-                    t += Time.deltaTime;
-                    c.a = Mathf.Lerp(1f, 0f, t / fadeDuration);
-                    target.color = c;
-                    yield return null;
-                }
-
-                yield return new WaitForSeconds(stayDuration);
+                t += Time.deltaTime;
+                c.a = Mathf.Lerp(0f, 1f, t / fadeDuration);
+                target.color = c;
+                yield return null;
             }
+
+            yield return new WaitForSeconds(stayDuration);
+            target.text = "자동 저장 완료";
+            // Fade Out
+            t = 0f;
+            while (t < fadeDuration)
+            {
+                t += Time.deltaTime;
+                c.a = Mathf.Lerp(1f, 0f, t / fadeDuration);
+                target.color = c;
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(stayDuration);
+
+            target.text = "";
         }
 
         _loop = StartCoroutine(Loop());
+    }
+
+    private void UIFoucus_In()
+    {
+        if (!_isFirst)
+            return;
+
+        var param1s = Data.param1.Split("/");
+        var param2s = Data.param2.Split("/");
+        var param3s = Data.param3.Split("/");
+
+        for (int i = 0; i > param1s.Length; i++)
+        {
+            var param1Split = param1s[i].Split("-");
+            var param3Split = param3s[i].Split(",");
+            Vector2 param3Vector = new(int.Parse(param3Split[1]), int.Parse(param3Split[2]));
+            UIPopUpHandler.Instance.GetScript<UIFocus>().EnqueueFocusEvent(int.Parse(param1Split[1].Trim()), param1Split[0].Trim(), Data.param2, param3Vector);
+        }
+    }
+
+    private void UIFoucus_Out()
+    {
+
     }
 }
 
@@ -340,4 +370,5 @@ public enum EventAreaType
     ChangeGroundLayer   = 4,
     ChangePlayerLight   = 5,
     AutoSave            = 6,
+    UIFocus             = 7,
 }

@@ -10,4 +10,6 @@ public class InteractionTile : MonoBehaviour
     public float Z;
     public string LayerName;
     public int LayerIndex;
+    public Vector2 ColliderBounds;
+    public Vector2 ColliderOffset;
 }

@@ -36,6 +36,7 @@ public class EventAreaEditor : Editor
             EventAreaType.ChangeGroundLayer => "땅 레이어를 어떤 Layer로 변경할 것 인가",
             EventAreaType.ChangePlayerLight => "빛의 범위 - 기본이 10이니까 알아서 참고해서 변경",
             EventAreaType.AutoSave => "입력값은 따로 없고 그냥 영역에 플레이어 접근시 auto1에 자동 저장",
+            EventAreaType.UIFocus => "{Id}-{Type} 형식이고 (/로 갯수 추가 가능)",
             _ => "",
         };
     }
@@ -51,6 +52,7 @@ public class EventAreaEditor : Editor
             EventAreaType.ChangeGroundLayer => "param1 : 땅 레이어란 플레이의 높이에 영향을 주는 레이어라고 생각하자",
             EventAreaType.ChangePlayerLight => "빛의 쌔기 - 기본이 1.5이니까 알아서 참고해서 변경",
             EventAreaType.AutoSave => "없음",
+            EventAreaType.UIFocus => " Text 내용이고 (/로 갯수 추가 가능)",
             _ => "",
         };
     }
@@ -66,6 +68,7 @@ public class EventAreaEditor : Editor
             EventAreaType.ChangeGroundLayer => "없음",
             EventAreaType.ChangePlayerLight => "없음",
             EventAreaType.AutoSave => "없음",
+            EventAreaType.UIFocus => " 위치 정보이고 ,로 작성 (/로 갯수 추가 가능)",
             _ => "",
         };
     }

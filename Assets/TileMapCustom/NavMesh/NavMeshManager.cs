@@ -90,7 +90,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void LoadNav(Vector2Int chunkPos)
     {
-        return; // 꺼저잇
+        //return; // 꺼저잇
 
 
         // 네비매쉬 이슈로 청크 단위가 아닌 맵 전체 단위로 전환하면서 이제 더이상 청크 단위로 ~~ 안해도 된다.

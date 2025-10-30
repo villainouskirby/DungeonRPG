@@ -10,6 +10,8 @@ public class InteractionObj
     public float Z;
     public string LayerName;
     public int LayerIndex;
+    public Vector2 ColliderBounds;
+    public Vector2 ColliderOffset;
 
     public InteractionObj(InteractionTile interactionTile)
     {
@@ -23,6 +25,8 @@ public class InteractionObj
         Z = interactionTile.Z;
         LayerName = interactionTile.LayerName;
         LayerIndex = interactionTile.LayerIndex;
+        ColliderBounds = interactionTile.ColliderBounds;
+        ColliderOffset = interactionTile.ColliderOffset;
     }
 
     public InteractionObj()

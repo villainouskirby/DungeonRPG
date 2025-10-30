@@ -30,8 +30,10 @@ public class InteractionObjExtractor : MonoBehaviour, IExtractor
             SpriteRenderer sr = child.GetComponent<SpriteRenderer>();
             interactionTile.LayerName = sr.sortingLayerName;
             interactionTile.LayerIndex = sr.sortingOrder;
+            interactionTile.ColliderBounds = child.GetComponent<BoxCollider2D>().size;
+            interactionTile.ColliderOffset = child.GetComponent<BoxCollider2D>().offset;
 
-            switch(interactionTile.Type)
+            switch (interactionTile.Type)
             {
                 case InteractionEnum.Entry:
                     IT_EntryObj entryObj = new(interactionTile);
