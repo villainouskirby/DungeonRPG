@@ -170,6 +170,7 @@ public class UIFocus : UIBase
             _textBGRect.position = focusInfo.TextPos + rect.position;
 
             _tmp.text = focusInfo.Text;
+            _textBGRect.gameObject.SetActive(!string.IsNullOrEmpty(focusInfo.Text));
 
             gameObject.SetActive(true);
             UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, _shadowDuration);
