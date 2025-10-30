@@ -47,11 +47,13 @@ public class IdleState : IPlayerState
 public class MoveState : IPlayerState
 {
     private IPlayerChangeState player;
+    private float _nextStepTime;
+    private float _stepInterval = 0.5f;
     public MoveState(IPlayerChangeState player) { this.player = player; }
 
     public void Enter()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerWalk", 0.1f, true, SoundType.SFX);
+        _nextStepTime = Time.time + 0.1f;
         Debug.Log("Move 상태 시작");
     }
 
@@ -70,12 +72,16 @@ public class MoveState : IPlayerState
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
         if (Input.GetKey(KeyCode.LeftShift) && PlayerData.Instance.CanStartSprint()) player.ChangeState(new RunState(player));
+
+        if (Time.time >= _nextStepTime)
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerWalk", 0.1f, false, SoundType.SFX);
+            _nextStepTime = Time.time + _stepInterval;
+        }
     }
 
     public void Exit()
     {
-        //Debug.Log("Move 상태 종료");
-        SoundManager.Instance.StopLoopSound("SFX_PlayerWalk");
     }
 
     public override string ToString() => "Move";
@@ -83,11 +89,13 @@ public class MoveState : IPlayerState
 public class RunState : IPlayerState
 {
     private IPlayerChangeState player;
+    private float _nextStepTime;
+    private float _stepInterval = 0.35f;
     public RunState(IPlayerChangeState player) { this.player = player; }
 
     public void Enter()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, true, SoundType.SFX);
+        _nextStepTime = Time.time + 0.1f;
         //Debug.Log("Run 상태 시작");
     }
 
@@ -110,11 +118,15 @@ public class RunState : IPlayerState
             return;
         }
         if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
+        if (Time.time >= _nextStepTime)
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, false, SoundType.SFX);
+            _nextStepTime = Time.time + _stepInterval;
+        }
     }
 
     public void Exit()
     {
-        SoundManager.Instance.StopLoopSound("SFX_PlayerRun");
         //Debug.Log("Run 상태 종료");
     }
 

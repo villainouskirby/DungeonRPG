@@ -437,30 +437,30 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             RunState => runspeed,
             _ => speed
         };
-        float targetAnimSpeed;
+        //float targetAnimSpeed;
         if (cur is IdleState or SneakState or SneakMoveState or MoveState or RunState)
         {
             // 0이면 그대로 1로, 아닐 때는 비율로 조절
-            targetAnimSpeed = targetSpeed > 0.01f
-            ? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 1f)
-            : 1f; // Idle은 1배속                                           // Idle은 1배속
+            //targetAnimSpeed = targetSpeed > 0.01f
+            //? Mathf.Clamp(targetSpeed / baseMoveSpeed, 0.3f, 1f)
+            //: 1f; // Idle은 1배속                                           // Idle은 1배속
         }
         else
         {
             // 특수 모션(회피, 공격 등)은 원래 속도로
-            targetAnimSpeed = 1f;
+            //targetAnimSpeed = 1f;
         }
         if (targetSpeed <= 3f)   // 달리기 상태가 아니면
         {
             speed = targetSpeed;              // 즉시 적용
-            anim.speed = targetAnimSpeed;         // 1배속
+            //anim.speed = targetAnimSpeed;         // 1배속
             _speedSmoothVel = 0f;    // 스무딩 속도 초기화
             _animSmoothVel = 0f;
         }
         else
         {
             speed = Mathf.SmoothDamp(speed, targetSpeed, ref _speedSmoothVel, speedSmoothTime);
-            anim.speed = Mathf.SmoothDamp(anim.speed, targetAnimSpeed, ref _animSmoothVel, animSmoothTime);
+            //anim.speed = Mathf.SmoothDamp(anim.speed, targetAnimSpeed, ref _animSmoothVel, animSmoothTime);
         }
 
     }
