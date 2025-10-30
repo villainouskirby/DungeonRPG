@@ -312,6 +312,7 @@ Shader "Tilemap/LitTilemap"
                             return float4(0, 0, 0, 0);
                 }
 
+                resultColor.a *= i.color.a;
                 return lerp(_DefaultColor, resultColor, valid);
             }
             ENDHLSL

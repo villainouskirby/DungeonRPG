@@ -90,6 +90,12 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void LoadNav(Vector2Int chunkPos)
     {
+        return; // 꺼저잇
+
+
+        // 네비매쉬 이슈로 청크 단위가 아닌 맵 전체 단위로 전환하면서 이제 더이상 청크 단위로 ~~ 안해도 된다.
+        // 하지만 결합한 로직을 분리할 자신이 없으니 봉인해둔다.
+
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
         if (DontUnLoadChunk.Contains(chunkPos))
