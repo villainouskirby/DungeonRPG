@@ -208,7 +208,7 @@ public sealed class MonsterDetectState : IMonsterState
                 _walkLoopClipKey,
                 ctx.transform,
                 delay: 0f,
-                isLoop: true,
+                isLoop: false,
                 type: SoundType.SFX,
                 attachToTarget: true,
                 minDistance: 0f,
