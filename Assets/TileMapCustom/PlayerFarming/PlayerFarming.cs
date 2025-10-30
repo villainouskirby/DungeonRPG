@@ -279,7 +279,6 @@ public class PlayerFarming : MonoBehaviour
             FarmGageBar.gameObject.SetActive(true);
             FarmGageBar.SetGage(1f);
         }
-        SoundManager.Instance.PlaySound2D("SFX_PlayerFarmOre", 0f, true, SoundType.SFX);
 
         // 아이콘/아웃라인도 최신 가능여부 색으로
         FarmIcon?.SetIcon(CanFarmNow());
@@ -289,7 +288,6 @@ public class PlayerFarming : MonoBehaviour
     // 상태머신에서 호출: 취소/실패
     public void CancelFarmVisuals()
     {
-        SoundManager.Instance.StopLoopSound("SFX_PlayerFarmOre");
         if (FarmGageBar != null) FarmGageBar.gameObject.SetActive(false);
     }
 

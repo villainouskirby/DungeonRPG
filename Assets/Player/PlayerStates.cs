@@ -36,7 +36,7 @@ public class IdleState : IPlayerState
 
         if (mv.x != 0 || mv.y != 0)
             player.ChangeState(new MoveState(player));
-        else if (Input.GetKeyDown(KeyCode.LeftControl))
+        else if (ToggleSneak.GetKeyDown())
             player.ChangeState(new SneakState(player));
 
     }
@@ -59,6 +59,8 @@ public class MoveState : IPlayerState
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
+
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
         if (Input.GetMouseButtonDown(1))
@@ -70,7 +72,7 @@ public class MoveState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
        
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
+        if (ToggleSneak.GetKey()) player.ChangeState(new SneakMoveState(player));
         if (Input.GetKey(KeyCode.LeftShift) && PlayerData.Instance.CanStartSprint()) player.ChangeState(new RunState(player));
 
         if (Time.time >= _nextStepTime)
@@ -113,11 +115,11 @@ public class RunState : IPlayerState
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.Instance.TryConsumeSprintThisFrame(Time.deltaTime))
-        { 
+        {
             player.ChangeState(new MoveState(player));
             return;
         }
-        if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
+        if (ToggleSneak.GetKeyDown()) player.ChangeState(new SneakMoveState(player));
         if (Time.time >= _nextStepTime)
         {
             SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, false, SoundType.SFX);
@@ -145,19 +147,20 @@ public class SneakMoveState : IPlayerState
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
         Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0)
         {
-            if (Input.GetKey(KeyCode.LeftControl))
+            if (ToggleSneak.GetKey())
                 player.ChangeState(new SneakState(player));
             else
                 player.ChangeState(new IdleState(player)); ;
         }
         else
         {
-            if (Input.GetKeyUp(KeyCode.LeftControl))
+            if (ToggleSneak.GetKeyUp())
                 player.ChangeState(new MoveState(player));
         }
     }
@@ -182,6 +185,7 @@ public class SneakState : IPlayerState
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
         if (Input.GetMouseButtonDown(1))
@@ -193,7 +197,7 @@ public class SneakState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
 
-        if (mv.x == 0 && mv.y == 0)  { if (Input.GetKeyUp(KeyCode.LeftControl)) { player.ChangeState(new IdleState(player)); } }
+        if (mv.x == 0 && mv.y == 0)  { if (ToggleSneak.GetKeyUp()) { player.ChangeState(new IdleState(player)); } }
         else { player.ChangeState(new SneakMoveState(player)); }
         
     }

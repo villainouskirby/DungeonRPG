@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     public float runStaminaTickInterval = 0.25f;   // ← 소비 주기 (초)
     public float runspeed = 5f;
 
+    public bool SneakOn { get; private set; }
+    public void ToggleSneak() => SneakOn = !SneakOn;
     [Header("웅크리면서 이동하기 속도 설정")]
     public float sneakmovespeed = 1f;
     [Header("차징 공격시 이동 속도 설정")]
@@ -485,7 +487,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             escDir = facingDir switch
             { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
-        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeSlap");
+        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeSlap", 0f, false, SoundType.SFX);
         rb.velocity = escDir.normalized * slideForce;
 
         attackController?.CancelAttackBufferOnEscape();
@@ -558,7 +560,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
     void StartGetUp()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeGetup");
+        SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeGetup", 0f, false, SoundType.SFX);
         escPhase = EscapePhase.GetUp;
         phaseT = getUpTime;
 

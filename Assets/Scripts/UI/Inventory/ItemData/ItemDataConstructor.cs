@@ -21,7 +21,7 @@ namespace DBUtility
                     break;
 
                 case "Special":
-                    itemData = null; // 얜 뭔 타입으로 가야하지
+                    itemData = new MineralItemData(rawData);
                     break;
 
                 case "WEAPON":
