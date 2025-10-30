@@ -28,6 +28,7 @@ public sealed class MonsterFleeState : IMonsterState
     bool bettleMode;
     float cleanerWaitTimer;
     string _runLoopClipKey;
+    string _detectClipKey;
     public MonsterFleeState(MonsterContext c, MonsterStateMachine m) { ctx = c; machine = m; }
 
     public void Enter()
@@ -52,6 +53,35 @@ public sealed class MonsterFleeState : IMonsterState
                 ctx.transform,
                 delay: 0f,
                 isLoop: true,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _detectClipKey = "SFX_CleanerDetect";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _detectClipKey = "SFX_HoundDetect";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _detectClipKey = "SFX_BettleDetect"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _detectClipKey = null;
+                break;
+        }
+        if (_detectClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _detectClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: false,
                 type: SoundType.SFX,
                 attachToTarget: true,
                 minDistance: 0f,
