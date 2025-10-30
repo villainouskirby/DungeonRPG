@@ -48,10 +48,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcaa5fcce9a0afc49a040c9f37bc6812, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultColor: {r: 1, g: 0.51245373, b: 0, a: 1}
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
   lineStyle: 1
   dashLength: 0.5
   gapLength: 0.3
+  blockedColor: {r: 1, g: 0, b: 0, a: 1}
+  blockOutsideView: 1
+  tileCenterSnap: 1
   line: {fileID: 2273168334092824458}
   targetMark: {fileID: 5368985849872643658}
   curveSegments: 48

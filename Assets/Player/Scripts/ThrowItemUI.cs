@@ -32,6 +32,10 @@ public sealed class ThrowAimUI : MonoBehaviour
 
     Camera cam;
     bool isAiming;
+    public bool IsAiming => isAiming;
+    // 취소 직후 같은 프레임/다음 프레임까지 E 입력 무시
+    public int suppressEUntilFrame { get; private set; } = -1;
+    public bool IsESuppressedNow => Time.frameCount <= suppressEUntilFrame;
     Material dashedMat;
     Texture2D dashedTex;
 
@@ -147,10 +151,11 @@ public sealed class ThrowAimUI : MonoBehaviour
                     // 불가 클릭: 확정하지 않고 계속 조준을 유지 (던지기 차단)
                 }
             }
-            if (WasRightReleased() || WasEscapeReleased())
+            if (WasRightReleased() || WasEscapeReleased() || WasThrowReleased())
             {
                 res.confirmed = false;
                 res.target = origin;
+                suppressEUntilFrame = Time.frameCount + 1;
                 break;
             }
 
@@ -346,6 +351,16 @@ public sealed class ThrowAimUI : MonoBehaviour
         return k != null && k.escapeKey.wasReleasedThisFrame;
 #else
         return Input.GetKeyUp(KeyCode.Escape);
+#endif
+    }
+
+    bool WasThrowReleased()
+    {
+#if ENABLE_INPUT_SYSTEM
+    var k = UnityEngine.InputSystem.Keyboard.current;
+    return k != null && k.eKey.wasReleasedThisFrame;   // ← 수정
+#else
+        return Input.GetKeyUp(KeyCode.E);
 #endif
     }
 }
