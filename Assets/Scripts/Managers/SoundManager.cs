@@ -118,15 +118,23 @@ public class SoundManager : Singleton<SoundManager>, IManager
         soundPlayer.Play(_audioMixer.FindMatchingGroups(type.ToString())[0], delay, isLoop).Forget();
     }
 
-    public void StopLoopSound(string clipName)
+    public void StopLoopSound(string clipName, bool stopInstant = true)
     {
         foreach (TemporarySoundPlayer audioPlayer in _loopSoundPlayers)
         {
             if (audioPlayer.ClipName == clipName)
             {
                 _loopSoundPlayers.Remove(audioPlayer);
-                audioPlayer.Stop();
-                PushSoundPlayer(audioPlayer);
+
+                if (stopInstant)
+                {
+                    audioPlayer.Stop();
+                }
+                else
+                {
+                    audioPlayer.StopLoop();
+                }
+
                 return;
             }
         }

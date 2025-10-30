@@ -53,6 +53,12 @@ public class TemporarySoundPlayer : MonoBehaviour
         SoundManager.Instance.PushSoundPlayer(this);
     }
 
+    public void StopLoop()
+    {
+        _audioSource.loop = false;
+        ReleaseWhenFinish(_audioSource.clip.length).Forget();
+    }
+
     public void Reset()
     {
         _isStopped = true;
