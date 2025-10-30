@@ -189,13 +189,13 @@ public sealed class MonsterDetectState : IMonsterState
         switch (ctx.data.category)
         {
             case MonsterData.MonsterCategory.Cleaner:
-                _walkLoopClipKey = "SFX_CleanerDetect";
+                _walkLoopClipKey = "SFX_CleanerWalk";
                 break;
             case MonsterData.MonsterCategory.Hound:
                 _walkLoopClipKey = "SFX_HoundWalk";
                 break;
             case MonsterData.MonsterCategory.Beetle:
-                _walkLoopClipKey = "SFX_BettleDetect"; // 요청대로 Bettle 표기 사용
+                _walkLoopClipKey = "SFX_BettleWalk"; // 요청대로 Bettle 표기 사용
                 break;
             default:
                 _walkLoopClipKey = null;
@@ -208,7 +208,7 @@ public sealed class MonsterDetectState : IMonsterState
                 _walkLoopClipKey,
                 ctx.transform,
                 delay: 0f,
-                isLoop: false,
+                isLoop: true,
                 type: SoundType.SFX,
                 attachToTarget: true,
                 minDistance: 0f,
