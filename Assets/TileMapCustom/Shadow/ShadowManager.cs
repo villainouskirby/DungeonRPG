@@ -62,7 +62,7 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         try
         {
             _meshDic[chunkPos] = SafeAddressableLoader.LoadSync<Mesh>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_ChunkShadowMesh_{chunkPos.x}_{chunkPos.y}");
-            if (_meshDic[chunkPos] == null)
+            if (_meshDic[chunkPos] != null)
                 SetShadow(_meshDic[chunkPos], chunkPos);
         }
         catch
@@ -83,6 +83,7 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         {
             Pool.Return(ActiveShadow[chunkPos]);
             ActiveShadow.Remove(chunkPos);
+            _meshDic.Remove(chunkPos);
             //Addressables.Release(_handleDic[chunkPos]);
             //_handleDic.Remove(chunkPos);
         }
