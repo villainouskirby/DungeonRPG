@@ -9,7 +9,7 @@ using DL = DataLoader;
 public class ShadowManager : MonoBehaviour, ITileMapBase
 {
     public Dictionary<Vector2Int, ChunkShadowCaster2D> ActiveShadow;
-    private Dictionary<Vector2Int, AsyncOperationHandle> _handleDic;
+    public Dictionary<Vector2Int, Mesh> _meshDic;
     private MapEnum _currentMapType;
 
     public GameObject ShadowRoot;
@@ -17,7 +17,7 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
 
     public void Init()
     {
-        _handleDic = new();
+        _meshDic = new();
         ActiveShadow = new();
 
         Pool.Init(CM.Instance.ViewChunkSize);
@@ -57,15 +57,16 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         if (!(chunkPos.x >= 0 && chunkPos.x < DL.Instance.All.Width && chunkPos.y >= 0 && chunkPos.y < DL.Instance.All.Height))
             return;
 
-        if (_handleDic.ContainsKey(chunkPos))
+        if (_meshDic.ContainsKey(chunkPos))
             return;
-        _handleDic[chunkPos] = Addressables.LoadAssetAsync<Mesh>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_ChunkShadowMesh_{chunkPos.x}_{chunkPos.y}");
-
-        _handleDic[chunkPos].Completed += op =>
+        try
         {
-            if (op.Status == AsyncOperationStatus.Succeeded)
-                SetShadow((Mesh)op.Result, chunkPos);
-        };
+            _meshDic[chunkPos] = SafeAddressableLoader.LoadSync<Mesh>($"{_currentMapType.ToString()}_layer{HeightManager.Instance.CurrentLayer}_ChunkShadowMesh_{chunkPos.x}_{chunkPos.y}");
+            if (_meshDic[chunkPos] == null)
+                SetShadow(_meshDic[chunkPos], chunkPos);
+        }
+        catch
+        { }
     }
 
     private void SetShadow(Mesh mesh, Vector2Int chunkPos)
@@ -82,8 +83,8 @@ public class ShadowManager : MonoBehaviour, ITileMapBase
         {
             Pool.Return(ActiveShadow[chunkPos]);
             ActiveShadow.Remove(chunkPos);
-            Addressables.Release(_handleDic[chunkPos]);
-            _handleDic.Remove(chunkPos);
+            //Addressables.Release(_handleDic[chunkPos]);
+            //_handleDic.Remove(chunkPos);
         }
     }
 

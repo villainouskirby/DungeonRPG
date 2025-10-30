@@ -404,6 +404,12 @@ public class ChunkManager : MonoBehaviour, ITileMapBase
         }
     }
 
+    public int GetTile(Vector2Int tilePos)
+    {
+        Vector2Int chunkPos = GetChunkPos(tilePos);
+        return LoadTileFromViewBox(tilePos, HeightManager.Instance.GroundLayer);
+    }
+
     public int GetHeight(Vector2Int tilePos, int layerIndex)
     {
         Vector2Int localTilePos = GetLocalTilePos(tilePos);

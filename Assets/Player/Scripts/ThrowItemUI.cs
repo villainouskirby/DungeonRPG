@@ -18,6 +18,11 @@ public sealed class ThrowAimUI : MonoBehaviour
     [Tooltip("대쉬 사이 공백 길이(월드 단위)")]
     [SerializeField] float gapLength = 0.3f;
 
+    [Header("유효 타일 판정 옵션")]
+    [SerializeField] Color blockedColor = Color.red;     // 불가 지점에서 라인/마크 색상
+    [SerializeField] bool blockOutsideView = true;       // 뷰박스 밖은 무조건 불가 처리
+    [SerializeField] bool tileCenterSnap = true;         // 타일 중앙에 스냅해서 표시(권장)
+
     [Header("미리보기 비주얼")]
     [SerializeField] LineRenderer line;          // 빈 오브젝트 + LineRenderer 달아두고 할당
     [SerializeField] Transform targetMark;       // 타겟 Crosshair 스프라이트 Transform
@@ -105,8 +110,7 @@ public sealed class ThrowAimUI : MonoBehaviour
 
             Vector3 target = origin + dir;
 
-            // (선택) 지면에 스냅하고 싶다면 Raycast로 target 보정
-            // var hit = Physics2D.Raycast(target, Vector2.down, 100f, groundMask); ...
+            
 
             // 곡선(단순 2차 베지어) 샘플링
             Vector3 control = (origin + target) * 0.5f + Vector3.up * (baseArc + 0.25f * dir.magnitude);
@@ -115,12 +119,33 @@ public sealed class ThrowAimUI : MonoBehaviour
 
             if (targetMark) targetMark.position = target;
 
+            // 타일 중앙 스냅
+            if (tileCenterSnap)
+            {
+                var t = WorldToTile(target);
+                target = new Vector3(t.x + 0.5f, t.y + 0.5f, target.z);
+            }
+
+            // 유효 타일 여부 판정
+            bool allowed = IsTargetableByChunk(target);
+
+            // 라인/마크 그리기 (기존 DrawQuadratic/Apply... 이후에 색상 반영)
+            var colorToUse = allowed ? defaultColor : blockedColor;
+            SetLineAndMarkColor(colorToUse);
+
             // 입력 처리(둘 다 지원)
             if (WasLeftReleased())
             {
-                res.confirmed = true;
-                res.target = target;
-                break;
+                if (allowed)
+                {
+                    res.confirmed = true;
+                    res.target = target;
+                    break;
+                }
+                else
+                {
+                    // 불가 클릭: 확정하지 않고 계속 조준을 유지 (던지기 차단)
+                }
             }
             if (WasRightReleased() || WasEscapeReleased())
             {
@@ -223,6 +248,66 @@ public sealed class ThrowAimUI : MonoBehaviour
         float tileCount = Mathf.Max(1f, totalLen / oneCycle);
 
         line.material.SetTextureScale("_MainTex", new Vector2(tileCount, 1f));
+    }
+
+    // 월드 좌표 → 타일 좌표(타일 사이즈가 1이라면 그대로 Floor)
+    static Vector2Int WorldToTile(Vector3 world)
+    {
+        return new Vector2Int(Mathf.FloorToInt(world.x), Mathf.FloorToInt(world.y));
+    }
+
+    // 라인/타겟 색 즉시 갱신(실선·점선 공통 반영)
+    void SetLineAndMarkColor(Color c)
+    {
+        // 라인 머티리얼/그라디언트
+        if (line != null)
+        {
+            if (line.material && line.material.HasProperty("_Color"))
+                line.material.SetColor("_Color", c);
+
+            var g = line.colorGradient;
+            var cks = g.colorKeys;
+            if (cks != null && cks.Length > 0)
+            {
+                cks[0].color = c;
+                cks[cks.Length - 1].color = c;
+                g.SetKeys(cks, g.alphaKeys);
+                line.colorGradient = g;
+            }
+        }
+
+        // 타겟 마크 색(있으면)
+        if (targetMark != null)
+        {
+            var sr = targetMark.GetComponent<SpriteRenderer>();
+            if (sr) sr.color = c;
+        }
+    }
+
+    // 이 월드 지점이 포인팅 가능한가?
+    bool IsTargetableByChunk(Vector3 world)
+    {
+        var cm = ChunkManager.Instance;
+        if (cm == null) return false;
+
+        var tile = WorldToTile(world);
+        var chunkPos = cm.GetChunkPos(tile);
+
+        // 뷰박스 밖이면(LoadedChunkIndex에 키 없음) 차단할지 옵션
+        if (blockOutsideView && (cm.LoadedChunkIndex == null || !cm.LoadedChunkIndex.ContainsKey(chunkPos)))
+            return false;
+
+        // 예외에 안전하게: 뷰박스 밖 요청이 들어가면 Key 에러 날 수 있으니 try-catch
+        try
+        {
+            int v = cm.GetTile(tile); // HeightManager.Instance.GroundLayer 기준으로 조회
+                                      // 요구사항: 0이 아닌 값만 가능
+            return (v != 0);
+        }
+        catch
+        {
+            return false;
+        }
     }
     Vector3 GetMouseWorldPoint(float zPlane)
     {
