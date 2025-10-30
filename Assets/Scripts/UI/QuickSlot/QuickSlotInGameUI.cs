@@ -75,7 +75,11 @@ public class QuickSlotInGameUI : UIBase
 
         if (Input.GetKeyUp(KeyCode.E))
         {
-            Debug.Log("aaaa");
+            // 투척 아이템 조준 중 e로 종료하기 위해 만든 분기문
+            if (ThrowAimUI.Instance != null && ThrowAimUI.Instance.IsAiming)
+                return;
+            if (ThrowAimUI.Instance != null && ThrowAimUI.Instance.IsESuppressedNow)
+                return;
             UseItem().Forget();
         }
     }
