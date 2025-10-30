@@ -1,3 +1,4 @@
+using DBUtility;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -21,7 +22,7 @@ public class ItemUtilTester : MonoBehaviour
     public void AddItem()
     {
         var dic = SheetDataUtil.DicByKey(Item_Info.Item, x => x.id);
-        ItemData itemData = ItemUtil.MakeItemData(dic[Dropdown.options[Dropdown.value].text]);
+        ItemData itemData = ItemDataConstructor.GetItemData(dic[Dropdown.options[Dropdown.value].text]);
         UIPopUpHandler.Instance.GetScript<Inventory>().AddItem(itemData);
     }
 }
