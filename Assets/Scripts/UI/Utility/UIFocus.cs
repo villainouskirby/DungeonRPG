@@ -32,6 +32,8 @@ public class UIFocus : UIBase
     private Queue<FocusInfo> _focusQueue = new();
     private Dictionary<string, RectTransform> _focusTargetDict = new();
 
+    private ContentSizeFitter _textBGSizeFitter;
+    private ContentSizeFitter _textSizeFitter;
     private MaskableGraphic _shadowImage;
     private Image _highlightImage;
 
@@ -39,6 +41,8 @@ public class UIFocus : UIBase
 
     protected override void InitBase()
     {
+        _textBGSizeFitter = _textBGRect.GetComponent<ContentSizeFitter>();
+        _textSizeFitter = _textRect.GetComponent<ContentSizeFitter>();
         _shadowImage = GetComponent<MaskableGraphic>();
         _highlightImage = _highlightRect.GetComponent<Image>();
 
@@ -171,6 +175,7 @@ public class UIFocus : UIBase
 
             _tmp.text = focusInfo.Text;
             _textBGRect.gameObject.SetActive(!string.IsNullOrEmpty(focusInfo.Text));
+            UPdateSizeFitter();
 
             gameObject.SetActive(true);
             UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, _shadowDuration);
@@ -283,5 +288,14 @@ public class UIFocus : UIBase
         }
 
         _highlightRect.localScale = new Vector3(0.5f, 0.5f, 1);
+    }
+
+    private void UPdateSizeFitter()
+    {
+        _textSizeFitter.SetLayoutHorizontal();
+        _textSizeFitter.SetLayoutVertical();
+
+        _textBGSizeFitter.SetLayoutHorizontal();
+        _textBGSizeFitter.SetLayoutVertical();
     }
 }
