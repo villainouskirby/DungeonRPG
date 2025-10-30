@@ -6,7 +6,7 @@ public class QuestStateMark : MonoBehaviour
     [SerializeField] private SpriteRenderer _npcSprite;
     [SerializeField] private SpriteRenderer _markSprite;
     [SerializeField] private IT_NpcFunc _npc;
-    [SerializeField] private float _positionOffset = 0.2f;
+    [SerializeField] private Vector3 _positionOffset = new Vector3(0.2f, 0.2f);
 
     [Header("Sprites")]
     [SerializeField] private Sprite _questionMark;
@@ -15,7 +15,7 @@ public class QuestStateMark : MonoBehaviour
 
     private void Start()
     {
-        transform.position = new Vector3(_npcSprite.bounds.center.x, _npcSprite.bounds.max.y + _positionOffset);
+        transform.position = new Vector3(_npcSprite.bounds.center.x, _npcSprite.bounds.max.y) + _positionOffset;
 
         EventManager.Instance.QuestAllocateEvent.AddListener(SetWaitMark);
         EventManager.Instance.QuestUnlockedEvent.AddListener(ShowQuestMark);
