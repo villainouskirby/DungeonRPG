@@ -125,6 +125,7 @@ public class ThrowItemManager : Singleton<ThrowItemManager>
         // 시작 위치/회전
         go.transform.position = origin;
         go.transform.rotation = Quaternion.identity;
+        go.transform.localScale = Vector3.one * 3.0f;
 
         // 비행 시간 = 거리 / 속도
         float dist = Vector3.Distance(origin, target);
