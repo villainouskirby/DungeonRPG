@@ -36,7 +36,7 @@ public class IdleState : IPlayerState
 
         if (mv.x != 0 || mv.y != 0)
             player.ChangeState(new MoveState(player));
-        else if (Input.GetKeyDown(KeyCode.LeftControl))
+        else if (ToggleSneak.GetKeyDown())
             player.ChangeState(new SneakState(player));
 
     }
@@ -47,16 +47,20 @@ public class IdleState : IPlayerState
 public class MoveState : IPlayerState
 {
     private IPlayerChangeState player;
+    private float _nextStepTime;
+    private float _stepInterval = 0.5f;
     public MoveState(IPlayerChangeState player) { this.player = player; }
 
     public void Enter()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerWalk", 0.1f, true, SoundType.SFX);
+        _nextStepTime = Time.time + 0.1f;
         Debug.Log("Move 상태 시작");
     }
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
+
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
         if (Input.GetMouseButtonDown(1))
@@ -68,14 +72,18 @@ public class MoveState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
        
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
-        if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
+        if (ToggleSneak.GetKey()) player.ChangeState(new SneakMoveState(player));
         if (Input.GetKey(KeyCode.LeftShift) && PlayerData.Instance.CanStartSprint()) player.ChangeState(new RunState(player));
+
+        if (Time.time >= _nextStepTime)
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerWalk", 0.1f, false, SoundType.SFX);
+            _nextStepTime = Time.time + _stepInterval;
+        }
     }
 
     public void Exit()
     {
-        //Debug.Log("Move 상태 종료");
-        SoundManager.Instance.StopLoopSound("SFX_PlayerWalk");
     }
 
     public override string ToString() => "Move";
@@ -83,11 +91,13 @@ public class MoveState : IPlayerState
 public class RunState : IPlayerState
 {
     private IPlayerChangeState player;
+    private float _nextStepTime;
+    private float _stepInterval = 0.35f;
     public RunState(IPlayerChangeState player) { this.player = player; }
 
     public void Enter()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, true, SoundType.SFX);
+        _nextStepTime = Time.time + 0.1f;
         //Debug.Log("Run 상태 시작");
     }
 
@@ -105,16 +115,20 @@ public class RunState : IPlayerState
 
         if (mv.x == 0 && mv.y == 0) player.ChangeState(new IdleState(player));
         if (Input.GetKeyUp(KeyCode.LeftShift) || !PlayerData.Instance.TryConsumeSprintThisFrame(Time.deltaTime))
-        { 
+        {
             player.ChangeState(new MoveState(player));
             return;
         }
-        if (Input.GetKeyDown(KeyCode.LeftControl)) player.ChangeState(new SneakMoveState(player));
+        if (ToggleSneak.GetKeyDown()) player.ChangeState(new SneakMoveState(player));
+        if (Time.time >= _nextStepTime)
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerRun", 0.1f, false, SoundType.SFX);
+            _nextStepTime = Time.time + _stepInterval;
+        }
     }
 
     public void Exit()
     {
-        SoundManager.Instance.StopLoopSound("SFX_PlayerRun");
         //Debug.Log("Run 상태 종료");
     }
 
@@ -133,19 +147,20 @@ public class SneakMoveState : IPlayerState
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
         Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (mv.x == 0 && mv.y == 0)
         {
-            if (Input.GetKey(KeyCode.LeftControl))
+            if (ToggleSneak.GetKey())
                 player.ChangeState(new SneakState(player));
             else
                 player.ChangeState(new IdleState(player)); ;
         }
         else
         {
-            if (Input.GetKeyUp(KeyCode.LeftControl))
+            if (ToggleSneak.GetKeyUp())
                 player.ChangeState(new MoveState(player));
         }
     }
@@ -170,6 +185,7 @@ public class SneakState : IPlayerState
 
     public void Update()
     {
+        _ = ToggleSneak.GetKeyDown();
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
         if (Input.GetMouseButtonDown(1))
@@ -181,7 +197,7 @@ public class SneakState : IPlayerState
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
 
-        if (mv.x == 0 && mv.y == 0)  { if (Input.GetKeyUp(KeyCode.LeftControl)) { player.ChangeState(new IdleState(player)); } }
+        if (mv.x == 0 && mv.y == 0)  { if (ToggleSneak.GetKeyUp()) { player.ChangeState(new IdleState(player)); } }
         else { player.ChangeState(new SneakMoveState(player)); }
         
     }
