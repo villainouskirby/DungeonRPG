@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public class DialogueRunner : UIBase
 {
     [SerializeField] private GameObject _buttons;
+    [SerializeField] private GameObject _nextIcon;
     [SerializeField] private Button _openUIButton;
     [SerializeField] private Button _talkButton;
 
@@ -75,6 +76,7 @@ public class DialogueRunner : UIBase
     {
         _openUIAction = openAction;
         _npcName = npcName;
+        _printer.OnPrintEnd += () => _nextIcon.SetActive(true);
     }
 
     private void OpenUI()
@@ -159,6 +161,7 @@ public class DialogueRunner : UIBase
     {
         if (!_printer.CheckIsPrinting())
         {
+            _nextIcon.SetActive(false);
             SoundManager.Instance.PlaySound2D("Dialogue");
 
             if (_dialogueLines.TryDequeue(out var statement))

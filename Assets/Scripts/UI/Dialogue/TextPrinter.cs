@@ -6,6 +6,8 @@ using System;
 
 public class TextPrinter : MonoBehaviour
 {
+    public Action OnPrintEnd;
+
     [Tooltip("단위 : ms")]
     [SerializeField] private int _delayTime = 100;
 
@@ -41,6 +43,7 @@ public class TextPrinter : MonoBehaviour
             _cts?.Dispose();
             _targetTMP.text = _text;
             _isPrintingText = false;
+            OnPrintEnd?.Invoke();
             return true;
         }
 
@@ -74,5 +77,7 @@ public class TextPrinter : MonoBehaviour
             _cts?.Dispose();
             _cts = null;
         }
+
+        OnPrintEnd?.Invoke();
     }
 }
