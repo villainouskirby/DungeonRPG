@@ -17,6 +17,7 @@ namespace DBUtility
                 if (info.Missions[i] != null)
                 {
                     info.Missions[i].OnMissionClearChanged = info.CheckQuestClear;
+                    info.Missions[i].CheckIsMissionCleared();
                 }
             }
 

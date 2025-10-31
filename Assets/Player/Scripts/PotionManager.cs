@@ -105,7 +105,10 @@ public class PotionManager : Singleton<PotionManager>
         }
     }
     private bool _cancelRequested;
-    public void RequestCancelDrink() => _cancelRequested = true;
+    public void RequestCancelDrink() {
+        IsDrinking = false;
+        OnGaugeEnd?.Invoke(); // UI/게이지/플래그 정리 확실히
+    }
     private async UniTask<bool> Drink()
     {
         if (player == null && attackController == null) return false;

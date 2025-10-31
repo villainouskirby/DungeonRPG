@@ -72,7 +72,6 @@ public class IT_NpcFunc : MonoBehaviour
     {
         if (!_isActive)
             return;
-
         if (PotionManager.Instance != null && PotionManager.Instance.IsDrinking)
             return;
 

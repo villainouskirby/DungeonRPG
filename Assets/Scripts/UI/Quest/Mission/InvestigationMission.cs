@@ -36,6 +36,11 @@ public class InvestigationMission : Mission
                 _inventoryBehavior = InventoryBehaviorEventArgs.Behavior.None;
                 break;
         }
+
+        if (_investigationInfo.type == "Go")
+        {
+            Progress = 1;
+        }
     }
 
     public override string GetExplanation()
@@ -50,6 +55,7 @@ public class InvestigationMission : Mission
             case "Conversation":
                 EventManager.Instance.NPCConversationEvent.AddListener(UpdateProgress);
                 break;
+
             case "Inventory_drink":
             case "Inventory_register":
             case "Inventory_equip":
@@ -65,6 +71,7 @@ public class InvestigationMission : Mission
             case "Conversation":
                 EventManager.Instance.NPCConversationEvent.RemoveListener(UpdateProgress);
                 break;
+
             case "Inventory_drink":
             case "Inventory_register":
             case "Inventory_equip":
