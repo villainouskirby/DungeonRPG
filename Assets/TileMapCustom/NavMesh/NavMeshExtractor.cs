@@ -125,16 +125,31 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                         if (wall != null)
                             allMap[index] = true;
 
-                        int tileSpriteIndex = 0;
-                        for (int j = 0; j < mapData.LayerData.Length; j++)
-                        {
-                            if (mapData.LayerData[j].Tile.Length < index)
-                                tileSpriteIndex = Mathf.Max(mapData.LayerData[j].Tile[index], tileSpriteIndex);
-                        }
-                        if (tileSpriteIndex == 0)
-                            allMap[index] = true;
                     }
                 }
+            }
+        }
+
+        for (int x = 0; x < mapData.All.Width * 16; x++)
+        {
+            for (int y = 0; y < mapData.All.Height * 16; y++)
+            {
+                Vector2Int chunkIndex = new(x / EM.ChunkSize, y / EM.ChunkSize);
+                Vector2Int localIndex = new(x % EM.ChunkSize, y % EM.ChunkSize);
+
+                int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapData.All.Width;
+                int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                int tileSpriteIndex = 0;
+
+                for (int j = 0; j < mapData.LayerData.Length; j++)
+                {
+                    tileSpriteIndex = Mathf.Max(mapData.LayerData[j].Tile[index], tileSpriteIndex);
+                }
+
+                if (tileSpriteIndex == 0)
+                    allMap[index] = true;
             }
         }
 
