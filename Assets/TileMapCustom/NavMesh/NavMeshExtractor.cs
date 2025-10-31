@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
+using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Tilemaps;
@@ -39,7 +40,8 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
             Directory.Delete(folder, true);
         Directory.CreateDirectory(folder);
 
-        StartCoroutine(ExtractTilemap2ChunkNavMesh(mapType, mapData));
+        StartCoroutine(ExtractTilemap2NavMesh(mapType, mapData));
+        //StartCoroutine(ExtractTilemap2ChunkNavMesh(mapType, mapData));
     }
 
     private enum TileType
@@ -48,6 +50,103 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
         Wall = 1,
         Ground = 2,
         Empty = 3,
+    }
+
+    private IEnumerator ExtractTilemap2NavMesh(MapEnum mapType, TileMapData mapData)
+    {
+        string groupName = $"{mapType.ToString()}_ChunkNavMesh";
+
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        var group = settings.FindGroup(groupName);
+        if (group != null)
+            settings.RemoveGroup(group);
+        group = settings.CreateGroup(
+            groupName,
+            false,
+            false,
+            false,
+            new List<AddressableAssetGroupSchema>(),
+            new[] { typeof(BundledAssetGroupSchema) }
+        );
+
+        int childCount = EM.Instance.LayerRoot.transform.childCount;
+        List<Tilemap> tilemap = new();
+        for (int i = 0; i < childCount; i++)
+            if (EM.Instance.LayerRoot.transform.GetChild(i).gameObject.activeSelf && EM.Instance.LayerRoot.transform.GetChild(i).TryGetComponent(out Tilemap layerMap))
+                tilemap.Add(layerMap);
+
+        Tilemap wallMap = null;
+        bool[] allMap = new bool[mapData.All.Width * mapData.All.Height * EM.ChunkSize * EM.ChunkSize];
+        Array.Fill(allMap, false);
+
+        for (int i = 0; i < tilemap.Count; i++)
+        {
+            for (int j = 0; j < tilemap[i].transform.childCount; j++)
+            {
+                if (!tilemap[i].transform.GetChild(j).gameObject.activeSelf)
+                    continue;
+                string type = tilemap[i].transform.GetChild(j).name.Split("_")[1];
+
+                switch (type)
+                {
+                    case "Wall":
+                        wallMap = tilemap[i].transform.GetChild(j).GetComponent<Tilemap>();
+                        break;
+                }
+            }
+
+            if (wallMap != null)
+            {
+                BoundsInt bounds = wallMap.cellBounds;
+                Vector3Int startPos = bounds.position;
+                TileBase[] tiles = wallMap.GetTilesBlock(bounds);
+                for (int y = 0; y < bounds.size.y; y++)
+                {
+                    for (int x = 0; x < bounds.size.x; x++)
+                    {
+                        int correctX = x + startPos.x - EM.Instance.StartPos.x;
+                        int correctY = y + startPos.y - EM.Instance.StartPos.y;
+
+                        Vector2Int chunkIndex = new(correctX / EM.ChunkSize, correctY / EM.ChunkSize);
+                        Vector2Int localIndex = new(correctX % EM.ChunkSize, correctY % EM.ChunkSize);
+
+                        int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapData.All.Width;
+                        int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+                        int index = localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+
+                        if (allMap.Length <= index)
+                            continue;
+
+                        TileBase tileBase = tiles[x + y * bounds.size.x];
+                        Sprite wall = null;
+                        if (tileBase is Tile tile)
+                            wall = tile.sprite;
+
+                        if (wall != null)
+                            allMap[index] = true;
+
+                        int tileSpriteIndex = 0;
+                        for (int j = 0; j < mapData.LayerData.Length; j++)
+                        {
+                            if (mapData.LayerData[j].Tile.Length < index)
+                                tileSpriteIndex = Mathf.Max(mapData.LayerData[j].Tile[index], tileSpriteIndex);
+                        }
+                        if (tileSpriteIndex == 0)
+                            allMap[index] = true;
+                    }
+                }
+            }
+        }
+
+        Mesh groundMesh = BuildMergedMesh(allMap, mapData.All.Width, mapData.All.Height);
+
+        yield return StartCoroutine(MakeNav(mapType, mapData.All.Width, mapData.All.Height, groundMesh));
+        yield return null;
+
+        string assetPath = $"Assets/MapMeshData/ChunkNavMesh/{mapType.ToString()}/NavMesh.asset";
+        RegisterAddressable(group, $"{mapType.ToString()}_NavMesh", assetPath);
+
+        AssetDatabase.SaveAssets();
     }
 
     private IEnumerator ExtractTilemap2ChunkNavMesh(MapEnum mapType, TileMapData mapData)
@@ -414,16 +513,10 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
                 ChunkLinkData[new(w, h)] = chunkLinkData.ToList();
 
                 GenerateFromGrid(chunkData, w , h);
-                yield return StartCoroutine(MakeChunkNav(mapType, w, h));
-                DeleteAllChild(transform);
             }
         }
 
-        JJSave.ASave(ChunkLinkData, $"NavChunkLinkData", $"MapMeshData/ChunkNavMesh/{mapType.ToString()}/", false);
-
         yield return null;
-
-        RegisterAddressable(group, $"{mapType}_NavChunkLinkData", $"Assets/MapMeshData/ChunkNavMesh/{mapType.ToString()}/NavChunkLinkData.bytes");
 
         for (int w = 0; w < mapData.All.Width; w++)
         {
@@ -578,6 +671,48 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
         }
     }
 
+    private IEnumerator MakeNav(MapEnum mapType, int h, int w, Mesh groundMesh)
+    {
+        yield return null;
+
+        List<NavMeshBuildSource> sources = new();
+
+        NavMeshBuildSource srcGround = new();
+        srcGround.shape = NavMeshBuildSourceShape.Mesh;
+        srcGround.sourceObject = groundMesh;
+        srcGround.area = 0;
+        srcGround.transform = Matrix4x4.TRS(
+        new Vector3(0f, 0f, 0f),
+        Quaternion.Euler(0, 0f, 0f),
+        Vector3.one);
+
+        sources.Add(srcGround);
+
+        NavMeshBuildSettings buildSettings = NavMesh.GetSettingsByID(0);
+        buildSettings.agentRadius = 0f;
+
+        var bounds = new Bounds(
+          new Vector3(8f + w / 2 * 16f, 0, 8f + h / 2 * 16f),
+          new Vector3(16f * (w + 2), 1f, 16f * (h + 2))
+        );
+
+        Vector3 positionOffset = new(0, 0, 0);
+        Quaternion rotationOffset = Quaternion.Euler(new(-90, 0, 0));
+
+        NavMeshData navData = NavMeshBuilder.BuildNavMeshData(
+            buildSettings,
+            sources,
+            bounds,
+            positionOffset,
+            rotationOffset
+        );
+
+        NavMesh.AddNavMeshData(navData);
+
+        AssetDatabase.CreateAsset(navData, $"Assets/MapMeshData/ChunkNavMesh/{mapType.ToString()}/NavMesh.asset");
+        yield return null;
+    }
+
     private IEnumerator MakeChunkNav(MapEnum mapType, int w, int h)
     {
         yield return null;
@@ -640,6 +775,172 @@ public class NavMeshExtractor : MonoBehaviour, IExtractorLate
 
         for (int i = 0; i < childs.Length; i++)
             Destroy(childs[i].gameObject);
+    }
+
+    public Mesh BuildMergedMesh(bool[] grid, int mapW, int mapH)
+    {
+        int width = mapW * 16;   // (요청대로 하드코딩 유지)
+        int height = mapH * 16;
+
+        bool[,] visited = new bool[width, height];
+
+        var verts = new List<Vector3>(width * height * 4);
+        var uvs = new List<Vector2>(width * height * 4);
+        var tris = new List<int>(width * height * 6);
+        var norms = new List<Vector3>(width * height * 4);
+
+        // (x,y) → 1D 인덱스 변환 (네가 쓰던 계산을 함수로 캡슐화)
+        int ToIndex(int gx, int gy)
+        {
+            Vector2Int chunkIndex = new(gx / EM.ChunkSize, gy / EM.ChunkSize);
+            Vector2Int localIndex = new(gx % EM.ChunkSize, gy % EM.ChunkSize);
+
+            int chunkStartIndex = chunkIndex.x + chunkIndex.y * mapW;
+            int localStartIndex = chunkStartIndex * EM.ChunkSize * EM.ChunkSize;
+            return localIndex.x + localIndex.y * EM.ChunkSize + localStartIndex;
+        }
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width;)
+            {
+                int index = ToIndex(x, y); // ★ 현재 칸 인덱스는 매 위치에서 재계산
+
+                if (!grid[index] && !visited[x, y])
+                {
+                    // 1) 가로 최대 확장
+                    int w = 1;
+                    while (x + w < width &&
+                           !grid[ToIndex(x + w, y)] &&          // ★ 옆 칸 값 검사
+                           !visited[x + w, y])
+                    {
+                        w++;
+                    }
+
+                    // 2) 세로 최대 확장 (가로 폭 w 유지)
+                    int h = 1;
+                    bool canGrow = true;
+                    while (y + h < height && canGrow)
+                    {
+                        for (int dx = 0; dx < w; dx++)
+                        {
+                            int gx = x + dx;
+                            int gy = y + h;
+
+                            if (grid[ToIndex(gx, gy)] ||      // ★ 아래줄 각 칸 값 검사
+                                visited[gx, gy])
+                            {
+                                canGrow = false;
+                                break;
+                            }
+                        }
+                        if (canGrow) h++;
+                    }
+
+                    // 3) 직사각형 쿼드 추가 (좌하→우하→우상→좌상)
+                    float x0 = x * 1f;            // (요청대로 스케일 하드코딩 유지)
+                    float y0 = y * 1f;
+                    float x1 = (x + w) * 1f;
+                    float y1 = (y + h) * 1f;
+
+                    int vi = verts.Count;
+
+                    verts.Add(new Vector3(x0, y0, 0f));
+                    verts.Add(new Vector3(x1, y0, 0f));
+                    verts.Add(new Vector3(x1, y1, 0f));
+                    verts.Add(new Vector3(x0, y1, 0f));
+
+                    // UV는 타일링(0~w, 0~h). 텍스처 Wrap=Repeat이면 반복됨.
+                    uvs.Add(new Vector2(0, 0));
+                    uvs.Add(new Vector2(w, 0));
+                    uvs.Add(new Vector2(w, h));
+                    uvs.Add(new Vector2(0, h));
+
+                    norms.Add(Vector3.forward);
+                    norms.Add(Vector3.forward);
+                    norms.Add(Vector3.forward);
+                    norms.Add(Vector3.forward);
+
+                    tris.Add(vi + 0);
+                    tris.Add(vi + 2);
+                    tris.Add(vi + 1);
+
+                    tris.Add(vi + 0);
+                    tris.Add(vi + 3);
+                    tris.Add(vi + 2);
+
+                    // 4) 방문 처리
+                    for (int dy = 0; dy < h; dy++)
+                        for (int dx = 0; dx < w; dx++)
+                            visited[x + dx, y + dy] = true;
+
+                    x += w; // 다음 시작점으로 점프
+                }
+                else
+                {
+                    x++;
+                }
+            }
+        }
+
+        var mesh = new Mesh
+        {
+            indexFormat = (verts.Count > 65000)
+                ? UnityEngine.Rendering.IndexFormat.UInt32
+                : UnityEngine.Rendering.IndexFormat.UInt16
+        };
+        mesh.SetVertices(verts);
+        mesh.SetUVs(0, uvs);
+        mesh.SetNormals(norms);
+        mesh.SetTriangles(tris, 0, true);
+        mesh.RecalculateBounds();
+
+        return mesh;
+    }
+
+    private void GenerateFromGrid(TileType[,] grid)
+    {
+        for (int x = 0; x < 16; x++)
+        {
+            for (int y = 0; y < 16; y++)
+            {
+                GameObject go;
+                BoxCollider2D bc;
+
+                int correctX = x + 1;
+                int correctY = y + 1;
+
+                switch (grid[correctX, correctY])
+                {
+                    case TileType.None:
+                        break;
+                    case TileType.Empty:
+                        go = new GameObject($"WallTile");
+                        go.transform.SetParent(WallRoot.transform, false);
+                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        bc = go.AddComponent<BoxCollider2D>();
+                        bc.size = Vector2.one;
+                        bc.usedByComposite = true;
+                        break;
+                    case TileType.Wall:
+                        go = new GameObject($"WallTile");
+                        go.transform.SetParent(WallRoot.transform, false);
+                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        bc = go.AddComponent<BoxCollider2D>();
+                        bc.size = Vector2.one;
+                        bc.usedByComposite = true;
+                        break;
+                    case TileType.Ground:
+                        go = new GameObject($"GroundTile");
+                        go.transform.SetParent(GroundRoot.transform, false);
+                        go.transform.localPosition = new Vector3(x + 0.5f, y + 0.5f, 0);
+                        bc = go.AddComponent<BoxCollider2D>();
+                        bc.size = Vector2.one;
+                        bc.usedByComposite = true;
+                        break;
+                }
+            }
+        }
     }
 
     private void GenerateFromGrid(TileType[,] grid, int w, int h)

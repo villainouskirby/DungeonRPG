@@ -175,7 +175,7 @@ public static class JJSave
         try
         {
             fileStream.Write(typeByte);
-            Debug.Log($"JJSave : Data saved to {path}");
+            //Debug.Log($"JJSave : Data saved to {path}");
         }
         catch (Exception e)
         {

@@ -21,6 +21,9 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
     private Dictionary<Vector2Int, List<NavMeshLinkInstance>> _chunkLinkInstance;
     private Dictionary<Vector2Int, List<Vector2Int>> _chunkLink;
 
+    private AsyncOperationHandle _navMeshHandle;
+    private NavMeshData _navMeshData;
+
     public void Init()
     {
         _instance = this;
@@ -43,8 +46,21 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         CM.Instance.ChunkLoadAction += LoadNav;
         CM.Instance.ChunkUnloadAction += UnLoadNav;
 
+        NavMesh.RemoveAllNavMeshData();
+        //Addressables.Release(_navMeshHandle);
         _currentMapType = mapType;
 
+        _navMeshHandle = Addressables.LoadAssetAsync<NavMeshData>($"{_currentMapType.ToString()}_NavMesh");
+        _navMeshHandle.Completed += op =>
+        {
+            if (op.Status == AsyncOperationStatus.Succeeded)
+            {
+                _navMeshData = (NavMeshData)op.Result;
+                NavMesh.AddNavMeshData(_navMeshData);
+            }
+        };
+
+        /*
         if (_linkHandle.IsValid())
             Addressables.Release(_linkHandle);
         _linkHandle = Addressables.LoadAssetAsync<TextAsset>($"{mapType.ToString()}_NavChunkLinkData");
@@ -53,6 +69,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
             if (op.Status == AsyncOperationStatus.Succeeded)
                 _chunkLink = TypeByte2TypeConverter.Convert<Dictionary<Vector2Int, List<Vector2Int>>>(((TextAsset)op.Result).bytes);
         };
+        */
     }
 
     public void StartMap(MapEnum mapType)
@@ -90,7 +107,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void LoadNav(Vector2Int chunkPos)
     {
-        //return; // 꺼저잇
+        return; // 꺼저잇
 
 
         // 네비매쉬 이슈로 청크 단위가 아닌 맵 전체 단위로 전환하면서 이제 더이상 청크 단위로 ~~ 안해도 된다.
@@ -128,6 +145,12 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private void UnLoadNav(Vector2Int navPos, bool forceDelete = false)
     {
+        return; // 꺼저잇
+
+
+        // 네비매쉬 이슈로 청크 단위가 아닌 맵 전체 단위로 전환하면서 이제 더이상 청크 단위로 ~~ 안해도 된다.
+        // 하지만 결합한 로직을 분리할 자신이 없으니 봉인해둔다.
+
         if (!forceDelete && DontUnLoadChunk.Contains(navPos))
             return;
         if (ActiveNav.ContainsKey(navPos))
