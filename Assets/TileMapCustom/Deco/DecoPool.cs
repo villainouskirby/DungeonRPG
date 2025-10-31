@@ -79,11 +79,10 @@ public class DecoPool : MonoBehaviour
         while (pool.Count <= 0)
         {
             Generate(decoObjData.ColliderData.Type);
-            obj = pool.Dequeue();
-            obj.Sr.gameObject.SetActive(true);
         }
 
         obj = pool.Dequeue();
+        obj.Sr.gameObject.SetActive(true);
 
         obj.Data = decoObjData;
         obj.Sr.gameObject.name = decoObjData.Name;

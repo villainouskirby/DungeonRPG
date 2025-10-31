@@ -33,7 +33,7 @@ public class PlayerFarming : MonoBehaviour
     [HideInInspector]
     public ResourceNodeBase TargetResourceNode;
     [HideInInspector]
-    public OutlineGenerator TargetResourceNodeOutline;
+    //public OutlineGenerator TargetResourceNodeOutline;
     public bool IsMouseSelect;
     public bool IsTargeting;
     public bool IsFarming;
@@ -140,17 +140,10 @@ public class PlayerFarming : MonoBehaviour
             TargetResourceNode = TargetObj.GetComponent<ResourceNodeBase>();
             // 방어적 접근
             var t = TargetObj.transform;
-            if (t.childCount > 1)
-                TargetResourceNodeOutline = t.GetChild(1).GetComponent<OutlineGenerator>();
-            else
-                TargetResourceNodeOutline = TargetObj.GetComponentInChildren<OutlineGenerator>(true);
-
-            TargetResourceNodeOutline?.OnOutline(GetOutlineColor());
         }
         else
         {
             // 몬스터일 땐 자원 참조/아웃라인 비움
-            TargetResourceNodeOutline = null;
             TargetResourceNode = null;
         }
 
@@ -231,7 +224,6 @@ public class PlayerFarming : MonoBehaviour
             {
                 Debug.Log($"몬스터 파밍 1회 완료. 남은 횟수: {left}");
                 FarmIcon?.SetIcon(CheckFarmable());
-                TargetResourceNodeOutline?.OnOutline(GetOutlineColor());
             }
             return;
         }
@@ -282,7 +274,6 @@ public class PlayerFarming : MonoBehaviour
 
         // 아이콘/아웃라인도 최신 가능여부 색으로
         FarmIcon?.SetIcon(CanFarmNow());
-        TargetResourceNodeOutline?.OnOutline(CanFarmNow() ? AbleColor : DisableColor);
     }
 
     // 상태머신에서 호출: 취소/실패

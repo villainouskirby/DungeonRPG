@@ -36,6 +36,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        /*
         ResetMonsterChunkNav();
         List<Vector2Int> target = new();
         foreach (var pair in ActiveNav)
@@ -45,6 +46,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
         CM.Instance.ChunkLoadAction += LoadNav;
         CM.Instance.ChunkUnloadAction += UnLoadNav;
+        */
 
         NavMesh.RemoveAllNavMeshData();
         //Addressables.Release(_navMeshHandle);
@@ -74,7 +76,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     public void StartMap(MapEnum mapType)
     {
-        InitNav();
+        //InitNav();
     }
 
     public void InitNav()
