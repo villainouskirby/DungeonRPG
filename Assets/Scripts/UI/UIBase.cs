@@ -10,7 +10,10 @@ public abstract class UIBase : MonoBehaviour
     protected virtual void Awake()
     {
         InitBase();
+    }
 
+    protected virtual void Start()
+    {
         gameObject.SetActive(_isActvieOnStart);
     }
 

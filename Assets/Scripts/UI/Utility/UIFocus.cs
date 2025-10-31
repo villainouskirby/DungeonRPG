@@ -51,7 +51,6 @@ public class UIFocus : UIBase
 
         UIPopUpHandler.Instance.RegisterUI(this);
         _highlightRect.gameObject.SetActive(false);
-        gameObject.SetActive(false);
     }
 
     public void Register(string key, RectTransform target)

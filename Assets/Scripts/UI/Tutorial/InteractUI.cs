@@ -34,8 +34,6 @@ namespace Tutorial
 
             _spritesDict[InteractType.Click] = _clickIcon;
             _spritesDict[InteractType.F] = _fIcon;
-
-            gameObject.SetActive(false);
         }
 
         public void OpenInteractPopUp(InteractType type, Transform transform)

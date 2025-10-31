@@ -38,12 +38,13 @@ public class QuickSlotInGameUI : UIBase
         UIPopUpHandler.Instance.RegisterUI(this);
     }
 
-    private void Start()
+    protected override void Start()
     {
         _quickSlot = UIPopUpHandler.Instance.GetScript<QuickSlot>();
         _quickSlotUI = _quickSlot.GetComponent<QuickSlotUI>();
 
         SetQuickSlotUI();
+        base.Start();
     }
 
     private void Update()
