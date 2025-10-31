@@ -41,17 +41,18 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
         }
 
         bool isQuestCleared = _isQuestClear;
-        bool isQuestExist = _questID.TryPeek(out var id);
+        string id;
 
         if (isQuestCleared)
         {
+            _questID.TryPeek(out id);
             CompleteQuest();
         }
 
         DialogueRunner runner = UIPopUpHandler.Instance.GetScript<DialogueRunner>();
         runner.Init(OpenUI, _npcName);
 
-        if (isQuestExist)
+        if (_questID.TryPeek(out id))
         {
             var quest = UIPopUpHandler.Instance.GetScript<Quest>();
             var info = quest.GetQuestInfo(id);
