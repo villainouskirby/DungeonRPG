@@ -23,7 +23,7 @@ public struct DialogueEndEvent
         Palette,            // 팔레트 팝업 => value(bag, quest, map, book), amount(0 : 기본, 1 : 점, 2 : 빛)
         Tutorial,           // 튜토리얼 팝업 => value(Bag, Quest, Map, Click 등등 자세한건 KeyGuideUI 스크립트에서 확인), amount(0 : 꺼짐, 1 : 켜짐)
         CloseDialogue,      // 대화 종료
-        FocusUI,            // UI 포커싱 => value(FocusTarget의 ID 혹은 아이템 ID), Amount(0 : FocustTarget, 1 : Inventory 아이템 슬롯, 2 : FocusTarget(일반 클릭 이벤트))
+        FocusUI,            // UI 포커싱 => value(FocusTarget의 ID 혹은 아이템 ID), Amount(0 : FocustTarget, 1 : Inventory 아이템 슬롯, 2 : FocusTarget(일반 클릭 이벤트), 3 : 조작 제한 X => 포커싱 UI 누르면 다음 포커싱 이벤트로, 4 : Quest 슬롯)
     }
 
     public KeyName Key;

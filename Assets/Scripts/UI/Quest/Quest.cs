@@ -23,6 +23,12 @@ public class Quest : UIBase
 
     public void AddQuest(QuestInfo info)
     {
+        if (_questInfos.Exists(e => e.Info.id == info.Info.id))
+        {
+            Debug.LogError("이미 존재하는 퀘스트");
+            return;
+        }
+
         using (var args = QuestAllocateEventArgs.Get())
         {
             args.Init(info.Info.id, info.Info.targetNPC);
@@ -94,6 +100,11 @@ public class Quest : UIBase
         }
 
         RemoveQuest(index);
+    }
+
+    public QuestSlotUI GetQuestSlotUI(string id)
+    {
+        return _questUI.GetQuestSlotUI(_questInfos.FindIndex(e => e.Info.id == id));
     }
     
     public void QuestClear(QuestCompleteEventArgs args)

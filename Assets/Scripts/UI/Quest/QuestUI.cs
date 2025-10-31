@@ -149,6 +149,11 @@ public class QuestUI : SlotInteractHandler
         }
     }
 
+    public QuestSlotUI GetQuestSlotUI(int index)
+    {
+        return (index >= 0 && index < _questSlots.Count) ? _questSlots[index] : null;
+    }
+
     private int GetQuestSlotIndex(QuestSlotUI slot)
     {
         return _questSlots.IndexOf(slot);

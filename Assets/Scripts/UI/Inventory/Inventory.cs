@@ -605,15 +605,7 @@ public class Inventory : UIBase, ISave
 
     public InventoryItemSlotUI GetItemSlotUI(string id)
     {
-        for (int i = 0; i < _items.Count; i++)
-        {
-            if (_items[i].Data.SID == id)
-            {
-                return _inventoryUI.GetItemSlotUI(i);
-            }
-        }
-
-        return null;
+        return _inventoryUI.GetItemSlotUI(_items.FindIndex(e => e.Data.SID == id));
     }
 
     public ItemType GetTabType()
