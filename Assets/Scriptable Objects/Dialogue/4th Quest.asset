@@ -70,16 +70,11 @@ MonoBehaviour:
     Amount: 1
     TutorialText: 
     TextPosition: {x: 0, y: 0}
-  - Key: 7
-    Value: Tab
-    Amount: 1
-    TutorialText: 
-    TextPosition: {x: 0, y: 0}
   - Key: 9
     Value: PaletteBag
     Amount: 0
-    TutorialText: 
-    TextPosition: {x: 0, y: 0}
+    TutorialText: "Tab\uD0A4\uB97C \uB20C\uB7EC \uAC00\uBC29\uC744 \uC5F4\uC5B4\uBCF4\uC138\uC694"
+    TextPosition: {x: -100, y: 0}
   - Key: 9
     Value: WPN_001
     Amount: 1
@@ -97,6 +92,11 @@ MonoBehaviour:
     TextPosition: {x: 0, y: 0}
   - Key: 9
     Value: QuickSlotButton
+    Amount: 0
+    TutorialText: 
+    TextPosition: {x: 0, y: 0}
+  - Key: 9
+    Value: BagClose
     Amount: 0
     TutorialText: 
     TextPosition: {x: 0, y: 0}
