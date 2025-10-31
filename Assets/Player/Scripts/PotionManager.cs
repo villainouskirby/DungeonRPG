@@ -46,7 +46,6 @@ public class PotionManager : Singleton<PotionManager>
 
         PotionItemData pi = data as PotionItemData;
         if (pi == null) { isDrinking = false; return PotionUseResult.FailedToStart; }
-
         string dt = pi.SID;         // 예: "PAR_POT_001"
         if (string.IsNullOrEmpty(dt) || !_potionById.TryGetValue(dt, out var row))
         {
@@ -61,7 +60,6 @@ public class PotionManager : Singleton<PotionManager>
                 return PotionUseResult.FailedToStart;
             }
         }
-        isDrinking = true;
         try
         {
             bool success = false;
@@ -111,9 +109,9 @@ public class PotionManager : Singleton<PotionManager>
     private async UniTask<bool> Drink()
     {
         if (player == null && attackController == null) return false;
-
         attackController.LockAttack();
 
+        IsDrinking = true;
         float duration = DRINK_DURATION;
         float start = Time.time;
         float endTime = start + duration;
@@ -170,6 +168,7 @@ public class PotionManager : Singleton<PotionManager>
         float start = Time.time;
         float endTime = start + duration;
 
+        IsDrinking = true;
         OnGaugeStart?.Invoke(duration);
 
         if (totalAmount == 0)
@@ -208,6 +207,7 @@ public class PotionManager : Singleton<PotionManager>
         if (remainder > 0f)
             PlayerData.Instance.HPValueChange(remainder);
 
+        IsDrinking = false;
         OnGaugeEnd?.Invoke();
         return true;
     }
