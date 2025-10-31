@@ -15,5 +15,10 @@ public abstract class Item
         _data = data;
     }
 
+    public Item()
+    {
+
+    }
+
     public abstract Item Clone(); // TODO => 템들 이동방식 구현하면서 수정해야 할듯
 }

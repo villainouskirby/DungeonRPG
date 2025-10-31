@@ -6,6 +6,11 @@ public class BackpackItem : EquipmentItem
     {
     }
 
+    public BackpackItem() : base()
+    {
+
+    }
+
     public override Item Clone()
     {
         return new BackpackItem(BagData);

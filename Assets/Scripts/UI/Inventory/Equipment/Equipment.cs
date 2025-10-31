@@ -19,7 +19,8 @@ public class Equipment : UIBase, ISave
     [SerializeField] private FloatVariableSO _attackSO;
     [SerializeField] private FloatVariableSO _speedSO;
 
-    private Dictionary<EquipmentType, EquipmentItem> _playerEquipments = new Dictionary<EquipmentType, EquipmentItem>();
+    [SerializeReference]
+    private Dictionary<int, EquipmentItem> _playerEquipments = new Dictionary<int, EquipmentItem>();
 
     protected override void OnDisable()
     {
@@ -37,12 +38,12 @@ public class Equipment : UIBase, ISave
     public void Equip(EquipmentItem equipmentItem)
     {
         EquipmentType type = equipmentItem.EquipmentData.EquipmentType;
-        if (_playerEquipments.ContainsKey(type))
+        if (_playerEquipments.ContainsKey((int)type))
         {
             UnEquip(type);
         }
 
-        _playerEquipments[type] = equipmentItem;
+        _playerEquipments[(int)type] = equipmentItem;
         equipmentItem.IsEquipped = true;
 
         UpdateSlot(type);
@@ -59,11 +60,11 @@ public class Equipment : UIBase, ISave
     public void UnEquip(EquipmentType type)
     {
         EquipmentItem ei;
-        if (!_playerEquipments.TryGetValue(type, out ei)) return;
+        if (!_playerEquipments.TryGetValue((int)type, out ei)) return;
 
         ei.IsEquipped = false;
         UpdateEquipmentEffect(type, false);
-        _playerEquipments.Remove(type);
+        _playerEquipments.Remove((int)type);
         UpdateSlot(type);
 
         if (type == EquipmentType.Weapon) RefreshAttackGateByWeapon();
@@ -76,7 +77,7 @@ public class Equipment : UIBase, ISave
     private void UpdateEquipmentEffect(EquipmentType type, bool isPlus = true) // 문제는 없을텐데 기존 스탯에서 장착한 장비들의 추가값 더하는 식으로 바꿔야할듯
     {
         int sign = isPlus ? 1 : -1;
-        var data = _playerEquipments[type].Data;
+        var data = _playerEquipments[(int)type].Data;
 
         switch (type)
         {
@@ -109,7 +110,7 @@ public class Equipment : UIBase, ISave
     /// </summary>
     private void RefreshAttackGateByWeapon()
     {
-        bool hasWeapon = _playerEquipments.ContainsKey(EquipmentType.Weapon);
+        bool hasWeapon = _playerEquipments.ContainsKey((int)EquipmentType.Weapon);
         if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.SetAttack(hasWeapon);
@@ -119,7 +120,7 @@ public class Equipment : UIBase, ISave
     public void UpdateSlot(EquipmentType type)
     {
         EquipmentItem ei;
-        if (_playerEquipments.TryGetValue(type, out ei))
+        if (_playerEquipments.TryGetValue((int)type, out ei))
         {
             _equipmentUI.SetEquipmentSlot(type, ei.Data.IconSprite);
         }
@@ -132,7 +133,7 @@ public class Equipment : UIBase, ISave
     /// <returns> 타입에 맞는 현재 장착하고 있는 장비 데이터 </returns>
     public ItemData GetItemData(EquipmentType type)
     {
-        return (_playerEquipments.ContainsKey(type)) ? _playerEquipments[type].Data : null;
+        return (_playerEquipments.ContainsKey((int)type)) ? _playerEquipments[(int)type].Data : null;
     }
 
     public void Load(SaveData saveData)

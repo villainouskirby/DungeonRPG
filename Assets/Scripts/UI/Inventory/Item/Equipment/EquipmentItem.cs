@@ -2,9 +2,9 @@ using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
-public abstract class EquipmentItem : Item, ISyncUsableItem
+public class EquipmentItem : Item, ISyncUsableItem
 {
-    public Action<bool> OnEquippedChanged;
+    [NonSerialized] public Action<bool> OnEquippedChanged;
 
     public EquipmentItemData EquipmentData => Data as EquipmentItemData;
     
@@ -21,6 +21,16 @@ public abstract class EquipmentItem : Item, ISyncUsableItem
 
     public EquipmentItem(EquipmentItemData data) : base(data)
     {
+    }
+
+    public EquipmentItem() : base()
+    {
+
+    }
+
+    public override Item Clone()
+    {
+        return null;
     }
 
     public bool UseSync() { return true; }
