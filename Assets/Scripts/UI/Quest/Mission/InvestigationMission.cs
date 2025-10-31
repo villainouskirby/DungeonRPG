@@ -40,7 +40,7 @@ public class InvestigationMission : Mission
 
     public override string GetExplanation()
     {
-        return "";
+        return InvestigationInfo.Goal;
     }
 
     public override void RegisterProcess()

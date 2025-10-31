@@ -51,7 +51,6 @@ public class UIFocus : UIBase
 
         UIPopUpHandler.Instance.RegisterUI(this);
         _highlightRect.gameObject.SetActive(false);
-        gameObject.SetActive(false);
     }
 
     public void Register(string key, RectTransform target)
@@ -85,6 +84,15 @@ public class UIFocus : UIBase
 
                 _focusQueue.Enqueue(info);
             }
+        }
+        else if (type == 4)
+        {
+            var quest = UIPopUpHandler.Instance.GetScript<Quest>();
+            var slot = quest.GetQuestSlotUI(focusID);
+
+            if (slot == null) return;
+            
+            target = slot.GetComponent<RectTransform>();
         }
         else
         {
@@ -149,46 +157,55 @@ public class UIFocus : UIBase
                         break;
                 }
             }
-            else if (rectTransform.TryGetComponent(out InventoryItemSlotUI slot))
+            else if (rectTransform.TryGetComponent(out InventoryItemSlotUI inventorySlot))
             {
                 rectTransform = rectTransform.GetChild(0).GetComponent<RectTransform>();
                 isClicked = true; // 내부 interactHandler에서 클릭 여부 걸러짐
+            }
+            else if (rectTransform.TryGetComponent(out QuestSlotUI questSlot))
+            {
+                isClicked = true;
             }
             else
             {
                 rectTransform.GetComponent<FocusTarget>().OnClicked += () => isClicked = true;
             }
 
-            Rect rect = new();
-            rect.size = rectTransform.sizeDelta;
-
-            await UniTask.DelayFrame(3);
-
-            Vector3 pos = rectTransform.TransformPoint(rectTransform.rect.center);
-            rect.position = pos;
-            _maskRaycast.SetRaycastRect(rect);
-
-            Vector3 scale = new Vector3((focusInfo.TextPos.x > 0) ? 1 : -1, 1, 1);
-            _textBGRect.localScale = scale;
-            _textRect.localScale = scale;
-            _textBGRect.position = focusInfo.TextPos + rect.position;
-
-            _tmp.text = focusInfo.Text;
-            _textBGRect.gameObject.SetActive(!string.IsNullOrEmpty(focusInfo.Text));
-            UPdateSizeFitter();
-
-            gameObject.SetActive(true);
-            UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, _shadowDuration);
-
-            if (keyCode == KeyCode.None || focusInfo.Type == 2)
+            if (focusInfo.Type != 3)
             {
-                await HighLight(pos); ;
-            }
+                // Fading 시작
+                Rect rect = new();
+                rect.size = rectTransform.sizeDelta;
 
-            await fadeTask;
+                await UniTask.DelayFrame(3);
+
+                Vector3 pos = rectTransform.TransformPoint(rectTransform.rect.center);
+                rect.position = pos;
+                _maskRaycast.SetRaycastRect(rect);
+
+                Vector3 scale = new Vector3((focusInfo.TextPos.x > 0) ? 1 : -1, 1, 1);
+                _textBGRect.localScale = scale;
+                _textRect.localScale = scale;
+                _textBGRect.position = focusInfo.TextPos + rect.position;
+
+                _tmp.text = focusInfo.Text;
+                _textBGRect.gameObject.SetActive(!string.IsNullOrEmpty(focusInfo.Text));
+                UPdateSizeFitter();
+
+                gameObject.SetActive(true);
+                UniTask fadeTask = Fade(_shadowImage, 0, _shadeAlpha, _shadowDuration);
+
+                if (keyCode == KeyCode.None || focusInfo.Type == 2)
+                {
+                    await HighLight(pos); ;
+                }
+
+                await fadeTask;
+            }
 
             _clickBlocker.SetActive(false);
 
+            // 입력 waiting
             while (true)
             {
                 if (Input.GetMouseButtonUp(0))
@@ -226,6 +243,8 @@ public class UIFocus : UIBase
             _highlightRect.gameObject.SetActive(false);
             gameObject.SetActive(false);
         } while (_focusQueue.Count > 0);
+
+        await UniTask.Yield();
 
         IsFocusing = false;
     }

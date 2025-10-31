@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Lines:
   - Speaker: "\uC0C1\uC778"
-    Text: "\uC798 \uC7A4\uB2C8 \uAF2C\uB9C8\uC57C"
+    Text: "\uC798 \uC7A4\uB2C8 \uAF2C\uB9C8\uC57C?"
   - Speaker: "\uC0C1\uC778"
-    Text: "\uC74C... '\uC21C\uB840\uC790' \uB2D8\uC774\uB77C\uACE0 \uBD88\uB7EC\uC57C\uD558\uB098?"
+    Text: "\uC74C... '\uC21C\uB840\uC790'\uB2D8\uC774\uB77C\uACE0 \uBD88\uB7EC\uC57C\uD558\uB098?"
   - Speaker: "\uC0C1\uC778"
-    Text: "\uC5EC\uAE30\uC11C\uC758 \uCCAB\uB0A0 \uBC24\uC740 \uC5B4\uB54C?"
+    Text: "\uC5EC\uAE30\uC11C\uC758 \uCCAB\uB0A0\uBC24\uC740 \uC5B4\uB54C?"
   - Speaker: "\uC0C1\uC778"
-    Text: "\uBB50 \uC88B\uC544\uBCF4\uC774\uB294 \uAC00\uAD6C\uB4E4\uB85C \uB123\uC5B4\uC8FC\uAE34
-      \uD588\uB294\uB370 \uC54C\uB2E4\uC2DC\uD53C \uC5EC\uAE30 \uC0AC\uC815\uB3C4
-      \uC88B\uC9C0\uB294 \uC54A\uC544\uC11C \uB9D0\uC774\uC57C"
+    Text: "\uBB50, \uC88B\uC544 \uBCF4\uC774\uB294 \uAC00\uAD6C\uB4E4\uB85C \uB123\uC5B4\uC8FC\uAE34
+      \uD588\uB294\uB370, \uC54C\uB2E4\uC2DC\uD53C \uC5EC\uAE30 \uC0AC\uC815\uB3C4
+      \uC88B\uC9C0\uB294 \uC54A\uC544\uC11C \uB9D0\uC774\uC57C."
   - Speaker: "\uC0C1\uC778"
     Text: "\uCE68\uB300\uAC00 \uBD88\uD3B8\uD558\uB354\uB77C\uB3C4 \uC870\uAE08\uB9CC
       \uCC38\uC544\uC918\uB77C."
@@ -31,13 +31,13 @@ MonoBehaviour:
       \uC624\uB974\uB294 \uB0A0\uC778\uB370, \uADF8\uB807\uAC8C \uCE59\uCE59\uD55C
       \uC5BC\uAD74\uB85C \uB098\uAC00\uB3C4 \uB418\uACA0\uC5B4?"
   - Speaker: "\uC0C1\uC778"
-    Text: "\uC774\uAC70 \uC904\uD14C\uB2C8\uAE50 \uD55C\uBC88 \uB9C8\uC154\uBD10"
+    Text: "\uC774\uAC70 \uC904 \uD14C\uB2C8\uAE4C \uD55C\uBC88 \uB9C8\uC154\uBD10."
   - Speaker: "\uC0C1\uC778"
     Text: "\uC55E\uC73C\uB85C\uB3C4 \uACC4\uC18D \uB9C8\uC2DC\uAC8C \uB420 \uD3EC\uC158\uC778\uB370
-      \uBBF8\uB9AC \uB9C8\uC154\uBCF4\uBA74 \uC88B\uC796\uC544"
+      \uBBF8\uB9AC \uB9C8\uC154\uBCF4\uBA74 \uC88B\uC796\uC544."
   - Speaker: "\uC0C1\uC778"
     Text: "\uAC00\uBC29\uC5D0 \uB123\uC5B4\uB1A8\uC73C\uB2C8 \uD55C \uBC88 \uAEBC\uB0B4\uC11C
-      \uB9C8\uC154\uBD10"
+      \uB9C8\uC154\uBD10."
   EndEvent:
   - Key: 2
     Value: POT_002
@@ -57,18 +57,14 @@ MonoBehaviour:
   - Key: 9
     Value: PaletteBag
     Amount: 0
-    TutorialText: 
-    TextPosition: {x: 0, y: 0}
-  - Key: 7
-    Value: Tab
-    Amount: 1
-    TutorialText: 
-    TextPosition: {x: 0, y: 0}
+    TutorialText: "Tab\uD0A4\uB97C \uB20C\uB7EC \uAC00\uBC29\uC744 \uC5F4\uC5B4\uBCF4\uC138\uC694"
+    TextPosition: {x: -100, y: 0}
   - Key: 9
     Value: POT_002
     Amount: 1
-    TutorialText: 
-    TextPosition: {x: 0, y: 0}
+    TutorialText: "\uC88C\uD074\uB9AD\uC73C\uB85C \uC544\uC774\uD15C \uBA54\uB274\uB97C
+      \uC5F4\uC5B4\uBCF4\uC138\uC694"
+    TextPosition: {x: -490, y: 8}
   - Key: 9
     Value: UseButton
     Amount: 0

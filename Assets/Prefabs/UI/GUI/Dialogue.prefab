@@ -387,8 +387,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC774\uB984"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2f5831aa5e937b549b83fa633ccb9fd0, type: 2}
-  m_sharedMaterial: {fileID: -7543750767635032333, guid: 2f5831aa5e937b549b83fa633ccb9fd0,
+  m_fontAsset: {fileID: 11400000, guid: 21643e37af7f20a469ffc88f73e4a2e4, type: 2}
+  m_sharedMaterial: {fileID: -6229013974826240955, guid: 21643e37af7f20a469ffc88f73e4a2e4,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -413,8 +413,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1220,7 +1220,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB300\uC0AC \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83"
+  m_text: "\uB300\uC0AC \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83 \uB300\uC0AC \uB0B4\uC6A9
+    \uC774\uAC83\uC800\uAC83 \uB300\uC0AC \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83 \uB300\uC0AC
+    \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83 \uB300\uC0AC \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83
+    \uB300\uC0AC \uB0B4\uC6A9 \uC774\uAC83\uC800\uAC83 "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3c32ed63e811c6b4596a68c129aa0462, type: 2}
   m_sharedMaterial: {fileID: -5591912275744580146, guid: 3c32ed63e811c6b4596a68c129aa0462,
@@ -1248,8 +1251,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1260,7 +1263,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: 30
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -1284,7 +1287,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 45, y: 60, z: 45, w: 30}
+  m_margin: {x: 54.781616, y: 63.6308, z: 56.179077, w: 30}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

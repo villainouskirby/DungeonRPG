@@ -19,7 +19,7 @@ public class HuntingMission : Mission
 
     public override string GetExplanation()
     {
-        return "";
+        return HuntingInfo.Goal;
     }
 
     public override void RegisterProcess()

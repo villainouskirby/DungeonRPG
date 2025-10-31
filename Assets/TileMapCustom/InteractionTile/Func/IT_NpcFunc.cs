@@ -16,6 +16,7 @@ public class IT_NpcFunc : MonoBehaviour
 
     [SerializeField] private Sprite _merchantSprite;
     [SerializeField] private Sprite _blacksmithSprite;
+    [SerializeField] private Sprite _priestSprite;
 
     public void Init(IT_NpcObj npcObj)
     {
@@ -35,6 +36,10 @@ public class IT_NpcFunc : MonoBehaviour
 
             case NPC.smith:
                 SR.sprite = _blacksmithSprite;
+                break;
+
+            case NPC.priest:
+                SR.sprite = _priestSprite;
                 break;
 
             default:
@@ -68,7 +73,10 @@ public class IT_NpcFunc : MonoBehaviour
         if (!_isActive)
             return;
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (PotionManager.Instance != null && PotionManager.Instance.IsDrinking)
+            return;
+
+        if (!UIPopUpHandler.Instance.IsUIOpen && Input.GetKeyDown(KeyCode.F))
         {
             switch (_npcName) // 대충 UI Open하는 코드 추가 작성
             {

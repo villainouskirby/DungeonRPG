@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 public class FocusTarget : MonoBehaviour, IPointerClickHandler
 {
     public Action OnClicked;
+    public string ID => _id;
 
     [SerializeField] private string _id;
     

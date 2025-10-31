@@ -6,6 +6,8 @@ public class Priest : NPCBase<Priest>
 {
     protected override void InitBase()
     {
+        base.InitBase();
+
         UIPopUpHandler.Instance.RegisterUI(this);
         _npcName = "priest";
     }

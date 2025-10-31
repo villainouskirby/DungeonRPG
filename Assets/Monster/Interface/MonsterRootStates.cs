@@ -177,6 +177,7 @@ public sealed class MonsterDetectState : IMonsterState
     const float hearInterval = 0.5f;   // 청각 체크 주기
     const float chaseTimeout = 5f;     // 최근 소리 후 추적 유지 시간
     string _walkLoopClipKey;
+    string _detectClipKey;
     float hearTimer;    // 0.5초 타이머
     float chaseTimer;   // 5초 타이머
     Vector3 targetPos;  // 마지막 들린 위치
@@ -368,6 +369,36 @@ public sealed class MonsterDetectState : IMonsterState
         // 전투 진입 직전, 느낌표 한 번만
         await ShowExclamationAsync(token);
 
+        // 직전 바로 소리 재생
+        switch (ctx.data.category)
+        {
+            case MonsterData.MonsterCategory.Cleaner:
+                _detectClipKey = "SFX_CleanerDetect";
+                break;
+            case MonsterData.MonsterCategory.Hound:
+                _detectClipKey = "SFX_HoundDetect";
+                break;
+            case MonsterData.MonsterCategory.Beetle:
+                _detectClipKey = "SFX_BettleDetect"; // 요청대로 Bettle 표기 사용
+                break;
+            default:
+                _detectClipKey = null;
+                break;
+        }
+        if (_detectClipKey != null)
+        {
+
+            SoundManager.Instance.PlaySound3D(
+                _detectClipKey,
+                ctx.transform,
+                delay: 0f,
+                isLoop: false,
+                type: SoundType.SFX,
+                attachToTarget: true,
+                minDistance: 0f,
+                maxDistance: 30f
+            );
+        }
 
         if (token.IsCancellationRequested) return;
 

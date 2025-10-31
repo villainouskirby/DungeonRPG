@@ -103,7 +103,6 @@ public class Inventory : UIBase, ISave
 
     protected override void Awake()
     {
-        _isActvieOnStart = true;
         base.Awake();
 
         RestCapacity = _maxCapacity; // TODO => 상점에서 거래할때 인벤 한번 켜진게 아니면 초기화 안되서 가방에 추가 안함 => 게임 시작할 때 초기화 하도록 바꿔야 할듯
@@ -121,11 +120,11 @@ public class Inventory : UIBase, ISave
         InitInventory();
     }
 
-    private void Start()
+    protected override void Start()
     {
         UIPopUpHandler.Instance.GetScript<QuickSlot>().InitQuickSlot();
         _inventoryUI.AfterStart();
-        gameObject.SetActive(false);
+        base.Start();
     }
 
     /// <summary> 인벤토리 열기 </summary>
@@ -605,15 +604,7 @@ public class Inventory : UIBase, ISave
 
     public InventoryItemSlotUI GetItemSlotUI(string id)
     {
-        for (int i = 0; i < _items.Count; i++)
-        {
-            if (_items[i].Data.SID == id)
-            {
-                return _inventoryUI.GetItemSlotUI(i);
-            }
-        }
-
-        return null;
+        return _inventoryUI.GetItemSlotUI(_items.FindIndex(e => e.Data.SID == id));
     }
 
     public ItemType GetTabType()

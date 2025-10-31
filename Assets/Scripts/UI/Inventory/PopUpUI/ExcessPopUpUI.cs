@@ -10,8 +10,9 @@ public class ExcessPopUpUI : UIBase
         UIPopUpHandler.Instance.RegisterUI(this);
     }
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         _closeButton.onClick.AddListener(() => gameObject.SetActive(false));   
     }
 
