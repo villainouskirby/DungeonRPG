@@ -35,6 +35,10 @@ public static class Quest_InfoDataParser
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
+            sheetRowData.Goal = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
             sheetRowData.type = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
@@ -64,6 +68,10 @@ public static class Quest_InfoDataParser
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
+            sheetRowData.Goal = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
             sheetRowData.object_id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             sheetRowData.count = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
@@ -88,6 +96,10 @@ public static class Quest_InfoDataParser
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;
             sheetRowData.id = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
+            offset += stringLength;
+            stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
+            offset += 4;
+            sheetRowData.Goal = TypeByte2TypeConverter.ConvertTypeByte2string(buffer.Slice(offset, stringLength));
             offset += stringLength;
             stringLength = TypeByte2TypeConverter.ConvertTypeByte2int(buffer.Slice(offset, 4));
             offset += 4;

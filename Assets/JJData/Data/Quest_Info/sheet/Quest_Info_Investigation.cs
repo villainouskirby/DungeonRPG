@@ -9,6 +9,10 @@ public  class Quest_Info_Investigation
     /// </summary>
     public string id;
     /// <summary>
+    /// 퀘스트 목표
+    /// </summary>
+    public string Goal;
+    /// <summary>
     /// 조사 종류
     /// </summary>
     public string type;

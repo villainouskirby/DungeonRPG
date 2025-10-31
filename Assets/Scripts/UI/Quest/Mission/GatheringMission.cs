@@ -19,7 +19,7 @@ public class GatheringMission : Mission
 
     public override string GetExplanation()
     {
-        return "";
+        return GatheringInfo.Goal;
     }
 
     public override void RegisterProcess()
