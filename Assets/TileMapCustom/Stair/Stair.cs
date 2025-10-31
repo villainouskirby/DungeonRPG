@@ -30,12 +30,17 @@ public class Stair : MonoBehaviour
         Entry1Height = data.Entry1Height;
         Entry2Height = data.Entry2Height;
 
+        StairEntry1.transform.position = data.StairEntry1.Pos;
         StairEntry1.offset = data.StairEntry1.Offset;
         StairEntry1.size = data.StairEntry1.Size;
+        StairEntry2.transform.position = data.StairEntry2.Pos;
         StairEntry2.offset = data.StairEntry2.Offset;
         StairEntry2.size = data.StairEntry2.Size;
+        StairOutLine1.transform.position = data.StairOutLine1.Pos;
         StairOutLine1.points = data.StairOutLine1.Points;
+        StairOutLine2.transform.position = data.StairOutLine2.Pos;
         StairOutLine2.points = data.StairOutLine2.Points;
+        StairIn.transform.position = data.StairIn.Pos;
         StairIn.pathCount = data.StairIn.Paths.Length;
         for (int i = 0; i < data.StairIn.Paths.Length; i++)
             StairIn.SetPath(i, data.StairIn.Paths[i]);
@@ -83,6 +88,7 @@ public enum StairType
 [System.Serializable]
 public class BoxData
 {
+    public Vector2 Pos;
     public Vector2 Offset;
     public Vector2 Size;
 }
@@ -90,12 +96,14 @@ public class BoxData
 [System.Serializable]
 public class EdgeData
 {
+    public Vector2 Pos;
     public Vector2[] Points;
 }
 
 [System.Serializable]
 public class PolygonData
 {
+    public Vector2 Pos;
     public Vector2[][] Paths;
 }
 

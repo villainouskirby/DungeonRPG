@@ -38,12 +38,12 @@ public class StairExtractor : MonoBehaviour, IExtractor
 
             data.Pos = child.transform.position;
             data.Type = (int)stair.StairType;
-            data.StairEntry1 = new BoxData { Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry1.offset), Size = stair.StairEntry1.size };
-            data.StairEntry2 = new BoxData { Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry2.offset), Size = stair.StairEntry2.size };
-            data.StairOutLine1 = new EdgeData { Points = stair.StairOutLine1.points.Select(s => ExtractorMaster.Instance.CorrectPos(s)).ToArray() };
-            data.StairOutLine2 = new EdgeData { Points = stair.StairOutLine2.points.Select(s => ExtractorMaster.Instance.CorrectPos(s)).ToArray() };
+            data.StairEntry1 = new BoxData { Pos = stair.StairEntry1.transform.position, Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry1.offset), Size = stair.StairEntry1.size };
+            data.StairEntry2 = new BoxData { Pos = stair.StairEntry2.transform.position, Offset = ExtractorMaster.Instance.CorrectPos(stair.StairEntry2.offset), Size = stair.StairEntry2.size };
+            data.StairOutLine1 = new EdgeData { Pos = stair.StairOutLine1.transform.position, Points = stair.StairOutLine1.points.Select(s => ExtractorMaster.Instance.CorrectPos(s)).ToArray() };
+            data.StairOutLine2 = new EdgeData { Pos = stair.StairOutLine2.transform.position, Points = stair.StairOutLine2.points.Select(s => ExtractorMaster.Instance.CorrectPos(s)).ToArray() };
             int pc = stair.StairIn.pathCount;
-            data.StairIn = new PolygonData { Paths = new Vector2[pc][] };
+            data.StairIn = new PolygonData { Pos = stair.StairIn.transform.position, Paths = new Vector2[pc][] };
             for (int i = 0; i < pc; i++)
                 data.StairIn.Paths[i] = stair.StairIn.GetPath(i).Select(s => ExtractorMaster.Instance.CorrectPos(s)).ToArray();
 

@@ -50,7 +50,7 @@ public class DropItem : MonoBehaviour
                 Text.text = "";
                 break;
             default:
-                Text.text = $"x{_amount.ToString()}";
+                //Text.text = $"x{_amount.ToString()}";
                 break;
         }
         StartCoroutine(DropEffect());
