@@ -35,7 +35,14 @@ public static class ToggleSneak
         }
         return false;
     }
-
+    public static void CancelThisFrame()
+    {
+        if (IsActive)
+        {
+            IsActive = false;
+            lastUpFrame = Time.frameCount; // 이번 프레임에 Up으로 인식
+        }
+    }
     /// <summary>토글 상태를 '홀드 중'처럼 반환</summary>
     public static bool GetKey()
     {

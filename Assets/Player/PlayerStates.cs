@@ -13,6 +13,7 @@ public class IdleState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) ToggleSneak.CancelThisFrame();
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
@@ -59,6 +60,7 @@ public class MoveState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) ToggleSneak.CancelThisFrame();
         _ = ToggleSneak.GetKeyDown();
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -103,6 +105,7 @@ public class RunState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) ToggleSneak.CancelThisFrame();
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
         if (Input.GetMouseButtonDown(1))
@@ -149,6 +152,7 @@ public class SneakMoveState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) ToggleSneak.CancelThisFrame();
         _ = ToggleSneak.GetKeyDown();
         Vector2 mv = (player as PlayerController)?.ReadMoveRaw()
                  ?? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -191,6 +195,7 @@ public class SneakState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) ToggleSneak.CancelThisFrame();
         _ = ToggleSneak.GetKeyDown();
         if (Input.GetKeyDown(KeyCode.Space))
         { player.ChangeState(new EscapeState(player)); return; }
