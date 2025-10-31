@@ -18,4 +18,9 @@ public class BackpackItemData : EquipmentItemData
     {
         return new BackpackItem(this);
     }
+
+    public BackpackItemData() : base()
+    {
+
+    }
 }

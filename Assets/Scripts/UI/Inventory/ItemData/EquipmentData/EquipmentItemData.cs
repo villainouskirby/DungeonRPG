@@ -11,4 +11,8 @@ public abstract class EquipmentItemData : ItemData
     protected EquipmentItemData(Item_Info_Item info) : base(info)
     {
     }
+
+    public EquipmentItemData() : base()
+    {
+    }
 }

@@ -44,7 +44,6 @@ public class Stair : MonoBehaviour
         StairIn.pathCount = data.StairIn.Paths.Length;
         for (int i = 0; i < data.StairIn.Paths.Length; i++)
             StairIn.SetPath(i, data.StairIn.Paths[i]);
-
         _startY = Mathf.Min(StairOutLine1.points[0].y, StairOutLine1.points[1].y);
         _startY += StairOutLine1.gameObject.transform.position.y;
         _endY = Mathf.Max(StairOutLine1.points[0].y, StairOutLine1.points[1].y);

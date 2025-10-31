@@ -5,6 +5,11 @@ public class ArmorItem : BattleEquipmentItem
     {
     }
 
+    public ArmorItem() : base()
+    {
+
+    }
+
     public override Item Clone()
     {
         return new ArmorItem(ArmorItemData);

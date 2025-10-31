@@ -4,4 +4,9 @@ public abstract class BattleEquipmentItem : EquipmentItem
     protected BattleEquipmentItem(BattleEquipmentItemData data) : base(data)
     {
     }
+
+    public BattleEquipmentItem() : base()
+    {
+
+    }
 }

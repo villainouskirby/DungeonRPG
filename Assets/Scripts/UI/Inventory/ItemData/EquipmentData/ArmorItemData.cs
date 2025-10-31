@@ -18,4 +18,9 @@ public class ArmorItemData : BattleEquipmentItemData
     {
         return new ArmorItem(this);
     }
+
+    public ArmorItemData() : base()
+    {
+
+    }
 }

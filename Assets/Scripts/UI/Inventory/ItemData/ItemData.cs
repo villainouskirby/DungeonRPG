@@ -4,6 +4,7 @@ using ItemDataExtensions;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Cysharp.Threading.Tasks;
+using System;
 
 [System.Serializable]
 public abstract class ItemData
@@ -18,7 +19,7 @@ public abstract class ItemData
     [SerializeReference] private Item_Info_Item _info;
     [SerializeReference] private Dictionary<ItemDataExtension.Name, ItemDataExtension> _extensions = new();
 
-    [SerializeField] private Sprite _iconSprite;
+    [SerializeField][NonSerialized] private Sprite _iconSprite;
 
     public ItemData(Item_Info_Item info)
     {
