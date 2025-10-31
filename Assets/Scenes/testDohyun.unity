@@ -715,25 +715,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &63685487 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 940481114572137504, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-    type: 3}
-  m_PrefabInstance: {fileID: 1353677040}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &63685491
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 63685487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _id: PaletteQuest
 --- !u!1 &69267252
 GameObject:
   m_ObjectHideFlags: 0
@@ -5766,10 +5747,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1353677042}
-    - targetCorrespondingSourceObject: {fileID: 940481114572137504, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 63685491}
     - targetCorrespondingSourceObject: {fileID: 8729917209235906272, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       insertIndex: -1
@@ -8508,7 +8485,7 @@ PrefabInstance:
     - target: {fileID: 4863999441510792452, guid: 9e51de881f1d1304a8b04647c7b1af95,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 288.13
+      value: 193.08
       objectReference: {fileID: 0}
     - target: {fileID: 4863999441510792452, guid: 9e51de881f1d1304a8b04647c7b1af95,
         type: 3}

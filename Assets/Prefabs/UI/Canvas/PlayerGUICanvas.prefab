@@ -693,6 +693,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExcessPopUp
       objectReference: {fileID: 0}
+    - target: {fileID: 6410101172865031950, guid: 5d27b67375731c64390c4b5fd213295e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1174,7 +1179,11 @@ PrefabInstance:
         type: 3}
       insertIndex: 1
       addedObject: {fileID: 6045455861457854079}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2298735129993061996, guid: 3a98f4bfd2b6b644589e433dc3417071,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2872652985198823080}
   m_SourcePrefab: {fileID: 100100000, guid: 3a98f4bfd2b6b644589e433dc3417071, type: 3}
 --- !u!224 &1847429057390043431 stripped
 RectTransform:
@@ -1194,6 +1203,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 137169c19f1f6d249a82921f15aa9866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2902762616261736202 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2298735129993061996, guid: 3a98f4bfd2b6b644589e433dc3417071,
+    type: 3}
+  m_PrefabInstance: {fileID: 4012162269761950054}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2872652985198823080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2902762616261736202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: pouchConfirmButton
 --- !u!224 &6407324916272183820 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8017942546683226986, guid: 3a98f4bfd2b6b644589e433dc3417071,
