@@ -1360,6 +1360,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2078240464856685233}
     m_Modifications:
+    - target: {fileID: 138359375139718708, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -368.8
+      objectReference: {fileID: 0}
     - target: {fileID: 830177936894819705, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
         type: 3}
       propertyPath: m_Name
@@ -1464,6 +1469,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4861551691034821938, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 6798622470361182066, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004534417752434966, guid: 56689df9b1efc9d44834a57c8f4dc9cd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -292.8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1880,7 +1900,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1116763441771788514, guid: e1b1afc8797fe4c4a9e0ef85f5b634ef,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1482836242288812602}
   m_SourcePrefab: {fileID: 100100000, guid: e1b1afc8797fe4c4a9e0ef85f5b634ef, type: 3}
 --- !u!224 &7782443784090686533 stripped
 RectTransform:
@@ -1888,3 +1912,22 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 9021348150917364755}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8236466026707764465 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1116763441771788514, guid: e1b1afc8797fe4c4a9e0ef85f5b634ef,
+    type: 3}
+  m_PrefabInstance: {fileID: 9021348150917364755}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1482836242288812602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8236466026707764465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22da7f9a68bf89347ae3406a7a24b4d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _id: QuestContent
