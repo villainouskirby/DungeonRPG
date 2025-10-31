@@ -157,10 +157,14 @@ public class UIFocus : UIBase
                         break;
                 }
             }
-            else if (rectTransform.TryGetComponent(out InventoryItemSlotUI slot))
+            else if (rectTransform.TryGetComponent(out InventoryItemSlotUI inventorySlot))
             {
                 rectTransform = rectTransform.GetChild(0).GetComponent<RectTransform>();
                 isClicked = true; // 내부 interactHandler에서 클릭 여부 걸러짐
+            }
+            else if (rectTransform.TryGetComponent(out QuestSlotUI questSlot))
+            {
+                isClicked = true;
             }
             else
             {
