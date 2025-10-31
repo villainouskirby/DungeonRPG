@@ -100,7 +100,7 @@ MonoBehaviour:
   _npcSprite: {fileID: 8840058050914012880}
   _markSprite: {fileID: 2454334439438618409}
   _npc: {fileID: -2010430421234633099}
-  _positionOffset: {x: 0.5, y: 0.2, z: 0}
+  _positionOffset: {x: 0.6, y: 0.05, z: 0}
   _questionMark: {fileID: 21300000, guid: 2a9ce16f98b3b1648b3ab0ae35d6963c, type: 3}
   _exclamationMark: {fileID: 21300000, guid: d5ee1728eafe4c14d8902fe5fac001b6, type: 3}
   _dotMark: {fileID: 21300000, guid: 18e9deb9d9ab4df43861875082922211, type: 3}
@@ -268,4 +268,6 @@ MonoBehaviour:
   Z: 0
   LayerName: 
   LayerIndex: 0
+  ColliderBounds: {x: 0, y: 0}
+  ColliderOffset: {x: 0, y: 0}
   NpcName: 1
