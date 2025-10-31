@@ -21,6 +21,8 @@ public class TileMapData
 [System.Serializable]
 public class TileMapDataAll
 {
+    public int MapStartLayer;
+    public int MapStartGroundLayer;
     // FixedData
     // 청크가 가로 세로 몇개 있는지
     public int Width;

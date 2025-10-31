@@ -19,6 +19,8 @@ public class ExtractorMaster : MonoBehaviour
     public MapEnum              Map;
 
     [Header("Height Settings")]
+    public int MapStartLayer;
+    public int MapStartGroundLayer;
     public List<int> LayerDefaultHeight;
 
     [Header("Layer Wall Settings")]
@@ -66,6 +68,8 @@ public class ExtractorMaster : MonoBehaviour
         IExtractorLate[] extractorLate = gameObject.GetComponentsInChildren<IExtractorLate>();
         TileMapData mapData = new();
         mapData.All = new();
+        mapData.All.MapStartLayer = MapStartLayer;
+        mapData.All.MapStartGroundLayer = MapStartGroundLayer;
 
         for (int i = 0; i < extractorFirst.Length; i++)
         {

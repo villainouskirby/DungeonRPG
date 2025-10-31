@@ -24,6 +24,8 @@ public class HeightManager : MonoBehaviour, ITileMapBase
 
     public void InitMap(MapEnum mapType)
     {
+        HeightManager.Instance.GroundLayer = DataLoader.Instance.All.MapStartGroundLayer;
+        HeightManager.Instance.CurrentLayer = DataLoader.Instance.All.MapStartLayer;
     }
 
     public void StartMap(MapEnum mapType)

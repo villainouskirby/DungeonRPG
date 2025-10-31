@@ -58,7 +58,7 @@ public class PlayerFarming : MonoBehaviour
     private void Start()
     {
         FarmingKey = KeyCode.F;
-        DropItemKey = KeyCode.U;
+        DropItemKey = KeyCode.F;
         _instance = this;
         _rangedResourceNodeObj = new();
         TargetResourceNode = null;
