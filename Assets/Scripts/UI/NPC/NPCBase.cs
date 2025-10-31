@@ -40,7 +40,10 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
             args.Release();
         }
 
-        if (_isQuestClear)
+        bool isQuestCleared = _isQuestClear;
+        bool isQuestExist = _questID.TryPeek(out var id);
+
+        if (isQuestCleared)
         {
             CompleteQuest();
         }
@@ -48,12 +51,12 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
         DialogueRunner runner = UIPopUpHandler.Instance.GetScript<DialogueRunner>();
         runner.Init(OpenUI, _npcName);
 
-        if (_questID.TryPeek(out var id))
+        if (isQuestExist)
         {
             var quest = UIPopUpHandler.Instance.GetScript<Quest>();
             var info = quest.GetQuestInfo(id);
             string dialogueID;
-            
+
             if (info == null)
             {
                 dialogueID = QuestConstructor.GetRawQuestInfo(id).start_text;
@@ -66,6 +69,10 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
             }
 
             _isQuestClear = false;
+        }
+        else if (isQuestCleared)
+        {
+            runner.StartPrint(id + "-end").Forget();
         }
         else
         {
