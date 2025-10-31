@@ -3729,6 +3729,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   All:
+    MapStartLayer: 0
+    MapStartGroundLayer: 0
     Width: 0
     Height: 0
     ChunkSize: 0
@@ -4650,7 +4652,6 @@ MonoBehaviour:
   TargetDropItem: {fileID: 0}
   TargetObj: {fileID: 0}
   TargetResourceNode: {fileID: 0}
-  TargetResourceNodeOutline: {fileID: 0}
   IsMouseSelect: 0
   IsTargeting: 0
   IsFarming: 0
@@ -5054,17 +5055,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2625437341925303938, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-        type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
-        type: 2}
-    - target: {fileID: 2625437341925303938, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 3390206324078595354, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -5465,7 +5455,7 @@ PrefabInstance:
     - target: {fileID: 7419178380967891492, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000013589859
+      value: -0.000010251999
       objectReference: {fileID: 0}
     - target: {fileID: 7513065301469500711, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
@@ -5512,17 +5502,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8035287097688178078, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-        type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
-        type: 2}
-    - target: {fileID: 8035287097688178078, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
-        type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 8146238693874774628, guid: 55cb0303aa51ceb4083f1e070ceda7bb,
         type: 3}
       propertyPath: m_SizeDelta.y

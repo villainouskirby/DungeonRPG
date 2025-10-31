@@ -16,6 +16,11 @@ public class Quest : UIBase
         EventManager.Instance.QuestCompleteEvent.AddListener(QuestClear);
     }
 
+    private void OnEnable()
+    {
+        _questUI.InitQuestInfo();
+    }
+
     private void OnDestroy()
     {
         EventManager.Instance.QuestCompleteEvent.RemoveListener(QuestClear);
