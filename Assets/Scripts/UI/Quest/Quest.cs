@@ -36,6 +36,13 @@ public class Quest : UIBase
             args.Release();
         }
 
+        using (var args = QuestClearEventArgs.Get())
+        {
+            args.Init(info.Info.id, info.Info.targetNPC, info.IsQuestCleared);
+            EventManager.Instance.QuestClearEvent.Invoke(args);
+            args.Release();
+        }
+
         _questInfos.Add(info);
         UpdateSlot(_questInfos.Count - 1);
     }
