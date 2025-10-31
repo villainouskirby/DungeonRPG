@@ -137,11 +137,13 @@ public class RunState : IPlayerState
 public class SneakMoveState : IPlayerState
 {
     private IPlayerChangeState player;
+    private float _nextStepTime;
+    private float _stepInterval = 0.75f;
     public SneakMoveState(IPlayerChangeState player) { this.player = player; }
 
     public void Enter()
     {
-        SoundManager.Instance.PlaySound2D("SFX_PlayerSneakMove", 0.3f, true, SoundType.SFX);
+        _nextStepTime = Time.time + 0.2f;
         //Debug.Log("SneakMoveState 상태 시작");
     }
 
@@ -163,11 +165,15 @@ public class SneakMoveState : IPlayerState
             if (ToggleSneak.GetKeyUp())
                 player.ChangeState(new MoveState(player));
         }
+        if (Time.time >= _nextStepTime)
+        {
+            SoundManager.Instance.PlaySound2D("SFX_PlayerSneakMove", 0.1f, false, SoundType.SFX);
+            _nextStepTime = Time.time + _stepInterval;
+        }
     }
 
     public void Exit()
     {
-        SoundManager.Instance.StopLoopSound("SFX_PlayerSneakMove");
         //Debug.Log("SneakMoveState 상태 종료");
     }
 
@@ -305,6 +311,8 @@ public sealed class PotionConsumeState : IPlayerState
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.F))
+            return;
         if (Input.GetKeyDown(KeyCode.Space)) // 회피 시 포션 사용 취소
         {
             if (PlayerManager.Instance == null || PlayerManager.Instance.CanDodge)
