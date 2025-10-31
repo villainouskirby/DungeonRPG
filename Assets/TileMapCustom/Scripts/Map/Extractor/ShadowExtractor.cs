@@ -272,7 +272,7 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
         string guid = AssetDatabase.AssetPathToGUID(assetPath);
 
         var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
-        Debug.Log(keyName);
+        //Debug.Log(keyName);
         entry.address = keyName;
 
         settings.SetDirty(

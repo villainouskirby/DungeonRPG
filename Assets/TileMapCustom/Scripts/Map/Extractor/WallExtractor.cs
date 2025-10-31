@@ -142,7 +142,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
                     }
 
                     GenerateFromGrid(chunkData);
-                    yield return new WaitForSeconds(0.1f);
+                    yield return new WaitForSeconds(0.01f);
                     yield return StartCoroutine(MakeChunkWall(mapType, w, h, i));
                     DeleteAllChild(transform);
                 }
@@ -200,7 +200,7 @@ public class Wallxtractor : MonoBehaviour, IExtractorLate
         var settings = AddressableAssetSettingsDefaultObject.Settings;
 
         string guid = AssetDatabase.AssetPathToGUID(assetPath);
-        Debug.Log(keyName);
+        //Debug.Log(keyName);
         var entry = settings.CreateOrMoveEntry(guid, group, readOnly: false, postEvent: true);
         if (entry == null)
             return;
