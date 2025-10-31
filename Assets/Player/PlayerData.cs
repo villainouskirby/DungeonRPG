@@ -81,6 +81,7 @@ public class PlayerData : Singleton<PlayerData>
 
         if (currentHP.Value > MaxHP.Value) currentHP.Value = MaxHP.Value;
         if (currentHP.Value < 0f) currentHP.Value = 0f;
+        if (currentHP.Value == 0f) { PlayerDie(); }
 
         if (Mathf.Abs(currentHP.Value - old) > Mathf.Epsilon)
             OnHPChanged?.Invoke(old, currentHP.Value);
@@ -93,6 +94,12 @@ public class PlayerData : Singleton<PlayerData>
                 pc.StartHitInvincible(1f, 0.1f); // 1초 무적, 0.1초 간격 깜빡임
             }
         }
+    }
+    void PlayerDie()
+    {
+        Debug.Log("플레이어 죽음");
+        currentHP.Value = 70f;
+        //플레이어 죽음
     }
     public void PlayerStun(float stunDuration)
     {
