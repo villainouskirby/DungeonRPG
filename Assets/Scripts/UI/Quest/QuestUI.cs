@@ -131,6 +131,22 @@ public class QuestUI : SlotInteractHandler
             _acceptButtonText.text = "accept";
         }
     }
+    public void InitQuestInfo()
+    {
+        for (int i = 0; i < _missionTexts.Length; i++)
+        {
+            _missionTexts[i].text = "";
+        }
+
+        _questContentText.text = "";
+
+        for (int i = 0; i < _rewardImages.Length; i++)
+        {
+            Color color = _rewardImages[i].color;
+            color.a = 0;
+            _rewardImages[i].color = color;
+        }
+    }
 
     private void AcceptQuest()
     {

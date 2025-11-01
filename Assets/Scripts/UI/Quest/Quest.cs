@@ -15,6 +15,10 @@ public class Quest : UIBase
         UIPopUpHandler.Instance.RegisterUI(this);
         EventManager.Instance.QuestCompleteEvent.AddListener(QuestClear);
     }
+    private void OnEnable()
+    {
+        _questUI.InitQuestInfo();
+    }
 
     private void OnDestroy()
     {

@@ -190,7 +190,7 @@ public class Inventory : UIBase, ISave
         {
             case EquipmentItem:
                 startIndex = _indexDict[ItemType.Equipment]();
-                endIndex = _indexDict[ItemType.Usable]();
+                endIndex = _items.Count;
                 type = ItemType.Equipment;
                 break;
 
@@ -211,7 +211,7 @@ public class Inventory : UIBase, ISave
 
             default:
                 startIndex = _indexDict[ItemType.Others]();
-                endIndex = _items.Count;
+                endIndex = _indexDict[ItemType.Equipment]();
                 type = ItemType.Others;
                 break;
         }
