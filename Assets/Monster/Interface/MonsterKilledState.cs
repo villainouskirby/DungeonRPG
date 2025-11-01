@@ -83,8 +83,7 @@ public sealed class MonsterKilledState : IMonsterState
         }
         ctx.indicator?.Show(MonsterStateTag.Killed);
         ctx.SafeStopAgent();
-        ctx.anim?.Play("Die");
-        ctx.animationHub?.SetTag(MonsterStateTag.Killed, ctx);
+        
         ctr._killed = true;
         if (ctx.alert) ctx.alert.gameObject.SetActive(false);
 
@@ -96,6 +95,7 @@ public sealed class MonsterKilledState : IMonsterState
         _isFading = false;
 
         s_harvestsLeft[go] = 2;
+        ctx.animationHub?.SetTag(MonsterStateTag.Killed, ctx);
 
         LifeCycleAsync().Forget();
     }
