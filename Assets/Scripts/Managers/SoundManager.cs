@@ -29,11 +29,14 @@ public class SoundManager : Singleton<SoundManager>, IManager
 
     public async void Initialize()
     {
-        if (_audioMixer != null) return;
-
-        _audioMixer = await Addressables.LoadAssetAsync<AudioMixer>("Audio/AudioMixer").ToUniTask();
+        if (_audioMixer == null)
+        {
+            _audioMixer = await Addressables.LoadAssetAsync<AudioMixer>("Audio/AudioMixer").ToUniTask();
+        }
 
         AddClipsToClipDict(_audioClipNames);
+
+        PlaySound2D("village", isLoop: true, type: SoundType.BGM);
     }
 
     public void AddClipsToClipDict(string[] names)

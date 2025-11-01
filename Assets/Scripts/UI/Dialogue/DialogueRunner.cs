@@ -24,7 +24,7 @@ public class DialogueRunner : UIBase
 
     private Dictionary<DialogueEndEvent.KeyName, Action<DialogueEndEvent>> _eventDict = new();
 
-    private AsyncOperationHandle<DialogueSO> _handle;
+    private DialogueSO _currentDialogue;
     private Queue<DialogueLineStatement> _dialogueLines;
     private DialogueEndEvent[] _endEvent;
 
@@ -40,11 +40,8 @@ public class DialogueRunner : UIBase
 
         if (_isDialogueRunning)
         {
-            if (_handle.IsValid())
-            {
-                Addressables.Release(_handle);
-                _handle = default;
-            }
+            Addressables.Release(_currentDialogue);
+            _currentDialogue = null;
 
             _isDialogueRunning = false;
         }
@@ -90,45 +87,18 @@ public class DialogueRunner : UIBase
         StartPrint(dialogueName).Forget();
     }
 
-    public bool HasKey(string key)
-    {
-        foreach (var locator in Addressables.ResourceLocators)
-        {
-            if (locator.Locate(key, typeof(object), out IList<IResourceLocation> locations))
-            {
-                return true; // 키 존재
-            }
-        }
-        return false; // 키 없음
-    }
-
     public async UniTaskVoid StartPrint(string dialogueName)
     {
         if (_isDialogueRunning) return;
 
-        if (_handle.IsValid())
-        {
-            Addressables.Release(_handle);
-            _handle = default;
-        }
+        _currentDialogue = await SafeAddressableLoader.LoadAsync<DialogueSO>("Dialogue/" + dialogueName);
+
+        if (_currentDialogue == null) return;
 
         _isDialogueRunning = true;
 
-        if (!HasKey("Dialogue/" + dialogueName))
-            return;
-        _handle = Addressables.LoadAssetAsync<DialogueSO>("Dialogue/" + dialogueName);
-        await _handle.ToUniTask();
-
-        if (_handle.Status == AsyncOperationStatus.Failed)
-        {
-            Debug.LogError("해당 대사 스크립트 없음. Name : Dialogue/" + dialogueName);
-            _isDialogueRunning = false;
-            return;
-        }
-
-        var dialogue = _handle.Result;
-        _dialogueLines = new Queue<DialogueLineStatement>(dialogue.Lines);
-        _endEvent = dialogue.EndEvent;
+        _dialogueLines = new Queue<DialogueLineStatement>(_currentDialogue.Lines);
+        _endEvent = _currentDialogue.EndEvent;
 
         UIPopUpHandler.Instance.CloseAllAndOpenUI<DialogueRunner>();
         UIPopUpHandler.Instance.CloseInGameUIs();
@@ -193,8 +163,8 @@ public class DialogueRunner : UIBase
 
         if (!_isDialogueRunning)
         {
-            Addressables.Release(_handle);
-            _handle = default;
+            Addressables.Release(_currentDialogue);
+            _currentDialogue = null;
 
             if (gameObject.activeSelf)
             {
