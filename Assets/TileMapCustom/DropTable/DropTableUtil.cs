@@ -1,3 +1,4 @@
+using DBUtility;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,7 @@ public static class DropTableUtil
 
         for(int i = 0; i < Item_Info.Item.Length; i++)
         {
-            ResourceItemData resourceItemData = new(Item_Info.Item[i]);
+            ResourceItemData resourceItemData = ItemDataConstructor.GetItemData(i) as ResourceItemData;
             _mappingItem[Item_Info.Item[i].id] = resourceItemData;
         }
     }
