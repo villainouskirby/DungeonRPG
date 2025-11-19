@@ -6,9 +6,9 @@ using System;
 using UnityEngine.UI;
 using Core;
 
-public class PotionManager : Singleton<PotionManager>
+public class PotionManager : MonoBehaviour
 {
-
+    public static PotionManager Instance { get; private set; }
     [Header("버프 아이콘 프리팹")]
     public GameObject buffPrefab;
     [Header("포션 마시는 시간")]
@@ -28,7 +28,18 @@ public class PotionManager : Singleton<PotionManager>
         player = FindObjectOfType<PlayerController>();
         attackController = FindObjectOfType<AttackController>();
     }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning($"Duplicate PotionManager destroyed: {name}");
+            Destroy(gameObject);
+            return;
+        }
 
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     private bool isDrinking = false;
 
     static Dictionary<string, Item_Info_Potion> _potionById;

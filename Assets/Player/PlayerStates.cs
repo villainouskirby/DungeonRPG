@@ -287,7 +287,7 @@ public sealed class PotionConsumeState : IPlayerState
 {
     private readonly IPlayerChangeState owner;
     private readonly PlayerController pc;
-    private readonly PotionManager pm;
+    private PotionManager pm;
     private readonly float duration;
 
     private float startTime;
@@ -297,13 +297,16 @@ public sealed class PotionConsumeState : IPlayerState
     {
         owner = p;
         pc = p as PlayerController;
-        pm = PotionManager.Instance;
+        pm = null;
         duration = Mathf.Max(0.01f, durationSec);
     }
 
     public void Enter()
     {
-
+        if (pm == null)
+        {
+            pm = PotionManager.Instance;
+        }
         startTime = Time.time;
         finished = false;
 
