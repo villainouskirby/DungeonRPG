@@ -26,13 +26,11 @@ namespace Core
 
         private void Awake()
         {
-            if (_instance != null)
+            // 이미 다른 인스턴스가 있고, 그게 나 자신이 아니면 파괴
+            if (_instance != null && _instance != this)
             {
-                if (_instance != this)
-                {
-                    Debug.LogWarning($"Singleton instance of {typeof(T).Name} already exists. Destroying duplicate.");
-                    Destroy(gameObject);
-                }
+                Debug.LogWarning($"Singleton instance of {typeof(T).Name} already exists. Destroying duplicate.");
+                Destroy(gameObject);
                 return;
             }
 
