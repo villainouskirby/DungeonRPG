@@ -78,10 +78,7 @@ public static class JJSave
     #region Save&Load - Resources
     public static void RSave<T>(T target, string saveDataName, string fileRoot, bool compress = true)
     {
-#if !UNITY_EDITOR
-        // Resources에 저장하는건 Editor 상으로 제한. 빌드 후에는 Load만 가능
-        return;
-#endif
+#if UNITY_EDITOR
 
         ReadOnlySpan<byte> typeByte;
         if (compress)
@@ -106,6 +103,7 @@ public static class JJSave
         {
             fileStream.Close();
         }
+#endif
     }
 
     // out을 이용해서 반환 값을 받는다.
@@ -156,11 +154,7 @@ public static class JJSave
     #region Save&Load - Assets
     public static void ASave<T>(T target, string saveDataName, string fileRoot, bool compress = true)
     {
-#if !UNITY_EDITOR
-        // Assets에 저장하는건 Editor 상으로 제한. Adressables 전용임.
-        // 따라서 Load는 존재안함.
-        return;
-#endif
+#if UNITY_EDITOR
 
         ReadOnlySpan<byte> typeByte;
         if (compress)
@@ -185,6 +179,7 @@ public static class JJSave
         {
             fileStream.Close();
         }
+#endif
     }
     #endregion
 

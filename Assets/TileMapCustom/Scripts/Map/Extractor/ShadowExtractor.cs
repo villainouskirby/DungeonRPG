@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -24,7 +23,6 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
 
     private CompositeCollider2D _composite;
 
-    private MethodInfo _genShadowMesh;
     public void Extract(MapEnum mapType, TileMapData mapData)
     {
         _composite = GetComponent<CompositeCollider2D>();
@@ -34,13 +32,6 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
         if (Directory.Exists(folder))
             Directory.Delete(folder, true);
         Directory.CreateDirectory(folder);
-
-        var utilType = typeof(ShadowCaster2D).Assembly
-            .GetType("UnityEngine.Rendering.Universal.ShadowUtility");
-        _genShadowMesh = utilType?
-            .GetMethod("GenerateShadowMesh",
-                       BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
-                       null, new[] { typeof(Mesh), typeof(Vector3[]) }, null);
 
         StartCoroutine(ExtractTilemap2ShadowMesh(mapType , mapData));
     }
@@ -239,29 +230,26 @@ public class ShadowExtractor : MonoBehaviour, IExtractorLate
             if (pts.Count >= 3)
                 loops.Add(pts.ToArray());
         }
-        if (loops.Count == 0) return new();
-
-        List<Mesh> parts = new(loops.Count);
-
-        foreach (Vector2[] shape in loops)
+        // Store the collider outline, independently of URP's render-mesh format.
+        var vertices = new List<Vector3>();
+        var indices = new List<int>();
+        foreach (Vector2[] loop in loops)
         {
-            Mesh mesh = new();
-            Vector3[] path3D = Array.ConvertAll(shape, v => (Vector3)v);
-            _genShadowMesh.Invoke(null, new object[] { mesh, path3D });
-            parts.Add(mesh);
+            int start = vertices.Count;
+            foreach (Vector2 point in loop)
+                vertices.Add(point);
+            for (int i = 0; i < loop.Length; i++)
+            {
+                indices.Add(start + i);
+                indices.Add(start + (i + 1) % loop.Length);
+            }
         }
-
-        CombineInstance[] combines = new CombineInstance[parts.Count];
-        for (int i = 0; i < parts.Count; i++)
-        {
-            combines[i].mesh = parts[i];
-            combines[i].transform = Matrix4x4.identity;
-        }
-        Mesh combined = new();
-        combined.CombineMeshes(combines, mergeSubMeshes: true, useMatrices: false);
-        combined.indexFormat = IndexFormat.UInt16;
-
-        return combined;
+        var mesh = new Mesh { name = "ChunkShadowOutline" };
+        mesh.indexFormat = vertices.Count > ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16;
+        mesh.SetVertices(vertices);
+        mesh.SetIndices(indices, MeshTopology.Lines, 0);
+        mesh.RecalculateBounds();
+        return mesh;
     }
 
 

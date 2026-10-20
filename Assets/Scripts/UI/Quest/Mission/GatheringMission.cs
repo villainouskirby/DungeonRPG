@@ -29,7 +29,7 @@ public class GatheringMission : Mission
 
     public override void UnRegisterProcess()
     {
-        EventManager.Instance.InventoryChangedEvent.RemoveListener(UpdateProgress);
+        EventManager.ExistingInstance?.InventoryChangedEvent.RemoveListener(UpdateProgress);
     }
 
     public override void UpdateProgress(EventArgs eventArgs)

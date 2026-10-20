@@ -26,8 +26,8 @@ public class ThrowItemManager : Singleton<ThrowItemManager>
 
     void Start()
     {
-        if (!player) player = FindObjectOfType<PlayerController>();
-        if (!aimUI) aimUI = FindObjectOfType<ThrowAimUI>(includeInactive: true);
+        if (!player) player = FindFirstObjectByType<PlayerController>();
+        if (!aimUI) aimUI = FindFirstObjectByType<ThrowAimUI>(FindObjectsInactive.Include);
     }
 
     //void EnsureTable()
@@ -41,10 +41,10 @@ public class ThrowItemManager : Singleton<ThrowItemManager>
         if (isUsing) return false;
         if (data == null) { Debug.LogError("ThrowItemManager: data is null"); return false; }
 
-        if (!player) player = FindObjectOfType<PlayerController>();
+        if (!player) player = FindFirstObjectByType<PlayerController>();
         if (!player) { Debug.LogError("ThrowItemManager: PlayerController not found"); return false; }
 
-        if (!aimUI) aimUI = FindObjectOfType<ThrowAimUI>(includeInactive: true);
+        if (!aimUI) aimUI = FindFirstObjectByType<ThrowAimUI>(FindObjectsInactive.Include);
         if (!aimUI) { Debug.LogError("ThrowItemManager: ThrowAimUI not found"); return false; }
 
 

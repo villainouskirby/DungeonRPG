@@ -24,8 +24,8 @@ public class PotionManager : Singleton<PotionManager>
     public float CurrentDrinkStart { get; private set; } = 0f;
     void Start() 
     {
-        player = FindObjectOfType<PlayerController>();
-        attackController = FindObjectOfType<AttackController>();
+        player = FindFirstObjectByType<PlayerController>();
+        attackController = FindFirstObjectByType<AttackController>();
     }
     private bool isDrinking = false;
 

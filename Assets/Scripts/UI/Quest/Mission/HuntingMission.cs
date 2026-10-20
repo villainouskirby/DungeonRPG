@@ -29,7 +29,7 @@ public class HuntingMission : Mission
 
     public override void UnRegisterProcess()
     {
-        EventManager.Instance.MonsterKilledEvent.RemoveListener(UpdateProgress);
+        EventManager.ExistingInstance?.MonsterKilledEvent.RemoveListener(UpdateProgress);
     }
 
     public override void UpdateProgress(EventArgs eventArgs)

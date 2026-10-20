@@ -17,7 +17,7 @@ public class PlayerMoveTest : MonoBehaviour
         float moveY = Input.GetAxis("Vertical");   // 상하 이동 (W, S 또는 화살표 위아래)
 
         Vector2 velocity = new Vector2(moveX, moveY).normalized * speed;
-        _rb.velocity = velocity;
+        _rb.linearVelocity = velocity;
     }
 
     private void Update()

@@ -1172,7 +1172,6 @@ GameObject:
   m_Component:
   - component: {fileID: 239758913}
   - component: {fileID: 239758915}
-  - component: {fileID: 239758914}
   m_Layer: 5
   m_Name: HPSlider
   m_TagString: Untagged
@@ -1203,18 +1202,6 @@ RectTransform:
   m_AnchoredPosition: {x: -714, y: 494}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &239758914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 239758912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98ddc6b89e18a7b4e90414b0b415b493, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &239758915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2991,7 +2978,6 @@ GameObject:
   m_Component:
   - component: {fileID: 750105137}
   - component: {fileID: 750105139}
-  - component: {fileID: 750105138}
   m_Layer: 5
   m_Name: StaminaSlider
   m_TagString: Untagged
@@ -3022,18 +3008,6 @@ RectTransform:
   m_AnchoredPosition: {x: -764, y: 444}
   m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &750105138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 750105136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78fdc7bde2896fb4186d311c09ae3308, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &750105139
 MonoBehaviour:
   m_ObjectHideFlags: 0

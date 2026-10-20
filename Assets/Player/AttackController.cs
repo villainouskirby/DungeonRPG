@@ -207,7 +207,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         }
         if (pc._isDropping)
         {
-            pc.rb.velocity = Vector2.zero;
+            pc.rb.linearVelocity = Vector2.zero;
             return;
         }
         if (pc != null && (pc.EscapeActive || pc.GetCurrentState() is PotionConsumeState))
@@ -487,7 +487,9 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         float angleDeg = AngleDegFromDir(dir);
         Vector2 size = new Vector2(width, length);
 
-        int hitCount = Physics2D.OverlapBoxNonAlloc(center, size, angleDeg, _overlapHits, hitMask);
+        var contactFilter = new ContactFilter2D { useTriggers = Physics2D.queriesHitTriggers };
+        contactFilter.SetLayerMask(hitMask);
+        int hitCount = Physics2D.OverlapBox(center, size, angleDeg, contactFilter, _overlapHits);
         Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, angleDeg, hitMask);
         HashSet<MonsterController> done = new();
 
@@ -543,7 +545,7 @@ public class AttackController : MonoBehaviour, IPlayerChangeState
         anim.Play(clip, 0, 0f);
 
         pc.FreezeMoveFor(totalCast);
-        pc.rb.velocity = Vector2.zero;
+        pc.rb.linearVelocity = Vector2.zero;
 
         // 히트 지점까지 대기
         if (hitMoment > 0f) yield return new WaitForSeconds(hitMoment);

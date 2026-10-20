@@ -69,13 +69,13 @@ public class InvestigationMission : Mission
         switch (_investigationInfo.type)
         {
             case "Conversation":
-                EventManager.Instance.NPCConversationEvent.RemoveListener(UpdateProgress);
+                EventManager.ExistingInstance?.NPCConversationEvent.RemoveListener(UpdateProgress);
                 break;
 
             case "Inventory_drink":
             case "Inventory_register":
             case "Inventory_equip":
-                EventManager.Instance.InventoryBehaviorEvent.RemoveListener(UpdateProgress);
+                EventManager.ExistingInstance?.InventoryBehaviorEvent.RemoveListener(UpdateProgress);
                 break;
         }
     }

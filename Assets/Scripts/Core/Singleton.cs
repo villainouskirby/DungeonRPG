@@ -6,6 +6,9 @@ namespace Core
     {
         private static T _instance;
 
+        // Use this for cleanup: accessing Instance can create a new manager.
+        public static T ExistingInstance => _instance != null ? _instance : null;
+
         public static T Instance
         {
             get

@@ -49,7 +49,7 @@ Shader "Custom/GuideTileMapPlus1"
 
             v2f vert(appdata v)
             {
-                v2f o;
+                v2f o = (v2f)0;
 
                 o.pos = UnityObjectToClipPos(v.vertex);  // 월드 변환을 포함한 변환
                 //o.pos.xyz += _WorldPosition.xyz;  // 월드 위치로 이동

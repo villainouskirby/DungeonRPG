@@ -30,10 +30,10 @@ public class QuestStateMark : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventManager.Instance.QuestAllocateEvent.RemoveListener(SetWaitMark);
-        EventManager.Instance.QuestUnlockedEvent.RemoveListener(ShowQuestMark);
-        EventManager.Instance.QuestClearEvent.RemoveListener(SetClearMark);
-        EventManager.Instance.QuestCompleteEvent.RemoveListener(CloseQuestMark);
+        EventManager.ExistingInstance?.QuestAllocateEvent.RemoveListener(SetWaitMark);
+        EventManager.ExistingInstance?.QuestUnlockedEvent.RemoveListener(ShowQuestMark);
+        EventManager.ExistingInstance?.QuestClearEvent.RemoveListener(SetClearMark);
+        EventManager.ExistingInstance?.QuestCompleteEvent.RemoveListener(CloseQuestMark);
     }
 
     public void ShowQuestMark(QuestUnlockedEventArgs args)

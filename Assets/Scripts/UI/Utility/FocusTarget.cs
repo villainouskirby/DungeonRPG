@@ -38,7 +38,10 @@ public class FocusTarget : MonoBehaviour, IPointerClickHandler
 
     private void OnDestroy()
     {
-        UIPopUpHandler.Instance?.GetScript<UIFocus>()?.Unregister(_id);
+        var handler = UIPopUpHandler.ExistingInstance;
+        if (handler == null) return;
+        var focus = handler.GetScript<UIFocus>();
+        if (focus != null) focus.Unregister(_id);
     }
 
     public void OnPointerClick(PointerEventData eventData)

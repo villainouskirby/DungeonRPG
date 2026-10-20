@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1065636643052209330}
   - component: {fileID: 2750937374480027228}
-  - component: {fileID: 5513901230034150146}
-  - component: {fileID: 2481737244384629859}
   m_Layer: 0
   m_Name: '@MapManager'
   m_TagString: Untagged
@@ -53,33 +51,3 @@ MonoBehaviour:
   GuideTileSize: 0.2
   TargetCamera: {fileID: 0}
   Player: {fileID: 0}
---- !u!114 &5513901230034150146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4270452090202897474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f30b161b6bc00e94c8655c0c08bffb9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  VisitedRange: 2
-  TargetTileMap: {fileID: 0}
---- !u!114 &2481737244384629859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4270452090202897474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 707ffdf64693c1149adcd3830f89e25b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 4
-  RemainRadius: 0
-  ShadowCorrect: 0
-  BoxSize: 1.5

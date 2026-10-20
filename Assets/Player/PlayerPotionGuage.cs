@@ -33,6 +33,7 @@ public class PlayerPotionGuage : MonoBehaviour
     float _ratio = 0f;          // 0~1
     bool _visible = false;
     bool _subscribed = false;
+    PotionManager _manager;
 
     void Reset()
     {
@@ -53,7 +54,7 @@ public class PlayerPotionGuage : MonoBehaviour
     {
         _subscribed = false;
         // PotionManager 등록
-        TrySubscribe();
+        TrySubscribeAndSync();
         UpdateTransform();
     }
 
@@ -66,7 +67,7 @@ public class PlayerPotionGuage : MonoBehaviour
     {
         EnsureTarget();
         UpdateTransform();
-        if (!_subscribed && PotionManager.Instance != null)
+        if (Application.isPlaying && !_subscribed)
             TrySubscribeAndSync();
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -83,26 +84,20 @@ public class PlayerPotionGuage : MonoBehaviour
     {
         if (target == null)
         {
-            var pc = FindObjectOfType<PlayerController>();
+            var pc = FindFirstObjectByType<PlayerController>();
             if (pc) target = pc.transform;
         }
     }
 
-    void TrySubscribe()
-    {
-        if (PotionManager.Instance == null) return;
-        PotionManager.Instance.OnGaugeStart += HandleGaugeStart;
-        PotionManager.Instance.OnGaugeProgress += HandleGaugeProgress;
-        PotionManager.Instance.OnGaugeEnd += HandleGaugeEnd;
-    }
-
     void TrySubscribeAndSync()
     {
-        var pm = PotionManager.Instance;
+        if (!Application.isPlaying) return;
+        var pm = PotionManager.ExistingInstance;
         if (pm == null) return;
 
         // 중복 방지
         TryUnsubscribe();
+        _manager = pm;
 
         pm.OnGaugeStart += HandleGaugeStart;
         pm.OnGaugeProgress += HandleGaugeProgress;
@@ -122,12 +117,13 @@ public class PlayerPotionGuage : MonoBehaviour
     }
     void TryUnsubscribe()
     {
-        var pm = PotionManager.Instance;
-        if (!_subscribed || pm == null) { _subscribed = false; return; }
-
-        pm.OnGaugeStart -= HandleGaugeStart;
-        pm.OnGaugeProgress -= HandleGaugeProgress;
-        pm.OnGaugeEnd -= HandleGaugeEnd;
+        if (_manager != null)
+        {
+            _manager.OnGaugeStart -= HandleGaugeStart;
+            _manager.OnGaugeProgress -= HandleGaugeProgress;
+            _manager.OnGaugeEnd -= HandleGaugeEnd;
+        }
+        _manager = null;
         _subscribed = false;
     }
 

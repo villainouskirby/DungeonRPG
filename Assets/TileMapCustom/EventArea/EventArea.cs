@@ -32,6 +32,7 @@ public class EventArea : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collider)
     {
+        if (!Application.isPlaying || !isActiveAndEnabled || Data == null) return;
         if (collider.CompareTag("Player"))
         {
             OutEvent(collider);
@@ -138,7 +139,10 @@ public class EventArea : MonoBehaviour
 
     private void ShowText_Out()
     {
-        UIPopUpHandler.Instance.GetScript<KeyGuideUI>().CloseTutorial();
+        var handler = UIPopUpHandler.ExistingInstance;
+        if (handler == null) return;
+        var guide = handler.GetScript<KeyGuideUI>();
+        if (guide != null) guide.CloseTutorial();
     }
 
     [Range(0, 1f)] public float process;   // 0~1 진행도(실시간)

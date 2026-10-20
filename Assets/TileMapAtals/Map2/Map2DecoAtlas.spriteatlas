@@ -39,10 +39,22 @@ SpriteAtlas:
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
-    packedSpriteRenderDataKeys: []
+    packedSpriteRenderDataKeys:
+    - 145e05336104741438d2061c896f734b: 788369630
+    - 145e05336104741438d2061c896f734b: 1049809883
+    - 7474bc5bd4ae92f46b6b5f19f1523841: 788369630
+    - 7474bc5bd4ae92f46b6b5f19f1523841: 1049809883
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites: []
-  m_PackedSpriteNamesToIndex: []
+  m_PackedSprites:
+  - {fileID: 788369630, guid: 145e05336104741438d2061c896f734b, type: 3}
+  - {fileID: 1049809883, guid: 145e05336104741438d2061c896f734b, type: 3}
+  - {fileID: 788369630, guid: 7474bc5bd4ae92f46b6b5f19f1523841, type: 3}
+  - {fileID: 1049809883, guid: 7474bc5bd4ae92f46b6b5f19f1523841, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Dungeon_Column 1_1
+  - Dungeon_Column 1_3
+  - Dungeon_Column 1_1
+  - Dungeon_Column 1_3
   m_RenderDataMap: {}
   m_Tag: Map2DecoAtlas
   m_IsVariant: 0

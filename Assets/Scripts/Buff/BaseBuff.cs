@@ -16,7 +16,7 @@ public class BaseBuff : MonoBehaviour
     private float percentage;
     public void Awake()
     {
-        playerData = FindObjectOfType<PlayerData>();
+        playerData = FindFirstObjectByType<PlayerData>();
         icon = GetComponent<Image>();
         if (!timerTMP) timerTMP = GetComponentInChildren<TextMeshProUGUI>(true);
     }

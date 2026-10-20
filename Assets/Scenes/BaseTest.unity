@@ -17307,8 +17307,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1436021935}
   - component: {fileID: 1436021934}
-  - component: {fileID: 1436021933}
-  - component: {fileID: 1436021932}
   m_Layer: 0
   m_Name: '@MapManager'
   m_TagString: Untagged
@@ -17316,36 +17314,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1436021932
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436021931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 707ffdf64693c1149adcd3830f89e25b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 4
-  RemainRadius: 0
-  ShadowCorrect: 0
-  BoxSize: 1.5
---- !u!114 &1436021933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436021931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f30b161b6bc00e94c8655c0c08bffb9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  VisitedRange: 2
-  TargetTileMap: {fileID: 98223166}
 --- !u!114 &1436021934
 MonoBehaviour:
   m_ObjectHideFlags: 0

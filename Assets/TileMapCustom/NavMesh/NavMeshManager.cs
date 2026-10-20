@@ -23,6 +23,7 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
 
     private AsyncOperationHandle _navMeshHandle;
     private NavMeshData _navMeshData;
+    private NavMeshDataInstance _navMeshInstance;
 
     public void Init()
     {
@@ -48,17 +49,17 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
         CM.Instance.ChunkUnloadAction += UnLoadNav;
         */
 
-        NavMesh.RemoveAllNavMeshData();
-        //Addressables.Release(_navMeshHandle);
+        ReleaseMapNavigation();
         _currentMapType = mapType;
 
         _navMeshHandle = Addressables.LoadAssetAsync<NavMeshData>($"{_currentMapType.ToString()}_NavMesh");
         _navMeshHandle.Completed += op =>
         {
+            if (this == null || !op.Equals(_navMeshHandle)) return;
             if (op.Status == AsyncOperationStatus.Succeeded)
             {
                 _navMeshData = (NavMeshData)op.Result;
-                NavMesh.AddNavMeshData(_navMeshData);
+                _navMeshInstance = NavMesh.AddNavMeshData(_navMeshData);
             }
         };
 
@@ -72,6 +73,22 @@ public class NavMeshManager : MonoBehaviour, ITileMapBase
                 _chunkLink = TypeByte2TypeConverter.Convert<Dictionary<Vector2Int, List<Vector2Int>>>(((TextAsset)op.Result).bytes);
         };
         */
+    }
+
+    private void ReleaseMapNavigation()
+    {
+        if (_navMeshInstance.valid)
+            NavMesh.RemoveNavMeshData(_navMeshInstance);
+        _navMeshInstance = default;
+        if (_navMeshHandle.IsValid())
+            Addressables.Release(_navMeshHandle);
+        _navMeshHandle = default;
+        _navMeshData = null;
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseMapNavigation();
     }
 
     public void StartMap(MapEnum mapType)

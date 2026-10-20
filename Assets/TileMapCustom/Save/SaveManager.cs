@@ -31,7 +31,7 @@ public static class SaveManager
         saveData.PlayerPos = TileMapMaster.Instance.Player.transform.position;
 
         ISave[] saves = GameObject
-            .FindObjectsOfType<MonoBehaviour>(true)
+            .FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
             .OfType<ISave>()
             .ToArray();
 
@@ -58,7 +58,7 @@ public static class SaveManager
         TileMapMaster.Instance.MapType = saveData.mapType;
 
         ISave[] saves = GameObject
-            .FindObjectsOfType<MonoBehaviour>(true)
+            .FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
             .OfType<ISave>()
             .ToArray();
 
@@ -69,7 +69,7 @@ public static class SaveManager
     public static void LoadBase(SaveData saveData)
     {
         ISave[] saves = GameObject
-            .FindObjectsOfType<MonoBehaviour>(true)
+            .FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
             .OfType<ISave>()
             .ToArray();
 
@@ -81,7 +81,7 @@ public static class SaveManager
     public static void LoadOption(SaveData saveData)
     {
         ISave[] saves = GameObject
-            .FindObjectsOfType<MonoBehaviour>(true)
+            .FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
             .OfType<ISave>()
             .ToArray();
 
@@ -93,7 +93,7 @@ public static class SaveManager
     public static void LoadEtc(SaveData saveData)
     {
         ISave[] saves = GameObject
-            .FindObjectsOfType<MonoBehaviour>(true)
+            .FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID)
             .OfType<ISave>()
             .ToArray();
 

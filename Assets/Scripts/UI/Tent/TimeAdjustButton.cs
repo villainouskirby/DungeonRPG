@@ -18,7 +18,7 @@ public class TimeAdjustButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     private void Start()
     {
         if (_tentUI == null)
-            _tentUI = FindObjectOfType<TentUI>();
+            _tentUI = FindFirstObjectByType<TentUI>();
     }
 
     void Update()

@@ -25,10 +25,10 @@ public class NPCBase<T> : UIBase, ISave where T : UIBase
 
     private void OnDestroy()
     {
-        EventManager.Instance.QuestAllocateEvent.RemoveListener(AllocateQuest);
-        EventManager.Instance.QuestUnlockedEvent.RemoveListener(UnlockQuest);
-        EventManager.Instance.QuestClearEvent.RemoveListener(SetQuestClear);
-        EventManager.Instance.QuestCompleteEvent.RemoveListener(RemoveQuest);
+        EventManager.ExistingInstance?.QuestAllocateEvent.RemoveListener(AllocateQuest);
+        EventManager.ExistingInstance?.QuestUnlockedEvent.RemoveListener(UnlockQuest);
+        EventManager.ExistingInstance?.QuestClearEvent.RemoveListener(SetQuestClear);
+        EventManager.ExistingInstance?.QuestCompleteEvent.RemoveListener(RemoveQuest);
     }
 
     public void StartTalk()

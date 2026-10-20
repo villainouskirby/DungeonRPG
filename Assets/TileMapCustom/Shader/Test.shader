@@ -36,8 +36,9 @@ Shader "Tilemap/LitTilemap"
             Tags { "LightMode" = "Universal2D" }
 
             HLSLPROGRAM
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
 
+            #pragma target 4.5
             #pragma vertex CombinedShapeLightVertex
             #pragma fragment CombinedShapeLightFragment
 
@@ -69,8 +70,6 @@ Shader "Tilemap/LitTilemap"
                 #endif
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/LightingUtility.hlsl"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
@@ -122,29 +121,11 @@ Shader "Tilemap/LitTilemap"
 
             StructuredBuffer<float4> _WallDataPoolBuffer;
 
-            #if USE_SHAPE_LIGHT_TYPE_0
-            SHAPE_LIGHT(0)
-            #endif
-
-            #if USE_SHAPE_LIGHT_TYPE_1
-            SHAPE_LIGHT(1)
-            #endif
-
-            #if USE_SHAPE_LIGHT_TYPE_2
-            SHAPE_LIGHT(2)
-            #endif
-
-            #if USE_SHAPE_LIGHT_TYPE_3
-            SHAPE_LIGHT(3)
-            #endif
-
-
             int PosToIndex(int2 pos, int sizeX)
             {
                 // indexing [x, y] to Row Array
                 return mad(pos.y, sizeX, pos.x);
             }
-
 
             Varyings CombinedShapeLightVertex(Attributes v)
             {
@@ -167,7 +148,7 @@ Shader "Tilemap/LitTilemap"
                 float2 cameraCorrectWorldPos = float2(scaleX * v.positionOS.x, scaleY * v.positionOS.y) + _TileMapTargetCamera.xy;
                 o.worldPos = cameraCorrectWorldPos;
                 o.tilePos = cameraCorrectWorldPos / _TileSize;
-                o.playerTilePos = floor(_PlayerPos / _TileSize);
+                o.playerTilePos = floor(_PlayerPos.xy / _TileSize);
 
                 return o;
             }
@@ -189,7 +170,7 @@ Shader "Tilemap/LitTilemap"
                 int localChunkIndex = PosToIndex(localChunkPos, _ViewChunkSize);
                 int localChunkOffset = _MappingBuffer[localChunkIndex];
 
-                int2 posDistance = abs(_PlayerPos - i.worldPos);
+                int2 posDistance = abs(_PlayerPos.xy - i.worldPos);
                 int maxDistance = max(posDistance.x, posDistance.y);
                 
                 float validCoord = step(maxDistance, _ViewBoxSize);

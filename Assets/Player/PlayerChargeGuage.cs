@@ -80,14 +80,14 @@ public class PlayerChargeGuage : MonoBehaviour
     {
         if (target == null)
         {
-            var pc = FindObjectOfType<PlayerController>();
+            var pc = FindFirstObjectByType<PlayerController>();
             if (pc) target = pc.transform;
         }
         if (_attack == null)
         {
-            var pc = FindObjectOfType<PlayerController>();
+            var pc = FindFirstObjectByType<PlayerController>();
             if (pc) _attack = pc.GetComponent<AttackController>();
-            if (_attack == null) _attack = FindObjectOfType<AttackController>();
+            if (_attack == null) _attack = FindFirstObjectByType<AttackController>();
         }
     }
 

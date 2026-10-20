@@ -22,7 +22,7 @@ public class Quest : UIBase
 
     private void OnDestroy()
     {
-        EventManager.Instance.QuestCompleteEvent.RemoveListener(QuestClear);
+        EventManager.ExistingInstance?.QuestCompleteEvent.RemoveListener(QuestClear);
     }
 
     public void AddQuest(QuestInfo info)

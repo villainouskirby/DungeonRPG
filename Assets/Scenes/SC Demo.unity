@@ -18180,7 +18180,6 @@ GameObject:
   m_Component:
   - component: {fileID: 886090510}
   - component: {fileID: 886090512}
-  - component: {fileID: 886090511}
   m_Layer: 5
   m_Name: StaminaSlider
   m_TagString: Untagged
@@ -18211,22 +18210,6 @@ RectTransform:
   m_AnchoredPosition: {x: -450, y: 200}
   m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &886090511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886090509}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78fdc7bde2896fb4186d311c09ae3308, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StaminaSlider: {fileID: 886090512}
-  StaminaText: {fileID: 1408350806}
-  maxStamina: {fileID: 11400000, guid: fb96c9f1fc6cf0943921f0c12ef767b6, type: 2}
-  currentStamina: {fileID: 11400000, guid: 70fa28d0b71b2794e972a597db4337aa, type: 2}
 --- !u!114 &886090512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21435,7 +21418,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1106570575}
   - component: {fileID: 1106570577}
-  - component: {fileID: 1106570576}
   m_Layer: 5
   m_Name: HPSlider
   m_TagString: Untagged
@@ -21466,22 +21448,6 @@ RectTransform:
   m_AnchoredPosition: {x: -400, y: 250}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1106570576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1106570574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98ddc6b89e18a7b4e90414b0b415b493, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  HpSlider: {fileID: 1106570577}
-  HPText: {fileID: 512909991}
-  maxHP: {fileID: 11400000, guid: 301677ac4aa6d604c812e14f50d08f0e, type: 2}
-  currentHP: {fileID: 11400000, guid: e25990f3ef3e20a4e85bcbcdbf249453, type: 2}
 --- !u!114 &1106570577
 MonoBehaviour:
   m_ObjectHideFlags: 0

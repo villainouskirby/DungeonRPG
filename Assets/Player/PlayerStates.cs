@@ -244,7 +244,7 @@ public class GuardState : IPlayerState
         }
         SoundManager.Instance.PlaySound2D("SFX_PlayerGuardUp");
         Debug.Log("Guard ON");
-        if (pc) pc.rb.velocity = Vector2.zero;      // 즉시 정지
+        if (pc) pc.rb.linearVelocity = Vector2.zero;      // 즉시 정지
     }
 
     public void Update()
@@ -377,7 +377,7 @@ public sealed class StunState : IPlayerState
         finished = false;
         if (pc)
         {
-            pc.rb.velocity = Vector2.zero;
+            pc.rb.linearVelocity = Vector2.zero;
             pc.anim.Play("Stun"); // 스턴 전용 애니메이션 클립 있으면 여기
         }
     }
@@ -394,7 +394,7 @@ public sealed class StunState : IPlayerState
         else
         {
             // 매 프레임 이동 강제 정지
-            if (pc) pc.rb.velocity = Vector2.zero;
+            if (pc) pc.rb.linearVelocity = Vector2.zero;
         }
     }
     public void Exit()
@@ -634,7 +634,7 @@ public sealed class FarmingState : IPlayerState
         }
 
         // 움직임 정지(원하면 유지)
-        if (pc != null) pc.rb.velocity = Vector2.zero;
+        if (pc != null) pc.rb.linearVelocity = Vector2.zero;
 
         total = Mathf.Max(0.05f, pf.GetRequiredTime()); // 1f 기본
         remain = total;

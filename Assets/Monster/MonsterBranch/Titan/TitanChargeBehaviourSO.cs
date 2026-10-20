@@ -228,7 +228,9 @@ public class TitanDashSO : AttackBehaviourSO
         }
 
         // 자원 드롭 유도
-        int n = Physics2D.OverlapCircleNonAlloc(ctx.transform.position, hitRadius, _buf, hitMask);
+        var contactFilter = new ContactFilter2D { useTriggers = Physics2D.queriesHitTriggers };
+        contactFilter.SetLayerMask(hitMask);
+        int n = Physics2D.OverlapCircle(ctx.transform.position, hitRadius, contactFilter, _buf);
         for (int i = 0; i < n; i++)
         {
             var col = _buf[i];

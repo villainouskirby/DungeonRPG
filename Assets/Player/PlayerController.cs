@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         _isDropping = true;
 
         // 모든 이동 정지
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         attackController?.CancelAttackBufferOnEscape();
 
         // 바라보는 방향 Front 고정 + 낙하 애니메이션 재생
@@ -223,7 +223,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         _dropCo = null;
 
         // Idle 복귀
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         ChangeState(new IdleState(this));
     }
     #endregion
@@ -270,7 +270,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         if (prevDir != Vector2.zero && dir == Vector2.zero)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
         prevDir = dir;
     }
@@ -279,7 +279,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (UIPopUpHandler.Instance.IsUIOpen) { return; }
         if (_isDropping)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -287,13 +287,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
         if (stateMachine.GetCurrentState() is PotionConsumeState && raw == Vector2.zero)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
         
         if (_moveFreezeUntil > 0f && Time.time < _moveFreezeUntil)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
         if (EscapeActive) return;
@@ -305,7 +305,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (dir != Vector2.zero)
         {
             float finalSpeed = speed * weightSpeedMultiplier;
-            float curSpeed = rb.velocity.magnitude;
+            float curSpeed = rb.linearVelocity.magnitude;
             float nextSpeed = Mathf.MoveTowards(curSpeed, finalSpeed, accel * Time.fixedDeltaTime);
 
             Vector2 nextVel = dir.normalized * nextSpeed;
@@ -334,11 +334,11 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 }
             }
 
-            rb.velocity = nextVel;
+            rb.linearVelocity = nextVel;
         }
         else
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
         bool attackingAnim = attackController && attackController.IsInAttackAnimation;
         bool guarding = stateMachine.GetCurrentState() is GuardState;
@@ -353,10 +353,10 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
                 else
                     facingDir = hy > 0 ? 0 : 1;   // 0=Up,   1=Down
             }
-            else if (rb.velocity.sqrMagnitude > 0.0001f)
+            else if (rb.linearVelocity.sqrMagnitude > 0.0001f)
             {
                 // 키는 떼었지만 아직 관성으로 움직이고 있을 때
-                Vector2 v = rb.velocity;
+                Vector2 v = rb.linearVelocity;
                 if (Mathf.Abs(v.x) > Mathf.Abs(v.y))
                     facingDir = v.x < 0 ? 2 : 3;
                 else
@@ -365,7 +365,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         }
         sprite.flipX = facingDir == 2;
 
-        bool moving = rb.velocity.sqrMagnitude > 0.001f;
+        bool moving = rb.linearVelocity.sqrMagnitude > 0.001f;
 
         UpdateAnimation(moving);
     }
@@ -488,7 +488,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             { 0 => Vector2.up, 1 => Vector2.down, 2 => Vector2.left, _ => Vector2.right };
 
         SoundManager.Instance.PlaySound2D("SFX_PlayerEscapeSlap", 0f, false, SoundType.SFX);
-        rb.velocity = escDir.normalized * slideForce;
+        rb.linearVelocity = escDir.normalized * slideForce;
 
         attackController?.CancelAttackBufferOnEscape();
 
@@ -532,7 +532,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
 
             case EscapePhase.GetUp:
                 // 전진 감속
-                rb.velocity = Vector2.Lerp(escDir * getUpBoost, Vector2.zero,
+                rb.linearVelocity = Vector2.Lerp(escDir * getUpBoost, Vector2.zero,
                                            1f - phaseT / getUpTime);
                 if (phaseT <= 0f)
                 {
@@ -545,7 +545,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             Vector2 target = EscapeTargetVelocity();
             float accel = EscapeAccel();
 
-            rb.velocity = Vector2.MoveTowards(rb.velocity,
+            rb.linearVelocity = Vector2.MoveTowards(rb.linearVelocity,
                                               target,
                                               accel * Time.fixedDeltaTime);
         }
@@ -555,7 +555,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
     {
         escPhase = EscapePhase.Down;
         phaseT = proneTime;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
     }
 
     void StartGetUp()
@@ -586,13 +586,13 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
             };
         }
 
-        rb.velocity = escDir * getUpBoost;
+        rb.linearVelocity = escDir * getUpBoost;
     }
 
     void EndEscape()
     {
         escPhase = EscapePhase.None;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         isInvincible = false;
     }
     #endregion
@@ -617,7 +617,7 @@ public class PlayerController : MonoBehaviour, IPlayerChangeState
         if (!(stateMachine.GetCurrentState() is IdleState))
             ChangeState(new IdleState(this));
         stateLocked = true;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
     }
     // 방향키 이동 강제 정지용 메소드
     float inputDeadZone = 0.001f;

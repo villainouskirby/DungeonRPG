@@ -65,13 +65,13 @@ public class RushMob : MonoBehaviour
         canRush = false;
         RushStartPos = transform.position;
 
-        RushBeforeVelocity = rb.velocity;
+        RushBeforeVelocity = rb.linearVelocity;
 
         // 방향계산 넣어야함
         RushDirection = Vector2.zero;
         
 
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0;
 
         StartCoroutine(RushCoroutine(RushDirection));
@@ -81,7 +81,7 @@ public class RushMob : MonoBehaviour
         float RushBeforeDelayCounter = 0f;
         while (RushBeforeDelayCounter <= RushBeforeDelay)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             RushBeforeDelayCounter += Time.deltaTime;
             yield return null;
         }
@@ -109,7 +109,7 @@ public class RushMob : MonoBehaviour
             rb.MovePosition(newPosition);
 
         }
-        rb.velocity = RushBeforeVelocity;
+        rb.linearVelocity = RushBeforeVelocity;
         rb.gravityScale = 4;
 
         if (RushEndPos.y > RushStartPos.y)
